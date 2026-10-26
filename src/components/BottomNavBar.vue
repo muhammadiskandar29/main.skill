@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue';
-import { Home, Users, Calendar, Image as GalleryIcon, Gift, MessageSquareHeart } from 'lucide-vue-next';
+import { Home, Users, Calendar, Image as GalleryIcon, Gift, MessageSquareHeart } from '@lucide/vue';
 
 defineProps({
   activeNav: {

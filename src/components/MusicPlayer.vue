@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { Volume2, VolumeX, Music } from 'lucide-vue-next';
+import { Volume2, VolumeX, Music } from '@lucide/vue';
 
 const isPlaying = ref(false);
 const audioRef = ref(null);

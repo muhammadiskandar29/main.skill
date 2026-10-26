@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue';
-import { Calendar, Clock, MapPin, ExternalLink } from 'lucide-vue-next';
+import { Calendar, Clock, MapPin, ExternalLink } from '@lucide/vue';
 
 const props = defineProps({
   eventDate: {

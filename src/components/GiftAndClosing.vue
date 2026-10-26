@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { Gift, Copy, Check } from 'lucide-vue-next';
+import { Gift, Copy, Check } from '@lucide/vue';
 
 defineProps({
   bankAccounts: {

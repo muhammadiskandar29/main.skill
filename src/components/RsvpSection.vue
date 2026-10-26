@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { Send, CheckCircle2, MessageSquareHeart } from 'lucide-vue-next';
+import { Send, CheckCircle2, MessageSquareHeart } from '@lucide/vue';
 import confetti from 'canvas-confetti';
 
 const props = defineProps({

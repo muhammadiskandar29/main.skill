@@ -1,7 +1,7 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import QRCode from 'qrcode';
-import { X, Download, ShieldCheck } from 'lucide-vue-next';
+import { X, Download, ShieldCheck } from '@lucide/vue';
 
 const props = defineProps({
   guestName: {

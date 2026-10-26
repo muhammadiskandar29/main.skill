@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div class="app-container" :class="{ 'portal-mode': store.currentRole !== 'public' }">
     <!-- Master Header & Nav -->
     <HeaderNav @open-register="isRegisterOpen = true" />
 

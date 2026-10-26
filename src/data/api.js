@@ -311,3 +311,53 @@ export async function apiDeleteLocation(id) {
   return true;
 }
 
+// Payment Config & Bank Accounts CRUD
+export async function apiGetPaymentConfig() {
+  const res = await fetch(`${API_BASE}/payment-config`);
+  const json = await res.json();
+  return json.data;
+}
+
+export async function apiUpdatePaymentConfig(patch) {
+  const res = await fetch(`${API_BASE}/payment-config`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(patch)
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Gagal update konfigurasi pembayaran');
+  return json.data;
+}
+
+export async function apiAddBankAccount(bankData) {
+  const res = await fetch(`${API_BASE}/payment-config/banks`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(bankData)
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Gagal menambah rekening bank');
+  return json.data;
+}
+
+export async function apiUpdateBankAccount(id, patch) {
+  const res = await fetch(`${API_BASE}/payment-config/banks/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(patch)
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Gagal update rekening bank');
+  return json.data;
+}
+
+export async function apiDeleteBankAccount(id) {
+  const res = await fetch(`${API_BASE}/payment-config/banks/${id}`, {
+    method: 'DELETE'
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Gagal menghapus rekening bank');
+  return json;
+}
+
+

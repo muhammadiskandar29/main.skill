@@ -34,7 +34,12 @@ import {
   getAllLocations,
   createLocation,
   updateLocation,
-  deleteLocation
+  deleteLocation,
+  getPaymentConfig,
+  updatePaymentConfig,
+  addBankAccount,
+  updateBankAccount,
+  deleteBankAccount
 } from './neon-db.js';
 
 export async function parseJsonBody(req) {
@@ -349,6 +354,39 @@ export async function handleApiRequest(req, res) {
       if (method === 'DELETE') {
         await deleteLocation(id);
         return sendJson(res, 200, { success: true, message: 'Lokasi berhasil dihapus.' });
+      }
+    }
+
+    // 12. PAYMENT CONFIG & BANK ACCOUNTS CRUD
+    if (pathname === '/api/payment-config') {
+      if (method === 'GET') {
+        const config = await getPaymentConfig();
+        return sendJson(res, 200, { success: true, data: config });
+      }
+      if (method === 'PUT') {
+        const body = await parseJsonBody(req);
+        const updated = await updatePaymentConfig(body);
+        return sendJson(res, 200, { success: true, data: updated });
+      }
+    }
+
+    if (pathname === '/api/payment-config/banks' && method === 'POST') {
+      const body = await parseJsonBody(req);
+      const created = await addBankAccount(body);
+      return sendJson(res, 201, { success: true, data: created });
+    }
+
+    if (pathname.startsWith('/api/payment-config/banks/') && !pathname.endsWith('/')) {
+      const bankId = pathname.replace('/api/payment-config/banks/', '');
+      if (method === 'PUT') {
+        const body = await parseJsonBody(req);
+        const updated = await updateBankAccount(bankId, body);
+        if (!updated) return sendJson(res, 404, { success: false, message: 'Rekening bank tidak ditemukan.' });
+        return sendJson(res, 200, { success: true, data: updated });
+      }
+      if (method === 'DELETE') {
+        await deleteBankAccount(bankId);
+        return sendJson(res, 200, { success: true, message: 'Rekening bank berhasil dihapus.' });
       }
     }
 

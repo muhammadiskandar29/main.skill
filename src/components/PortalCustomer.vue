@@ -605,6 +605,43 @@
         </div>
       </div>
 
+      <!-- Rekening Transfer Bank Resmi (Dinamis dari Master Manajemen) -->
+      <div class="bank-transfer-option card-humanist" style="margin-top: 20px;">
+        <div style="margin-bottom: 14px;">
+          <h4 style="font-size: 15px; font-weight: 800; color: var(--color-primary-dark); margin-bottom: 4px;">
+            🏦 Alternatif Pembayaran: Transfer Rekening Resmi
+          </h4>
+          <p style="font-size: 13px; color: var(--text-muted);">
+            Bila tidak menggunakan QRIS, Ayah/Bunda dapat mentransfer biaya paket kursus ke salah satu rekening resmi yayasan berikut:
+          </p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px;">
+          <div 
+            v-for="bank in store.paymentConfig?.bankAccounts || []" 
+            :key="bank.id" 
+            style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px;"
+          >
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+              <strong style="font-size: 14px; color: var(--color-primary-dark);">{{ bank.bankName }}</strong>
+              <span class="badge-chip teal" style="font-size: 10px;">{{ bank.badge }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span class="font-mono" style="font-size: 18px; font-weight: 800; color: var(--color-primary); letter-spacing: 0.05em;">{{ bank.accountNumber }}</span>
+              <button 
+                @click="copyBankAcc(bank.accountNumber, bank.bankName)" 
+                class="btn-secondary" 
+                style="padding: 4px 10px; font-size: 11px;"
+                title="Salin No. Rekening"
+              >
+                {{ copiedBankId === bank.accountNumber ? '✓ Disalin' : 'Salin' }}
+              </button>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted);">a.n. {{ bank.accountHolder }}</div>
+          </div>
+        </div>
+      </div>
+
       <!-- QRIS Checkout Modal for Customer -->
       <div v-if="showCustomerQris" class="modal-backdrop" @click.self="showCustomerQris = false">
         <div class="modal-dialog" style="max-width: 440px; text-align: center;">
@@ -635,13 +672,13 @@
 
     <!-- MODAL: DETAIL STATION QUEST LEVEL -->
     <div v-if="isQuestModalOpen && selectedQuestLevel" class="modal-backdrop" @click.self="closeQuestModal">
-      <div class="modal-dialog modal-md">
+      <div class="modal-dialog modal-quest-dialog">
         <div class="modal-header">
-          <div>
+          <div class="modal-header-info">
             <span class="badge-chip gold">Milestone Capaian Kurikulum</span>
             <h3 class="modal-title">Level {{ selectedQuestLevel.levelNumber }}: {{ selectedQuestLevel.title }}</h3>
           </div>
-          <button class="btn-close" @click="closeQuestModal">✕</button>
+          <button class="btn-close" @click="closeQuestModal" title="Tutup">✕</button>
         </div>
 
         <div class="modal-body">
@@ -651,7 +688,7 @@
               <span v-else-if="currentStudentLevel === selectedQuestLevel.levelNumber">⭐</span>
               <span v-else>🔒</span>
             </div>
-            <div>
+            <div class="quest-hero-meta">
               <h4 class="quest-hero-title">{{ selectedQuestLevel.title }}</h4>
               <span class="badge-chip" :class="currentStudentLevel > selectedQuestLevel.levelNumber ? 'green' : (currentStudentLevel === selectedQuestLevel.levelNumber ? 'gold' : 'teal')">
                 {{ currentStudentLevel > selectedQuestLevel.levelNumber ? '✓ Lulus & Memperoleh Sertifikat' : (currentStudentLevel === selectedQuestLevel.levelNumber ? 'Sedang Ditempuh (Sesi Aktif)' : 'Terkunci (Level Berikutnya)') }}
@@ -659,22 +696,25 @@
             </div>
           </div>
 
-          <div class="quest-modal-info-box card-humanist" style="margin-top: 16px;">
-            <div class="q-info-row">
-              <strong>Fokus Pembelajaran:</strong>
-              <p>{{ selectedQuestLevel.focus }}</p>
+          <div class="quest-modal-details card-humanist">
+            <div class="q-detail-block">
+              <span class="q-detail-label">FOKUS PEMBELAJARAN:</span>
+              <p class="q-detail-value">{{ selectedQuestLevel.focus }}</p>
             </div>
 
-            <div class="q-info-row" style="margin-top: 12px;">
-              <strong>Tantangan Kelulusan (Challenge):</strong>
+            <div class="q-detail-block">
+              <span class="q-detail-label">TANTANGAN KELULUSAN (CHALLENGE):</span>
               <div class="challenge-highlight-box">
-                <span>🎯 {{ selectedQuestLevel.challenge }}</span>
+                <span class="challenge-icon">🎯</span>
+                <span class="challenge-text">{{ selectedQuestLevel.challenge }}</span>
               </div>
             </div>
 
-            <div class="q-info-row" style="margin-top: 12px;" v-if="currentStudentLevel > selectedQuestLevel.levelNumber">
-              <strong>Catatan Pelatih:</strong>
-              <p class="text-green">"Ananda telah lulus tantangan ini dengan percaya diri dan teknik yang sangat rapi."</p>
+            <div class="q-detail-block" v-if="currentStudentLevel > selectedQuestLevel.levelNumber">
+              <span class="q-detail-label">CATATAN EVALUASI PELATIH:</span>
+              <div class="coach-congrats-box">
+                <p class="coach-congrats-text">"Ananda telah lulus tantangan ini dengan percaya diri, postur streamline yang baik, dan penguasaan teknik yang matang."</p>
+              </div>
             </div>
           </div>
         </div>
@@ -705,6 +745,17 @@ defineEmits(['change-menu']);
 const showCustomerQris = ref(false);
 const qrisPayAmount = ref(500000);
 const custQrisDataUrl = ref('');
+const copiedBankId = ref('');
+
+function copyBankAcc(accNum, bankName) {
+  if (navigator?.clipboard?.writeText) {
+    navigator.clipboard.writeText(accNum);
+  }
+  copiedBankId.value = accNum;
+  setTimeout(() => {
+    if (copiedBankId.value === accNum) copiedBankId.value = '';
+  }, 2000);
+}
 
 async function openQrisModal(amount = 500000) {
   qrisPayAmount.value = amount;
@@ -2117,43 +2168,108 @@ function printReport() {
 }
 
 /* Quest Modal Detail */
+.modal-quest-dialog {
+  max-width: 520px;
+}
+
 .quest-modal-hero {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 14px 18px;
-  background: #f8fafc;
-  border-radius: var(--radius-md);
-  border: 1px solid #e2e8f0;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #f0fdfa 0%, #e8f4f7 100%);
+  border-radius: var(--radius-lg);
+  border: 1px solid #ccfbf1;
+  margin-bottom: 20px;
 }
 
 .quest-badge-big {
-  font-size: 36px;
+  font-size: 38px;
+  width: 54px;
+  height: 54px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(13, 77, 93, 0.08);
+  flex-shrink: 0;
+}
+
+.quest-hero-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .quest-hero-title {
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 800;
   color: var(--color-primary-dark);
-  margin-bottom: 4px;
+  line-height: 1.25;
 }
 
-.q-info-row strong {
-  display: block;
-  font-size: 12px;
+.quest-modal-details {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-subtle);
+}
+
+.q-detail-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.q-detail-label {
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
   color: var(--text-subtle);
   text-transform: uppercase;
-  margin-bottom: 4px;
+}
+
+.q-detail-value {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text-main);
+  line-height: 1.5;
 }
 
 .challenge-highlight-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   background: #fefce8;
-  border: 1px solid #fef08a;
-  padding: 10px 14px;
-  border-radius: var(--radius-sm);
+  border: 1.5px solid #fef08a;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
   color: #854d0e;
   font-weight: 700;
+  font-size: 14px;
+}
+
+.challenge-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.coach-congrats-box {
+  background: #f0fdf4;
+  border-left: 3px solid #22c55e;
+  padding: 10px 14px;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+}
+
+.coach-congrats-text {
   font-size: 13px;
+  color: #15803d;
+  font-style: italic;
+  line-height: 1.45;
 }
 
 @media (max-width: 900px) {

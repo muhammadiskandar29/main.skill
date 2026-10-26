@@ -1059,8 +1059,110 @@ export async function verifyCoachAttendance(id) {
   return record;
 }
 
+// -------------------------------------------------------------
+// Payment Config (QRIS Master & Bank Accounts) CRUD
+// -------------------------------------------------------------
+let inMemoryPaymentConfig = {
+  rawQrisStatic: DEFAULT_RAW_QRIS,
+  merchantName: 'MINE.SKILLS INDONESIA',
+  merchantCity: 'JAKARTA',
+  nmid: 'ID1020038847291',
+  bankAccounts: [
+    {
+      id: 'bca',
+      bankName: 'Bank Central Asia (BCA)',
+      accountNumber: '8420991823',
+      accountHolder: 'YAYASAN MINE SKILLS INDONESIA',
+      badge: 'Verifikasi Otomatis'
+    },
+    {
+      id: 'mandiri',
+      bankName: 'Bank Mandiri',
+      accountNumber: '1560019283741',
+      accountHolder: 'MINE SKILLS ACADEMY',
+      badge: 'Cek Manual'
+    }
+  ]
+};
+
+async function ensureAppSettingsTable() {
+  const sql = getSql();
+  if (sql) {
+    try {
+      await sql.query(`
+        CREATE TABLE IF NOT EXISTS app_settings (
+          id VARCHAR(100) PRIMARY KEY,
+          data JSONB NOT NULL,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+      `);
+    } catch (e) {
+      console.warn('[DB] ensureAppSettingsTable error:', e.message);
+    }
+  }
+}
+
+export async function getPaymentConfig() {
+  await ensureAppSettingsTable();
+  const cfg = await getById('app_settings', 'payment_config');
+  if (cfg) {
+    inMemoryPaymentConfig = cfg;
+    return cfg;
+  }
+  return inMemoryPaymentConfig;
+}
+
+export async function updatePaymentConfig(patch) {
+  await ensureAppSettingsTable();
+  const current = await getPaymentConfig();
+  const updated = {
+    ...current,
+    ...patch,
+    merchantName: patch.merchantName !== undefined ? patch.merchantName : current.merchantName,
+    merchantCity: patch.merchantCity !== undefined ? patch.merchantCity : current.merchantCity,
+    nmid: patch.nmid !== undefined ? patch.nmid : current.nmid,
+    rawQrisStatic: patch.rawQrisStatic !== undefined ? patch.rawQrisStatic : current.rawQrisStatic,
+    bankAccounts: Array.isArray(patch.bankAccounts) ? patch.bankAccounts : current.bankAccounts
+  };
+  inMemoryPaymentConfig = updated;
+  await upsertRecord('app_settings', 'payment_config', updated);
+  return updated;
+}
+
+export async function addBankAccount(bankData) {
+  const current = await getPaymentConfig();
+  const newBank = {
+    id: `bank_${Date.now()}`,
+    bankName: bankData.bankName || 'Bank Baru',
+    accountNumber: bankData.accountNumber || '',
+    accountHolder: bankData.accountHolder || 'YAYASAN MINE SKILLS INDONESIA',
+    badge: bankData.badge || 'Verifikasi Otomatis'
+  };
+  const updatedBanks = [...(current.bankAccounts || []), newBank];
+  await updatePaymentConfig({ bankAccounts: updatedBanks });
+  return newBank;
+}
+
+export async function updateBankAccount(id, patch) {
+  const current = await getPaymentConfig();
+  const banks = [...(current.bankAccounts || [])];
+  const idx = banks.findIndex(b => b.id === id);
+  if (idx === -1) return null;
+  banks[idx] = { ...banks[idx], ...patch, id };
+  await updatePaymentConfig({ bankAccounts: banks });
+  return banks[idx];
+}
+
+export async function deleteBankAccount(id) {
+  const current = await getPaymentConfig();
+  const updatedBanks = (current.bankAccounts || []).filter(b => b.id !== id);
+  await updatePaymentConfig({ bankAccounts: updatedBanks });
+  return { success: true, id };
+}
+
 export async function getBootstrapData() {
-  const [products, coaches, packages, students, transactions, users, locations, coachAttendances] = await Promise.all([
+  const [products, coaches, packages, students, transactions, users, locations, coachAttendances, paymentConfig] = await Promise.all([
     getAllProducts(),
     getAllCoaches(),
     getAllPackages(),
@@ -1068,7 +1170,8 @@ export async function getBootstrapData() {
     getAllTransactions(),
     getAllUsers(),
     getAllLocations(),
-    getAllCoachAttendances()
+    getAllCoachAttendances(),
+    getPaymentConfig()
   ]);
 
   return {
@@ -1079,6 +1182,7 @@ export async function getBootstrapData() {
     transactions,
     users,
     locations,
-    coachAttendances
+    coachAttendances,
+    paymentConfig
   };
 }

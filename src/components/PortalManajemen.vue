@@ -1260,82 +1260,203 @@
         </table>
       </div>
 
-      <!-- Subtab B: QRIS Dynamic Generator -->
-      <div v-else-if="paymentSubTab === 'qris_generator'" class="card-humanist qris-generator-card">
-        <div class="qris-grid">
-          <div class="qris-form-side">
-            <h4 class="form-sec-title">Generator QRIS Dinamis (EMVCo & ASPI)</h4>
-            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
-              Mengonversi QRIS statis yayasan menjadi QRIS dinamis dengan nominal tagihan dan checksum CRC16 resmi.
-            </p>
-
-            <div class="form-group">
-              <label class="form-label">Pilih Paket Tagihan Cepat</label>
-              <select v-model="selectedQrisNominal" @change="generateQrisPreview" class="form-select">
-                <option :value="400000">Group Class — Rp 400.000</option>
-                <option :value="500000">Small Group — Rp 500.000</option>
-                <option :value="700000">Private Class — Rp 700.000</option>
-                <option :value="350000">Reguler Tari — Rp 350.000</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label class="form-label">Atau Masukkan Nominal Bebas (Rp)</label>
-              <input 
-                v-model.number="customQrisAmount" 
-                @input="generateQrisPreview" 
-                type="number" 
-                class="form-input" 
-                placeholder="Contoh: 500000" 
-              />
-            </div>
-
-            <div class="qris-meta-box">
-              <div class="box-row">
-                <span>Nama Merchant:</span>
-                <strong>{{ store.paymentConfig.merchantName }}</strong>
+      <!-- Subtab B: QRIS Dynamic Generator (Dynamic Master ASPI/EMVCo) -->
+      <div v-else-if="paymentSubTab === 'qris_generator'" class="qris-tab-wrapper">
+        <!-- Master Config Bar & Editor -->
+        <div class="card-humanist" style="margin-bottom: 20px; padding: 20px 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap;">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="badge-chip gold">ASPI / EMVCo Standard</span>
+                <span class="badge-chip teal">QRIS Dinamis Otomatis</span>
               </div>
-              <div class="box-row">
-                <span>NMID:</span>
-                <span class="font-mono">{{ store.paymentConfig.nmid }}</span>
-              </div>
+              <h3 style="font-size: 18px; font-weight: 800; color: var(--color-primary-dark); margin: 6px 0 4px;">
+                Master Generator QRIS Dinamis
+              </h3>
+              <p style="font-size: 13px; color: var(--text-muted); margin: 0;">
+                Mengonversi QRIS statis yayasan menjadi QRIS dinamis berstandar nasional ASPI & EMVCo dengan kalkulasi nominal real-time dan checksum CRC16.
+              </p>
+            </div>
+            <div>
+              <button 
+                v-if="!isEditingQrisMaster" 
+                @click="startEditQrisMaster" 
+                class="btn-secondary"
+                style="display: inline-flex; align-items: center; gap: 6px;"
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 20h9"></path>
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                </svg>
+                <span>Edit Konfigurasi Master QRIS</span>
+              </button>
             </div>
           </div>
 
-          <div class="qris-preview-side">
-            <div class="qris-display-frame">
-              <div class="qris-header-logo">
-                <span class="qris-txt">QRIS</span>
-                <span class="qris-sub">PEMBAYARAN DIGITAL RESMI</span>
+          <!-- Master QRIS Configuration Form (Inline/Expandable) -->
+          <div v-if="isEditingQrisMaster" style="margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--border-subtle);">
+            <h4 style="font-size: 15px; font-weight: 800; color: var(--color-primary-dark); margin-bottom: 12px;">
+              ⚙️ Pengaturan Master QRIS (EMVCo Tag 26/51 & ASPI)
+            </h4>
+            
+            <div class="form-grid" style="margin-bottom: 14px;">
+              <div class="form-group">
+                <label class="form-label">Nama Merchant (Tag 59) *</label>
+                <input v-model="qrisMasterForm.merchantName" type="text" class="form-input" placeholder="Contoh: MINE.SKILLS INDONESIA" />
               </div>
-              
-              <div class="qr-canvas-box">
-                <img v-if="qrCodeDataUrl" :src="qrCodeDataUrl" alt="QRIS Dinamis" class="qr-img" />
-                <div v-else class="qr-loading">Menyiapkan QR...</div>
+              <div class="form-group">
+                <label class="form-label">Kota Merchant (Tag 60) *</label>
+                <input v-model="qrisMasterForm.merchantCity" type="text" class="form-input" placeholder="Contoh: JAKARTA" />
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 14px;">
+              <label class="form-label">NMID (National Merchant Identifier)</label>
+              <input v-model="qrisMasterForm.nmid" type="text" class="form-input font-mono" placeholder="Contoh: ID1020038847291" />
+            </div>
+
+            <div class="form-group" style="margin-bottom: 16px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <label class="form-label" style="margin: 0;">String Payload QRIS Statis EMVCo Resmi *</label>
+                <button @click="resetQrisToDefault" type="button" class="btn-text" style="font-size: 11px; color: var(--color-accent-gold-dark);">
+                  🔄 Muat Default ASPI
+                </button>
+              </div>
+              <textarea 
+                v-model="qrisMasterForm.rawQrisStatic" 
+                rows="3" 
+                class="form-input font-mono" 
+                style="font-size: 12px; line-height: 1.4; resize: vertical;"
+                placeholder="Masukkan string payload QRIS statis 00020101..."
+              ></textarea>
+              <span style="font-size: 11px; color: var(--text-subtle);">
+                * String ini diperoleh saat pendaftaran QRIS ke Bank/Penyedia Jasa Pembayaran (PJP) berlisensi Bank Indonesia.
+              </span>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+              <button @click="cancelEditQrisMaster" class="btn-secondary">Batal</button>
+              <button @click="saveQrisMaster" class="btn-primary">
+                💾 Simpan Konfigurasi Master QRIS
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Generator & Simulator Card -->
+        <div class="card-humanist qris-generator-card">
+          <div class="qris-grid">
+            <div class="qris-form-side">
+              <h4 class="form-sec-title">Simulator & Preview QRIS Dinamis</h4>
+              <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+                Pilih nominal paket latihan atau ketik nominal bebas untuk menguji generator QR dinamis secara instan.
+              </p>
+
+              <div class="form-group">
+                <label class="form-label">Pilih Paket Tagihan Cepat</label>
+                <select v-model="selectedQrisNominal" @change="generateQrisPreview" class="form-select">
+                  <option :value="400000">Group Class — Rp 400.000</option>
+                  <option :value="500000">Small Group — Rp 500.000</option>
+                  <option :value="700000">Private Class — Rp 700.000</option>
+                  <option :value="350000">Reguler Tari — Rp 350.000</option>
+                </select>
               </div>
 
-              <div class="qris-nominal-box">
-                <span class="lbl">Total Tagihan:</span>
-                <strong class="nominal-val">Rp {{ activeQrisAmount.toLocaleString('id-ID') }}</strong>
+              <div class="form-group">
+                <label class="form-label">Atau Masukkan Nominal Bebas (Rp)</label>
+                <input 
+                  v-model.number="customQrisAmount" 
+                  @input="generateQrisPreview" 
+                  type="number" 
+                  class="form-input" 
+                  placeholder="Contoh: 500000" 
+                />
               </div>
 
-              <div class="qris-footer-notes">
-                <span>Scan menggunakan BCA Mobile, Mandiri Livin, GoPay, OVO, Dana, atau ShopeePay.</span>
+              <div class="qris-meta-box">
+                <div class="box-row">
+                  <span>Nama Merchant:</span>
+                  <strong>{{ store.paymentConfig?.merchantName }}</strong>
+                </div>
+                <div class="box-row">
+                  <span>Kota Merchant:</span>
+                  <span>{{ store.paymentConfig?.merchantCity || 'JAKARTA' }}</span>
+                </div>
+                <div class="box-row">
+                  <span>NMID:</span>
+                  <span class="font-mono">{{ store.paymentConfig?.nmid }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="qris-preview-side">
+              <div class="qris-display-frame">
+                <div class="qris-header-logo">
+                  <span class="qris-txt">QRIS</span>
+                  <span class="qris-sub">PEMBAYARAN DIGITAL RESMI</span>
+                </div>
+                
+                <div class="qr-canvas-box">
+                  <img v-if="qrCodeDataUrl" :src="qrCodeDataUrl" alt="QRIS Dinamis" class="qr-img" />
+                  <div v-else class="qr-loading">Menyiapkan QR...</div>
+                </div>
+
+                <div class="qris-nominal-box">
+                  <span class="lbl">Total Tagihan:</span>
+                  <strong class="nominal-val">Rp {{ activeQrisAmount.toLocaleString('id-ID') }}</strong>
+                </div>
+
+                <div class="qris-footer-notes">
+                  <span>Scan menggunakan BCA Mobile, Mandiri Livin, GoPay, OVO, Dana, atau ShopeePay.</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Subtab C: Bank Accounts -->
-      <div v-else-if="paymentSubTab === 'bank_accounts'" class="bank-accounts-grid">
-        <div v-for="bank in store.paymentConfig.bankAccounts" :key="bank.id" class="bank-card card-humanist">
-          <div class="bank-head">
-            <h4 class="bank-title">{{ bank.bankName }}</h4>
-            <span class="badge-chip teal">{{ bank.badge }}</span>
+      <!-- Subtab C: Bank Accounts (Full CRUD) -->
+      <div v-else-if="paymentSubTab === 'bank_accounts'" class="bank-accounts-wrap">
+        <div class="card-humanist" style="margin-bottom: 20px; padding: 20px 24px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+            <div>
+              <span class="badge-chip teal">Master Rekening Yayasan</span>
+              <h3 style="font-size: 18px; font-weight: 800; color: var(--color-primary-dark); margin: 6px 0 4px;">
+                Daftar Rekening Transfer Bank Resmi
+              </h3>
+              <p style="font-size: 13px; color: var(--text-muted); margin: 0;">
+                Kelola rekening resmi tujuan pembayaran pendaftaran & paket kursus. Rekening ini otomatis tampil di menu billing orang tua siswa.
+              </p>
+            </div>
+            <button @click="openAddBankModal" class="btn-primary" style="display: inline-flex; align-items: center; gap: 6px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              <span>Tambah Rekening Baru</span>
+            </button>
           </div>
-          <div class="bank-num font-mono">{{ bank.accountNumber }}</div>
-          <div class="bank-holder">a.n. {{ bank.accountHolder }}</div>
+        </div>
+
+        <div class="bank-accounts-grid">
+          <div v-for="bank in store.paymentConfig?.bankAccounts || []" :key="bank.id" class="bank-card card-humanist">
+            <div class="bank-head">
+              <h4 class="bank-title">{{ bank.bankName }}</h4>
+              <span class="badge-chip teal">{{ bank.badge }}</span>
+            </div>
+            <div class="bank-num font-mono">{{ bank.accountNumber }}</div>
+            <div class="bank-holder">a.n. {{ bank.accountHolder }}</div>
+
+            <!-- Card Actions -->
+            <div class="bank-card-actions">
+              <button @click="openEditBankModal(bank)" class="btn-secondary btn-xs" title="Edit Rekening">
+                ✏️ Edit
+              </button>
+              <button @click="confirmDeleteBank(bank)" class="btn-danger-xs" title="Hapus Rekening">
+                🗑️ Hapus
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -2283,11 +2404,77 @@
         </form>
       </div>
     </div>
+
+    <!-- 8. MODAL: TAMBAH / EDIT REKENING BANK (CRUD) -->
+    <div v-if="showBankModal" class="modal-backdrop" @click.self="showBankModal = false">
+      <div class="modal-dialog modal-md">
+        <div class="modal-header">
+          <div class="modal-header-info">
+            <span class="badge-chip teal">Keuangan & Billing</span>
+            <h3 class="modal-title">{{ bankModalMode === 'create' ? 'Tambah Rekening Bank Baru' : 'Edit Rekening Bank' }}</h3>
+          </div>
+          <button class="btn-close" @click="showBankModal = false">✕</button>
+        </div>
+
+        <form @submit.prevent="saveBankAccount">
+          <div class="modal-body">
+            <!-- Preset Bank Quick Buttons -->
+            <div class="form-group" style="margin-bottom: 16px;">
+              <label class="form-label">Pilihan Cepat Bank Populer</label>
+              <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px;">
+                <button 
+                  v-for="bname in bankPresets" 
+                  :key="bname"
+                  type="button"
+                  @click="selectBankPreset(bname)"
+                  class="preset-bank-chip"
+                  :class="{ active: bankForm.bankName === bname }"
+                >
+                  {{ bname.replace(/Bank | \(.*\)/g, '') }}
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 14px;">
+              <label class="form-label">Nama Bank Lengkap *</label>
+              <input v-model="bankForm.bankName" type="text" class="form-input" placeholder="Contoh: Bank Central Asia (BCA)" required />
+            </div>
+
+            <div class="form-group" style="margin-bottom: 14px;">
+              <label class="form-label">Nomor Rekening *</label>
+              <input v-model="bankForm.accountNumber" type="text" class="form-input font-mono" placeholder="Contoh: 8420991823" required />
+            </div>
+
+            <div class="form-group" style="margin-bottom: 14px;">
+              <label class="form-label">Atas Nama (Pemilik Rekening) *</label>
+              <input v-model="bankForm.accountHolder" type="text" class="form-input" placeholder="Contoh: YAYASAN MINE SKILLS INDONESIA" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Status & Label Rekening</label>
+              <select v-model="bankForm.badge" class="form-select">
+                <option value="Verifikasi Otomatis">Verifikasi Otomatis</option>
+                <option value="Rekening Utama">Rekening Utama</option>
+                <option value="Cek Manual Admin">Cek Manual Admin</option>
+                <option value="Rekening Operasional">Rekening Operasional</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" @click="showBankModal = false" class="btn-secondary">Batal</button>
+            <button type="submit" class="btn-primary">
+              {{ bankModalMode === 'create' ? 'Simpan Rekening Baru' : 'Perbarui Rekening' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted } from 'vue';
 import { store, actions } from '../data/store.js';
 import QRCode from 'qrcode';
 import { convertQRIS } from '../utils/qris.js';
@@ -3243,12 +3430,141 @@ function cleanPhone(num) {
 }
 
 // -------------------------------------------------------------
-// PAYMENTS & QRIS ASPI
+// PAYMENTS & QRIS ASPI & BANK ACCOUNTS CRUD
 // -------------------------------------------------------------
 const paymentSubTab = ref('invoices');
 const selectedQrisNominal = ref(500000);
 const customQrisAmount = ref(null);
 const qrCodeDataUrl = ref('');
+
+const isEditingQrisMaster = ref(false);
+const qrisMasterForm = reactive({
+  merchantName: '',
+  merchantCity: '',
+  nmid: '',
+  rawQrisStatic: ''
+});
+
+function initQrisMasterForm() {
+  qrisMasterForm.merchantName = store.paymentConfig?.merchantName || 'MINE.SKILLS INDONESIA';
+  qrisMasterForm.merchantCity = store.paymentConfig?.merchantCity || 'JAKARTA';
+  qrisMasterForm.nmid = store.paymentConfig?.nmid || 'ID1020038847291';
+  qrisMasterForm.rawQrisStatic = store.paymentConfig?.rawQrisStatic || '00020101021126650014ID.GO.IDR.WWW011893600998000001234502150001234567890120303UMI51660014ID.LINKAJA.WWW011893600821000001234502150001234567890120303UMI5204581253033605802ID5914MINE.SKILLS ID6007JAKARTA61051234063040ADB';
+}
+
+function startEditQrisMaster() {
+  initQrisMasterForm();
+  isEditingQrisMaster.value = true;
+}
+
+function cancelEditQrisMaster() {
+  isEditingQrisMaster.value = false;
+}
+
+async function saveQrisMaster() {
+  if (!qrisMasterForm.merchantName.trim()) {
+    alert('Nama merchant tidak boleh kosong!');
+    return;
+  }
+  if (!qrisMasterForm.rawQrisStatic.trim()) {
+    alert('String payload QRIS Statis tidak boleh kosong!');
+    return;
+  }
+  await actions.updatePaymentConfig({
+    merchantName: qrisMasterForm.merchantName,
+    merchantCity: qrisMasterForm.merchantCity,
+    nmid: qrisMasterForm.nmid,
+    rawQrisStatic: qrisMasterForm.rawQrisStatic
+  });
+  isEditingQrisMaster.value = false;
+  await generateQrisPreview();
+  showNotice('Konfigurasi Master QRIS ASPI/EMVCo berhasil disimpan!');
+}
+
+function resetQrisToDefault() {
+  qrisMasterForm.merchantName = 'MINE.SKILLS INDONESIA';
+  qrisMasterForm.merchantCity = 'JAKARTA';
+  qrisMasterForm.nmid = 'ID1020038847291';
+  qrisMasterForm.rawQrisStatic = '00020101021126650014ID.GO.IDR.WWW011893600998000001234502150001234567890120303UMI51660014ID.LINKAJA.WWW011893600821000001234502150001234567890120303UMI5204581253033605802ID5914MINE.SKILLS ID6007JAKARTA61051234063040ADB';
+}
+
+// Bank Accounts CRUD
+const showBankModal = ref(false);
+const bankModalMode = ref('create'); // 'create' | 'edit'
+const bankForm = reactive({
+  id: '',
+  bankName: 'Bank Central Asia (BCA)',
+  accountNumber: '',
+  accountHolder: 'YAYASAN MINE SKILLS INDONESIA',
+  badge: 'Verifikasi Otomatis'
+});
+
+const bankPresets = [
+  'Bank Central Asia (BCA)',
+  'Bank Mandiri',
+  'Bank Rakyat Indonesia (BRI)',
+  'Bank Negara Indonesia (BNI)',
+  'Bank Syariah Indonesia (BSI)',
+  'Bank CIMB Niaga',
+  'Bank Permata',
+  'Bank Jago'
+];
+
+function selectBankPreset(name) {
+  bankForm.bankName = name;
+}
+
+function openAddBankModal() {
+  bankModalMode.value = 'create';
+  bankForm.id = '';
+  bankForm.bankName = 'Bank Central Asia (BCA)';
+  bankForm.accountNumber = '';
+  bankForm.accountHolder = 'YAYASAN MINE SKILLS INDONESIA';
+  bankForm.badge = 'Verifikasi Otomatis';
+  showBankModal.value = true;
+}
+
+function openEditBankModal(bank) {
+  bankModalMode.value = 'edit';
+  bankForm.id = bank.id;
+  bankForm.bankName = bank.bankName;
+  bankForm.accountNumber = bank.accountNumber;
+  bankForm.accountHolder = bank.accountHolder;
+  bankForm.badge = bank.badge || 'Verifikasi Otomatis';
+  showBankModal.value = true;
+}
+
+async function saveBankAccount() {
+  if (!bankForm.bankName.trim() || !bankForm.accountNumber.trim()) {
+    alert('Nama Bank dan Nomor Rekening wajib diisi!');
+    return;
+  }
+  if (bankModalMode.value === 'create') {
+    await actions.addBankAccount({
+      bankName: bankForm.bankName,
+      accountNumber: bankForm.accountNumber,
+      accountHolder: bankForm.accountHolder,
+      badge: bankForm.badge
+    });
+    showNotice(`Rekening ${bankForm.bankName} berhasil ditambahkan!`);
+  } else {
+    await actions.updateBankAccount(bankForm.id, {
+      bankName: bankForm.bankName,
+      accountNumber: bankForm.accountNumber,
+      accountHolder: bankForm.accountHolder,
+      badge: bankForm.badge
+    });
+    showNotice(`Rekening ${bankForm.bankName} berhasil diperbarui!`);
+  }
+  showBankModal.value = false;
+}
+
+async function confirmDeleteBank(bank) {
+  if (confirm(`Yakin ingin menghapus rekening ${bank.bankName} (${bank.accountNumber})? Rekening ini tidak akan muncul lagi di opsi transfer orang tua siswa.`)) {
+    await actions.deleteBankAccount(bank.id);
+    showNotice(`Rekening ${bank.bankName} berhasil dihapus.`);
+  }
+}
 
 const activeQrisAmount = computed(() => {
   return customQrisAmount.value || selectedQrisNominal.value || 500000;
@@ -3275,6 +3591,7 @@ async function handleVerifyPayment(invoiceId) {
 }
 
 onMounted(() => {
+  initQrisMasterForm();
   generateQrisPreview();
 });
 </script>
@@ -3964,6 +4281,55 @@ onMounted(() => {
 .bank-holder {
   font-size: 12px;
   color: var(--text-muted);
+}
+
+.bank-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.btn-danger-xs {
+  background: #fee2e2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-danger-xs:hover {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.preset-bank-chip {
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-subtle);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.preset-bank-chip:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.preset-bank-chip.active {
+  background: var(--color-primary);
+  color: #ffffff;
+  border-color: var(--color-primary);
 }
 
 /* Modals */

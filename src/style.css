@@ -359,15 +359,115 @@ button {
   width: 100%;
   max-width: 600px;
   max-height: 90vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   border: 1px solid var(--border-subtle);
+  animation: modalFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Portal Grid Layout - Fixed Viewport with Independent Scrolling */
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  flex-shrink: 0;
+}
+
+.modal-header-info {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.modal-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+  line-height: 1.3;
+}
+
+.modal-body {
+  padding: 22px 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 24px;
+  border-top: 1px solid var(--border-subtle);
+  background-color: #fafbfc;
+  flex-shrink: 0;
+}
+
+.btn-close {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background-color: var(--bg-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-subtle);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.btn-close:hover {
+  background-color: #fee2e2;
+  color: #dc2626;
+  transform: rotate(90deg);
+}
+
+/* Modal Sizes */
+.modal-sm { max-width: 440px; }
+.modal-md { max-width: 560px; }
+.modal-lg { max-width: 720px; }
+.modal-quest-dialog { max-width: 520px; }
+
+/* ==========================================================================
+   Portal Layout - Single Clean Scrollbar Architecture
+   ========================================================================== */
+.app-container.portal-mode {
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+}
+
+body:has(.portal-layout) {
+  overflow: hidden !important;
+  height: 100vh !important;
+}
+
 .portal-layout {
   display: flex;
-  height: calc(100vh - 105px);
-  max-height: calc(100vh - 105px);
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+  max-height: 100%;
   overflow: hidden;
   background-color: #f1f5f4;
 }
@@ -387,39 +487,53 @@ button {
 .portal-main {
   flex: 1;
   height: 100%;
+  min-height: 0;
   padding: 28px 36px;
   overflow-y: auto;
   background-color: #f7faf9;
 }
 
-/* Modern sleek scrollbars */
+/* Modern sleek single scrollbar */
 .portal-sidebar::-webkit-scrollbar,
 .portal-main::-webkit-scrollbar,
+.modal-body::-webkit-scrollbar,
 .modal-dialog::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
 
 .portal-sidebar::-webkit-scrollbar-track,
 .portal-main::-webkit-scrollbar-track,
+.modal-body::-webkit-scrollbar-track,
 .modal-dialog::-webkit-scrollbar-track {
   background: transparent;
 }
 
 .portal-sidebar::-webkit-scrollbar-thumb,
 .portal-main::-webkit-scrollbar-thumb,
+.modal-body::-webkit-scrollbar-thumb,
 .modal-dialog::-webkit-scrollbar-thumb {
-  background: rgba(13, 77, 93, 0.18);
+  background: rgba(13, 77, 93, 0.22);
   border-radius: var(--radius-full);
 }
 
 .portal-sidebar::-webkit-scrollbar-thumb:hover,
 .portal-main::-webkit-scrollbar-thumb:hover,
+.modal-body::-webkit-scrollbar-thumb:hover,
 .modal-dialog::-webkit-scrollbar-thumb:hover {
-  background: rgba(13, 77, 93, 0.35);
+  background: rgba(13, 77, 93, 0.42);
 }
 
 @media (max-width: 900px) {
+  .app-container.portal-mode {
+    height: auto;
+    max-height: none;
+    overflow: visible;
+  }
+  body:has(.portal-layout) {
+    overflow: auto !important;
+    height: auto !important;
+  }
   .portal-layout {
     flex-direction: column;
     height: auto;
@@ -438,3 +552,4 @@ button {
     height: auto;
   }
 }
+

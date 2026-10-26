@@ -26,7 +26,12 @@ import {
   apiGetLocations,
   apiCreateLocation,
   apiUpdateLocation,
-  apiDeleteLocation
+  apiDeleteLocation,
+  apiGetPaymentConfig,
+  apiUpdatePaymentConfig,
+  apiAddBankAccount,
+  apiUpdateBankAccount,
+  apiDeleteBankAccount
 } from './api.js';
 
 const STORAGE_KEY = 'mine_skills_auth_session_v3';
@@ -634,6 +639,12 @@ export const actions = {
         if (Array.isArray(data.coachAttendances) && data.coachAttendances.length > 0) {
           store.coachAttendances = data.coachAttendances;
         }
+        if (data.paymentConfig) {
+          store.paymentConfig = {
+            ...store.paymentConfig,
+            ...data.paymentConfig
+          };
+        }
 
         // Set default current user if role matches
         if (store.currentRole !== 'public' && !store.currentUser) {
@@ -978,6 +989,66 @@ export const actions = {
       matrix.allowedMenus.splice(idx, 1);
     } else {
       matrix.allowedMenus.push(menuKey);
+    }
+  },
+
+  // -------------------------------------------------------------
+  // Dynamic Payment & Bank Accounts CRUD
+  // -------------------------------------------------------------
+  async updatePaymentConfig(patch) {
+    try {
+      const updated = await apiUpdatePaymentConfig(patch);
+      store.paymentConfig = { ...store.paymentConfig, ...updated };
+      return updated;
+    } catch (err) {
+      store.paymentConfig = { ...store.paymentConfig, ...patch };
+      return store.paymentConfig;
+    }
+  },
+
+  async addBankAccount(bankData) {
+    try {
+      const created = await apiAddBankAccount(bankData);
+      if (!store.paymentConfig.bankAccounts) store.paymentConfig.bankAccounts = [];
+      const exists = store.paymentConfig.bankAccounts.find(b => b.id === created.id);
+      if (!exists) {
+        store.paymentConfig.bankAccounts.push(created);
+      } else {
+        Object.assign(exists, created);
+      }
+      return created;
+    } catch (err) {
+      const fallback = {
+        id: `bank_${Date.now()}`,
+        ...bankData
+      };
+      if (!store.paymentConfig.bankAccounts) store.paymentConfig.bankAccounts = [];
+      store.paymentConfig.bankAccounts.push(fallback);
+      return fallback;
+    }
+  },
+
+  async updateBankAccount(id, patch) {
+    try {
+      const updated = await apiUpdateBankAccount(id, patch);
+      const match = (store.paymentConfig.bankAccounts || []).find(b => b.id === id);
+      if (match) Object.assign(match, updated);
+      return updated;
+    } catch (err) {
+      const match = (store.paymentConfig.bankAccounts || []).find(b => b.id === id);
+      if (match) Object.assign(match, patch);
+      return match;
+    }
+  },
+
+  async deleteBankAccount(id) {
+    try {
+      await apiDeleteBankAccount(id);
+      store.paymentConfig.bankAccounts = (store.paymentConfig.bankAccounts || []).filter(b => b.id !== id);
+      return true;
+    } catch (err) {
+      store.paymentConfig.bankAccounts = (store.paymentConfig.bankAccounts || []).filter(b => b.id !== id);
+      return true;
     }
   }
 };

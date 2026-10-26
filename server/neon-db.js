@@ -167,6 +167,21 @@ export async function getAllProducts() {
 export async function createProduct(payload) {
   const id = payload.id || `prod_${Date.now()}`;
   
+  let formattedLevels = [
+    { levelNumber: 1, title: 'Dasar / Starter', focus: 'Pengenalan & Teori Dasar', challenge: 'Uji Teori & Praktik Awal' },
+    { levelNumber: 2, title: 'Praktik Menengah', focus: 'Penguasaan Teknik Inti', challenge: 'Simulasi Mandiri' },
+    { levelNumber: 3, title: 'Tingkat Mahir', focus: 'Evaluasi & Sertifikasi', challenge: 'Ujian Kelulusan' }
+  ];
+
+  if (Array.isArray(payload.levels) && payload.levels.length > 0) {
+    formattedLevels = payload.levels.map((lvl, idx) => ({
+      levelNumber: parseInt(lvl.levelNumber) || (idx + 1),
+      title: lvl.title?.trim() || `Level ${idx + 1}`,
+      focus: lvl.focus?.trim() || '',
+      challenge: lvl.challenge?.trim() || ''
+    }));
+  }
+
   const newProduct = {
     id,
     name: payload.name?.trim() || 'Produk Skill Baru',
@@ -177,11 +192,7 @@ export async function createProduct(payload) {
     heroImage: payload.heroImage || '/images/swimming-hero.jpg',
     isActive: payload.isActive !== false,
     featured: Boolean(payload.featured),
-    levels: Array.isArray(payload.levels) && payload.levels.length > 0 ? payload.levels : [
-      { levelNumber: 1, title: 'Dasar / Starter', focus: 'Pengenalan & Teori Dasar', challenge: 'Uji Teori & Praktik Awal' },
-      { levelNumber: 2, title: 'Praktik Menengah', focus: 'Penguasaan Teknik Inti', challenge: 'Simulasi Mandiri' },
-      { levelNumber: 3, title: 'Tingkat Mahir', focus: 'Evaluasi & Sertifikasi', challenge: 'Ujian Kelulusan' }
-    ],
+    levels: formattedLevels,
     created_at: new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
   };
 
@@ -209,6 +220,15 @@ export async function createProduct(payload) {
 export async function updateProduct(id, patch) {
   const existing = await getById('products', id);
   if (!existing) return null;
+
+  if (Array.isArray(patch.levels)) {
+    patch.levels = patch.levels.map((lvl, idx) => ({
+      levelNumber: parseInt(lvl.levelNumber) || (idx + 1),
+      title: lvl.title?.trim() || `Level ${idx + 1}`,
+      focus: lvl.focus?.trim() || '',
+      challenge: lvl.challenge?.trim() || ''
+    }));
+  }
 
   const updated = { ...existing, ...patch };
   await upsertRecord('products', id, updated);

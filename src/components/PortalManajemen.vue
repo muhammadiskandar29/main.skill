@@ -874,9 +874,9 @@
          ========================================================================= -->
     <!-- 1. MODAL TAMBAH & EDIT PROGRAM PELATIHAN -->
     <div v-if="showProductModal" class="modal-backdrop" @click.self="showProductModal = false">
-      <div class="modal-dialog">
+      <div class="modal-dialog modal-lg">
         <div class="modal-header">
-          <h3 class="modal-title">{{ isEditProduct ? 'Edit Program Pelatihan' : 'Tambah Program Pelatihan Baru' }}</h3>
+          <h3 class="modal-title">{{ isEditProduct ? 'Edit Program & Kurikulum' : 'Tambah Program Pelatihan Baru' }}</h3>
           <button class="btn-close" @click="showProductModal = false">✕</button>
         </div>
         <form @submit.prevent="handleSubmitProduct" class="modal-body">
@@ -911,6 +911,75 @@
           <div class="form-group">
             <label class="form-label">Deskripsi Singkat Program</label>
             <textarea v-model="productForm.shortDesc" class="form-textarea" rows="2" placeholder="Fokus kurikulum dan capaian..." required></textarea>
+          </div>
+
+          <!-- DYNAMIC CURRICULUM LEVELS SECTION -->
+          <div class="curriculum-edit-section">
+            <div class="curriculum-sec-header">
+              <div>
+                <label class="form-label font-bold mb-0">Kurikulum & Tahapan Capaian Level</label>
+                <div class="form-hint">Atur tahapan kurikulum berjenjang, fokus materi, dan tantangan kelulusan produk ini.</div>
+              </div>
+              <button type="button" @click="addCurriculumLevel" class="btn-primary-xs">
+                + Tambah Level
+              </button>
+            </div>
+
+            <div class="curriculum-levels-list">
+              <div 
+                v-for="(lvl, idx) in productForm.levels" 
+                :key="idx" 
+                class="curriculum-level-box"
+              >
+                <div class="curriculum-level-head">
+                  <div class="flex items-center gap-2">
+                    <span class="badge-chip gold">Level {{ lvl.levelNumber }}</span>
+                    <strong class="text-sm">{{ lvl.title || 'Judul Level' }}</strong>
+                  </div>
+                  <button 
+                    type="button" 
+                    @click="removeCurriculumLevel(idx)" 
+                    class="btn-danger-xs"
+                    title="Hapus level ini"
+                  >
+                    ✕ Hapus
+                  </button>
+                </div>
+
+                <div class="form-grid">
+                  <div class="form-group mb-2">
+                    <label class="form-label-xs">Nama / Gelar Level <span class="required">*</span></label>
+                    <input 
+                      v-model="lvl.title" 
+                      type="text" 
+                      class="form-input form-input-sm" 
+                      placeholder="Contoh: Water Explorer / Basic Parking" 
+                      required 
+                    />
+                  </div>
+                  <div class="form-group mb-2">
+                    <label class="form-label-xs">Tantangan Kelulusan</label>
+                    <input 
+                      v-model="lvl.challenge" 
+                      type="text" 
+                      class="form-input form-input-sm" 
+                      placeholder="Contoh: 5 Meter Freestyle Challenge" 
+                    />
+                  </div>
+                </div>
+
+                <div class="form-group mb-0">
+                  <label class="form-label-xs">Fokus Pembelajaran <span class="required">*</span></label>
+                  <textarea 
+                    v-model="lvl.focus" 
+                    class="form-textarea form-input-sm" 
+                    rows="2" 
+                    placeholder="Contoh: Water Confidence & Basic Freestyle..." 
+                    required
+                  ></textarea>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div class="modal-footer">
@@ -1567,7 +1636,10 @@ const productForm = ref({
   category: 'Olahraga & Ketangkasan',
   targetAge: 'Usia 5 - 15 Tahun',
   shortDesc: '',
-  heroImage: '/images/swimming-hero.jpg'
+  heroImage: '/images/swimming-hero.jpg',
+  levels: [
+    { levelNumber: 1, title: 'Level Dasar', focus: 'Pengenalan & Teori Dasar', challenge: 'Tantangan Dasar' }
+  ]
 });
 
 function openAddProductModal() {
@@ -1578,7 +1650,12 @@ function openAddProductModal() {
     category: 'Olahraga & Ketangkasan',
     targetAge: 'Usia 5 - 15 Tahun',
     shortDesc: '',
-    heroImage: '/images/swimming-hero.jpg'
+    heroImage: '/images/swimming-hero.jpg',
+    levels: [
+      { levelNumber: 1, title: 'Level 1: Dasar', focus: 'Pengenalan & Teori Dasar', challenge: 'Uji Teori & Praktik Awal' },
+      { levelNumber: 2, title: 'Level 2: Menengah', focus: 'Penguasaan Teknik Inti', challenge: 'Simulasi Mandiri' },
+      { levelNumber: 3, title: 'Level 3: Mahir', focus: 'Aplikasi & Sertifikasi', challenge: 'Ujian Kelulusan' }
+    ]
   };
   showProductModal.value = true;
 }
@@ -1586,14 +1663,42 @@ function openAddProductModal() {
 function openEditProductModal(prod) {
   isEditProduct.value = true;
   editingProductId.value = prod.id;
+  const initialLevels = Array.isArray(prod.levels) && prod.levels.length > 0
+    ? JSON.parse(JSON.stringify(prod.levels))
+    : [
+        { levelNumber: 1, title: 'Level 1', focus: '', challenge: '' }
+      ];
   productForm.value = {
     name: prod.name,
     category: prod.category || 'Olahraga & Ketangkasan',
     targetAge: prod.targetAge || 'Semua Usia',
     shortDesc: prod.shortDesc || '',
-    heroImage: prod.heroImage || '/images/swimming-hero.jpg'
+    heroImage: prod.heroImage || '/images/swimming-hero.jpg',
+    levels: initialLevels
   };
   showProductModal.value = true;
+}
+
+function addCurriculumLevel() {
+  if (!productForm.value.levels) productForm.value.levels = [];
+  const nextNum = productForm.value.levels.length + 1;
+  productForm.value.levels.push({
+    levelNumber: nextNum,
+    title: `Level ${nextNum}`,
+    focus: '',
+    challenge: ''
+  });
+}
+
+function removeCurriculumLevel(index) {
+  if (productForm.value.levels.length <= 1) {
+    alert('Minimal harus ada 1 level kurikulum.');
+    return;
+  }
+  productForm.value.levels.splice(index, 1);
+  productForm.value.levels.forEach((lvl, idx) => {
+    lvl.levelNumber = idx + 1;
+  });
 }
 
 async function handleProductImageUpload(e) {
@@ -3310,6 +3415,69 @@ onMounted(() => {
   border-radius: var(--radius-sm);
   background-color: #f7faf9;
   border: 1px solid var(--border-subtle);
+}
+
+/* Curriculum Levels Editor */
+.curriculum-edit-section {
+  background: #f8fafc;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  margin-top: 14px;
+  margin-bottom: 16px;
+}
+
+.curriculum-sec-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 14px;
+  gap: 12px;
+}
+
+.curriculum-sec-header .form-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+.curriculum-levels-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 380px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.curriculum-level-box {
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.curriculum-level-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed var(--border-subtle);
+}
+
+.form-label-xs {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+.form-input-sm {
+  font-size: 13px !important;
+  padding: 7px 10px !important;
 }
 
 @media (max-width: 900px) {

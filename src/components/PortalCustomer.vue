@@ -115,41 +115,38 @@
 
       <!-- Level Tracker Progression Map -->
       <div class="level-progress-tracker card-humanist">
-        <h4 class="tracker-title">Status Kurikulum Sistem Level 1-4</h4>
+        <div class="tracker-header-flex">
+          <div>
+            <h4 class="tracker-title">Status Kurikulum & Capaian Level: {{ activeProduct?.name || 'Program' }}</h4>
+            <p class="tracker-sub">Kurikulum berjenjang terstruktur dari {{ activeProductLevels.length }} tahapan level yang ditentukan instruktur.</p>
+          </div>
+          <span class="badge-chip gold">Level Saat Ini: {{ currentStudentLevel }}</span>
+        </div>
         <div class="tracker-steps-grid">
-          <div class="tracker-step completed">
-            <div class="step-circle">✓</div>
-            <div class="step-info">
-              <span class="step-lvl">Level 1</span>
-              <strong class="step-name">Water Explorer</strong>
-              <span class="step-status">Lulus & Tersertifikasi</span>
+          <div 
+            v-for="lvl in activeProductLevels" 
+            :key="lvl.levelNumber"
+            class="tracker-step"
+            :class="{
+              'completed': currentStudentLevel > lvl.levelNumber,
+              'in-progress': currentStudentLevel === lvl.levelNumber,
+              'locked': currentStudentLevel < lvl.levelNumber
+            }"
+          >
+            <div class="step-circle" :class="{ 'current': currentStudentLevel === lvl.levelNumber }">
+              <span v-if="currentStudentLevel > lvl.levelNumber">✓</span>
+              <span v-else>{{ lvl.levelNumber }}</span>
             </div>
-          </div>
-
-          <div class="tracker-step in-progress">
-            <div class="step-circle current">2</div>
             <div class="step-info">
-              <span class="step-lvl">Level 2 (Aktif)</span>
-              <strong class="step-name">Breaststroke Hero</strong>
-              <span class="step-status">Sedang Berlangsung</span>
-            </div>
-          </div>
-
-          <div class="tracker-step locked">
-            <div class="step-circle">3</div>
-            <div class="step-info">
-              <span class="step-lvl">Level 3</span>
-              <strong class="step-name">Backstroke Master</strong>
-              <span class="step-status">Terkunci</span>
-            </div>
-          </div>
-
-          <div class="tracker-step locked">
-            <div class="step-circle">4</div>
-            <div class="step-info">
-              <span class="step-lvl">Level 4</span>
-              <strong class="step-name">Butterfly Champion</strong>
-              <span class="step-status">Terkunci</span>
+              <span class="step-lvl">
+                Level {{ lvl.levelNumber }}
+                <span v-if="currentStudentLevel === lvl.levelNumber">(Aktif)</span>
+              </span>
+              <strong class="step-name">{{ lvl.title }}</strong>
+              <span class="step-status">
+                {{ currentStudentLevel > lvl.levelNumber ? 'Lulus & Tersertifikasi' : (currentStudentLevel === lvl.levelNumber ? 'Sedang Berlangsung' : 'Terkunci') }}
+              </span>
+              <p v-if="lvl.focus" class="step-focus-text">{{ lvl.focus }}</p>
             </div>
           </div>
         </div>
@@ -271,18 +268,18 @@
               Telah berhasil menyelesaikan seluruh indikator kompetensi dan lulus tantangan mandiri pada:
             </p>
             <div class="cert-level-badge">
-              <strong>LEVEL 1: WATER EXPLORER</strong>
-              <span>5 Meter Freestyle Glide Challenge</span>
+              <strong>LEVEL {{ currentStudentLevel }}: {{ (activeProductLevels.find(l => l.levelNumber === currentStudentLevel)?.title || studentData.currentLevelTitle || 'KOMPETENSI TERUJI').toUpperCase() }}</strong>
+              <span>{{ activeProductLevels.find(l => l.levelNumber === currentStudentLevel)?.challenge || studentData.targetChallenge || 'Tantangan Kelulusan Mandiri' }}</span>
             </div>
           </div>
 
           <div class="cert-footer">
             <div class="sig-box">
-              <div class="sig-line">Coach Dimas Prasetyo, S.Or.</div>
-              <span class="sig-title">Pelatih Renang Tersertifikasi</span>
+              <div class="sig-line">{{ studentData.assignedCoachName || studentData.coachName || 'Coach Pembina' }}</div>
+              <span class="sig-title">Instruktur {{ activeProduct?.name || 'Program' }}</span>
             </div>
             <div class="sig-box">
-              <div class="sig-line">Iskandar</div>
+              <div class="sig-line">Iskandar & Tim Manajemen</div>
               <span class="sig-title">Head of Academy mine.skills</span>
             </div>
           </div>
@@ -405,7 +402,12 @@ async function openQrisModal(amount = 500000) {
 }
 
 const studentData = computed(() => {
-  return store.students[0] || {
+  const currentStudentId = store.currentUser?.student_id;
+  if (currentStudentId) {
+    const found = (store.students || []).find(s => s.id === currentStudentId);
+    if (found) return found;
+  }
+  return (store.students || [])[0] || {
     name: 'Kenzo Al-Fatih',
     age: 7,
     parentName: 'Bunda Sarah',
@@ -423,6 +425,30 @@ const studentData = computed(() => {
     memberSchedules: [],
     sessionReports: []
   };
+});
+
+const activeProduct = computed(() => {
+  const prodId = studentData.value.productId;
+  if (prodId) {
+    const match = (store.products || []).find(p => p.id === prodId);
+    if (match) return match;
+  }
+  return (store.products || [])[0] || null;
+});
+
+const activeProductLevels = computed(() => {
+  if (activeProduct.value && Array.isArray(activeProduct.value.levels) && activeProduct.value.levels.length > 0) {
+    return activeProduct.value.levels;
+  }
+  return [
+    { levelNumber: 1, title: 'Level 1: Dasar', focus: 'Pengenalan & Teori Dasar', challenge: 'Tantangan Dasar' },
+    { levelNumber: 2, title: 'Level 2: Menengah', focus: 'Penguasaan Teknik Inti', challenge: 'Tantangan Mandiri' },
+    { levelNumber: 3, title: 'Level 3: Mahir', focus: 'Aplikasi & Evaluasi', challenge: 'Ujian Kelulusan' }
+  ];
+});
+
+const currentStudentLevel = computed(() => {
+  return parseInt(studentData.value.currentLevel) || 1;
 });
 
 const latestReport = computed(() => {
@@ -664,18 +690,36 @@ function printReport() {
   margin-bottom: 24px;
 }
 
-.tracker-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--color-primary-dark);
+.tracker-header-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   margin-bottom: 16px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+  gap: 12px;
+}
+
+.tracker-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+  margin-bottom: 4px;
+}
+
+.tracker-sub {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.step-focus-text {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 5px;
+  line-height: 1.35;
 }
 
 .tracker-steps-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 12px;
 }
 

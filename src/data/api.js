@@ -273,3 +273,41 @@ export async function apiVerifyCoachAttendance(id) {
   return json.data;
 }
 
+// Master Locations & Facilities
+export async function apiGetLocations() {
+  const res = await fetch(`${API_BASE}/locations`);
+  const json = await res.json();
+  return json.data || [];
+}
+
+export async function apiCreateLocation(payload) {
+  const res = await fetch(`${API_BASE}/locations`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Gagal menambah lokasi');
+  return json.data;
+}
+
+export async function apiUpdateLocation(id, patch) {
+  const res = await fetch(`${API_BASE}/locations/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(patch)
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Gagal mengubah lokasi');
+  return json.data;
+}
+
+export async function apiDeleteLocation(id) {
+  const res = await fetch(`${API_BASE}/locations/${id}`, {
+    method: 'DELETE'
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Gagal menghapus lokasi');
+  return true;
+}
+

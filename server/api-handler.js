@@ -30,7 +30,11 @@ import {
   getAllUsers,
   getAllCoachAttendances,
   recordCoachAttendance,
-  verifyCoachAttendance
+  verifyCoachAttendance,
+  getAllLocations,
+  createLocation,
+  updateLocation,
+  deleteLocation
 } from './neon-db.js';
 
 export async function parseJsonBody(req) {
@@ -319,6 +323,33 @@ export async function handleApiRequest(req, res) {
       const verified = await verifyCoachAttendance(id);
       if (!verified) return sendJson(res, 404, { success: false, message: 'Data absensi tidak ditemukan.' });
       return sendJson(res, 200, { success: true, data: verified });
+    }
+
+    // 11. LOCATIONS / VENUES MASTER CRUD
+    if (pathname === '/api/locations') {
+      if (method === 'GET') {
+        const locations = await getAllLocations();
+        return sendJson(res, 200, { success: true, data: locations });
+      }
+      if (method === 'POST') {
+        const body = await parseJsonBody(req);
+        const created = await createLocation(body);
+        return sendJson(res, 201, { success: true, data: created });
+      }
+    }
+
+    if (pathname.startsWith('/api/locations/') && !pathname.endsWith('/')) {
+      const id = pathname.replace('/api/locations/', '');
+      if (method === 'PUT') {
+        const body = await parseJsonBody(req);
+        const updated = await updateLocation(id, body);
+        if (!updated) return sendJson(res, 404, { success: false, message: 'Lokasi tidak ditemukan.' });
+        return sendJson(res, 200, { success: true, data: updated });
+      }
+      if (method === 'DELETE') {
+        await deleteLocation(id);
+        return sendJson(res, 200, { success: true, message: 'Lokasi berhasil dihapus.' });
+      }
     }
 
     // Endpoint not found

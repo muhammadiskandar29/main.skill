@@ -312,7 +312,7 @@
         <div>
           <span class="badge-chip gold">Sistem Presensi Geofence GPS</span>
           <h2 class="page-title">Presensi & Kehadiran Coach</h2>
-          <p class="page-sub">Wajib menyalakan lokasi GPS untuk memvalidasi kehadiran di Kolam Graha Kresna Pratama.</p>
+          <p class="page-sub">Wajib menyalakan lokasi GPS untuk memvalidasi kehadiran di lokasi fasilitas latihan.</p>
         </div>
         <div class="live-clock-badge">
           <span>{{ currentDateTimeStr }}</span>
@@ -324,7 +324,7 @@
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polyline points="20 6 9 17 4 12"></polyline>
         </svg>
-        <span>Absensi kehadiran berhasil dicatat dan diverifikasi di Kolam Graha Kresna Pratama!</span>
+        <span>Absensi kehadiran berhasil dicatat dan diverifikasi di {{ selectedLocation?.name }}!</span>
       </div>
 
       <!-- Error Alert -->
@@ -348,7 +348,7 @@
             <div>
               <span class="badge-chip teal">Instruktur Aktif</span>
               <h3 class="att-coach-name">{{ currentCoach.name }}</h3>
-              <p class="att-venue-target">📍 Target Lokasi: {{ VENUE_COORDS.name }}</p>
+              <p class="att-venue-target">📍 Target: {{ selectedLocation?.name }}</p>
             </div>
           </div>
 
@@ -357,6 +357,24 @@
             <span v-if="!coachCoords">GPS Belum Terhubung</span>
             <span v-else-if="coachCoords.inRadius">GPS Terhubung (Radius {{ coachCoords.distance }}m)</span>
             <span v-else>Di Luar Radius ({{ coachCoords.distance }}m)</span>
+          </div>
+        </div>
+
+        <!-- Venue / Facility Selection Bar -->
+        <div class="venue-select-card card-humanist">
+          <div class="venue-select-row">
+            <div class="venue-select-input-col">
+              <label class="form-label font-bold">📍 Pilih Fasilitas / Lokasi Mengajar Hari Ini <span class="required">*</span></label>
+              <select v-model="selectedLocationId" @change="onLocationChange" class="form-select venue-select-input" required>
+                <option v-for="loc in store.locations" :key="loc.id" :value="loc.id">
+                  {{ loc.name }} ({{ loc.area }}) — Radius Geofence: {{ loc.radiusMeters || 250 }}m
+                </option>
+              </select>
+            </div>
+          </div>
+          <div class="venue-meta-strip" v-if="selectedLocation">
+            <span class="venue-addr-text">🏢 {{ selectedLocation.address }}</span>
+            <span class="venue-coord-tag font-mono">Patokan: {{ selectedLocation.latitude }}, {{ selectedLocation.longitude }} (Radius: {{ selectedLocation.radiusMeters || 250 }}m)</span>
           </div>
         </div>
 
@@ -390,7 +408,7 @@
 
             <!-- Quick fallback for desktop testing -->
             <button @click="useSimulatedVenueLocation" class="btn-text-sm" style="margin-top: 8px;">
-              Gunakan Titik Lokasi Kolam Graha Kresna Pratama (Simulasi Tes)
+              Gunakan Titik Lokasi {{ selectedLocation?.name }} (Simulasi Tes)
             </button>
           </div>
         </div>
@@ -407,7 +425,7 @@
               <strong class="geo-val">± {{ coachCoords.accuracy }} Meter</strong>
             </div>
             <div class="geo-meta-item">
-              <span class="geo-lbl">Jarak ke Kolam:</span>
+              <span class="geo-lbl">Jarak ke {{ selectedLocation?.name }}:</span>
               <strong class="geo-val" :class="coachCoords.inRadius ? 'text-green' : 'text-gold'">
                 {{ coachCoords.distance }} Meter ({{ coachCoords.inRadius ? 'Dalam Radius Aman' : 'Perhatian: Luar Radius' }})
               </strong>
@@ -695,14 +713,30 @@ async function handleSaveReport() {
 }
 
 // ==========================================
-// FITUR KEHADIRAN & GEOFENCE GPS COACH
+// FITUR KEHADIRAN & GEOFENCE GPS COACH (DINAMIS DENGAN STORE.LOCATIONS)
 // ==========================================
-const VENUE_COORDS = {
-  name: 'Kolam Graha Kresna Pratama, Jatiwaringin',
-  lat: -6.2847,
-  lng: 106.9142,
-  radiusMeters: 250
-};
+const selectedLocationId = ref(store.locations[0]?.id || 'loc_jatiwaringin');
+
+const selectedLocation = computed(() => {
+  return store.locations.find(l => l.id === selectedLocationId.value) || store.locations[0] || {
+    id: 'loc_jatiwaringin',
+    name: 'Kolam Graha Kresna Pratama, Jatiwaringin',
+    latitude: -6.2847,
+    longitude: 106.9142,
+    radiusMeters: 250
+  };
+});
+
+function onLocationChange() {
+  if (coachCoords.value) {
+    const targetLat = selectedLocation.value.latitude || -6.2847;
+    const targetLng = selectedLocation.value.longitude || 106.9142;
+    const targetRadius = selectedLocation.value.radiusMeters || 250;
+    const distance = calculateDistance(coachCoords.value.lat, coachCoords.value.lng, targetLat, targetLng);
+    coachCoords.value.distance = distance;
+    coachCoords.value.inRadius = distance <= targetRadius;
+  }
+}
 
 // Live Clock Real-Time
 const currentDateTimeStr = ref('');
@@ -774,8 +808,11 @@ function requestLocation() {
       const lat = position.coords.latitude;
       const lng = position.coords.longitude;
       const accuracy = Math.round(position.coords.accuracy || 10);
-      const distance = calculateDistance(lat, lng, VENUE_COORDS.lat, VENUE_COORDS.lng);
-      const inRadius = distance <= VENUE_COORDS.radiusMeters;
+      const targetLat = selectedLocation.value.latitude || -6.2847;
+      const targetLng = selectedLocation.value.longitude || 106.9142;
+      const targetRadius = selectedLocation.value.radiusMeters || 250;
+      const distance = calculateDistance(lat, lng, targetLat, targetLng);
+      const inRadius = distance <= targetRadius;
 
       coachCoords.value = {
         lat,
@@ -790,7 +827,7 @@ function requestLocation() {
       isLocating.value = false;
       let msg = 'Gagal mendeteksi lokasi GPS.';
       if (err.code === 1) {
-        msg = 'Izin akses lokasi ditolak oleh browser. Mohon izinkan akses lokasi (GPS) pada browser Anda, atau klik tombol simulasi lokasi kolam.';
+        msg = 'Izin akses lokasi ditolak oleh browser. Mohon izinkan akses lokasi (GPS) pada browser Anda, atau klik tombol simulasi lokasi venue.';
       } else if (err.code === 2) {
         msg = 'Posisi tidak dapat ditemukan oleh perangkat.';
       } else if (err.code === 3) {
@@ -805,19 +842,23 @@ function requestLocation() {
 // Simulated GPS for Desktop Testing
 function useSimulatedVenueLocation() {
   locationError.value = '';
-  // Subtle variation within 15-30m of Graha Kresna Pratama
+  const targetLat = selectedLocation.value.latitude || -6.2847;
+  const targetLng = selectedLocation.value.longitude || 106.9142;
+  const targetRadius = selectedLocation.value.radiusMeters || 250;
+
+  // Subtle variation within 15-30m of selected venue
   const jitterLat = (Math.random() - 0.5) * 0.0002;
   const jitterLng = (Math.random() - 0.5) * 0.0002;
-  const lat = VENUE_COORDS.lat + jitterLat;
-  const lng = VENUE_COORDS.lng + jitterLng;
-  const distance = calculateDistance(lat, lng, VENUE_COORDS.lat, VENUE_COORDS.lng);
+  const lat = targetLat + jitterLat;
+  const lng = targetLng + jitterLng;
+  const distance = calculateDistance(lat, lng, targetLat, targetLng);
 
   coachCoords.value = {
     lat,
     lng,
     accuracy: 8,
     distance,
-    inRadius: true,
+    inRadius: distance <= targetRadius,
     mapUrl: generateMapUrl(lat, lng)
   };
 }
@@ -834,7 +875,8 @@ async function handleCoachCheckIn() {
     coachName: currentCoach.value.name,
     coachAvatar: currentCoach.value.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240',
     sessionType: checkInData.value.sessionType,
-    locationName: VENUE_COORDS.name,
+    locationId: selectedLocation.value.id,
+    locationName: selectedLocation.value.name,
     latitude: coachCoords.value.lat,
     longitude: coachCoords.value.lng,
     accuracy: coachCoords.value.accuracy,
@@ -1770,6 +1812,47 @@ const coachAttendanceHistory = computed(() => {
   color: var(--text-muted);
   text-align: right;
   line-height: 1.4;
+}
+
+/* Dynamic Venue Selector Styles in Coach Portal */
+.venue-select-card {
+  padding: 14px 18px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+}
+
+.venue-select-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.venue-select-input {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+}
+
+.venue-meta-strip {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed #cbd5e1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.venue-addr-text {
+  color: var(--text-main);
+  line-height: 1.4;
+}
+
+.venue-coord-tag {
+  color: var(--text-subtle);
+  font-size: 11px;
 }
 
 @media (max-width: 768px) {

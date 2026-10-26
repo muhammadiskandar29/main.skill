@@ -610,6 +610,15 @@
                 <p>{{ loc.address }}</p>
               </div>
 
+              <div class="loc-info-row" v-if="loc.productIds && loc.productIds.length > 0">
+                <strong>Program Pelatihan di Lokasi Ini:</strong>
+                <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px;">
+                  <span v-for="pId in loc.productIds" :key="pId" class="badge-chip gold">
+                    {{ store.products.find(p => p.id === pId)?.name || pId }}
+                  </span>
+                </div>
+              </div>
+
               <div class="loc-info-row">
                 <strong>Jam Operasional Latihan:</strong>
                 <p>{{ store.brand.operatingHours }}</p>
@@ -617,6 +626,9 @@
 
               <div class="loc-amenities-box">
                 <strong>Fasilitas & Sarana Pendukung:</strong>
+                <p v-if="loc.facilities" style="font-size: 13.5px; color: var(--color-primary-dark); font-weight: 600; margin: 4px 0 8px 0;">
+                  🏢 {{ loc.facilities }}
+                </p>
                 <ul class="amenities-list">
                   <li>✓ Kolam renang dengan zonasi kedalaman bertahap (aman anak)</li>
                   <li>✓ Sistem filtrasi & sirkulasi air higienis harian</li>

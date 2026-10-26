@@ -64,7 +64,13 @@
 
         <!-- HIERARCHICAL GROUPED SIDEBAR FOR MANAJEMEN -->
         <!-- PROFESSIONAL MANAGEMENT SIDEBAR (CLEAN ENTERPRISE ARCHITECTURE) -->
+        <!-- HIERARCHICAL GROUPED SIDEBAR FOR MANAJEMEN -->
         <nav v-if="store.currentRole === 'manajemen'" class="sidebar-nav">
+          <!-- SECTION 1: RINGKASAN & OVERVIEW -->
+          <div class="sidebar-section-divider">
+            <span class="sidebar-section-title">Ringkasan</span>
+          </div>
+
           <button 
             class="sidebar-nav-item" 
             :class="{ active: store.activePortalMenu === 'm_overview' }"
@@ -79,6 +85,11 @@
             <span class="nav-title">Ringkasan Eksekutif</span>
           </button>
 
+          <!-- SECTION 2: MASTER AKADEMIK & FASILITAS -->
+          <div class="sidebar-section-divider">
+            <span class="sidebar-section-title">Akademik & Fasilitas</span>
+          </div>
+
           <button 
             class="sidebar-nav-item" 
             :class="{ active: store.activePortalMenu === 'm_products' }"
@@ -89,6 +100,18 @@
               <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
             </svg>
             <span class="nav-title">Master Program Pelatihan</span>
+          </button>
+
+          <button 
+            class="sidebar-nav-item" 
+            :class="{ active: store.activePortalMenu === 'm_locations' }"
+            @click="store.activePortalMenu = 'm_locations'"
+          >
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <span class="nav-title">Master Lokasi & Geofence</span>
           </button>
 
           <button 
@@ -116,6 +139,11 @@
             </svg>
             <span class="nav-title">Daftar Instruktur</span>
           </button>
+
+          <!-- SECTION 3: OPERASIONAL & SISWA -->
+          <div class="sidebar-section-divider">
+            <span class="sidebar-section-title">Operasional & Siswa</span>
+          </div>
 
           <button 
             class="sidebar-nav-item" 
@@ -151,11 +179,16 @@
             @click="store.activePortalMenu = 'm_attendance'"
           >
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-              <circle cx="12" cy="10" r="3"></circle>
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
             </svg>
             <span class="nav-title">Monitoring Kehadiran Coach</span>
           </button>
+
+          <!-- SECTION 4: KEUANGAN & SISTEM -->
+          <div class="sidebar-section-divider">
+            <span class="sidebar-section-title">Keuangan & Sistem</span>
+          </div>
 
           <button 
             class="sidebar-nav-item" 
@@ -167,6 +200,19 @@
               <line x1="1" y1="10" x2="23" y2="10"></line>
             </svg>
             <span class="nav-title">Keuangan & Tagihan</span>
+          </button>
+
+          <button 
+            class="sidebar-nav-item" 
+            :class="{ active: store.activePortalMenu === 'm_website' }"
+            @click="store.activePortalMenu = 'm_website'"
+          >
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="2" y1="12" x2="22" y2="12"></line>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+            </svg>
+            <span class="nav-title">Profil & Website CMS</span>
           </button>
 
           <button 
@@ -529,8 +575,23 @@ const allowedSidebarMenus = computed(() => {
 .sidebar-nav {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
   flex: 1;
+  overflow-y: auto;
+}
+
+.sidebar-section-divider {
+  padding: 10px 10px 4px;
+  margin-top: 6px;
+}
+
+.sidebar-section-title {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-subtle);
+  display: block;
 }
 
 .sidebar-nav-item {

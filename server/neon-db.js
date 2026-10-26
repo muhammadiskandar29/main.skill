@@ -821,6 +821,134 @@ export async function getAllUsers() {
 }
 
 // -------------------------------------------------------------
+// Locations (Master Fasilitas & Geofence Latihan) Model
+// -------------------------------------------------------------
+let isLocationsTableChecked = false;
+async function ensureLocationsTable() {
+  if (isLocationsTableChecked) return;
+  const sql = getSql();
+  if (sql) {
+    try {
+      await sql.query(`
+        CREATE TABLE IF NOT EXISTS locations (
+          id TEXT PRIMARY KEY,
+          data JSONB NOT NULL,
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+      `);
+      isLocationsTableChecked = true;
+    } catch (err) {
+      console.warn('[Neon DB] ensureLocationsTable error:', err.message);
+    }
+  }
+}
+
+const defaultInitialLocations = [
+  {
+    id: 'loc_jatiwaringin',
+    name: 'Kolam Graha Kresna Pratama',
+    area: 'Jatiwaringin, Pondok Gede',
+    address: 'Komplek Graha Kresna Pratama, Jl. Raya Jatiwaringin No. 45, Pondok Gede, Kota Bekasi',
+    latitude: -6.2847,
+    longitude: 106.9142,
+    radiusMeters: 250,
+    productIds: ['prod_swimming'],
+    facilities: 'Kolam Semi-Olympic 25M, Area Dangkal Anak (80cm), Ruang Bilas Air Hangat, Parkir Luas, Kantin',
+    image: 'https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?auto=format&fit=crop&q=80&w=600',
+    isActive: true
+  },
+  {
+    id: 'loc_galaxy',
+    name: 'Kolam Renang Tirta Mas Galaxy',
+    area: 'Grand Galaxy City, Bekasi Selatan',
+    address: 'Jl. Boulevard Raya Barat No. 1, Jaka Setia, Bekasi Selatan, Kota Bekasi',
+    latitude: -6.2682,
+    longitude: 106.9741,
+    radiusMeters: 250,
+    productIds: ['prod_swimming'],
+    facilities: 'Kolam Kanopi Ramah Anak, Kolam Standar Dewasa, Gazebo Tunggu Beratap, Loker Aman',
+    image: 'https://images.unsplash.com/photo-1519315901367-f34ff9154487?auto=format&fit=crop&q=80&w=600',
+    isActive: true
+  },
+  {
+    id: 'loc_raden_inten',
+    name: 'Sport Center Raden Inten',
+    area: 'Duren Sawit, Jakarta Timur',
+    address: 'Jl. Raden Inten II No. 8, Duren Sawit, Kota Jakarta Timur',
+    latitude: -6.2365,
+    longitude: 106.9157,
+    radiusMeters: 300,
+    productIds: ['prod_swimming', 'prod_dance'],
+    facilities: 'Studio Tari Berlantai Kayu & Kaca Penuh, Kolam Renang Indoor, Area Tunggu Nyaman AC',
+    image: 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&q=80&w=600',
+    isActive: true
+  }
+];
+
+export async function getAllLocations() {
+  await ensureLocationsTable();
+  let list = await queryTable('locations');
+  if (!list || list.length === 0) {
+    for (const loc of defaultInitialLocations) {
+      await upsertRecord('locations', loc.id, loc);
+    }
+    list = defaultInitialLocations;
+  }
+  return list;
+}
+
+export async function getLocationById(id) {
+  await ensureLocationsTable();
+  return await getById('locations', id);
+}
+
+export async function createLocation(payload) {
+  await ensureLocationsTable();
+  const id = payload.id || `loc_${Date.now()}`;
+  const newLocation = {
+    id,
+    name: payload.name || 'Lokasi Latihan Baru',
+    area: payload.area || 'Bekasi / Jakarta',
+    address: payload.address || '',
+    latitude: parseFloat(payload.latitude) || -6.2847,
+    longitude: parseFloat(payload.longitude) || 106.9142,
+    radiusMeters: parseInt(payload.radiusMeters) || 250,
+    productIds: Array.isArray(payload.productIds) ? payload.productIds : (payload.productId ? [payload.productId] : ['prod_swimming']),
+    facilities: payload.facilities || 'Fasilitas standar latihan aman anak',
+    image: payload.image || 'https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?auto=format&fit=crop&q=80&w=600',
+    isActive: payload.isActive !== false
+  };
+
+  await upsertRecord('locations', id, newLocation);
+  return newLocation;
+}
+
+export async function updateLocation(id, patch) {
+  await ensureLocationsTable();
+  const existing = await getById('locations', id);
+  if (!existing) return null;
+
+  const updated = {
+    ...existing,
+    ...patch,
+    id,
+    latitude: patch.latitude !== undefined ? parseFloat(patch.latitude) : existing.latitude,
+    longitude: patch.longitude !== undefined ? parseFloat(patch.longitude) : existing.longitude,
+    radiusMeters: patch.radiusMeters !== undefined ? parseInt(patch.radiusMeters) : existing.radiusMeters,
+    productIds: Array.isArray(patch.productIds) ? patch.productIds : existing.productIds
+  };
+
+  await upsertRecord('locations', id, updated);
+  return updated;
+}
+
+export async function deleteLocation(id) {
+  await ensureLocationsTable();
+  await deleteRecord('locations', id);
+  return true;
+}
+
+// -------------------------------------------------------------
 // Coach Attendances & GPS Verification Model
 // -------------------------------------------------------------
 let isCoachAttTableChecked = false;
@@ -863,9 +991,20 @@ export async function recordCoachAttendance(payload) {
   const id = payload.id || `att_${Date.now()}`;
   const now = new Date();
 
-  // Target Venue: Kolam Graha Kresna Pratama (-6.2847, 106.9142)
-  const venueLat = -6.2847;
-  const venueLng = 106.9142;
+  // Dynamically resolve target venue
+  let targetVenue = null;
+  if (payload.locationId) {
+    targetVenue = await getLocationById(payload.locationId);
+  } else if (payload.locationName) {
+    const allLocs = await getAllLocations();
+    targetVenue = allLocs.find(l => l.name === payload.locationName || l.id === payload.locationName);
+  }
+
+  const venueLat = targetVenue ? targetVenue.latitude : -6.2847;
+  const venueLng = targetVenue ? targetVenue.longitude : 106.9142;
+  const maxRadius = targetVenue ? (targetVenue.radiusMeters || 250) : 250;
+  const locationName = targetVenue ? targetVenue.name : (payload.locationName || 'Kolam Graha Kresna Pratama, Jatiwaringin');
+
   const coachLat = parseFloat(payload.latitude) || venueLat;
   const coachLng = parseFloat(payload.longitude) || venueLng;
 
@@ -882,8 +1021,8 @@ export async function recordCoachAttendance(payload) {
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const distance = Math.round(R * c);
 
-  const inRadius = distance <= 250;
-  const status = inRadius ? 'Hadir di Lokasi' : 'Di Luar Radius Kolam';
+  const inRadius = distance <= maxRadius;
+  const status = inRadius ? 'Hadir di Lokasi' : 'Di Luar Radius Lokasi';
 
   const attendanceRecord = {
     id,
@@ -894,11 +1033,13 @@ export async function recordCoachAttendance(payload) {
     time: payload.time || now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB',
     timestamp: Date.now(),
     sessionType: payload.sessionType || 'Sesi Pagi (08.00 - 09.30 WIB)',
-    locationName: payload.locationName || 'Kolam Graha Kresna Pratama, Jatiwaringin',
+    locationId: targetVenue ? targetVenue.id : (payload.locationId || 'loc_jatiwaringin'),
+    locationName,
     latitude: coachLat,
     longitude: coachLng,
     accuracy: payload.accuracy ? Math.round(payload.accuracy) : 12,
     distanceFromVenue: distance,
+    targetRadius: maxRadius,
     status: payload.status || status,
     isVerified: inRadius,
     notes: payload.notes || 'Presensi mandiri pelatih dengan GPS'
@@ -926,7 +1067,7 @@ export async function getBootstrapData() {
     getAllStudents(),
     getAllTransactions(),
     getAllUsers(),
-    queryTable('locations'),
+    getAllLocations(),
     getAllCoachAttendances()
   ]);
 

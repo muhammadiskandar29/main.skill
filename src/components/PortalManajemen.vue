@@ -240,11 +240,172 @@
               <span v-else class="text-muted-tag">Belum ada coach yang dipetakan</span>
             </div>
 
+            <!-- Mapped Locations Badges -->
+            <div class="prod-locations-strip">
+              <span class="lbl-coaches">📍 Lokasi Latihan:</span>
+              <div v-if="getLocationsForProduct(prod.id).length > 0" class="loc-tag-list">
+                <span v-for="l in getLocationsForProduct(prod.id)" :key="l.id" class="loc-tag">
+                  {{ l.name }}
+                </span>
+              </div>
+              <span v-else class="text-muted-tag">Belum ada lokasi yang dipetakan</span>
+            </div>
+
             <div class="prod-card-actions">
               <button @click="openEditProductModal(prod)" class="btn-secondary-sm">
                 Edit Program
               </button>
               <button @click="handleDeleteProduct(prod.id)" class="btn-danger-sm">
+                Hapus
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================================================================
+         SUB-MENU: MASTER FASILITAS & LOKASI LATIHAN (m_locations)
+         ========================================================================= -->
+    <div v-else-if="activeMenu === 'm_locations'" class="portal-tab-content">
+      <div class="page-top-bar">
+        <div>
+          <span class="badge-chip gold">Master Fasilitas & Geofence GPS</span>
+          <h2 class="page-title">Master Fasilitas & Lokasi Latihan</h2>
+          <p class="page-sub">Kelola titik kolam/venue latihan, radius validasi geofence GPS presensi coach, dan mapping ke program pelatihan.</p>
+        </div>
+        <button @click="openAddLocationModal" class="btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>+ Tambah Lokasi Latihan Baru</span>
+        </button>
+      </div>
+
+      <!-- KPI Metrics Cards Grid for Locations -->
+      <div class="metrics-grid">
+        <div class="metric-card card-humanist">
+          <div class="metric-icon-wrap teal">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+          </div>
+          <div class="metric-data">
+            <span class="metric-lbl">Total Lokasi Latihan</span>
+            <strong class="metric-val">{{ store.locations.length }} Titik Venue</strong>
+            <span class="metric-sub text-teal">Tersebar di Jabodetabek</span>
+          </div>
+        </div>
+
+        <div class="metric-card card-humanist">
+          <div class="metric-icon-wrap green">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </div>
+          <div class="metric-data">
+            <span class="metric-lbl">Lokasi Aktif Digunakan</span>
+            <strong class="metric-val">{{ store.locations.filter(l => l.isActive !== false).length }} Fasilitas</strong>
+            <span class="metric-sub text-green">Siap Menyelenggarakan Sesi</span>
+          </div>
+        </div>
+
+        <div class="metric-card card-humanist">
+          <div class="metric-icon-wrap gold">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </div>
+          <div class="metric-data">
+            <span class="metric-lbl">Program Terpetakan</span>
+            <strong class="metric-val">{{ store.products.length }} Program Skill</strong>
+            <span class="metric-sub">Memiliki Lokasi Resmi</span>
+          </div>
+        </div>
+
+        <div class="metric-card card-humanist">
+          <div class="metric-icon-wrap teal">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <circle cx="12" cy="12" r="6"></circle>
+              <circle cx="12" cy="12" r="2"></circle>
+            </svg>
+          </div>
+          <div class="metric-data">
+            <span class="metric-lbl">Rata-rata Toleransi GPS</span>
+            <strong class="metric-val">250 Meter</strong>
+            <span class="metric-sub">Geofence Presensi Coach</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Locations Grid Cards -->
+      <div class="locations-crud-grid">
+        <div v-for="loc in store.locations" :key="loc.id" class="location-crud-card card-humanist">
+          <div class="loc-card-header-bar">
+            <div class="flex items-center gap-2">
+              <span class="loc-pin-icon">📍</span>
+              <div>
+                <h3 class="loc-title">{{ loc.name }}</h3>
+                <span class="badge-chip teal">{{ loc.area }}</span>
+              </div>
+            </div>
+            <span class="badge-chip" :class="loc.isActive !== false ? 'green' : 'gold'">
+              {{ loc.isActive !== false ? 'Aktif' : 'Non-Aktif' }}
+            </span>
+          </div>
+
+          <div class="loc-card-inner">
+            <div class="loc-address-box">
+              <span class="loc-info-lbl">Alamat Lengkap:</span>
+              <p class="loc-address-text">{{ loc.address }}</p>
+            </div>
+
+            <div class="loc-geo-box">
+              <div class="geo-coord-pill">
+                <span class="font-mono">Lat: {{ Number(loc.latitude).toFixed(5) }}, Lng: {{ Number(loc.longitude).toFixed(5) }}</span>
+                <span class="geo-radius-badge">Radius Geofence: {{ loc.radiusMeters || 250 }}m</span>
+              </div>
+            </div>
+
+            <!-- Mini Map Preview for Venue -->
+            <div class="loc-mini-map-box">
+              <iframe 
+                :src="getMiniMapEmbedUrl(loc.latitude, loc.longitude)" 
+                class="loc-thumb-iframe" 
+                loading="lazy" 
+                title="Peta Lokasi"
+              ></iframe>
+            </div>
+
+            <!-- Mapped Products -->
+            <div class="loc-mapped-products-strip">
+              <span class="lbl-sec-sm">Program Pelatihan di Lokasi Ini:</span>
+              <div v-if="loc.productIds && loc.productIds.length > 0" class="loc-prod-tags">
+                <span v-for="pId in loc.productIds" :key="pId" class="badge-chip gold">
+                  {{ store.products.find(p => p.id === pId)?.name || pId }}
+                </span>
+              </div>
+              <span v-else class="text-muted-tag">Belum ada program yang dipetakan</span>
+            </div>
+
+            <!-- Facilities -->
+            <div class="loc-amenities-snippet" v-if="loc.facilities">
+              <span class="lbl-sec-sm">Fasilitas Pendukung:</span>
+              <p class="amenities-text">{{ loc.facilities }}</p>
+            </div>
+
+            <div class="loc-card-actions">
+              <button @click="openEditLocationModal(loc)" class="btn-secondary-sm">
+                Edit Lokasi
+              </button>
+              <a :href="`https://www.google.com/maps?q=${loc.latitude},${loc.longitude}`" target="_blank" class="btn-text-sm">
+                Buka di Maps ↗
+              </a>
+              <button @click="handleDeleteLocation(loc.id)" class="btn-danger-sm" style="margin-left: auto;">
                 Hapus
               </button>
             </div>
@@ -792,6 +953,11 @@
         </div>
 
         <div class="toolbar-filters">
+          <select v-model="attFilterLocation" class="filter-select">
+            <option value="all">Semua Lokasi Fasilitas</option>
+            <option v-for="l in store.locations" :key="l.id" :value="l.id">{{ l.name }}</option>
+          </select>
+
           <select v-model="attFilterCoach" class="filter-select">
             <option value="all">Semua Instruktur / Coach</option>
             <option v-for="c in store.coaches" :key="c.id" :value="c.name">{{ c.name }}</option>
@@ -848,6 +1014,7 @@
                     <strong class="att-date-str">{{ att.date || 'Hari Ini' }}</strong>
                     <span class="att-clock-str font-mono">{{ att.time }}</span>
                     <span class="badge-chip teal att-session-pill">{{ att.sessionType }}</span>
+                    <span class="badge-chip gold att-session-pill" style="margin-top: 3px;">📍 {{ att.locationName || 'Kolam Graha Kresna' }}</span>
                   </div>
                 </td>
 
@@ -1174,6 +1341,86 @@
     </div>
 
     <!-- =========================================================================
+         SUB-MENU: PROFIL & WEBSITE CMS (m_website)
+         ========================================================================= -->
+    <div v-else-if="activeMenu === 'm_website'" class="portal-tab-content">
+      <div class="page-top-bar">
+        <div>
+          <span class="badge-chip teal">Pengaturan Brand & CMS</span>
+          <h2 class="page-title">Profil Bisnis & Konten Website</h2>
+          <p class="page-sub">Atur identitas merek mine.skills, nomor kontak WhatsApp resmi, alamat kantor, dan konten banner beranda publik.</p>
+        </div>
+      </div>
+
+      <div class="website-config-grid">
+        <div class="card-humanist website-config-card">
+          <form @submit.prevent="handleSaveWebsiteConfig">
+            <h3 class="form-section-title">Identitas Brand & Kontak Resmi</h3>
+            
+            <div class="form-group">
+              <label class="form-label">Nama Brand / Akademi <span class="required">*</span></label>
+              <input v-model="websiteBrandForm.name" type="text" class="form-input" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Tagline Utama <span class="required">*</span></label>
+              <input v-model="websiteBrandForm.umbrellaTagline" type="text" class="form-input" required />
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Nomor WhatsApp Resmi (Call Center)</label>
+                <input v-model="websiteBrandForm.callCenter" type="text" class="form-input" placeholder="085286274726" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email Resmi</label>
+                <input v-model="websiteBrandForm.officialEmail" type="email" class="form-input" placeholder="halo@mineskills.id" required />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Alamat Kantor / Pusat Operasional</label>
+              <textarea v-model="websiteBrandForm.addressFull" class="form-textarea" rows="2" required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Jam Operasional Pelatihan</label>
+              <input v-model="websiteBrandForm.operatingHours" type="text" class="form-input" placeholder="Setiap Hari: 07.30 - 18.00 WIB" required />
+            </div>
+
+            <h3 class="form-section-title" style="margin-top: 24px;">Konten Banner Beranda (Hero Banner)</h3>
+
+            <div class="form-group">
+              <label class="form-label">Badge Teks Banner</label>
+              <input v-model="websiteHeroForm.badgeText" type="text" class="form-input" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Headline Utama Banner</label>
+              <input v-model="websiteHeroForm.headline" type="text" class="form-input" required />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Subheadline / Penjelasan Singkat</label>
+              <textarea v-model="websiteHeroForm.subheadline" class="form-textarea" rows="3" required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Label Tombol Utama (CTA)</label>
+              <input v-model="websiteHeroForm.primaryCta" type="text" class="form-input" required />
+            </div>
+
+            <div class="form-actions" style="margin-top: 20px;">
+              <button type="submit" class="btn-primary">
+                <span>Simpan Perubahan Website & Brand</span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================================================================
          SUB-MENU 8: PENGATURAN AKSES & RBAC (m_rbac)
          ========================================================================= -->
     <div v-else-if="activeMenu === 'm_rbac'" class="portal-tab-content">
@@ -1257,6 +1504,22 @@
             <textarea v-model="productForm.shortDesc" class="form-textarea" rows="2" placeholder="Fokus kurikulum dan capaian..." required></textarea>
           </div>
 
+          <!-- MAPPING LOKASI LATIHAN UNTUK PRODUK INI -->
+          <div class="form-group">
+            <label class="form-label font-bold">Mapping Fasilitas & Lokasi Latihan <span class="required">*</span></label>
+            <div class="form-hint">Pilih lokasi fasilitas mana saja yang menyelenggarakan program ini:</div>
+            <div class="loc-checkboxes-grid">
+              <label v-for="loc in store.locations" :key="loc.id" class="loc-check-pill">
+                <input 
+                  type="checkbox" 
+                  :value="loc.id" 
+                  v-model="productForm.locationIds" 
+                />
+                <span>{{ loc.name }} ({{ loc.area }})</span>
+              </label>
+            </div>
+          </div>
+
           <!-- DYNAMIC CURRICULUM LEVELS SECTION -->
           <div class="curriculum-edit-section">
             <div class="curriculum-sec-header">
@@ -1331,6 +1594,92 @@
             <button type="submit" :disabled="productUploading" class="btn-primary">
               <span v-if="productUploading">Sedang Upload...</span>
               <span v-else>{{ isEditProduct ? 'Simpan Perubahan' : 'Buat Program Baru' }}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL TAMBAH & EDIT FASILITAS LOKASI (m_locations) -->
+    <div v-if="showLocationModal" class="modal-backdrop" @click.self="showLocationModal = false">
+      <div class="modal-dialog modal-md">
+        <div class="modal-header">
+          <div>
+            <span class="badge-chip gold">{{ isEditLocation ? 'Edit Data Lokasi' : 'Tambah Lokasi Baru' }}</span>
+            <h3 class="modal-title">{{ isEditLocation ? 'Perbarui Lokasi Latihan' : 'Daftarkan Lokasi Latihan Baru' }}</h3>
+          </div>
+          <button class="btn-close" @click="showLocationModal = false">✕</button>
+        </div>
+
+        <form @submit.prevent="handleSubmitLocation" class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Nama Fasilitas / Lokasi <span class="required">*</span></label>
+            <input v-model="locationForm.name" type="text" class="form-input" placeholder="Contoh: Kolam Renang Tirta Mas Galaxy" required />
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Wilayah / Area <span class="required">*</span></label>
+              <input v-model="locationForm.area" type="text" class="form-input" placeholder="Contoh: Bekasi Selatan" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Toleransi Radius Geofence (Meter) <span class="required">*</span></label>
+              <input v-model.number="locationForm.radiusMeters" type="number" min="50" max="2000" class="form-input" placeholder="250" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Alamat Lengkap Fasilitas <span class="required">*</span></label>
+            <textarea v-model="locationForm.address" class="form-textarea" rows="2" placeholder="Alamat lengkap fasilitas..." required></textarea>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Latitude Koordinat GPS <span class="required">*</span></label>
+              <input v-model.number="locationForm.latitude" type="number" step="any" class="form-input font-mono" placeholder="-6.284700" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Longitude Koordinat GPS <span class="required">*</span></label>
+              <input v-model.number="locationForm.longitude" type="number" step="any" class="form-input font-mono" placeholder="106.914200" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <button type="button" @click="getCurrentLocationCoords" class="btn-secondary btn-sm full-width">
+              <span>📍 Ambil Titik Koordinat GPS Saat Ini</span>
+            </button>
+          </div>
+
+          <!-- MAPPING PROGRAM PELATIHAN DI LOKASI INI -->
+          <div class="form-group">
+            <label class="form-label font-bold">Mapping Program Pelatihan di Lokasi Ini <span class="required">*</span></label>
+            <div class="form-hint">Pilih produk keahlian apa saja yang diselenggarakan di fasilitas ini:</div>
+            <div class="loc-checkboxes-grid">
+              <label v-for="prod in store.products" :key="prod.id" class="loc-check-pill">
+                <input 
+                  type="checkbox" 
+                  :value="prod.id" 
+                  v-model="locationForm.productIds" 
+                />
+                <span>{{ prod.name }}</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Fasilitas Pendukung</label>
+            <input v-model="locationForm.facilities" type="text" class="form-input" placeholder="Contoh: Kolam Semi-Olympic, Ruang Bilas, Parkir Luas" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">URL Foto Banner Fasilitas</label>
+            <input v-model="locationForm.image" type="text" class="form-input" placeholder="https://..." />
+          </div>
+
+          <div class="modal-footer" style="margin-top: 20px; padding: 0;">
+            <button type="button" class="btn-secondary" @click="showLocationModal = false">Batal</button>
+            <button type="submit" class="btn-primary">
+              {{ isEditLocation ? 'Simpan Perubahan Lokasi' : 'Daftarkan Lokasi' }}
             </button>
           </div>
         </form>
@@ -1773,7 +2122,11 @@
 
           <div class="form-group">
             <label class="form-label">Lokasi Fasilitas Latihan <span class="required">*</span></label>
-            <input v-model="createScheduleForm.location" type="text" class="form-input" placeholder="Contoh: Kolam Renang Graha Kresna Pratama" required />
+            <select v-model="createScheduleForm.location" class="form-select" required>
+              <option v-for="loc in store.locations" :key="loc.id" :value="loc.name">
+                {{ loc.name }} ({{ loc.area }})
+              </option>
+            </select>
           </div>
 
           <div class="form-group">
@@ -1904,8 +2257,12 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">Lokasi</label>
-            <input v-model="rescheduleForm.location" type="text" class="form-input" required />
+            <label class="form-label">Lokasi Fasilitas Latihan</label>
+            <select v-model="rescheduleForm.location" class="form-select" required>
+              <option v-for="loc in store.locations" :key="loc.id" :value="loc.name">
+                {{ loc.name }} ({{ loc.area }})
+              </option>
+            </select>
           </div>
 
           <div class="form-group">
@@ -1968,11 +2325,20 @@ function getCoachesForProduct(productId) {
   return (store.coaches || []).filter(c => Array.isArray(c.productIds) && c.productIds.includes(productId));
 }
 
+function getLocationsForProduct(productId) {
+  return (store.locations || []).filter(l => {
+    const locProds = Array.isArray(l.productIds) ? l.productIds : [];
+    const prodLocs = store.products.find(p => p.id === productId)?.locationIds || [];
+    return locProds.includes(productId) || prodLocs.includes(l.id);
+  });
+}
+
 // -------------------------------------------------------------
 // COACH ATTENDANCE MONITORING (m_attendance)
 // -------------------------------------------------------------
 const attFilterCoach = ref('all');
 const attFilterStatus = ref('all');
+const attFilterLocation = ref('all');
 const attSearchQuery = ref('');
 const selectedAttendanceForMap = ref(null);
 const isAttMapModalOpen = ref(false);
@@ -2001,9 +2367,13 @@ const filteredCoachAttendances = computed(() => {
   }
 
   if (attFilterStatus.value === 'valid') {
-    list = list.filter(a => (a.distanceFromVenue || 0) <= 250);
+    list = list.filter(a => (a.distanceFromVenue || 0) <= (a.targetRadius || 250));
   } else if (attFilterStatus.value === 'invalid') {
-    list = list.filter(a => (a.distanceFromVenue || 0) > 250);
+    list = list.filter(a => (a.distanceFromVenue || 0) > (a.targetRadius || 250));
+  }
+
+  if (attFilterLocation.value !== 'all') {
+    list = list.filter(a => a.locationName === attFilterLocation.value || a.locationId === attFilterLocation.value);
   }
 
   if (attSearchQuery.value.trim()) {
@@ -2011,6 +2381,7 @@ const filteredCoachAttendances = computed(() => {
     list = list.filter(a => {
       return (a.coachName && a.coachName.toLowerCase().includes(q)) ||
              (a.sessionType && a.sessionType.toLowerCase().includes(q)) ||
+             (a.locationName && a.locationName.toLowerCase().includes(q)) ||
              (a.notes && a.notes.toLowerCase().includes(q));
     });
   }
@@ -2057,6 +2428,7 @@ const productForm = ref({
   targetAge: 'Usia 5 - 15 Tahun',
   shortDesc: '',
   heroImage: '/images/swimming-hero.jpg',
+  locationIds: [],
   levels: [
     { levelNumber: 1, title: 'Level Dasar', focus: 'Pengenalan & Teori Dasar', challenge: 'Tantangan Dasar' }
   ]
@@ -2071,6 +2443,7 @@ function openAddProductModal() {
     targetAge: 'Usia 5 - 15 Tahun',
     shortDesc: '',
     heroImage: '/images/swimming-hero.jpg',
+    locationIds: (store.locations || []).map(l => l.id),
     levels: [
       { levelNumber: 1, title: 'Level 1: Dasar', focus: 'Pengenalan & Teori Dasar', challenge: 'Uji Teori & Praktik Awal' },
       { levelNumber: 2, title: 'Level 2: Menengah', focus: 'Penguasaan Teknik Inti', challenge: 'Simulasi Mandiri' },
@@ -2094,6 +2467,7 @@ function openEditProductModal(prod) {
     targetAge: prod.targetAge || 'Semua Usia',
     shortDesc: prod.shortDesc || '',
     heroImage: prod.heroImage || '/images/swimming-hero.jpg',
+    locationIds: Array.isArray(prod.locationIds) ? [...prod.locationIds] : [],
     levels: initialLevels
   };
   showProductModal.value = true;
@@ -2155,6 +2529,143 @@ async function handleDeleteProduct(id) {
   if (confirm('Yakin ingin menghapus program pelatihan ini beserta seluruh paketnya?')) {
     await actions.deleteProduct(id);
     showNotice('Program pelatihan berhasil dihapus.');
+  }
+}
+
+// -------------------------------------------------------------
+// LOCATION CRUD MODAL (m_locations)
+// -------------------------------------------------------------
+const showLocationModal = ref(false);
+const isEditLocation = ref(false);
+const editingLocationId = ref(null);
+const locationForm = ref({
+  name: '',
+  area: '',
+  radiusMeters: 250,
+  address: '',
+  latitude: -6.2847,
+  longitude: 106.9142,
+  productIds: [],
+  facilities: '',
+  image: '',
+  isActive: true
+});
+
+function openAddLocationModal() {
+  isEditLocation.value = false;
+  editingLocationId.value = null;
+  locationForm.value = {
+    name: '',
+    area: '',
+    radiusMeters: 250,
+    address: '',
+    latitude: -6.2847,
+    longitude: 106.9142,
+    productIds: (store.products || []).map(p => p.id),
+    facilities: '',
+    image: '',
+    isActive: true
+  };
+  showLocationModal.value = true;
+}
+
+function openEditLocationModal(loc) {
+  isEditLocation.value = true;
+  editingLocationId.value = loc.id;
+  locationForm.value = {
+    name: loc.name || '',
+    area: loc.area || '',
+    radiusMeters: loc.radiusMeters || 250,
+    address: loc.address || '',
+    latitude: loc.latitude || -6.2847,
+    longitude: loc.longitude || 106.9142,
+    productIds: Array.isArray(loc.productIds) ? [...loc.productIds] : [],
+    facilities: loc.facilities || '',
+    image: loc.image || '',
+    isActive: loc.isActive !== false
+  };
+  showLocationModal.value = true;
+}
+
+function getCurrentLocationCoords() {
+  if (!navigator.geolocation) {
+    alert('Browser tidak mendukung geolokasi GPS.');
+    return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      locationForm.value.latitude = parseFloat(pos.coords.latitude.toFixed(6));
+      locationForm.value.longitude = parseFloat(pos.coords.longitude.toFixed(6));
+      showNotice(`Koordinat GPS didapatkan: ${locationForm.value.latitude}, ${locationForm.value.longitude}`);
+    },
+    (err) => {
+      alert(`Gagal mengambil titik GPS: ${err.message}`);
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+
+async function handleSubmitLocation() {
+  try {
+    if (isEditLocation.value && editingLocationId.value) {
+      await actions.updateLocation(editingLocationId.value, locationForm.value);
+      showNotice('Data fasilitas & lokasi latihan berhasil diperbarui!');
+    } else {
+      await actions.addLocation(locationForm.value);
+      showNotice('Lokasi latihan baru berhasil didaftarkan!');
+    }
+    showLocationModal.value = false;
+  } catch (err) {
+    alert(err.message || 'Gagal menyimpan data lokasi');
+  }
+}
+
+async function handleDeleteLocation(id) {
+  if (confirm('Yakin ingin menghapus data lokasi fasilitas ini?')) {
+    await actions.deleteLocation(id);
+    showNotice('Data lokasi berhasil dihapus.');
+  }
+}
+
+// -------------------------------------------------------------
+// WEBSITE & BRAND CMS (m_website)
+// -------------------------------------------------------------
+const websiteBrandForm = ref({
+  name: store.businessProfile?.name || 'mine.skills',
+  umbrellaTagline: store.businessProfile?.umbrellaTagline || 'Beyond Skills, Shaping Future Achievers',
+  callCenter: store.businessProfile?.contacts?.callCenter || '085286274726',
+  officialEmail: store.businessProfile?.contacts?.officialEmail || 'halo@mineskills.id',
+  addressFull: store.businessProfile?.contacts?.addressFull || 'Graha Kresna Pratama, Pondok Gede, Kota Bekasi, Jawa Barat 17411',
+  operatingHours: store.businessProfile?.contacts?.operatingHours || 'Setiap Hari: 07.30 - 18.00 WIB'
+});
+
+const websiteHeroForm = ref({
+  badgeText: store.heroConfig?.badgeText || 'Pusat Kursus & Pelatihan Keahlian Anak Terintegrasi',
+  headline: store.heroConfig?.headline || 'Kembangkan Potensi & Bakat Terbaik Sejak Dini',
+  subheadline: store.heroConfig?.subheadline || 'Program terpadu renang prestasi, otomotif mengemudi, dan seni tari dengan pelatih berpengalaman dan kurikulum bertahap.',
+  primaryCta: store.heroConfig?.primaryCta || 'Daftar Kelas Sekarang'
+});
+
+async function handleSaveWebsiteConfig() {
+  try {
+    if (store.businessProfile) {
+      store.businessProfile.name = websiteBrandForm.value.name;
+      store.businessProfile.umbrellaTagline = websiteBrandForm.value.umbrellaTagline;
+      if (!store.businessProfile.contacts) store.businessProfile.contacts = {};
+      store.businessProfile.contacts.callCenter = websiteBrandForm.value.callCenter;
+      store.businessProfile.contacts.officialEmail = websiteBrandForm.value.officialEmail;
+      store.businessProfile.contacts.addressFull = websiteBrandForm.value.addressFull;
+      store.businessProfile.contacts.operatingHours = websiteBrandForm.value.operatingHours;
+    }
+    if (store.heroConfig) {
+      store.heroConfig.badgeText = websiteHeroForm.value.badgeText;
+      store.heroConfig.headline = websiteHeroForm.value.headline;
+      store.heroConfig.subheadline = websiteHeroForm.value.subheadline;
+      store.heroConfig.primaryCta = websiteHeroForm.value.primaryCta;
+    }
+    showNotice('Pengaturan profil brand dan konten website berhasil disimpan!');
+  } catch (err) {
+    alert(err.message || 'Gagal menyimpan konfigurasi website');
   }
 }
 
@@ -4298,6 +4809,212 @@ onMounted(() => {
 
 .pin-actions {
   margin-top: 8px;
+}
+
+/* Location CRUD & Geofence Styles */
+.locations-crud-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 20px;
+  margin-top: 16px;
+}
+
+.location-crud-card {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.loc-card-header-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.loc-pin-icon {
+  font-size: 20px;
+}
+
+.loc-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+
+.loc-card-inner {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+
+.loc-address-box {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.loc-info-lbl,
+.lbl-sec-sm {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-subtle);
+  text-transform: uppercase;
+}
+
+.loc-address-text {
+  font-size: 12.5px;
+  color: var(--color-primary-dark);
+  line-height: 1.45;
+  margin: 0;
+}
+
+.loc-geo-box {
+  background: #f1f5f9;
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 11.5px;
+}
+
+.geo-coord-pill {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.geo-radius-badge {
+  background: var(--color-primary-soft);
+  color: var(--color-primary-dark);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+.loc-mini-map-box {
+  width: 100%;
+  height: 150px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid #cbd5e1;
+}
+
+.loc-thumb-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.loc-mapped-products-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.loc-prod-tags,
+.loc-tag-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.loc-tag {
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.amenities-text {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.loc-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.btn-text-sm {
+  font-size: 12px;
+  color: var(--color-primary);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.btn-text-sm:hover {
+  text-decoration: underline;
+}
+
+/* Checkbox Pills for Mapping */
+.loc-checkboxes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.loc-check-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: var(--radius-sm);
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 12.5px;
+  transition: all 0.15s ease;
+}
+
+.loc-check-pill:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.loc-check-pill input[type="checkbox"] {
+  accent-color: var(--color-primary);
+}
+
+/* Website CMS Styles */
+.website-config-grid {
+  max-width: 780px;
+}
+
+.website-config-card {
+  padding: 24px;
+}
+
+.form-section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 1.5px solid #e2e8f0;
+}
+
+.prod-locations-strip {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 @media (max-width: 900px) {

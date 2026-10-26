@@ -22,7 +22,11 @@ import {
   uploadImage,
   apiGetCoachAttendances,
   apiRecordCoachAttendance,
-  apiVerifyCoachAttendance
+  apiVerifyCoachAttendance,
+  apiGetLocations,
+  apiCreateLocation,
+  apiUpdateLocation,
+  apiDeleteLocation
 } from './api.js';
 
 const STORAGE_KEY = 'mine_skills_auth_session_v3';
@@ -39,6 +43,7 @@ const initialProducts = [
     heroImage: '/images/swimming-hero.jpg',
     isActive: true,
     featured: true,
+    locationIds: ['loc_jatiwaringin', 'loc_galaxy', 'loc_raden_inten'],
     levels: [
       { levelNumber: 1, title: 'Water Explorer', focus: 'Water Confidence & Basic Freestyle', challenge: '5 Meter Freestyle Challenge' },
       { levelNumber: 2, title: 'Breaststroke Hero', focus: 'Gaya Dada (Kaki, Tarikan & Nafas)', challenge: '10 Meter Breaststroke Challenge' },
@@ -56,6 +61,7 @@ const initialProducts = [
     heroImage: '/images/dance-hero.jpg',
     isActive: true,
     featured: false,
+    locationIds: ['loc_raden_inten'],
     levels: [
       { levelNumber: 1, title: 'Rhythm Starter', focus: 'Postur Tubuh, Fleksibilitas & Ritme Dasar', challenge: 'Koreografi Dasar 1 Menit' },
       { levelNumber: 2, title: 'Graceful Mover', focus: 'Gerak Tari Tradisional (Agem, Seledet)', challenge: 'Penampilan Tarian Pilihan Kelompok' },
@@ -275,10 +281,43 @@ const initialUsers = [
 
 const initialLocations = [
   {
-    id: 'jatiwaringin',
+    id: 'loc_jatiwaringin',
     name: 'Kolam Graha Kresna Pratama',
     area: 'Jatiwaringin, Pondok Gede',
-    address: 'Komplek Graha Kresna Pratama, Jl. Raya Jatiwaringin No. 45, Pondok Gede, Kota Bekasi'
+    address: 'Komplek Graha Kresna Pratama, Jl. Raya Jatiwaringin No. 45, Pondok Gede, Kota Bekasi',
+    latitude: -6.2847,
+    longitude: 106.9142,
+    radiusMeters: 250,
+    productIds: ['prod_swimming'],
+    facilities: 'Kolam Semi-Olympic 25M, Area Dangkal Anak (80cm), Ruang Bilas Air Hangat, Parkir Luas, Kantin',
+    image: 'https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?auto=format&fit=crop&q=80&w=600',
+    isActive: true
+  },
+  {
+    id: 'loc_galaxy',
+    name: 'Kolam Renang Tirta Mas Galaxy',
+    area: 'Grand Galaxy City, Bekasi Selatan',
+    address: 'Jl. Boulevard Raya Barat No. 1, Jaka Setia, Bekasi Selatan, Kota Bekasi',
+    latitude: -6.2682,
+    longitude: 106.9741,
+    radiusMeters: 250,
+    productIds: ['prod_swimming'],
+    facilities: 'Kolam Kanopi Ramah Anak, Kolam Standar Dewasa, Gazebo Tunggu Beratap, Loker Aman',
+    image: 'https://images.unsplash.com/photo-1519315901367-f34ff9154487?auto=format&fit=crop&q=80&w=600',
+    isActive: true
+  },
+  {
+    id: 'loc_raden_inten',
+    name: 'Sport Center Raden Inten',
+    area: 'Duren Sawit, Jakarta Timur',
+    address: 'Jl. Raden Inten II No. 8, Duren Sawit, Kota Jakarta Timur',
+    latitude: -6.2365,
+    longitude: 106.9157,
+    radiusMeters: 300,
+    productIds: ['prod_swimming', 'prod_dance'],
+    facilities: 'Studio Tari Berlantai Kayu & Kaca Penuh, Kolam Renang Indoor, Area Tunggu Nyaman AC',
+    image: 'https://images.unsplash.com/photo-1571902943202-507ec2618e8f?auto=format&fit=crop&q=80&w=600',
+    isActive: true
   }
 ];
 
@@ -382,12 +421,14 @@ const initialRbacMatrix = {
     allowedMenus: [
       'm_overview',
       'm_products',
+      'm_locations',
       'm_packages',
       'm_coaches',
       'm_students',
       'm_schedules',
       'm_attendance',
       'm_payments',
+      'm_website',
       'm_rbac'
     ]
   }
@@ -649,6 +690,59 @@ export const actions = {
   async deletePackage(id) {
     await apiDeletePackage(id);
     await this.init();
+  },
+
+  // Locations Dynamic CRUD
+  async addLocation(locData) {
+    try {
+      const created = await apiCreateLocation(locData);
+      await this.init();
+      return created;
+    } catch (err) {
+      console.warn('[Store] apiCreateLocation failed, saving locally:', err);
+      const newLoc = {
+        ...locData,
+        id: locData.id || `loc_${Date.now()}`,
+        latitude: parseFloat(locData.latitude) || -6.2847,
+        longitude: parseFloat(locData.longitude) || 106.9142,
+        radiusMeters: parseInt(locData.radiusMeters) || 250,
+        productIds: Array.isArray(locData.productIds) ? locData.productIds : ['prod_swimming'],
+        isActive: locData.isActive !== false
+      };
+      store.locations = [...(store.locations || []), newLoc];
+      return newLoc;
+    }
+  },
+
+  async updateLocation(id, patch) {
+    try {
+      const updated = await apiUpdateLocation(id, patch);
+      await this.init();
+      return updated;
+    } catch (err) {
+      console.warn('[Store] apiUpdateLocation failed, updating locally:', err);
+      const idx = (store.locations || []).findIndex(l => l.id === id);
+      if (idx > -1) {
+        store.locations[idx] = {
+          ...store.locations[idx],
+          ...patch,
+          latitude: patch.latitude !== undefined ? parseFloat(patch.latitude) : store.locations[idx].latitude,
+          longitude: patch.longitude !== undefined ? parseFloat(patch.longitude) : store.locations[idx].longitude,
+          radiusMeters: patch.radiusMeters !== undefined ? parseInt(patch.radiusMeters) : store.locations[idx].radiusMeters
+        };
+      }
+      return store.locations[idx];
+    }
+  },
+
+  async deleteLocation(id) {
+    try {
+      await apiDeleteLocation(id);
+      await this.init();
+    } catch (err) {
+      console.warn('[Store] apiDeleteLocation failed, deleting locally:', err);
+      store.locations = (store.locations || []).filter(l => l.id !== id);
+    }
   },
 
   // Coaches CRUD (Auto-creates User with password 123)

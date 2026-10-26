@@ -7,7 +7,7 @@
         <div class="coach-profile-left">
           <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=160" alt="Coach Avatar" class="coach-avatar" />
           <div class="coach-info">
-            <div class="badge-chip gold">Instruktur Terverifikasi</div>
+            <div class="badge-chip gold">Instruktur mine.skills</div>
             <h2 class="coach-name">{{ currentCoach.name }}</h2>
             <p class="coach-meta">{{ currentCoach.specialty }}</p>
           </div>
@@ -81,127 +81,194 @@
         <div>
           <span class="badge-chip teal">Daily Assessment Tool</span>
           <h2 class="page-title">Input Perkembangan Latihan Siswa</h2>
-          <p class="page-sub">Formulir evaluasi kompetensi teknik dan umpan balik humanis untuk orang tua.</p>
+          <p class="page-sub">Formulir evaluasi kompetensi teknik dan format laporan latihan resmi coach.</p>
         </div>
       </div>
 
-      <div class="assessment-form-card card-humanist">
-        <!-- Success Alert -->
-        <div v-if="saveSuccess" class="alert-success">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="20 6 9 17 4 12"></polyline>
-          </svg>
-          <span>Raport perkembangan siswa berhasil disimpan dan dipublikasikan ke portal orang tua!</span>
-        </div>
+      <!-- Success & Copy Alerts -->
+      <div v-if="saveSuccess" class="alert-success">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span>Raport perkembangan siswa berhasil disimpan dan dipublikasikan ke portal orang tua!</span>
+      </div>
 
-        <form @submit.prevent="handleSaveReport">
-          <div class="form-grid">
-            <!-- Pilih Siswa -->
-            <div class="form-group">
-              <label class="form-label">Pilih Siswa Didik <span class="required">*</span></label>
-              <select v-model="selectedStudentId" class="form-select" required>
-                <option v-for="stu in store.students" :key="stu.id" :value="stu.id">
-                  {{ stu.name }} ({{ stu.program }} - {{ stu.currentLevelTitle }})
-                </option>
-              </select>
+      <div v-if="copySuccess" class="alert-success" style="background-color: #e8f5e9; border-color: #4caf50; color: #2e7d32;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span>Format laporan WhatsApp berhasil disalin ke clipboard! Silakan paste langsung ke chat orang tua siswa.</span>
+      </div>
+
+      <div class="progress-input-grid">
+        <!-- Left: Form Input -->
+        <div class="assessment-form-card card-humanist">
+          <form @submit.prevent="handleSaveReport">
+            <h3 class="form-section-title">Data Siswa & Sesi</h3>
+            
+            <div class="form-grid">
+              <!-- Pilih Siswa -->
+              <div class="form-group full-width">
+                <label class="form-label">Pilih Siswa Didik <span class="required">*</span></label>
+                <select v-model="selectedStudentId" class="form-select" required>
+                  <option v-for="stu in store.students" :key="stu.id" :value="stu.id">
+                    {{ stu.name }} ({{ stu.program || stu.productName }} - {{ stu.currentLevelTitle }})
+                  </option>
+                </select>
+              </div>
+
+              <!-- Level Siswa -->
+              <div class="form-group">
+                <label class="form-label">Level <span class="required">*</span></label>
+                <input 
+                  v-model="assessmentData.level" 
+                  type="text" 
+                  class="form-input" 
+                  placeholder="Contoh: Level 1 / Level 2" 
+                  required 
+                />
+              </div>
+
+              <!-- Pertemuan ke -->
+              <div class="form-group">
+                <label class="form-label">Pertemuan ke <span class="required">*</span></label>
+                <input 
+                  v-model.number="assessmentData.sessionNumber" 
+                  type="number" 
+                  min="1"
+                  class="form-input" 
+                  placeholder="Contoh: 1, 2, 3..." 
+                  required 
+                />
+              </div>
             </div>
 
-            <!-- Fokus Materi Sesi Ini -->
+            <h3 class="form-section-title" style="margin-top: 20px;">Materi Latihan</h3>
+            
+            <!-- Pemanasan -->
             <div class="form-group">
-              <label class="form-label">Fokus Materi Sesi Ini <span class="required">*</span></label>
+              <label class="form-label">Pemanasan :</label>
               <input 
-                v-model="assessmentData.focus" 
+                v-model="assessmentData.warmup" 
                 type="text" 
                 class="form-input" 
-                placeholder="Contoh: Pemantapan Gerakan Kaki Katak & Nafas Teratur" 
+                placeholder="stretching dinamis & statis" 
                 required 
               />
             </div>
-          </div>
 
-          <!-- Indikator Penilaian Kompetensi -->
-          <div class="indicators-section">
-            <h4 class="ind-sec-title">Penilaian Indikator Kompetensi (3 Aspek Utama)</h4>
-            
-            <div class="indicators-grid-3">
-              <div class="form-group">
-                <label class="form-label">1. Keberanian & Kepercayaan Diri</label>
-                <select v-model="assessmentData.score1" class="form-select">
-                  <option value="Sangat Baik">Sangat Baik (Percaya diri penuh)</option>
-                  <option value="Baik">Baik (Berani dengan instruksi)</option>
-                  <option value="Cukup">Cukup (Masih butuh didampingi)</option>
-                  <option value="Perlu Latihan">Perlu Latihan Lebih</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">2. Ketepatan Teknik Gerakan</label>
-                <select v-model="assessmentData.score2" class="form-select">
-                  <option value="Sangat Baik">Sangat Baik (Simetris & Rileks)</option>
-                  <option value="Baik">Baik (Mekanik sudah terbentuk)</option>
-                  <option value="Cukup">Cukup (Kadang kaki kurang simetris)</option>
-                  <option value="Perlu Latihan">Perlu Latihan Lebih</option>
-                </select>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">3. Kontrol Nafas & Ketahanan</label>
-                <select v-model="assessmentData.score3" class="form-select">
-                  <option value="Sangat Baik">Sangat Baik (Tidak tersedak/stabil)</option>
-                  <option value="Baik">Baik (Irama 1 tarikan 1 hembus)</option>
-                  <option value="Cukup">Cukup (Cepat lelah di akhir)</option>
-                  <option value="Perlu Latihan">Perlu Latihan Lebih</option>
-                </select>
-              </div>
+            <!-- Latihan Inti -->
+            <div class="form-group">
+              <label class="form-label">Latihan Inti : <span class="required">*</span></label>
+              <textarea 
+                v-model="assessmentData.mainExercise" 
+                class="form-textarea" 
+                rows="2" 
+                placeholder="Contoh: Gerakan meluncur gaya dada & kombinasi ayunan tangan nafas teratur" 
+                required
+              ></textarea>
             </div>
-          </div>
 
-          <!-- Catatan Evaluasi Coach -->
-          <div class="form-group">
-            <label class="form-label">Catatan Evaluasi Coach untuk Orang Tua <span class="required">*</span></label>
-            <textarea 
-              v-model="assessmentData.coachNotes" 
-              class="form-textarea" 
-              rows="3" 
-              placeholder="Contoh: Ananda hari ini sangat aktif dan ceria. Gerakan meluncur gaya dada sudah mencapai jarak 8 meter tanpa berhenti. Pertahankan kedisiplinan nafasnya ya Bunda." 
-              required
-            ></textarea>
-            <span class="form-hint">Gunakan bahasa yang mengapresiasi usaha anak dan informatif bagi orang tua.</span>
-          </div>
+            <!-- Pendinginan -->
+            <div class="form-group">
+              <label class="form-label">Pendinginan :</label>
+              <input 
+                v-model="assessmentData.cooldown" 
+                type="text" 
+                class="form-input" 
+                placeholder="bubbling & starfish" 
+                required 
+              />
+            </div>
 
-          <!-- Rekomendasi Sesi Selanjutnya -->
-          <div class="form-group">
-            <label class="form-label">Rekomendasi Latihan Sesi Berikutnya</label>
-            <input 
-              v-model="assessmentData.recommendation" 
-              type="text" 
-              class="form-input" 
-              placeholder="Contoh: Simulasi Ujian Challenge 10 Meter Mandiri & Transisi Gaya Punggung." 
-            />
-          </div>
+            <h3 class="form-section-title" style="margin-top: 20px;">Catatan & Evaluasi</h3>
 
-          <!-- Level Promotion Checkbox -->
-          <div class="promotion-box">
-            <label class="checkbox-label">
-              <input type="checkbox" v-model="assessmentData.promoteLevel" class="checkbox-input" />
-              <div class="checkbox-text">
-                <strong>Rekomendasikan Kenaikan Level (Lulus Challenge)</strong>
-                <p>Centang jika anak telah berhasil menuntaskan tantangan level saat ini dan siap diterbitkan sertifikat kenaikan level.</p>
-              </div>
-            </label>
-          </div>
+            <!-- Catatan Coach -->
+            <div class="form-group">
+              <label class="form-label">Catatan Coach : <span class="required">*</span></label>
+              <textarea 
+                v-model="assessmentData.coachNotes" 
+                class="form-textarea" 
+                rows="3" 
+                placeholder="Tuliskan catatan evaluasi perkembangan ananda..." 
+                required
+              ></textarea>
+            </div>
 
-          <div class="form-actions">
-            <button type="submit" class="btn-primary">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                <polyline points="7 3 7 8 15 8"></polyline>
+            <!-- Nama Coach / Salam -->
+            <div class="form-group">
+              <label class="form-label">Nama Coach / Tanda Tangan Salam :</label>
+              <input 
+                v-model="assessmentData.coachName" 
+                type="text" 
+                class="form-input" 
+                placeholder="Coach Adit" 
+                required 
+              />
+            </div>
+
+            <!-- Level Promotion Checkbox -->
+            <div class="promotion-box">
+              <label class="checkbox-label">
+                <input type="checkbox" v-model="assessmentData.promoteLevel" class="checkbox-input" />
+                <div class="checkbox-text">
+                  <strong>Rekomendasikan Kenaikan Level (Lulus Challenge)</strong>
+                  <p>Centang jika anak telah berhasil menuntaskan tantangan level saat ini.</p>
+                </div>
+              </label>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                  <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                  <polyline points="7 3 7 8 15 8"></polyline>
+                </svg>
+                <span>Simpan Raport ke Sistem</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Right: Live Output Preview & WhatsApp Export -->
+        <div class="assessment-preview-card card-humanist">
+          <div class="preview-header">
+            <div>
+              <span class="badge-chip gold">Format Output Standar</span>
+              <h3 class="preview-title">Laporan Perkembangan Siswa</h3>
+              <p class="preview-sub">Hasil format teks siap kirim ke WhatsApp orang tua siswa.</p>
+            </div>
+            <button @click="copyOutputText" class="btn-secondary btn-sm" title="Salin teks ke clipboard">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>
-              <span>Simpan & Publikasikan Raport</span>
+              <span>{{ copySuccess ? 'Tersalin! ✓' : 'Salin Teks' }}</span>
             </button>
           </div>
-        </form>
+
+          <div class="wa-formatted-preview-box">
+            <pre class="wa-preview-text">{{ formattedOutputText }}</pre>
+          </div>
+
+          <div class="preview-actions">
+            <button @click="copyOutputText" class="btn-gold full-width">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>{{ copySuccess ? 'Berhasil Disalin! ✓' : 'Salin Format WhatsApp' }}</span>
+            </button>
+
+            <a :href="directWaSendUrl" target="_blank" class="btn-whatsapp full-width" style="margin-top: 10px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2m.01 1.67c2.2 0 4.26.86 5.82 2.42a8.225 8.225 0 0 1 2.41 5.83c0 4.54-3.7 8.24-8.24 8.24-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.196 8.196 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24m4.52 11.63c-.25-.13-1.47-.72-1.7-.81-.23-.08-.39-.13-.56.13-.17.25-.64.81-.79.97-.14.17-.29.19-.54.06-.25-.13-1.06-.39-2.02-1.25-.75-.67-1.26-1.5-1.41-1.75-.15-.25-.02-.39.11-.51.11-.11.25-.29.37-.44.13-.14.17-.25.25-.42.08-.17.04-.31-.02-.44-.06-.13-.56-1.34-.76-1.84-.2-.49-.4-.42-.56-.43h-.48c-.17 0-.44.06-.67.31-.23.25-.88.86-.88 2.1s.9 2.43 1.02 2.6c.13.17 1.77 2.7 4.29 3.79.6.26 1.07.41 1.44.53.61.19 1.16.17 1.6-.01.49-.07 1.47-.6 1.68-1.18.21-.58.21-1.07.15-1.18-.06-.11-.22-.18-.47-.31"/>
+              </svg>
+              <span>Kirim Langsung via WhatsApp</span>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -297,7 +364,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { store, actions } from '../data/store.js';
 
 const props = defineProps({
@@ -311,26 +378,96 @@ defineEmits(['change-menu']);
 
 const currentCoach = computed(() => {
   return store.mockUsers.find(u => u.role === 'coach') || {
-    name: 'Coach Dimas Prasetyo, S.Or.',
+    name: 'Coach Adit',
     specialty: 'Renang Anak & Water Safety'
   };
 });
 
 const selectedStudentId = ref(store.students[0]?.id || 'stu_1');
 const saveSuccess = ref(false);
+const copySuccess = ref(false);
+
+const selectedStudent = computed(() => {
+  return store.students.find(s => s.id === selectedStudentId.value) || store.students[0];
+});
 
 const assessmentData = ref({
-  focus: 'Simulasi Challenge 10 Meter Mandiri & Gaya Dada Stabil',
-  score1: 'Sangat Baik',
-  score2: 'Baik',
-  score3: 'Sangat Baik',
-  coachNotes: 'Kemajuan luar biasa! Koordinasi kayuhan tangan dan ayunan kaki katak semakin selaras. Anak berenang dengan rileks dan percaya diri.',
-  recommendation: 'Pertahankan daya tahan untuk persiapan sertifikasi kenaikan level.',
+  level: 'Level 2',
+  sessionNumber: 3,
+  warmup: 'stretching dinamis & statis',
+  mainExercise: 'Gerakan meluncur gaya dada & kombinasi ayunan tangan nafas teratur',
+  cooldown: 'bubbling & starfish',
+  coachNotes: 'Ananda hari ini sangat aktif dan percaya diri. Gerakan meluncur gaya dada sudah mencapai jarak 8 meter tanpa henti.',
+  coachName: 'Coach Adit',
   promoteLevel: false
 });
 
-function handleSaveReport() {
-  const ok = actions.addSessionReport(selectedStudentId.value, assessmentData.value);
+watch(selectedStudent, (newStu) => {
+  if (newStu) {
+    assessmentData.value.level = newStu.currentLevelTitle || `Level ${newStu.currentLevel || 1}`;
+    assessmentData.value.sessionNumber = (newStu.sessionReports?.length || newStu.completedSessions || 0) + 1;
+  }
+}, { immediate: true });
+
+const formattedOutputText = computed(() => {
+  const stuName = selectedStudent.value?.name || '';
+  const lvl = assessmentData.value.level || '';
+  const sess = assessmentData.value.sessionNumber || 1;
+  const warmup = assessmentData.value.warmup || 'stretching dinamis & statis';
+  const mainEx = assessmentData.value.mainExercise || '';
+  const cooldown = assessmentData.value.cooldown || 'bubbling & starfish';
+  const notes = assessmentData.value.coachNotes || '';
+  const coach = assessmentData.value.coachName || 'Coach Adit';
+
+  return `Nama siswa : ${stuName}
+Level : ${lvl}
+Pertemuan ke : ${sess}
+
+Materi latihan
+Pemanasan : ${warmup}
+Latihan inti : ${mainEx}
+Pendinginan : ${cooldown}
+
+Catatan coach
+${notes}
+
+Salam,
+${coach}`;
+});
+
+async function copyOutputText() {
+  try {
+    await navigator.clipboard.writeText(formattedOutputText.value);
+    copySuccess.value = true;
+    setTimeout(() => {
+      copySuccess.value = false;
+    }, 3500);
+  } catch (err) {
+    console.error('Clipboard copy error:', err);
+  }
+}
+
+const directWaSendUrl = computed(() => {
+  const phone = selectedStudent.value?.phone || store.brand.callCenter;
+  const cleanPhone = actions.cleanWaNumber(phone);
+  return `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(formattedOutputText.value)}`;
+});
+
+async function handleSaveReport() {
+  const reportPayload = {
+    studentId: selectedStudentId.value,
+    studentName: selectedStudent.value?.name,
+    level: assessmentData.value.level,
+    sessionNumber: assessmentData.value.sessionNumber,
+    warmup: assessmentData.value.warmup,
+    mainExercise: assessmentData.value.mainExercise,
+    cooldown: assessmentData.value.cooldown,
+    coachNotes: assessmentData.value.coachNotes,
+    coachName: assessmentData.value.coachName || 'Coach Adit',
+    promoteLevel: assessmentData.value.promoteLevel
+  };
+
+  const ok = await actions.addSessionReport(selectedStudentId.value, reportPayload);
   if (ok) {
     saveSuccess.value = true;
     setTimeout(() => {
@@ -702,6 +839,101 @@ function handleSaveReport() {
   font-size: 12px;
   color: var(--text-subtle);
   font-weight: 600;
+}
+
+/* Progress Input Grid & Live WhatsApp Preview */
+.progress-input-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.form-section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid var(--border-subtle);
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.assessment-preview-card {
+  padding: 24px;
+  position: sticky;
+  top: 90px;
+}
+
+.preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.preview-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+  margin-top: 4px;
+}
+
+.preview-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.wa-formatted-preview-box {
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+  margin-bottom: 18px;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.wa-preview-text {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: #1e293b;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+}
+
+.btn-whatsapp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: #25d366;
+  color: #ffffff;
+  padding: 10px 18px;
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: 13.5px;
+  text-decoration: none;
+  transition: background-color 150ms ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-whatsapp:hover {
+  background-color: #1eb956;
+}
+
+@media (max-width: 900px) {
+  .progress-input-grid {
+    grid-template-columns: 1fr;
+  }
+  .assessment-preview-card {
+    position: static;
+  }
 }
 
 @media (max-width: 768px) {

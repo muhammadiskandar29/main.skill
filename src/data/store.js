@@ -86,7 +86,7 @@ const initialPackages = [
     ratio: '4 - 5 anak / kelas',
     price: 400000,
     formattedPrice: 'Rp 400.000',
-    duration: '45 menit / sesi',
+    duration: '90 menit / sesi',
     meetings: '4x pertemuan',
     badge: 'Paling Populer',
     description: 'Pilihan hemat dengan suasana bersosialisasi yang menyenangkan dan tetap terpantau.'
@@ -99,7 +99,7 @@ const initialPackages = [
     ratio: '2 - 3 anak / kelas',
     price: 500000,
     formattedPrice: 'Rp 500.000',
-    duration: '45 menit / sesi',
+    duration: '90 menit / sesi',
     meetings: '4x pertemuan',
     badge: 'Rekomendasi Coach',
     description: 'Fokus perhatian lebih intensif dengan teman sebaya atau saudara.'
@@ -148,10 +148,10 @@ const initialPackages = [
 const initialCoaches = [
   {
     id: 'coach_1',
-    name: 'Coach Dimas Prasetyo, S.Or.',
-    email: 'dimas.coach@mine.skills.id',
-    phone: '085712349012',
-    specialty: 'Renang Anak & Water Safety (Certified FINA/PRSI)',
+    name: 'Coach Adit',
+    email: 'adit.coach@mine.skills.id',
+    phone: '085286274726',
+    specialty: 'Renang Anak & Water Safety (Head Coach)',
     bio: 'Berpengalaman lebih dari 8 tahun membina anak usia dini hingga remaja dalam penguasaan 4 gaya renang kompeten dan keselamatan air.',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240',
     productIds: ['prod_swimming'],
@@ -184,7 +184,7 @@ const initialStudents = [
     packageId: 'pkg_swim_small',
     packageName: 'Small Group (Rp 500.000)',
     assignedCoachId: 'coach_1',
-    assignedCoachName: 'Coach Dimas Prasetyo, S.Or.',
+    assignedCoachName: 'Coach Adit',
     mappingLockSessions: 4,
     sessionsCompletedWithCoach: 3,
     mappingStatus: 'Terkunci (Sisa 1 Sesi)',
@@ -198,17 +198,20 @@ const initialStudents = [
     status: 'Aktif / Enrolled',
     joinedDate: '1 Oktober 2026',
     memberSchedules: [
-      { sessionNo: 1, date: '04 Okt 2026', day: 'Sabtu', time: '09.00 - 09.45 WIB', coach: 'Coach Dimas', status: 'Selesai' },
-      { sessionNo: 2, date: '11 Okt 2026', day: 'Sabtu', time: '09.00 - 09.45 WIB', coach: 'Coach Dimas', status: 'Selesai' },
-      { sessionNo: 3, date: '18 Okt 2026', day: 'Sabtu', time: '09.00 - 09.45 WIB', coach: 'Coach Dimas', status: 'Selesai' },
-      { sessionNo: 4, date: '25 Okt 2026', day: 'Sabtu', time: '09.00 - 09.45 WIB', coach: 'Coach Dimas', status: 'Mendatang (Aktif)' }
+      { sessionNo: 1, date: '04 Okt 2026', day: 'Sabtu', time: '09.00 - 09.45 WIB', coach: 'Coach Adit', status: 'Selesai' },
+      { sessionNo: 2, date: '11 Okt 2026', day: 'Sabtu', time: '09.00 - 09.45 WIB', coach: 'Coach Adit', status: 'Selesai' },
+      { sessionNo: 3, date: '18 Okt 2026', day: 'Sabtu', time: '09.00 - 09.45 WIB', coach: 'Coach Adit', status: 'Selesai' },
+      { sessionNo: 4, date: '25 Okt 2026', day: 'Sabtu', time: '09.00 - 09.45 WIB', coach: 'Coach Adit', status: 'Mendatang (Aktif)' }
     ],
     sessionReports: [
       {
         sessionNumber: 3,
         date: '18 Okt 2026',
-        coachName: 'Coach Dimas',
+        coachName: 'Coach Adit',
         focus: 'Simulasi Challenge 10 Meter Gaya Dada Mandiri',
+        warmup: 'stretching dinamis & statis',
+        mainExercise: 'Simulasi Challenge 10 Meter Gaya Dada Mandiri',
+        cooldown: 'bubbling & starfish',
         assessments: [
           { indicator: 'Konsistensi Gaya Dada', score: 'Sangat Baik' },
           { indicator: 'Ketahanan Fisik 45 Menit', score: 'Sangat Baik' },
@@ -248,14 +251,14 @@ const initialUsers = [
     name: 'Iskandar & Tim Manajemen',
     email: 'admin@mine.skills.id',
     role: 'manajemen',
-    phone: '085286274720'
+    phone: '085286274726'
   },
   {
     id: 'usr_coach_1',
-    name: 'Coach Dimas Prasetyo, S.Or.',
-    email: 'dimas.coach@mine.skills.id',
+    name: 'Coach Adit',
+    email: 'adit.coach@mine.skills.id',
     role: 'coach',
-    phone: '085712349012'
+    phone: '085286274726'
   },
   {
     id: 'usr_cust_1',
@@ -273,12 +276,6 @@ const initialLocations = [
     name: 'Kolam Graha Kresna Pratama',
     area: 'Jatiwaringin, Pondok Gede',
     address: 'Komplek Graha Kresna Pratama, Jl. Raya Jatiwaringin No. 45, Pondok Gede, Kota Bekasi'
-  },
-  {
-    id: 'cibubur',
-    name: 'Studio & Kolam Mine.skills Cibubur',
-    area: 'Cibubur, Jakarta Timur',
-    address: 'Jl. Alternatif Cibubur KM 3, Jakarta Timur'
   }
 ];
 
@@ -286,8 +283,8 @@ const initialBrand = {
   name: 'mine.skills',
   logoPath: '/images/mine-skills-logo.png',
   umbrellaTagline: 'Pusat Pembinaan & Akselerasi Potensi Anak',
-  callCenter: '085286274720',
-  callCenterDisplay: '085286274720',
+  callCenter: '085286274726',
+  callCenterDisplay: '085286274726',
   officialEmail: 'halo@mineskills.id',
   primaryLocation: 'Kolam Graha Kresna Pratama, Jatiwaringin',
   addressFull: 'Komplek Graha Kresna Pratama, Jl. Raya Jatiwaringin No. 45, Pondok Gede, Kota Bekasi',
@@ -689,6 +686,44 @@ export const actions = {
     const res = await apiVerifyPayment(invoiceId);
     await this.init();
     return res;
+  },
+
+  // Session Evaluation Report (Coach Role)
+  async addSessionReport(studentId, reportData) {
+    const student = (store.students || []).find(s => s.id === studentId);
+    if (!student) return false;
+
+    if (!Array.isArray(student.sessionReports)) {
+      student.sessionReports = [];
+    }
+
+    const reportItem = {
+      id: `rep_${Date.now()}`,
+      studentId: student.id,
+      studentName: student.name,
+      level: reportData.level || `Level ${student.currentLevel || 1}`,
+      sessionNumber: reportData.sessionNumber || (student.sessionReports.length + 1),
+      date: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
+      warmup: reportData.warmup || 'stretching dinamis & statis',
+      mainExercise: reportData.mainExercise || reportData.focus || '',
+      cooldown: reportData.cooldown || 'bubbling & starfish',
+      coachNotes: reportData.coachNotes || '',
+      coachName: reportData.coachName || 'Coach Adit',
+      score1: reportData.score1 || 'Baik',
+      score2: reportData.score2 || 'Baik',
+      score3: reportData.score3 || 'Baik'
+    };
+
+    student.sessionReports.push(reportItem);
+
+    const patch = { sessionReports: student.sessionReports };
+    if (reportData.promoteLevel) {
+      patch.currentLevel = (parseInt(student.currentLevel) || 1) + 1;
+      patch.currentLevelTitle = `Level ${patch.currentLevel}`;
+    }
+
+    await this.updateStudent(studentId, patch);
+    return reportItem;
   },
 
   cleanWaNumber(phoneStr) {

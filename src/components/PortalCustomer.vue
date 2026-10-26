@@ -172,12 +172,24 @@
           </div>
 
           <div class="report-focus-strip">
-            <span class="lbl">Fokus Latihan:</span>
-            <strong class="focus-val">{{ rep.focus }}</strong>
+            <span class="lbl">Latihan Inti:</span>
+            <strong class="focus-val">{{ rep.mainExercise || rep.focus }}</strong>
           </div>
 
-          <!-- Assessment Indicators -->
-          <div class="assessment-indicators-grid">
+          <!-- Structured Training Materials -->
+          <div class="training-materials-box" v-if="rep.warmup || rep.cooldown">
+            <div class="mat-item" v-if="rep.warmup">
+              <span class="mat-lbl">Pemanasan :</span>
+              <span class="mat-txt">{{ rep.warmup }}</span>
+            </div>
+            <div class="mat-item" v-if="rep.cooldown">
+              <span class="mat-lbl">Pendinginan :</span>
+              <span class="mat-txt">{{ rep.cooldown }}</span>
+            </div>
+          </div>
+
+          <!-- Assessment Indicators (if any) -->
+          <div class="assessment-indicators-grid" v-if="rep.assessments && rep.assessments.length">
             <div 
               v-for="(item, idx) in rep.assessments" 
               :key="idx" 
@@ -190,11 +202,16 @@
 
           <!-- Coach Feedback -->
           <div class="coach-feedback-box">
-            <span class="feedback-lbl">Evaluasi Coach:</span>
-            <p class="feedback-text">"{{ rep.coachNotes }}"</p>
+            <span class="feedback-lbl">Catatan Coach:</span>
+            <p class="feedback-text">{{ rep.coachNotes }}</p>
           </div>
 
-          <div class="recommendation-strip">
+          <div class="coach-sign-footer" v-if="rep.coachName">
+            <span class="sign-salam">Salam,</span>
+            <strong class="sign-coach">{{ rep.coachName }}</strong>
+          </div>
+
+          <div class="recommendation-strip" v-if="rep.recommendation">
             <span class="rec-lbl">Target Pertemuan Berikutnya:</span>
             <span class="rec-text">{{ rep.recommendation }}</span>
           </div>
@@ -882,6 +899,49 @@ function printReport() {
   font-size: 13.5px;
   color: var(--text-main);
   line-height: 1.5;
+}
+
+.training-materials-box {
+  background-color: #f8fafc;
+  border-left: 3px solid var(--color-primary);
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mat-item {
+  font-size: 12.5px;
+  display: flex;
+  gap: 6px;
+}
+
+.mat-lbl {
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+
+.mat-txt {
+  color: #334155;
+}
+
+.coach-sign-footer {
+  margin-top: 10px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.sign-salam {
+  display: block;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.sign-coach {
+  color: var(--color-primary-dark);
+  font-weight: 700;
 }
 
 .recommendation-strip {

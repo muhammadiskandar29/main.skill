@@ -55,7 +55,7 @@
                   </div>
                   <div class="pillar-text">
                     <strong>Standar Safety Ketat</strong>
-                    <span>Pelatih bersertifikat & safety protocol</span>
+                    <span>Pelatih berpengalaman & safety protocol</span>
                   </div>
                 </div>
 
@@ -69,7 +69,7 @@
                   </div>
                   <div class="pillar-text">
                     <strong>Kurikulum Level 1-4</strong>
-                    <span>Milestone tantangan bertahap & terukur</span>
+                    <span>Pembelajaran terstruktur dan terukur</span>
                   </div>
                 </div>
 
@@ -142,13 +142,6 @@
                 <span class="strip-diamond-green"></span>
                 <span class="strip-star-gold">★</span>
               </div>
-
-              <div class="hero-badge-verified">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
-                <span>Pelatih Berlisensi Resmi</span>
-              </div>
             </div>
           </div>
         </div>
@@ -161,7 +154,7 @@
             <div>
               <span class="badge-chip teal">Program Unggulan</span>
               <h2 class="section-heading">Ekosistem Peningkatan Skill Terpadu</h2>
-              <p class="section-subtext">Dari olahraga ketangkasan hingga kreativitas seni, dipandu pelatih bersertifikasi.</p>
+              <p class="section-subtext">Dari olah raga ketangkasan hingga kreativitas, dipandu pelatih berpengalaman</p>
             </div>
             <button @click="navigateTo('programs')" class="btn-outline-primary">
               <span>Lihat Semua Program & Kurikulum</span>
@@ -230,12 +223,6 @@
             >
               <div class="coach-photo-wrap">
                 <img :src="coach.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240'" :alt="coach.name" class="coach-photo" />
-                <span class="coach-verified-badge">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                  Certified
-                </span>
               </div>
               <div class="coach-summary-body">
                 <h4 class="coach-summary-name">{{ coach.name }}</h4>
@@ -263,14 +250,14 @@
                     <div class="point-check">✓</div>
                     <div>
                       <strong>Kurikulum Berjenjang & Sertifikasi Kelulusan:</strong>
-                      <p>Siswa tidak hanya belajar sekadar bisa, melainkan memahami teknik baku dari Level 1 hingga Level 4 dengan sertifikat apresiasi resmi.</p>
+                      <p>Siswa tidak hanya belajar sekadar bisa, melainkan memahami teknik baku dari Level 1 hingga Level 4 dengan sertifikat apresiasi.</p>
                     </div>
                   </div>
                   <div class="trust-point">
                     <div class="point-check">✓</div>
                     <div>
-                      <strong>Ikatan Coach Eksklusif & Terjadwal:</strong>
-                      <p>Pelatih mengikat langsung membimbing ananda selama paket sesi berlangsung agar chemistry dan perkembangan belajar terpantau konsisten.</p>
+                      <strong>Terdapat Reward Setiap Pencapaian Level:</strong>
+                      <p>Apresiasi dan reward nyata diberikan pada setiap kelulusan milestone level untuk memotivasi semangat dan rasa percaya diri ananda.</p>
                     </div>
                   </div>
                   <div class="trust-point">
@@ -286,7 +273,7 @@
               <div class="trust-cta-col">
                 <div class="cta-card-inner">
                   <h4>Konsultasi Program Gratis</h4>
-                  <p>Diskusikan minat, usia, dan target kemampuan anak bersama koordinator akademik kami.</p>
+                  <p>Diskusikan minat, usia, dan target kemampuan anak bisa menghubungi admin.</p>
                   <a :href="directWaUrl" target="_blank" class="btn-whatsapp full-width">
                     <span>Chat WhatsApp Konsultasi</span>
                   </a>
@@ -441,20 +428,13 @@
             Investasi terjangkau untuk akselerasi kemampuan putra-putri Anda. Bebas biaya tersembunyi, sudah termasuk fasilitas kurikulum dan evaluasi digital.
           </p>
 
-          <!-- Program Filter Tabs -->
+          <!-- Program Filter Tabs (Setiap paket dipisah per program) -->
           <div class="category-tabs-bar">
-            <button 
-              class="cat-tab-btn" 
-              :class="{ active: selectedPricingProgramId === '' }"
-              @click="selectedPricingProgramId = ''"
-            >
-              Semua Program ({{ store.packages.length }} Paket)
-            </button>
             <button 
               v-for="p in store.products" 
               :key="p.id" 
               class="cat-tab-btn" 
-              :class="{ active: selectedPricingProgramId === p.id }"
+              :class="{ active: (selectedPricingProgramId || store.products[0]?.id) === p.id }"
               @click="selectedPricingProgramId = p.id"
             >
               {{ p.name }}
@@ -487,13 +467,12 @@
               </div>
             </div>
 
-            <p class="tier-desc">{{ pkg.description || 'Program pembinaan intensif dengan pelatih bersertifikasi.' }}</p>
+            <p class="tier-desc">{{ pkg.description || 'Program pembinaan intensif dengan pelatih berpengalaman.' }}</p>
 
             <ul class="tier-features-list">
               <li>✓ Kurikulum berjenjang terstruktur Level 1 - 4</li>
-              <li>✓ Bimbingan intensif coach terikat selama paket</li>
               <li>✓ Raport perkembangan digital setiap akhir sesi</li>
-              <li>✓ Sertifikat pencapaian tantangan level resmi</li>
+              <li>✓ Sertifikat dan reward setiap pencapaian level</li>
               <li>✓ Fleksibilitas jadwal sesi latihan</li>
               <li>✓ Pembayaran mudah melalui QRIS Dinamis & Transfer Bank</li>
             </ul>
@@ -518,7 +497,7 @@
           </div>
           <div class="notice-text">
             <strong>Jadwal Fleksibel & Penjadwalan Terstruktur:</strong>
-            <p>Pilihan hari dan jam latihan dapat disesuaikan dengan ketersediaan slot (Jumat, Sabtu, dan Minggu, sesi pagi atau sore). Pelatih akan mengikat selama masa paket aktif.</p>
+            <p>Pilihan hari dan jam latihan dapat disesuaikan dengan ketersediaan slot (Jumat, Sabtu, dan Minggu, sesi pagi ataupun sore).</p>
           </div>
         </div>
       </div>
@@ -537,7 +516,7 @@
           </div>
           <h1 class="page-intro-title">Direktori Pelatih & Instruktur Bersertifikasi</h1>
           <p class="page-intro-desc">
-            Profil lengkap tenaga pendidik dan instruktur resmi mine.skills. Memiliki lisensi resmi, dedikasi pembinaan usia dini, dan rekam jejak teruji.
+            Profil lengkap tenaga pendidik dan instruktur resmi mine.skills. Berpengalaman, dedikasi pembinaan usia dini, dan rekam jejak teruji.
           </p>
         </div>
       </div>
@@ -552,12 +531,6 @@
             <div class="c-dir-head">
               <div class="c-avatar-container">
                 <img :src="coach.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240'" :alt="coach.name" class="c-dir-avatar" />
-                <span class="c-dir-license">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                  </svg>
-                  Verified Coach
-                </span>
               </div>
               <div class="c-dir-intro">
                 <h3 class="c-dir-name">{{ coach.name }}</h3>
@@ -723,7 +696,7 @@
                   </svg>
                 </div>
                 <div class="c-item-content">
-                  <span class="c-item-lbl">Sekretariat & Lokasi Utama:</span>
+                  <span class="c-item-lbl">Lokasi Utama:</span>
                   <strong class="c-item-val">{{ store.brand.primaryLocation }}</strong>
                   <p class="c-item-sub">{{ store.brand.addressFull }}</p>
                 </div>
@@ -856,7 +829,7 @@ import { store, actions } from '../data/store.js';
 defineEmits(['open-register']);
 
 const selectedCategoryFilter = ref('');
-const selectedPricingProgramId = ref('');
+const selectedPricingProgramId = ref('prod_swimming');
 const openFaqIndex = ref(0);
 
 function toggleFaq(index) {
@@ -891,8 +864,8 @@ const filteredPrograms = computed(() => {
 });
 
 const filteredPricingPackages = computed(() => {
-  if (!selectedPricingProgramId.value) return store.packages;
-  return store.packages.filter(p => p.productId === selectedPricingProgramId.value);
+  const currentProgId = selectedPricingProgramId.value || store.products[0]?.id || 'prod_swimming';
+  return store.packages.filter(p => p.productId === currentProgId);
 });
 
 function getCoachesForProgram(progId) {

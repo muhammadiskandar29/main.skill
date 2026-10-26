@@ -243,3 +243,33 @@ export async function apiLogin(email, password) {
   }
   return json.data;
 }
+
+// Coach Attendances & Geolocation
+export async function apiGetCoachAttendances() {
+  const res = await fetch(`${API_BASE}/coach-attendances`);
+  const json = await res.json();
+  return json.data || [];
+}
+
+export async function apiRecordCoachAttendance(payload) {
+  const res = await fetch(`${API_BASE}/coach-attendances`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) {
+    throw new Error(json.message || 'Gagal mencatat presensi');
+  }
+  return json.data;
+}
+
+export async function apiVerifyCoachAttendance(id) {
+  const res = await fetch(`${API_BASE}/coach-attendances/${id}/verify`, {
+    method: 'POST'
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || 'Gagal verifikasi presensi');
+  return json.data;
+}
+

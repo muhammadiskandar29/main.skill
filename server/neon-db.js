@@ -820,15 +820,114 @@ export async function getAllUsers() {
   return await queryTable('users');
 }
 
+// -------------------------------------------------------------
+// Coach Attendances & GPS Verification Model
+// -------------------------------------------------------------
+let isCoachAttTableChecked = false;
+async function ensureCoachAttendancesTable() {
+  if (isCoachAttTableChecked) return;
+  const sql = getSql();
+  if (sql) {
+    try {
+      await sql.query(`
+        CREATE TABLE IF NOT EXISTS coach_attendances (
+          id TEXT PRIMARY KEY,
+          data JSONB NOT NULL,
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+        );
+      `);
+      isCoachAttTableChecked = true;
+    } catch (err) {
+      console.warn('[Neon DB] ensureCoachAttendancesTable error:', err.message);
+    }
+  }
+}
+
+export async function getAllCoachAttendances() {
+  await ensureCoachAttendancesTable();
+  const sql = getSql();
+  if (sql) {
+    try {
+      const rows = await sql.query(`SELECT data FROM coach_attendances ORDER BY updated_at DESC;`);
+      if (rows && rows.length > 0) return rows.map(r => r.data);
+    } catch (e) {
+      console.warn('[Neon DB] getAllCoachAttendances error:', e);
+    }
+  }
+  const fallback = readJsonFallback();
+  return fallback.coachAttendances || [];
+}
+
+export async function recordCoachAttendance(payload) {
+  await ensureCoachAttendancesTable();
+  const id = payload.id || `att_${Date.now()}`;
+  const now = new Date();
+
+  // Target Venue: Kolam Graha Kresna Pratama (-6.2847, 106.9142)
+  const venueLat = -6.2847;
+  const venueLng = 106.9142;
+  const coachLat = parseFloat(payload.latitude) || venueLat;
+  const coachLng = parseFloat(payload.longitude) || venueLng;
+
+  // Haversine distance in meters
+  const R = 6371e3;
+  const phi1 = (venueLat * Math.PI) / 180;
+  const phi2 = (coachLat * Math.PI) / 180;
+  const deltaPhi = ((coachLat - venueLat) * Math.PI) / 180;
+  const deltaLambda = ((coachLng - venueLng) * Math.PI) / 180;
+
+  const a = Math.sin(deltaPhi / 2) * Math.sin(deltaPhi / 2) +
+            Math.cos(phi1) * Math.cos(phi2) *
+            Math.sin(deltaLambda / 2) * Math.sin(deltaLambda / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const distance = Math.round(R * c);
+
+  const inRadius = distance <= 250;
+  const status = inRadius ? 'Hadir di Lokasi' : 'Di Luar Radius Kolam';
+
+  const attendanceRecord = {
+    id,
+    coachId: payload.coachId || 'coach_1',
+    coachName: payload.coachName || 'Coach Adit',
+    coachAvatar: payload.coachAvatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240',
+    date: payload.date || now.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
+    time: payload.time || now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB',
+    timestamp: Date.now(),
+    sessionType: payload.sessionType || 'Sesi Pagi (08.00 - 09.30 WIB)',
+    locationName: payload.locationName || 'Kolam Graha Kresna Pratama, Jatiwaringin',
+    latitude: coachLat,
+    longitude: coachLng,
+    accuracy: payload.accuracy ? Math.round(payload.accuracy) : 12,
+    distanceFromVenue: distance,
+    status: payload.status || status,
+    isVerified: inRadius,
+    notes: payload.notes || 'Presensi mandiri pelatih dengan GPS'
+  };
+
+  await upsertRecord('coach_attendances', id, attendanceRecord);
+  return attendanceRecord;
+}
+
+export async function verifyCoachAttendance(id) {
+  await ensureCoachAttendancesTable();
+  const record = await getById('coach_attendances', id);
+  if (!record) return null;
+  record.isVerified = true;
+  record.verifiedAt = new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
+  await upsertRecord('coach_attendances', id, record);
+  return record;
+}
+
 export async function getBootstrapData() {
-  const [products, coaches, packages, students, transactions, users, locations] = await Promise.all([
+  const [products, coaches, packages, students, transactions, users, locations, coachAttendances] = await Promise.all([
     getAllProducts(),
     getAllCoaches(),
     getAllPackages(),
     getAllStudents(),
     getAllTransactions(),
     getAllUsers(),
-    queryTable('locations')
+    queryTable('locations'),
+    getAllCoachAttendances()
   ]);
 
   return {
@@ -838,6 +937,7 @@ export async function getBootstrapData() {
     students,
     transactions,
     users,
-    locations
+    locations,
+    coachAttendances
   };
 }

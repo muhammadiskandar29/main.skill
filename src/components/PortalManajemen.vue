@@ -669,6 +669,350 @@
     </div>
 
     <!-- =========================================================================
+         SUB-MENU: MONITORING KEHADIRAN COACH (m_attendance)
+         ========================================================================= -->
+    <div v-else-if="activeMenu === 'm_attendance'" class="portal-tab-content">
+      <div class="page-top-bar">
+        <div>
+          <span class="badge-chip gold">Audit Kehadiran Berbasis Geofence GPS</span>
+          <h2 class="page-title">Monitoring Kehadiran Instruktur & Coach</h2>
+          <p class="page-sub">Pemantauan presensi pelatih secara real-time berdasarkan titik koordinat GPS dan validasi radius lokasi Kolam Graha Kresna Pratama.</p>
+        </div>
+        <div class="top-date-badge">
+          <span>📍 Target: Kolam Graha Kresna Pratama (Maks. 250m)</span>
+        </div>
+      </div>
+
+      <!-- KPI Metrics Cards Grid -->
+      <div class="metrics-grid">
+        <div class="metric-card card-humanist">
+          <div class="metric-icon-wrap teal">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+          </div>
+          <div class="metric-data">
+            <span class="metric-lbl">Total Presensi Masuk</span>
+            <strong class="metric-val">{{ totalAttendances }} Catatan</strong>
+            <span class="metric-sub text-teal">Presensi Coach Terdata</span>
+          </div>
+        </div>
+
+        <div class="metric-card card-humanist">
+          <div class="metric-icon-wrap green">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+          </div>
+          <div class="metric-data">
+            <span class="metric-lbl">Presensi Dalam Radius Kolam</span>
+            <strong class="metric-val">{{ validGeofenceAttendances }} Valid</strong>
+            <span class="metric-sub text-green">{{ geofenceCompliancePct }}% Kepatuhan Lokasi</span>
+          </div>
+        </div>
+
+        <div class="metric-card card-humanist">
+          <div class="metric-icon-wrap gold">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <div class="metric-data">
+            <span class="metric-lbl">Coach Bertugas / Aktif</span>
+            <strong class="metric-val">{{ coachesOnDutyToday }} Pelatih</strong>
+            <span class="metric-sub">Tercatat Absen Hari Ini</span>
+          </div>
+        </div>
+
+        <div class="metric-card card-humanist">
+          <div class="metric-icon-wrap teal">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <circle cx="12" cy="12" r="6"></circle>
+              <circle cx="12" cy="12" r="2"></circle>
+            </svg>
+          </div>
+          <div class="metric-data">
+            <span class="metric-lbl">Toleransi Radius Geofence</span>
+            <strong class="metric-val">250 Meter</strong>
+            <span class="metric-sub">Titik Kolam Jatiwaringin</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Venue Geofence Reference Strip -->
+      <div class="geofence-info-strip card-humanist">
+        <div class="strip-left">
+          <div class="venue-icon-circle">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h4 class="venue-strip-title">Titik Pusat Latihan: Kolam Graha Kresna Pratama, Jatiwaringin</h4>
+              <span class="badge-chip teal">Pusat Latihan Resmi</span>
+            </div>
+            <p class="venue-strip-desc">
+              Koordinat Patokan: <code class="font-mono">-6.284700, 106.914200</code> • Toleransi Presensi: Maks. 250 Meter. Presensi yang berada di luar radius ini akan ditandai dengan label peringatan dan membutuhkan review manajemen.
+            </p>
+          </div>
+        </div>
+        <div class="strip-right">
+          <a href="https://www.google.com/maps?q=-6.2847,106.9142" target="_blank" class="btn-secondary btn-sm">
+            <span>Buka Lokasi Kolam di Maps</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Filters & Search Toolbar -->
+      <div class="filter-toolbar card-humanist">
+        <div class="toolbar-search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input 
+            v-model="attSearchQuery" 
+            type="text" 
+            placeholder="Cari nama coach, sesi, atau catatan..." 
+            class="search-input" 
+          />
+        </div>
+
+        <div class="toolbar-filters">
+          <select v-model="attFilterCoach" class="filter-select">
+            <option value="all">Semua Instruktur / Coach</option>
+            <option v-for="c in store.coaches" :key="c.id" :value="c.name">{{ c.name }}</option>
+          </select>
+
+          <select v-model="attFilterStatus" class="filter-select">
+            <option value="all">Semua Status Radius</option>
+            <option value="valid">Dalam Radius (<= 250m)</option>
+            <option value="invalid">Luar Radius (> 250m)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Monitoring Attendance Table with Mini Maps -->
+      <div class="attendance-table-wrap card-humanist">
+        <div class="table-header-row">
+          <div>
+            <h3 class="table-card-title">Daftar Log Presensi & Titik Koordinat Pelatih</h3>
+            <span class="table-card-sub">Menampilkan {{ filteredCoachAttendances.length }} data presensi real-time</span>
+          </div>
+        </div>
+
+        <div v-if="filteredCoachAttendances.length === 0" class="empty-table-state">
+          <p>Tidak ditemukan data presensi yang sesuai dengan filter.</p>
+        </div>
+
+        <div v-else class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Instruktur / Coach</th>
+                <th>Waktu & Sesi</th>
+                <th>Titik Koordinat GPS</th>
+                <th>Jarak ke Kolam</th>
+                <th>Preview Mini Map</th>
+                <th>Status Validasi</th>
+                <th style="text-align: right;">Aksi & Verifikasi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="att in filteredCoachAttendances" :key="att.id">
+                <td>
+                  <div class="coach-td-cell">
+                    <img :src="att.coachAvatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120'" alt="Avatar" class="coach-sm-avatar" />
+                    <div>
+                      <strong class="coach-cell-name">{{ att.coachName }}</strong>
+                      <span class="coach-cell-notes">{{ att.notes || 'Presensi mandiri' }}</span>
+                    </div>
+                  </div>
+                </td>
+
+                <td>
+                  <div class="time-td-cell">
+                    <strong class="att-date-str">{{ att.date || 'Hari Ini' }}</strong>
+                    <span class="att-clock-str font-mono">{{ att.time }}</span>
+                    <span class="badge-chip teal att-session-pill">{{ att.sessionType }}</span>
+                  </div>
+                </td>
+
+                <td>
+                  <div class="coord-td-cell">
+                    <span class="font-mono coord-val">{{ Number(att.latitude).toFixed(5) }}, {{ Number(att.longitude).toFixed(5) }}</span>
+                    <span class="acc-text">Akurasi GPS: ± {{ att.accuracy || 10 }}m</span>
+                  </div>
+                </td>
+
+                <td>
+                  <div class="dist-td-cell">
+                    <span 
+                      class="dist-badge"
+                      :class="(att.distanceFromVenue || 0) <= 250 ? 'dist-valid' : 'dist-warning'"
+                    >
+                      📍 {{ att.distanceFromVenue }} Meter
+                    </span>
+                    <span class="dist-status-lbl">
+                      {{ (att.distanceFromVenue || 0) <= 250 ? 'Di Dalam Radius' : 'Di Luar Radius' }}
+                    </span>
+                  </div>
+                </td>
+
+                <td>
+                  <!-- Interactive Mini Map Thumbnail -->
+                  <div class="mini-map-thumb-box" @click="openAttendanceMapModal(att)" title="Klik untuk perbesar peta">
+                    <iframe 
+                      :src="getMiniMapEmbedUrl(att.latitude, att.longitude)" 
+                      class="thumb-iframe"
+                      tabindex="-1"
+                      loading="lazy"
+                    ></iframe>
+                    <div class="thumb-overlay">
+                      <span>Perbesar Peta 🔍</span>
+                    </div>
+                  </div>
+                </td>
+
+                <td>
+                  <div class="status-td-cell">
+                    <span 
+                      class="badge-chip"
+                      :class="att.isVerified ? 'green' : 'gold'"
+                    >
+                      {{ att.isVerified ? '✓ Terverifikasi' : '⏳ Menunggu Verifikasi' }}
+                    </span>
+                    <span v-if="att.verifiedAt" class="verif-time font-mono">Pada {{ att.verifiedAt }}</span>
+                  </div>
+                </td>
+
+                <td style="text-align: right;">
+                  <div class="action-buttons-cell">
+                    <button 
+                      v-if="!att.isVerified" 
+                      @click="handleVerifyAttendance(att.id)" 
+                      class="btn-primary btn-sm"
+                      title="Verifikasi keabsahan presensi ini"
+                    >
+                      ✓ Verifikasi
+                    </button>
+                    <button 
+                      @click="openAttendanceMapModal(att)" 
+                      class="btn-secondary btn-sm"
+                      title="Lihat peta titik koordinat lengkap"
+                    >
+                      📍 Buka Peta
+                    </button>
+                    <a 
+                      :href="`https://www.google.com/maps?q=${att.latitude},${att.longitude}`" 
+                      target="_blank" 
+                      class="map-link-icon-btn"
+                      title="Buka di Google Maps"
+                    >
+                      ↗
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- MODAL: Full View Mini Map & Coordinate Detail -->
+      <div v-if="isAttMapModalOpen && selectedAttendanceForMap" class="modal-backdrop">
+        <div class="modal-card modal-lg">
+          <div class="modal-header">
+            <div>
+              <span class="badge-chip gold">Titik Absensi Geofence GPS</span>
+              <h3 class="modal-title">Detail Lokasi Presensi: {{ selectedAttendanceForMap.coachName }}</h3>
+            </div>
+            <button class="btn-close" @click="closeAttendanceMapModal">✕</button>
+          </div>
+
+          <div class="modal-body map-modal-body">
+            <!-- Top Details Banner -->
+            <div class="modal-geo-summary card-humanist">
+              <div class="modal-geo-col">
+                <span class="geo-sub-lbl">Waktu & Sesi:</span>
+                <strong>{{ selectedAttendanceForMap.date }} • {{ selectedAttendanceForMap.time }}</strong>
+                <span class="badge-chip teal" style="margin-top: 4px;">{{ selectedAttendanceForMap.sessionType }}</span>
+              </div>
+              <div class="modal-geo-col">
+                <span class="geo-sub-lbl">Koordinat GPS:</span>
+                <strong class="font-mono">{{ selectedAttendanceForMap.latitude }}, {{ selectedAttendanceForMap.longitude }}</strong>
+                <span class="acc-text">Akurasi Perangkat: ± {{ selectedAttendanceForMap.accuracy || 10 }}m</span>
+              </div>
+              <div class="modal-geo-col">
+                <span class="geo-sub-lbl">Jarak ke Kolam Patokan:</span>
+                <strong :class="(selectedAttendanceForMap.distanceFromVenue || 0) <= 250 ? 'text-green' : 'text-gold'">
+                  {{ selectedAttendanceForMap.distanceFromVenue }} Meter
+                </strong>
+                <span class="acc-text">{{ (selectedAttendanceForMap.distanceFromVenue || 0) <= 250 ? 'Memenuhi Syarat Radius' : 'Di Luar Batas 250m' }}</span>
+              </div>
+              <div class="modal-geo-col">
+                <span class="geo-sub-lbl">Catatan Pelatih:</span>
+                <em>{{ selectedAttendanceForMap.notes || '-' }}</em>
+              </div>
+            </div>
+
+            <!-- Full Interactive Map Embed -->
+            <div class="full-map-embed-container">
+              <iframe 
+                :src="getMiniMapEmbedUrl(selectedAttendanceForMap.latitude, selectedAttendanceForMap.longitude, 0.005)" 
+                class="full-map-iframe"
+                loading="lazy"
+                title="Peta Lengkap Absensi Pelatih"
+              ></iframe>
+              <div class="map-floating-pin-card">
+                <div class="pin-header">
+                  <span class="pin-dot-anim"></span>
+                  <strong>{{ selectedAttendanceForMap.coachName }}</strong>
+                </div>
+                <p>📍 Posisi saat Check-in: {{ selectedAttendanceForMap.locationName }}</p>
+                <div class="pin-actions">
+                  <a 
+                    :href="`https://www.google.com/maps?q=${selectedAttendanceForMap.latitude},${selectedAttendanceForMap.longitude}`" 
+                    target="_blank" 
+                    class="btn-primary btn-sm"
+                  >
+                    Buka Rute di Google Maps ↗
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button 
+              v-if="!selectedAttendanceForMap.isVerified" 
+              @click="handleVerifyAttendance(selectedAttendanceForMap.id)" 
+              class="btn-primary"
+            >
+              ✓ Verifikasi Kehadiran Ini
+            </button>
+            <button class="btn-secondary" @click="closeAttendanceMapModal">
+              Tutup
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================================================================
          SUB-MENU 7: KEUANGAN & PEMBAYARAN (m_payments)
          ========================================================================= -->
     <div v-else-if="activeMenu === 'm_payments'" class="portal-tab-content">
@@ -1622,6 +1966,82 @@ const totalRevenueFormatted = computed(() => {
 
 function getCoachesForProduct(productId) {
   return (store.coaches || []).filter(c => Array.isArray(c.productIds) && c.productIds.includes(productId));
+}
+
+// -------------------------------------------------------------
+// COACH ATTENDANCE MONITORING (m_attendance)
+// -------------------------------------------------------------
+const attFilterCoach = ref('all');
+const attFilterStatus = ref('all');
+const attSearchQuery = ref('');
+const selectedAttendanceForMap = ref(null);
+const isAttMapModalOpen = ref(false);
+
+const totalAttendances = computed(() => (store.coachAttendances || []).length);
+
+const validGeofenceAttendances = computed(() => {
+  return (store.coachAttendances || []).filter(a => (a.distanceFromVenue || 0) <= 250).length;
+});
+
+const coachesOnDutyToday = computed(() => {
+  const names = new Set((store.coachAttendances || []).map(a => a.coachName));
+  return names.size;
+});
+
+const geofenceCompliancePct = computed(() => {
+  if (!totalAttendances.value) return 100;
+  return Math.round((validGeofenceAttendances.value / totalAttendances.value) * 100);
+});
+
+const filteredCoachAttendances = computed(() => {
+  let list = store.coachAttendances || [];
+
+  if (attFilterCoach.value !== 'all') {
+    list = list.filter(a => a.coachName === attFilterCoach.value);
+  }
+
+  if (attFilterStatus.value === 'valid') {
+    list = list.filter(a => (a.distanceFromVenue || 0) <= 250);
+  } else if (attFilterStatus.value === 'invalid') {
+    list = list.filter(a => (a.distanceFromVenue || 0) > 250);
+  }
+
+  if (attSearchQuery.value.trim()) {
+    const q = attSearchQuery.value.toLowerCase();
+    list = list.filter(a => {
+      return (a.coachName && a.coachName.toLowerCase().includes(q)) ||
+             (a.sessionType && a.sessionType.toLowerCase().includes(q)) ||
+             (a.notes && a.notes.toLowerCase().includes(q));
+    });
+  }
+
+  return list;
+});
+
+function getMiniMapEmbedUrl(lat, lng, delta = 0.003) {
+  const nLat = parseFloat(lat) || -6.2847;
+  const nLng = parseFloat(lng) || 106.9142;
+  const bbox = `${nLng - delta}%2C${nLat - delta}%2C${nLng + delta}%2C${nLat + delta}`;
+  return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${nLat}%2C${nLng}`;
+}
+
+function openAttendanceMapModal(att) {
+  selectedAttendanceForMap.value = att;
+  isAttMapModalOpen.value = true;
+}
+
+function closeAttendanceMapModal() {
+  selectedAttendanceForMap.value = null;
+  isAttMapModalOpen.value = false;
+}
+
+async function handleVerifyAttendance(id) {
+  await actions.verifyCoachAttendance(id);
+  showNotice('Presensi coach berhasil diverifikasi oleh manajemen!');
+  if (selectedAttendanceForMap.value && selectedAttendanceForMap.value.id === id) {
+    selectedAttendanceForMap.value.isVerified = true;
+    selectedAttendanceForMap.value.verifiedAt = new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
+  }
 }
 
 // -------------------------------------------------------------
@@ -3480,6 +3900,406 @@ onMounted(() => {
   padding: 7px 10px !important;
 }
 
+/* =========================================================
+   MONITORING KEHADIRAN COACH & GEOFENCE STYLES
+   ========================================================= */
+.geofence-info-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  background: linear-gradient(90deg, #f0fdf4 0%, #ffffff 100%);
+  border-left: 4px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.strip-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.venue-icon-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: var(--color-primary-soft);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.venue-strip-title {
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+  margin: 0;
+}
+
+.venue-strip-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.filter-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.toolbar-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  flex: 1;
+  min-width: 260px;
+}
+
+.toolbar-search svg {
+  color: #64748b;
+  flex-shrink: 0;
+}
+
+.search-input {
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 13px;
+  width: 100%;
+  color: var(--text-main);
+}
+
+.toolbar-filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filter-select {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text-main);
+  outline: none;
+  font-weight: 600;
+}
+
+.attendance-table-wrap {
+  padding: 20px;
+  background: #ffffff;
+}
+
+.table-header-row {
+  margin-bottom: 16px;
+}
+
+.table-card-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+}
+
+.table-card-sub {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.empty-table-state {
+  padding: 40px;
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13.5px;
+}
+
+.coach-td-cell {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.coach-sm-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--color-primary);
+  flex-shrink: 0;
+}
+
+.coach-cell-name {
+  display: block;
+  font-size: 13.5px;
+  color: var(--color-primary-dark);
+}
+
+.coach-cell-notes {
+  font-size: 11px;
+  color: var(--text-subtle);
+  font-style: italic;
+  display: block;
+}
+
+.time-td-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.att-date-str {
+  font-size: 12.5px;
+  color: var(--text-main);
+}
+
+.att-clock-str {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.att-session-pill {
+  margin-top: 2px;
+  align-self: flex-start;
+  font-size: 10px;
+  padding: 2px 8px;
+}
+
+.coord-td-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.coord-val {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+
+.acc-text {
+  font-size: 10.5px;
+  color: var(--text-subtle);
+}
+
+.dist-td-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.dist-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  width: fit-content;
+}
+
+.dist-valid {
+  background-color: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.dist-warning {
+  background-color: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.dist-status-lbl {
+  font-size: 10.5px;
+  color: var(--text-muted);
+}
+
+/* Mini Map Thumbnail in Table */
+.mini-map-thumb-box {
+  position: relative;
+  width: 120px;
+  height: 68px;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  border: 1px solid #cbd5e1;
+  cursor: pointer;
+  background: #e2e8f0;
+}
+
+.thumb-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  pointer-events: none;
+  display: block;
+}
+
+.thumb-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(11, 83, 81, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  font-size: 10.5px;
+  font-weight: 700;
+  opacity: 0;
+  transition: opacity 150ms ease;
+}
+
+.mini-map-thumb-box:hover .thumb-overlay {
+  opacity: 1;
+}
+
+.status-td-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.verif-time {
+  font-size: 10.5px;
+  color: var(--text-subtle);
+}
+
+.action-buttons-cell {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+}
+
+.map-link-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: var(--color-primary-dark);
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 12px;
+}
+
+.map-link-icon-btn:hover {
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+/* Map Modal Styles */
+.modal-lg {
+  max-width: 760px;
+}
+
+.map-modal-body {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.modal-geo-summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  padding: 14px 18px;
+  background: #f8fafc;
+  border-radius: var(--radius-md);
+  border: 1px solid #e2e8f0;
+}
+
+.modal-geo-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 12.5px;
+}
+
+.geo-sub-lbl {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+  font-weight: 700;
+}
+
+.full-map-embed-container {
+  position: relative;
+  width: 100%;
+  height: 360px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1.5px solid #cbd5e1;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+}
+
+.full-map-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+.map-floating-pin-card {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(6px);
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  font-size: 12.5px;
+  max-width: 320px;
+}
+
+.pin-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-primary-dark);
+  font-size: 13.5px;
+  margin-bottom: 4px;
+}
+
+.pin-dot-anim {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #10b981;
+  box-shadow: 0 0 0 rgba(16, 185, 129, 0.4);
+  animation: pinDotPulse 1.5s infinite;
+}
+
+@keyframes pinDotPulse {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.8); }
+  70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.pin-actions {
+  margin-top: 8px;
+}
+
 @media (max-width: 900px) {
   .metrics-grid,
   .products-crud-grid,
@@ -3491,6 +4311,9 @@ onMounted(() => {
   }
   .schedule-filter-controls {
     flex-direction: column;
+  }
+  .modal-geo-summary {
+    grid-template-columns: 1fr 1fr;
   }
 }
 </style>

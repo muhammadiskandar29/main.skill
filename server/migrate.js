@@ -26,7 +26,8 @@ const TABLES = [
   'students',
   'student_schedules',
   'transactions',
-  'locations'
+  'locations',
+  'coach_attendances'
 ];
 
 export async function runMigration() {

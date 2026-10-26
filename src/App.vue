@@ -147,6 +147,18 @@
 
           <button 
             class="sidebar-nav-item" 
+            :class="{ active: store.activePortalMenu === 'm_attendance' }"
+            @click="store.activePortalMenu = 'm_attendance'"
+          >
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+            <span class="nav-title">Monitoring Kehadiran Coach</span>
+          </button>
+
+          <button 
+            class="sidebar-nav-item" 
             :class="{ active: store.activePortalMenu === 'm_payments' }"
             @click="store.activePortalMenu = 'm_payments'"
           >

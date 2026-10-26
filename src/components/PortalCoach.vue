@@ -306,26 +306,242 @@
       </div>
     </div>
 
-    <!-- Active Sub-Menu: co_attendance -->
+    <!-- Active Sub-Menu: co_attendance (PRESENSI KEHADIRAN COACH DENGAN GPS & MINI MAP) -->
     <div v-else-if="activeMenu === 'co_attendance'" class="portal-tab-content">
       <div class="page-top-bar">
         <div>
-          <span class="badge-chip green">Presensi Murid</span>
-          <h2 class="page-title">Kehadiran Siswa Hari Ini</h2>
-          <p class="page-sub">Konfirmasi absensi sebelum memulai sesi latihan kolam.</p>
+          <span class="badge-chip gold">Sistem Presensi Geofence GPS</span>
+          <h2 class="page-title">Presensi & Kehadiran Coach</h2>
+          <p class="page-sub">Wajib menyalakan lokasi GPS untuk memvalidasi kehadiran di Kolam Graha Kresna Pratama.</p>
+        </div>
+        <div class="live-clock-badge">
+          <span>{{ currentDateTimeStr }}</span>
         </div>
       </div>
 
-      <div class="attendance-card card-humanist">
-        <div v-for="stu in store.students" :key="stu.id" class="attendance-row">
-          <div class="att-student-info">
-            <strong>{{ stu.name }}</strong>
-            <span>{{ stu.program }} • {{ stu.currentLevelTitle }}</span>
+      <!-- Success Alert -->
+      <div v-if="checkInSuccess" class="alert-success">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span>Absensi kehadiran berhasil dicatat dan diverifikasi di Kolam Graha Kresna Pratama!</span>
+      </div>
+
+      <!-- Error Alert -->
+      <div v-if="locationError" class="alert-error-box">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        <div>
+          <strong>Akses Lokasi Diperlukan:</strong>
+          <p>{{ locationError }}</p>
+        </div>
+      </div>
+
+      <!-- Card 1: GPS Check-in Module -->
+      <div class="coach-attendance-main card-humanist">
+        <div class="att-header-row">
+          <div class="att-coach-profile">
+            <img :src="currentCoach.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240'" alt="Coach" class="coach-att-avatar" />
+            <div>
+              <span class="badge-chip teal">Instruktur Aktif</span>
+              <h3 class="att-coach-name">{{ currentCoach.name }}</h3>
+              <p class="att-venue-target">📍 Target Lokasi: {{ VENUE_COORDS.name }}</p>
+            </div>
           </div>
-          <div class="att-status-buttons">
-            <button class="att-btn active">Hadir</button>
-            <button class="att-btn">Izin</button>
-            <button class="att-btn">Sakit</button>
+
+          <div class="gps-status-pill" :class="coachCoords ? (coachCoords.inRadius ? 'valid' : 'warning') : 'idle'">
+            <span class="gps-status-dot"></span>
+            <span v-if="!coachCoords">GPS Belum Terhubung</span>
+            <span v-else-if="coachCoords.inRadius">GPS Terhubung (Radius {{ coachCoords.distance }}m)</span>
+            <span v-else>Di Luar Radius ({{ coachCoords.distance }}m)</span>
+          </div>
+        </div>
+
+        <!-- Section: State A (GPS Not Yet Turned On) -->
+        <div v-if="!coachCoords" class="gps-prompt-box">
+          <div class="radar-scan-anim">
+            <div class="radar-ping"></div>
+            <div class="radar-center-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path>
+                <circle cx="12" cy="10" r="3"></circle>
+              </svg>
+            </div>
+          </div>
+          <h4 class="prompt-title">Nyalakan Lokasi Perangkat untuk Melakukan Presensi</h4>
+          <p class="prompt-desc">
+            Sistem memerlukan koordinat GPS presisi untuk memverifikasi bahwa Anda telah berada di lokasi latihan sebelum memulai sesi mengajar.
+          </p>
+
+          <div class="prompt-buttons">
+            <button @click="requestLocation" class="btn-primary" :disabled="isLocating">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="22" y1="12" x2="18" y2="12"></line>
+                <line x1="6" y1="12" x2="2" y2="12"></line>
+                <line x1="12" y1="6" x2="12" y2="2"></line>
+                <line x1="12" y1="22" x2="12" y2="18"></line>
+              </svg>
+              <span>{{ isLocating ? 'Mendeteksi Koordinat GPS...' : '📍 Nyalakan GPS & Ambil Titik Lokasi' }}</span>
+            </button>
+
+            <!-- Quick fallback for desktop testing -->
+            <button @click="useSimulatedVenueLocation" class="btn-text-sm" style="margin-top: 8px;">
+              Gunakan Titik Lokasi Kolam Graha Kresna Pratama (Simulasi Tes)
+            </button>
+          </div>
+        </div>
+
+        <!-- Section: State B (GPS Detected & Active Mini Map) -->
+        <div v-else class="gps-verified-box">
+          <div class="verified-geo-meta">
+            <div class="geo-meta-item">
+              <span class="geo-lbl">Titik Koordinat:</span>
+              <strong class="geo-val font-mono">{{ coachCoords.lat.toFixed(6) }}, {{ coachCoords.lng.toFixed(6) }}</strong>
+            </div>
+            <div class="geo-meta-item">
+              <span class="geo-lbl">Akurasi GPS:</span>
+              <strong class="geo-val">± {{ coachCoords.accuracy }} Meter</strong>
+            </div>
+            <div class="geo-meta-item">
+              <span class="geo-lbl">Jarak ke Kolam:</span>
+              <strong class="geo-val" :class="coachCoords.inRadius ? 'text-green' : 'text-gold'">
+                {{ coachCoords.distance }} Meter ({{ coachCoords.inRadius ? 'Dalam Radius Aman' : 'Perhatian: Luar Radius' }})
+              </strong>
+            </div>
+            <button @click="requestLocation" class="btn-secondary btn-sm" title="Perbarui titik koordinat">
+              🔄 Refresh GPS
+            </button>
+          </div>
+
+          <!-- Mini Map Embed Box (Menampilkan Titik Maps Kecil) -->
+          <div class="mini-map-card">
+            <div class="mini-map-header">
+              <span class="map-label">Titik Maps Presensi Real-Time:</span>
+              <a :href="`https://www.google.com/maps?q=${coachCoords.lat},${coachCoords.lng}`" target="_blank" class="map-link-btn">
+                <span>Buka di Google Maps</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                  <polyline points="15 3 21 3 21 9"></polyline>
+                  <line x1="10" y1="14" x2="21" y2="3"></line>
+                </svg>
+              </a>
+            </div>
+
+            <div class="mini-map-frame-wrapper">
+              <iframe 
+                :src="coachCoords.mapUrl" 
+                class="mini-map-iframe" 
+                loading="lazy" 
+                title="Peta Titik Absen Coach"
+              ></iframe>
+              <div class="map-pin-indicator">
+                <span class="pin-pulse"></span>
+                <span class="pin-text">Coach: {{ currentCoach.name }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Check-in Form Inputs -->
+          <div class="checkin-inputs-grid">
+            <div class="form-group">
+              <label class="form-label">Sesi Mengajar Hari Ini <span class="required">*</span></label>
+              <select v-model="checkInData.sessionType" class="form-select" required>
+                <option value="Sesi Pagi (08.00 - 09.30 WIB)">Sesi Pagi (08.00 - 09.30 WIB)</option>
+                <option value="Sesi Siang (10.00 - 11.30 WIB)">Sesi Siang (10.00 - 11.30 WIB)</option>
+                <option value="Sesi Sore (15.30 - 17.00 WIB)">Sesi Sore (15.30 - 17.00 WIB)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Catatan Kehadiran / Kondisi</label>
+              <input 
+                v-model="checkInData.notes" 
+                type="text" 
+                class="form-input" 
+                placeholder="Contoh: Hadir tepat waktu, perlengkapan latihan siap" 
+              />
+            </div>
+          </div>
+
+          <div class="checkin-action-bar">
+            <button @click="handleCoachCheckIn" class="btn-primary full-width">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <span>Kirim Presensi Kehadiran Sekarang (Check-In)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2: Coach Attendance History -->
+      <div class="attendance-history-section card-humanist" style="margin-top: 24px;">
+        <div class="section-top-row">
+          <h3 class="section-title">Riwayat Presensi Coach {{ currentCoach.name }}</h3>
+          <span class="badge-chip teal">{{ coachAttendanceHistory.length }} Catatan Tersimpan</span>
+        </div>
+
+        <div v-if="coachAttendanceHistory.length === 0" class="empty-state-box">
+          <p>Belum ada catatan kehadiran hari ini. Silakan aktifkan GPS dan klik Check-In di atas.</p>
+        </div>
+
+        <div v-else class="att-history-list">
+          <div 
+            v-for="att in coachAttendanceHistory" 
+            :key="att.id" 
+            class="att-history-card"
+          >
+            <div class="att-hist-left">
+              <div class="att-time-pill font-mono">{{ att.time }}</div>
+              <div class="att-hist-details">
+                <span class="badge-chip green">{{ att.status }}</span>
+                <strong class="att-session-title">{{ att.sessionType }}</strong>
+                <p class="att-loc-info">📍 {{ att.locationName }} (Radius: {{ att.distanceFromVenue }}m)</p>
+                <span class="att-note-txt">{{ att.notes }}</span>
+              </div>
+            </div>
+
+            <div class="att-hist-right">
+              <div class="att-coord-box font-mono">
+                Lat: {{ Number(att.latitude).toFixed(5) }}<br/>
+                Lng: {{ Number(att.longitude).toFixed(5) }}
+              </div>
+              <a 
+                :href="`https://www.google.com/maps?q=${att.latitude},${att.longitude}`" 
+                target="_blank" 
+                class="btn-text-sm"
+              >
+                Lihat di Maps ↗
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3: Presensi Siswa Binaan Sesi Ini -->
+      <div class="student-attendance-section card-humanist" style="margin-top: 24px;">
+        <div class="section-top-row">
+          <div>
+            <h3 class="section-title">Presensi Siswa Binaan Sesi Ini</h3>
+            <p class="section-sub">Tandai kehadiran murid sebelum memulai sesi pemanasan.</p>
+          </div>
+        </div>
+
+        <div class="attendance-card">
+          <div v-for="stu in store.students" :key="stu.id" class="attendance-row">
+            <div class="att-student-info">
+              <strong>{{ stu.name }}</strong>
+              <span>{{ stu.program || stu.productName }} • {{ stu.currentLevelTitle }}</span>
+            </div>
+            <div class="att-status-buttons">
+              <button class="att-btn active">Hadir</button>
+              <button class="att-btn">Izin</button>
+              <button class="att-btn">Sakit</button>
+            </div>
           </div>
         </div>
       </div>
@@ -364,7 +580,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { store, actions } from '../data/store.js';
 
 const props = defineProps({
@@ -378,8 +594,10 @@ defineEmits(['change-menu']);
 
 const currentCoach = computed(() => {
   return store.mockUsers.find(u => u.role === 'coach') || {
+    id: 'coach_1',
     name: 'Coach Adit',
-    specialty: 'Renang Anak & Water Safety'
+    specialty: 'Renang Anak & Water Safety',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240'
   };
 });
 
@@ -475,6 +693,171 @@ async function handleSaveReport() {
     }, 4000);
   }
 }
+
+// ==========================================
+// FITUR KEHADIRAN & GEOFENCE GPS COACH
+// ==========================================
+const VENUE_COORDS = {
+  name: 'Kolam Graha Kresna Pratama, Jatiwaringin',
+  lat: -6.2847,
+  lng: 106.9142,
+  radiusMeters: 250
+};
+
+// Live Clock Real-Time
+const currentDateTimeStr = ref('');
+function updateTime() {
+  const now = new Date();
+  currentDateTimeStr.value = now.toLocaleDateString('id-ID', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  }) + ' • ' + now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) + ' WIB';
+}
+
+let clockTimer = null;
+onMounted(() => {
+  updateTime();
+  clockTimer = setInterval(updateTime, 1000);
+});
+
+onUnmounted(() => {
+  if (clockTimer) clearInterval(clockTimer);
+});
+
+// GPS State
+const isLocating = ref(false);
+const locationError = ref('');
+const coachCoords = ref(null);
+const checkInSuccess = ref(false);
+const checkInData = ref({
+  sessionType: 'Sesi Pagi (08.00 - 09.30 WIB)',
+  notes: 'Hadir tepat waktu, perlengkapan latihan siap'
+});
+
+// Haversine Formula: Calculate Distance in Meters
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371e3; // Earth radius in metres
+  const φ1 = lat1 * Math.PI / 180;
+  const φ2 = lat2 * Math.PI / 180;
+  const Δφ = (lat2 - lat1) * Math.PI / 180;
+  const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+            Math.cos(φ1) * Math.cos(φ2) *
+            Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return Math.round(R * c);
+}
+
+// OpenStreetMap Embed URL for Mini Map Preview
+function generateMapUrl(lat, lng) {
+  const delta = 0.003;
+  const bbox = `${lng - delta}%2C${lat - delta}%2C${lng + delta}%2C${lat + delta}`;
+  return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat}%2C${lng}`;
+}
+
+// Request Real GPS Coordinates from Device
+function requestLocation() {
+  locationError.value = '';
+  if (!navigator.geolocation) {
+    locationError.value = 'Browser Anda tidak mendukung Geolocation GPS. Anda dapat menggunakan tombol simulasi lokasi untuk mencoba.';
+    return;
+  }
+
+  isLocating.value = true;
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      isLocating.value = false;
+      const lat = position.coords.latitude;
+      const lng = position.coords.longitude;
+      const accuracy = Math.round(position.coords.accuracy || 10);
+      const distance = calculateDistance(lat, lng, VENUE_COORDS.lat, VENUE_COORDS.lng);
+      const inRadius = distance <= VENUE_COORDS.radiusMeters;
+
+      coachCoords.value = {
+        lat,
+        lng,
+        accuracy,
+        distance,
+        inRadius,
+        mapUrl: generateMapUrl(lat, lng)
+      };
+    },
+    (err) => {
+      isLocating.value = false;
+      let msg = 'Gagal mendeteksi lokasi GPS.';
+      if (err.code === 1) {
+        msg = 'Izin akses lokasi ditolak oleh browser. Mohon izinkan akses lokasi (GPS) pada browser Anda, atau klik tombol simulasi lokasi kolam.';
+      } else if (err.code === 2) {
+        msg = 'Posisi tidak dapat ditemukan oleh perangkat.';
+      } else if (err.code === 3) {
+        msg = 'Waktu permintaan lokasi GPS habis (timeout). Silakan coba lagi.';
+      }
+      locationError.value = msg;
+    },
+    { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+  );
+}
+
+// Simulated GPS for Desktop Testing
+function useSimulatedVenueLocation() {
+  locationError.value = '';
+  // Subtle variation within 15-30m of Graha Kresna Pratama
+  const jitterLat = (Math.random() - 0.5) * 0.0002;
+  const jitterLng = (Math.random() - 0.5) * 0.0002;
+  const lat = VENUE_COORDS.lat + jitterLat;
+  const lng = VENUE_COORDS.lng + jitterLng;
+  const distance = calculateDistance(lat, lng, VENUE_COORDS.lat, VENUE_COORDS.lng);
+
+  coachCoords.value = {
+    lat,
+    lng,
+    accuracy: 8,
+    distance,
+    inRadius: true,
+    mapUrl: generateMapUrl(lat, lng)
+  };
+}
+
+// Submit Coach Attendance
+async function handleCoachCheckIn() {
+  if (!coachCoords.value) {
+    locationError.value = 'Harap aktifkan lokasi GPS Anda terlebih dahulu sebelum absen!';
+    return;
+  }
+
+  const payload = {
+    coachId: currentCoach.value.id || 'coach_1',
+    coachName: currentCoach.value.name,
+    coachAvatar: currentCoach.value.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240',
+    sessionType: checkInData.value.sessionType,
+    locationName: VENUE_COORDS.name,
+    latitude: coachCoords.value.lat,
+    longitude: coachCoords.value.lng,
+    accuracy: coachCoords.value.accuracy,
+    distanceFromVenue: coachCoords.value.distance,
+    status: coachCoords.value.inRadius ? 'Hadir di Lokasi' : 'Luar Radius Lokasi',
+    notes: checkInData.value.notes || 'Presensi mandiri coach dengan verifikasi GPS'
+  };
+
+  const res = await actions.recordCoachAttendance(payload);
+  if (res) {
+    checkInSuccess.value = true;
+    setTimeout(() => {
+      checkInSuccess.value = false;
+    }, 4500);
+  }
+}
+
+// Filter Attendance History for Current Coach
+const coachAttendanceHistory = computed(() => {
+  return (store.coachAttendances || []).filter(a => {
+    return a.coachName === currentCoach.value.name || a.coachId === currentCoach.value.id;
+  });
+});
 </script>
 
 <style scoped>
@@ -936,6 +1319,459 @@ async function handleSaveReport() {
   }
 }
 
+/* =========================================================
+   GEOFENCE GPS ATTENDANCE & MINI MAP STYLES
+   ========================================================= */
+.live-clock-badge {
+  background-color: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #334155;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.alert-error-box {
+  background-color: #fff1f2;
+  border: 1.5px solid #fecdd3;
+  color: #be123c;
+  padding: 14px 18px;
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 13.5px;
+}
+
+.alert-error-box svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.coach-attendance-main {
+  padding: 24px;
+  background: #ffffff;
+}
+
+.att-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--border-subtle);
+  margin-bottom: 22px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.att-coach-profile {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.coach-att-avatar {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2.5px solid var(--color-primary);
+}
+
+.att-coach-name {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+  margin: 3px 0 2px;
+}
+
+.att-venue-target {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.gps-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 700;
+}
+
+.gps-status-pill.valid {
+  background-color: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+}
+
+.gps-status-pill.warning {
+  background-color: #fffbeb;
+  color: #92400e;
+  border: 1px solid #fde68a;
+}
+
+.gps-status-pill.idle {
+  background-color: #f1f5f9;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+}
+
+.gps-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+.gps-status-pill.valid .gps-status-dot {
+  animation: pulseGreen 2s infinite;
+}
+
+@keyframes pulseGreen {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.3); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+/* Prompt State Box (Before GPS Active) */
+.gps-prompt-box {
+  text-align: center;
+  padding: 36px 20px;
+  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 2px dashed #cbd5e1;
+  border-radius: var(--radius-lg);
+}
+
+.radar-scan-anim {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  margin: 0 auto 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.radar-ping {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: var(--color-primary-soft);
+  animation: radarWave 2s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
+
+@keyframes radarWave {
+  0% { transform: scale(0.6); opacity: 0.9; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+
+.radar-center-icon {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(11, 83, 81, 0.25);
+}
+
+.prompt-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+  margin-bottom: 6px;
+}
+
+.prompt-desc {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  max-width: 520px;
+  margin: 0 auto 20px;
+  line-height: 1.5;
+}
+
+.prompt-buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-text-sm {
+  background: transparent;
+  border: none;
+  color: var(--color-primary);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 4px 8px;
+}
+
+.btn-text-sm:hover {
+  color: var(--color-accent-gold-dark);
+}
+
+/* Verified GPS State & Mini Map */
+.gps-verified-box {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.verified-geo-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f8fafc;
+  padding: 12px 18px;
+  border-radius: var(--radius-md);
+  border: 1px solid #e2e8f0;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.geo-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.geo-lbl {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+  font-weight: 700;
+}
+
+.geo-val {
+  font-size: 13px;
+  color: var(--text-main);
+}
+
+.font-mono {
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+}
+
+.text-green {
+  color: #15803d;
+}
+
+.text-gold {
+  color: #b45309;
+}
+
+/* Mini Map Embed Card */
+.mini-map-card {
+  border: 1px solid #cbd5e1;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+.mini-map-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.map-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+
+.map-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.map-link-btn:hover {
+  text-decoration: underline;
+}
+
+.mini-map-frame-wrapper {
+  position: relative;
+  width: 100%;
+  height: 240px;
+  background: #e2e8f0;
+}
+
+.mini-map-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+.map-pin-indicator {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  background: rgba(11, 83, 81, 0.92);
+  backdrop-filter: blur(4px);
+  color: #ffffff;
+  padding: 6px 12px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+}
+
+.pin-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #48cae4;
+  box-shadow: 0 0 0 rgba(72, 202, 228, 0.4);
+  animation: pinPulse 1.5s infinite;
+}
+
+@keyframes pinPulse {
+  0% { box-shadow: 0 0 0 0 rgba(72, 202, 228, 0.8); }
+  70% { box-shadow: 0 0 0 8px rgba(72, 202, 228, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(72, 202, 228, 0); }
+}
+
+.checkin-inputs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.checkin-action-bar {
+  margin-top: 4px;
+}
+
+/* History Section */
+.attendance-history-section {
+  padding: 24px;
+}
+
+.section-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+}
+
+.section-sub {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+.empty-state-box {
+  padding: 28px;
+  text-align: center;
+  background: #f8fafc;
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  font-size: 13.5px;
+}
+
+.att-history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.att-history-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 18px;
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.att-hist-left {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.att-time-pill {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: var(--color-primary-dark);
+  font-weight: 800;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+.att-hist-details {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.att-session-title {
+  font-size: 14px;
+  color: var(--text-main);
+}
+
+.att-loc-info {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.att-note-txt {
+  font-size: 11.5px;
+  color: var(--text-subtle);
+  font-style: italic;
+}
+
+.att-hist-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.att-coord-box {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  text-align: right;
+  line-height: 1.4;
+}
+
 @media (max-width: 768px) {
   .coach-hero-banner {
     flex-direction: column;
@@ -954,6 +1790,17 @@ async function handleSaveReport() {
   }
   .students-grid {
     grid-template-columns: 1fr;
+  }
+  .checkin-inputs-grid {
+    grid-template-columns: 1fr;
+  }
+  .att-history-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .att-hist-right {
+    align-items: flex-start;
+    margin-top: 8px;
   }
 }
 </style>

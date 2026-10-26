@@ -27,7 +27,10 @@ import {
   registerCustomerFlow,
   saveUploadedImage,
   loginUser,
-  getAllUsers
+  getAllUsers,
+  getAllCoachAttendances,
+  recordCoachAttendance,
+  verifyCoachAttendance
 } from './neon-db.js';
 
 export async function parseJsonBody(req) {
@@ -296,6 +299,26 @@ export async function handleApiRequest(req, res) {
     if (pathname === '/api/users' && method === 'GET') {
       const users = await getAllUsers();
       return sendJson(res, 200, { success: true, data: users });
+    }
+
+    // 10. COACH ATTENDANCE & GEOLOCATION MONITORING
+    if (pathname === '/api/coach-attendances') {
+      if (method === 'GET') {
+        const attendances = await getAllCoachAttendances();
+        return sendJson(res, 200, { success: true, data: attendances });
+      }
+      if (method === 'POST') {
+        const body = await parseJsonBody(req);
+        const recorded = await recordCoachAttendance(body);
+        return sendJson(res, 201, { success: true, data: recorded });
+      }
+    }
+
+    if (pathname.startsWith('/api/coach-attendances/') && pathname.endsWith('/verify') && method === 'POST') {
+      const id = pathname.replace('/api/coach-attendances/', '').replace('/verify', '');
+      const verified = await verifyCoachAttendance(id);
+      if (!verified) return sendJson(res, 404, { success: false, message: 'Data absensi tidak ditemukan.' });
+      return sendJson(res, 200, { success: true, data: verified });
     }
 
     // Endpoint not found

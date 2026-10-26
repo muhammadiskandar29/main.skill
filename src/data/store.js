@@ -19,7 +19,10 @@ import {
   apiRegisterCustomer,
   apiVerifyPayment,
   apiLogin,
-  uploadImage
+  uploadImage,
+  apiGetCoachAttendances,
+  apiRecordCoachAttendance,
+  apiVerifyCoachAttendance
 } from './api.js';
 
 const STORAGE_KEY = 'mine_skills_auth_session_v3';
@@ -279,6 +282,45 @@ const initialLocations = [
   }
 ];
 
+const initialCoachAttendances = [
+  {
+    id: 'att_init_1',
+    coachId: 'coach_1',
+    coachName: 'Coach Adit',
+    coachAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240',
+    date: '26 Okt 2026',
+    time: '07:48 WIB',
+    timestamp: Date.now() - 3600000,
+    sessionType: 'Sesi Pagi (08.00 - 09.30 WIB)',
+    locationName: 'Kolam Graha Kresna Pratama, Jatiwaringin',
+    latitude: -6.284715,
+    longitude: 106.914292,
+    accuracy: 8,
+    distanceFromVenue: 15,
+    status: 'Hadir di Lokasi',
+    isVerified: true,
+    notes: 'Sesi latihan pembinaan Small Group Renang Gaya Dada'
+  },
+  {
+    id: 'att_init_2',
+    coachId: 'coach_2',
+    coachName: 'Coach Sekar Ayu, S.Sn.',
+    coachAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=240',
+    date: '26 Okt 2026',
+    time: '08:05 WIB',
+    timestamp: Date.now() - 1800000,
+    sessionType: 'Sesi Pagi (08.00 - 09.30 WIB)',
+    locationName: 'Kolam Graha Kresna Pratama, Jatiwaringin',
+    latitude: -6.284680,
+    longitude: 106.914350,
+    accuracy: 12,
+    distanceFromVenue: 22,
+    status: 'Hadir di Lokasi',
+    isVerified: true,
+    notes: 'Pendampingan pemanasan kelas motorik'
+  }
+];
+
 const initialBrand = {
   name: 'mine.skills',
   logoPath: '/images/mine-skills-logo.png',
@@ -344,6 +386,7 @@ const initialRbacMatrix = {
       'm_coaches',
       'm_students',
       'm_schedules',
+      'm_attendance',
       'm_payments',
       'm_rbac'
     ]
@@ -383,6 +426,7 @@ export const store = reactive({
   transactions: initialTransactions,
   users: initialUsers,
   locations: initialLocations,
+  coachAttendances: initialCoachAttendances,
 
   brand: initialBrand,
   hero: initialHero,
@@ -522,6 +566,9 @@ export const actions = {
         }
         if (Array.isArray(data.locations) && data.locations.length > 0) {
           store.locations = data.locations;
+        }
+        if (Array.isArray(data.coachAttendances) && data.coachAttendances.length > 0) {
+          store.coachAttendances = data.coachAttendances;
         }
 
         // Set default current user if role matches
@@ -724,6 +771,62 @@ export const actions = {
 
     await this.updateStudent(studentId, patch);
     return reportItem;
+  },
+
+  // Coach Attendance & Geolocation Actions
+  async recordCoachAttendance(payload) {
+    try {
+      const recorded = await apiRecordCoachAttendance(payload);
+      // Prepend to local store list
+      const existingIdx = (store.coachAttendances || []).findIndex(a => a.id === recorded.id);
+      if (existingIdx > -1) {
+        store.coachAttendances[existingIdx] = recorded;
+      } else {
+        store.coachAttendances = [recorded, ...(store.coachAttendances || [])];
+      }
+      return recorded;
+    } catch (err) {
+      console.warn('[Store] API recordCoachAttendance failed, saving locally:', err.message);
+      const fallbackRecord = {
+        id: `att_${Date.now()}`,
+        coachId: payload.coachId || 'coach_1',
+        coachName: payload.coachName || 'Coach Adit',
+        coachAvatar: payload.coachAvatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240',
+        date: payload.date || new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
+        time: payload.time || new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB',
+        timestamp: Date.now(),
+        sessionType: payload.sessionType || 'Sesi Pagi (08.00 - 09.30 WIB)',
+        locationName: payload.locationName || 'Kolam Graha Kresna Pratama, Jatiwaringin',
+        latitude: parseFloat(payload.latitude) || -6.2847,
+        longitude: parseFloat(payload.longitude) || 106.9142,
+        accuracy: payload.accuracy ? Math.round(payload.accuracy) : 10,
+        distanceFromVenue: payload.distanceFromVenue || 15,
+        status: payload.status || 'Hadir di Lokasi',
+        isVerified: true,
+        notes: payload.notes || 'Presensi mandiri pelatih dengan GPS real-time'
+      };
+      store.coachAttendances = [fallbackRecord, ...(store.coachAttendances || [])];
+      return fallbackRecord;
+    }
+  },
+
+  async verifyCoachAttendance(id) {
+    try {
+      const verified = await apiVerifyCoachAttendance(id);
+      const match = (store.coachAttendances || []).find(a => a.id === id);
+      if (match) {
+        match.isVerified = true;
+        match.verifiedAt = verified.verifiedAt;
+      }
+      return verified;
+    } catch (err) {
+      const match = (store.coachAttendances || []).find(a => a.id === id);
+      if (match) {
+        match.isVerified = true;
+        match.verifiedAt = new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
+      }
+      return match;
+    }
   },
 
   cleanWaNumber(phoneStr) {

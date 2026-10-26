@@ -96,11 +96,26 @@ Tujuan: Memberikan transparansi penuh kepada orang tua atas progres belajar anak
 
 ### Fitur yang Dapat Dilakukan:
 
-#### A. Ringkasan Akun (`c_overview`)
-* Melihat kartu identitas anak, status keanggotaan aktif, dan program skill yang diikuti.
-* Mengetahui nama instruktur/coach tetap yang membina ananda.
-* Memantau level kurikulum yang sedang dijalani anak saat ini.
-* Memantau sisa kuota sesi dalam paket (contoh: *Sisa 3 dari 4 Sesi Pertemuan*).
+#### A. Ringkasan Akun & Gamifikasi (`c_overview`)
+* **🗺️ Interactive Skill Quest Roadmap (Peta Petualangan Level)**:
+  * Alur perjalanan kurikulum bergaya petualangan RPG / Duolingo dengan grafis lintasan air ombak (*wave trail*).
+  * Menampilkan stasiun checkpoint Level 1 s/d Level 4 dengan tantangan kelulusan (*Challenge Milestone*).
+  * **Pin Avatar Siswa Mengambang (*Floating Avatar Pin*)**: Foto profil anak dengan balon teks animasi *"Kenzo ada di sini! 🏊‍♂️"* dan cincin riak air (*ripple pulse*) yang berada tepat di stasiun level aktifnya.
+  * Stasiun level yang sudah lulus diberi trofi emas, stasiun aktif bertanda bintang dengan progress bar 75%, dan stasiun berikutnya terkunci gembok.
+  * Setiap stasiun dapat diklik untuk membuka modal rincian fokus materi, tantangan kelulusan, dan catatan evaluasi pelatih.
+* **🕸️ Radar Spider-Web Chart (Grafik Pentagon 5 Pilar Kemampuan)**:
+  * Grafik radar visual SVG yang menganalisis 5 pilar kemampuan utama anak:
+    1. 🌊 **Keberanian Air (*Water Confidence*)**
+    2. 🫁 **Ketahanan Nafas (*Breath Control*)**
+    3. 🏊‍♂️ **Teknik Gerak (*Propulsion / Tendangan*)**
+    4. ⚖️ **Keseimbangan Tubuh (*Streamline*)**
+    5. 🎯 **Kedisiplinan & Fokus (*Mental Discipline*)**
+  * **Analisis Komparasi 2 Lapisan**: Menampilkan poligon ungu putus-putus (*Sesi 1 / Baseline Awal*) dan poligon toska bercahaya (*Sesi Terkini*), sehingga orang tua dapat melihat bentuk pentagon kemampuan anaknya membesar keluar secara visual!
+  * **Mode Switcher Interaktif**: Tombol beralih antara `[Bandingkan Awal vs Terkini]`, `[Sesi 1 Awal]`, dan `[Sesi Terkini]`.
+  * **Kartu Breakdown 5 Pilar**: Skor numerik (contoh: 92/100), persentase peningkatan (contoh: +37%), meter progress bar, dan skor rata-rata total (*Predikat: Mahir & Mandiri*).
+* Kartu identitas anak, status keanggotaan aktif, dan program skill yang diikuti.
+* Nama instruktur/coach tetap yang membina ananda.
+* Sisa kuota sesi dalam paket (contoh: *Sisa 3 dari 4 Sesi Pertemuan*).
 * Countdown waktu pelaksanaan jadwal latihan terdekat.
 
 #### B. Raport Digital & Histori Belajar (`c_progress`)

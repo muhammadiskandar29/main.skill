@@ -38,6 +38,262 @@
         </div>
       </div>
 
+      <!-- =========================================================================
+           1. INTERACTIVE SKILL QUEST ROADMAP (PETA PETUALANGAN LEVEL)
+           ========================================================================= -->
+      <div class="quest-roadmap-card card-humanist">
+        <div class="quest-roadmap-header">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="badge-chip gold">🗺️ Peta Petualangan Level</span>
+              <span class="quest-track-sub-badge">Kurikulum {{ activeProduct?.name || 'Renang' }}</span>
+            </div>
+            <h3 class="quest-roadmap-title">Peta Perjalanan Skill Ananda: {{ studentData.name }}</h3>
+            <p class="quest-roadmap-desc">
+              Peta milestone bertahap. Klik stasiun level untuk memeriksa fokus teknik dan tantangan kelulusan (*Challenge Milestone*).
+            </p>
+          </div>
+          <div class="quest-summary-stat">
+            <span class="q-stat-lbl">Posisi Saat Ini:</span>
+            <strong class="q-stat-val text-gold">Level {{ currentStudentLevel }} — {{ studentData.currentLevelTitle }}</strong>
+          </div>
+        </div>
+
+        <!-- Adventure Quest Track Canvas -->
+        <div class="quest-trail-wrapper">
+          <div class="quest-wave-bg"></div>
+
+          <div class="quest-stations-row">
+            <div 
+              v-for="lvl in activeProductLevels" 
+              :key="lvl.levelNumber"
+              class="quest-station-node"
+              :class="{
+                'node-completed': currentStudentLevel > lvl.levelNumber,
+                'node-current': currentStudentLevel === lvl.levelNumber,
+                'node-locked': currentStudentLevel < lvl.levelNumber
+              }"
+              @click="openQuestModal(lvl)"
+              title="Klik untuk detail tantangan level ini"
+            >
+              <!-- Floating Avatar Pin for Current Level -->
+              <div v-if="currentStudentLevel === lvl.levelNumber" class="kenzo-avatar-pin">
+                <div class="pin-speech-bubble">
+                  <span>{{ studentData.name.split(' ')[0] }} ada di sini! 🏊‍♂️</span>
+                </div>
+                <div class="pin-avatar-circle">
+                  <img :src="studentData.avatar || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=160'" alt="Avatar" class="pin-img" />
+                  <span class="pin-ripple-pulse"></span>
+                </div>
+              </div>
+
+              <!-- Node Checkpoint Circle -->
+              <div class="node-checkpoint-circle">
+                <span v-if="currentStudentLevel > lvl.levelNumber" class="node-icon-check">🏆</span>
+                <span v-else-if="currentStudentLevel === lvl.levelNumber" class="node-icon-active">⭐</span>
+                <span v-else class="node-icon-lock">🔒</span>
+              </div>
+
+              <!-- Node Card Detail -->
+              <div class="node-checkpoint-card">
+                <span class="node-lvl-chip" :class="{
+                  'gold': currentStudentLevel > lvl.levelNumber,
+                  'teal': currentStudentLevel === lvl.levelNumber,
+                  'muted': currentStudentLevel < lvl.levelNumber
+                }">
+                  Level {{ lvl.levelNumber }}
+                </span>
+                <strong class="node-title">{{ lvl.title }}</strong>
+                
+                <div class="node-challenge-pill" v-if="lvl.challenge">
+                  <span class="c-icon">🎯</span>
+                  <span class="c-text">{{ lvl.challenge }}</span>
+                </div>
+
+                <div class="node-status-foot">
+                  <span v-if="currentStudentLevel > lvl.levelNumber" class="text-green font-bold">
+                    ✓ Lulus Challenge
+                  </span>
+                  <span v-else-if="currentStudentLevel === lvl.levelNumber" class="text-gold font-bold">
+                    📍 Sedang Ditempuh (75%)
+                  </span>
+                  <span v-else class="text-muted">
+                    Terkunci
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- =========================================================================
+           2. RADAR SPIDER-WEB CHART (GRAFIK PENTAGON 5 PILAR KEMAMPUAN ANAK)
+           ========================================================================= -->
+      <div class="radar-pentagon-card card-humanist">
+        <div class="radar-card-header">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="badge-chip teal">🕸️ Analitik Evaluasi 5 Pilar</span>
+              <span class="badge-chip green">Pertumbuhan +{{ overallGrowthPct }}% Sejak Sesi 1</span>
+            </div>
+            <h3 class="radar-card-title">Radar Spider-Web Kemampuan Ananda</h3>
+            <p class="radar-card-sub">
+              Grafik pentagon visual: perbandingan penguasaan teknik ananda saat sesi pertama (baseline) vs sesi terkini.
+            </p>
+          </div>
+
+          <!-- Interactive Switcher -->
+          <div class="radar-mode-switcher">
+            <button 
+              class="r-switch-btn" 
+              :class="{ active: radarMode === 'compare' }"
+              @click="radarMode = 'compare'"
+            >
+              Bandingkan (Awal vs Terkini)
+            </button>
+            <button 
+              class="r-switch-btn" 
+              :class="{ active: radarMode === 'baseline' }"
+              @click="radarMode = 'baseline'"
+            >
+              Sesi 1 (Awal)
+            </button>
+            <button 
+              class="r-switch-btn" 
+              :class="{ active: radarMode === 'current' }"
+              @click="radarMode = 'current'"
+            >
+              Sesi 3 (Terkini)
+            </button>
+          </div>
+        </div>
+
+        <div class="radar-main-grid">
+          <!-- Left: SVG Radar Canvas -->
+          <div class="radar-svg-col">
+            <div class="radar-canvas-box">
+              <svg viewBox="0 0 360 360" class="radar-svg">
+                <!-- Concentric Rings (20%, 40%, 60%, 80%, 100%) -->
+                <polygon :points="getRingPolygonPoints(100)" class="radar-ring outer" />
+                <polygon :points="getRingPolygonPoints(80)" class="radar-ring" />
+                <polygon :points="getRingPolygonPoints(60)" class="radar-ring" />
+                <polygon :points="getRingPolygonPoints(40)" class="radar-ring" />
+                <polygon :points="getRingPolygonPoints(20)" class="radar-ring inner" />
+
+                <!-- Radial Axis Lines -->
+                <line 
+                  v-for="(pos, i) in labelPositions" 
+                  :key="i"
+                  :x1="cx" 
+                  :y1="cy" 
+                  :x2="getPentagonVertex(i, maxR).x" 
+                  :y2="getPentagonVertex(i, maxR).y" 
+                  class="radar-axis-line" 
+                />
+
+                <!-- Baseline Polygon (Sesi Awal) -->
+                <polygon 
+                  v-if="radarMode === 'compare' || radarMode === 'baseline'"
+                  :points="baselinePolygonPoints" 
+                  class="radar-polygon-baseline" 
+                />
+
+                <!-- Current Polygon (Sesi Terkini) -->
+                <polygon 
+                  v-if="radarMode === 'compare' || radarMode === 'current'"
+                  :points="currentPolygonPoints" 
+                  class="radar-polygon-current" 
+                />
+
+                <!-- Current Vertex Dots with Glowing Pulse -->
+                <g v-if="radarMode === 'compare' || radarMode === 'current'">
+                  <circle 
+                    v-for="(pt, idx) in currentVertexPoints" 
+                    :key="idx"
+                    :cx="pt.x" 
+                    :cy="pt.y" 
+                    r="5" 
+                    class="radar-vertex-dot"
+                  />
+                </g>
+
+                <!-- Labels around vertices -->
+                <g v-for="(lbl, idx) in labelPositions" :key="'lbl-' + idx">
+                  <text 
+                    :x="lbl.x" 
+                    :y="lbl.y" 
+                    text-anchor="middle" 
+                    dominant-baseline="central"
+                    class="radar-vertex-label"
+                  >
+                    {{ lbl.pillar.icon }} {{ lbl.pillar.label }}
+                  </text>
+                </g>
+              </svg>
+
+              <!-- Legend Footer under SVG -->
+              <div class="radar-legend-bar">
+                <div class="legend-item" v-if="radarMode === 'compare' || radarMode === 'baseline'">
+                  <span class="legend-dot baseline"></span>
+                  <span>Sesi 1 (Awal Masuk: Rata-rata 50)</span>
+                </div>
+                <div class="legend-item" v-if="radarMode === 'compare' || radarMode === 'current'">
+                  <span class="legend-dot current"></span>
+                  <strong>Sesi Terkini (Rata-rata {{ overallAverageScore }})</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: 5 Pillars Detailed Growth Cards -->
+          <div class="radar-details-col">
+            <div class="kpi-score-badge-card">
+              <div class="kpi-score-left">
+                <span class="kpi-lbl">Skor Rata-Rata Kemampuan</span>
+                <div class="kpi-val-row">
+                  <strong class="kpi-num">{{ overallAverageScore }}</strong>
+                  <span class="kpi-denom">/ 100</span>
+                  <span class="kpi-grade-badge">Predikat: Mahir & Mandiri 🌟</span>
+                </div>
+              </div>
+              <div class="kpi-growth-box">
+                <span class="kpi-grow-lbl">Pertumbuhan:</span>
+                <strong class="kpi-grow-num">+{{ overallGrowthPct }}%</strong>
+              </div>
+            </div>
+
+            <!-- Pillars Breakdown List -->
+            <div class="pillars-breakdown-list">
+              <div 
+                v-for="p in radarPillars" 
+                :key="p.key" 
+                class="pillar-breakdown-item"
+              >
+                <div class="pillar-row-head">
+                  <div class="flex items-center gap-2">
+                    <span class="p-icon">{{ p.icon }}</span>
+                    <div>
+                      <strong class="p-title">{{ p.label }}</strong>
+                      <div class="p-desc">{{ p.desc }}</div>
+                    </div>
+                  </div>
+                  <div class="pillar-score-box">
+                    <span class="p-curr">{{ radarCurrent[p.key] }}</span>
+                    <span class="p-diff">+{{ radarCurrent[p.key] - radarBaseline[p.key] }}%</span>
+                  </div>
+                </div>
+
+                <div class="pillar-meter-wrap">
+                  <div class="meter-base-fill" :style="{ width: radarBaseline[p.key] + '%' }" title="Sesi 1 (Awal)"></div>
+                  <div class="meter-curr-fill" :style="{ width: radarCurrent[p.key] + '%' }" title="Sesi Terkini"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Quick Action Cards -->
       <div class="quick-cards-grid">
         <div class="quick-card card-humanist" @click="$emit('change-menu', 'c_progress')">
@@ -376,6 +632,58 @@
         </div>
       </div>
     </div>
+
+    <!-- MODAL: DETAIL STATION QUEST LEVEL -->
+    <div v-if="isQuestModalOpen && selectedQuestLevel" class="modal-backdrop" @click.self="closeQuestModal">
+      <div class="modal-dialog modal-md">
+        <div class="modal-header">
+          <div>
+            <span class="badge-chip gold">Milestone Capaian Kurikulum</span>
+            <h3 class="modal-title">Level {{ selectedQuestLevel.levelNumber }}: {{ selectedQuestLevel.title }}</h3>
+          </div>
+          <button class="btn-close" @click="closeQuestModal">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="quest-modal-hero">
+            <div class="quest-badge-big">
+              <span v-if="currentStudentLevel > selectedQuestLevel.levelNumber">🏆</span>
+              <span v-else-if="currentStudentLevel === selectedQuestLevel.levelNumber">⭐</span>
+              <span v-else>🔒</span>
+            </div>
+            <div>
+              <h4 class="quest-hero-title">{{ selectedQuestLevel.title }}</h4>
+              <span class="badge-chip" :class="currentStudentLevel > selectedQuestLevel.levelNumber ? 'green' : (currentStudentLevel === selectedQuestLevel.levelNumber ? 'gold' : 'teal')">
+                {{ currentStudentLevel > selectedQuestLevel.levelNumber ? '✓ Lulus & Memperoleh Sertifikat' : (currentStudentLevel === selectedQuestLevel.levelNumber ? 'Sedang Ditempuh (Sesi Aktif)' : 'Terkunci (Level Berikutnya)') }}
+              </span>
+            </div>
+          </div>
+
+          <div class="quest-modal-info-box card-humanist" style="margin-top: 16px;">
+            <div class="q-info-row">
+              <strong>Fokus Pembelajaran:</strong>
+              <p>{{ selectedQuestLevel.focus }}</p>
+            </div>
+
+            <div class="q-info-row" style="margin-top: 12px;">
+              <strong>Tantangan Kelulusan (Challenge):</strong>
+              <div class="challenge-highlight-box">
+                <span>🎯 {{ selectedQuestLevel.challenge }}</span>
+              </div>
+            </div>
+
+            <div class="q-info-row" style="margin-top: 12px;" v-if="currentStudentLevel > selectedQuestLevel.levelNumber">
+              <strong>Catatan Pelatih:</strong>
+              <p class="text-green">"Ananda telah lulus tantangan ini dengan percaya diri dan teknik yang sangat rapi."</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-secondary" @click="closeQuestModal">Tutup</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -477,6 +785,128 @@ const reversedReports = computed(() => {
   const reports = [...(studentData.value.sessionReports || [])];
   return reports.reverse();
 });
+
+// ========================================================
+// GAMIFIKASI: QUEST ROADMAP & RADAR 5 PILAR
+// ========================================================
+const radarMode = ref('compare'); // 'compare' | 'baseline' | 'current'
+const selectedQuestLevel = ref(null);
+const isQuestModalOpen = ref(false);
+
+const radarPillars = computed(() => {
+  return studentData.value.radarSkills?.pillars || [
+    { key: 'waterConfidence', label: 'Keberanian Air', icon: '🌊', desc: 'Adaptasi dan ketenangan di dalam air tanpa panik' },
+    { key: 'breathControl', label: 'Ketahanan Nafas', icon: '🫁', desc: 'Pengambilan nafas ritmis dan ketahanan paru-paru' },
+    { key: 'strokeTechnique', label: 'Teknik Gerak', icon: '🏊‍♂️', desc: 'Ayunan tangan dan kekuatan dorongan kaki' },
+    { key: 'bodyBalance', label: 'Keseimbangan', icon: '⚖️', desc: 'Posisi tubuh mendatar sejajar permukaan air' },
+    { key: 'disciplineFocus', label: 'Fokus & Mental', icon: '🎯', desc: 'Konsentrasi mendengarkan instruksi coach di kolam' }
+  ];
+});
+
+const radarBaseline = computed(() => {
+  return studentData.value.radarSkills?.baseline || {
+    waterConfidence: 55,
+    breathControl: 45,
+    strokeTechnique: 40,
+    bodyBalance: 50,
+    disciplineFocus: 60
+  };
+});
+
+const radarCurrent = computed(() => {
+  return studentData.value.radarSkills?.current || {
+    waterConfidence: 92,
+    breathControl: 85,
+    strokeTechnique: 88,
+    bodyBalance: 90,
+    disciplineFocus: 85
+  };
+});
+
+// SVG Pentagon Math constants
+const cx = 180;
+const cy = 180;
+const maxR = 115;
+
+function getPentagonVertex(index, radius) {
+  const angle = -Math.PI / 2 + (index * 2 * Math.PI) / 5;
+  const x = cx + radius * Math.cos(angle);
+  const y = cy + radius * Math.sin(angle);
+  return { x, y, angle };
+}
+
+function getRingPolygonPoints(pct) {
+  const r = (pct / 100) * maxR;
+  return Array.from({ length: 5 }, (_, i) => {
+    const pt = getPentagonVertex(i, r);
+    return `${pt.x.toFixed(1)},${pt.y.toFixed(1)}`;
+  }).join(' ');
+}
+
+const baselinePolygonPoints = computed(() => {
+  const keys = ['waterConfidence', 'breathControl', 'strokeTechnique', 'bodyBalance', 'disciplineFocus'];
+  return keys.map((k, i) => {
+    const val = radarBaseline.value[k] || 50;
+    const r = (val / 100) * maxR;
+    const pt = getPentagonVertex(i, r);
+    return `${pt.x.toFixed(1)},${pt.y.toFixed(1)}`;
+  }).join(' ');
+});
+
+const currentPolygonPoints = computed(() => {
+  const keys = ['waterConfidence', 'breathControl', 'strokeTechnique', 'bodyBalance', 'disciplineFocus'];
+  return keys.map((k, i) => {
+    const val = radarCurrent.value[k] || 85;
+    const r = (val / 100) * maxR;
+    const pt = getPentagonVertex(i, r);
+    return `${pt.x.toFixed(1)},${pt.y.toFixed(1)}`;
+  }).join(' ');
+});
+
+const currentVertexPoints = computed(() => {
+  const keys = ['waterConfidence', 'breathControl', 'strokeTechnique', 'bodyBalance', 'disciplineFocus'];
+  return keys.map((k, i) => {
+    const val = radarCurrent.value[k] || 85;
+    const r = (val / 100) * maxR;
+    const pt = getPentagonVertex(i, r);
+    return { ...pt, val, key: k, label: radarPillars.value[i].label, icon: radarPillars.value[i].icon };
+  });
+});
+
+const labelPositions = computed(() => {
+  const labelDist = maxR + 24;
+  return Array.from({ length: 5 }, (_, i) => {
+    const pt = getPentagonVertex(i, labelDist);
+    return {
+      x: pt.x,
+      y: pt.y,
+      pillar: radarPillars.value[i]
+    };
+  });
+});
+
+const overallAverageScore = computed(() => {
+  const keys = ['waterConfidence', 'breathControl', 'strokeTechnique', 'bodyBalance', 'disciplineFocus'];
+  const total = keys.reduce((sum, k) => sum + (radarCurrent.value[k] || 0), 0);
+  return Math.round(total / keys.length);
+});
+
+const overallGrowthPct = computed(() => {
+  const keys = ['waterConfidence', 'breathControl', 'strokeTechnique', 'bodyBalance', 'disciplineFocus'];
+  const baseAvg = keys.reduce((sum, k) => sum + (radarBaseline.value[k] || 0), 0) / keys.length;
+  const currAvg = overallAverageScore.value;
+  return Math.round(((currAvg - baseAvg) / baseAvg) * 100);
+});
+
+function openQuestModal(lvl) {
+  selectedQuestLevel.value = lvl;
+  isQuestModalOpen.value = true;
+}
+
+function closeQuestModal() {
+  selectedQuestLevel.value = null;
+  isQuestModalOpen.value = false;
+}
 
 function printReport() {
   window.print();
@@ -1098,6 +1528,645 @@ function printReport() {
 .b-row {
   display: flex;
   justify-content: space-between;
+}
+
+/* ========================================================
+   1. GAMIFIKASI: SKILL QUEST ROADMAP STYLES
+   ======================================================== */
+.quest-roadmap-card {
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  background: linear-gradient(135deg, #ffffff 0%, #f0fdfa 100%);
+  border: 1.5px solid #ccfbf1;
+  position: relative;
+  overflow: hidden;
+}
+
+.quest-roadmap-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.quest-track-sub-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  background: #e0f2fe;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.quest-roadmap-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+  margin-top: 6px;
+  margin-bottom: 4px;
+}
+
+.quest-roadmap-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.quest-summary-stat {
+  background: #ffffff;
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.q-stat-lbl {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+  font-weight: 700;
+}
+
+.q-stat-val {
+  font-size: 13px;
+}
+
+/* Quest Trail Track */
+.quest-trail-wrapper {
+  position: relative;
+  padding: 40px 12px 16px 12px;
+}
+
+.quest-wave-bg {
+  position: absolute;
+  top: 68px;
+  left: 5%;
+  right: 5%;
+  height: 6px;
+  background: linear-gradient(90deg, #10b981 0%, #0d9488 45%, #0284c7 70%, #cbd5e1 100%);
+  border-radius: 6px;
+  z-index: 1;
+}
+
+.quest-stations-row {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+.quest-station-node {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.2s ease;
+}
+
+.quest-station-node:hover {
+  transform: translateY(-4px);
+}
+
+/* Kenzo Floating Avatar Pin */
+.kenzo-avatar-pin {
+  position: absolute;
+  top: -54px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 10;
+  animation: questPinBounce 2.5s infinite ease-in-out;
+}
+
+@keyframes questPinBounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+.pin-speech-bubble {
+  background: #042f2e;
+  color: #5eead4;
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 3px 9px;
+  border-radius: 12px;
+  white-space: nowrap;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  margin-bottom: 4px;
+  border: 1px solid #14b8a6;
+}
+
+.pin-avatar-circle {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2.5px solid #0d9488;
+  box-shadow: 0 0 14px rgba(13, 148, 136, 0.6);
+  background: #ffffff;
+}
+
+.pin-img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.pin-ripple-pulse {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  border: 2px solid #14b8a6;
+  opacity: 0.8;
+  animation: ripplePulse 1.8s infinite;
+}
+
+@keyframes ripplePulse {
+  0% { transform: scale(0.9); opacity: 0.9; }
+  100% { transform: scale(1.4); opacity: 0; }
+}
+
+/* Node Checkpoint Circle */
+.node-checkpoint-circle {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  border: 3px solid #cbd5e1;
+  transition: all 0.25s ease;
+  margin-bottom: 12px;
+}
+
+.node-completed .node-checkpoint-circle {
+  border-color: #10b981;
+  background: #ecfdf5;
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+}
+
+.node-current .node-checkpoint-circle {
+  border-color: #0d9488;
+  background: #f0fdfa;
+  transform: scale(1.12);
+  box-shadow: 0 0 16px rgba(13, 148, 136, 0.4);
+}
+
+.node-locked .node-checkpoint-circle {
+  border-color: #e2e8f0;
+  background: #f8fafc;
+  opacity: 0.7;
+}
+
+/* Node Card Box */
+.node-checkpoint-card {
+  width: 100%;
+  background: #ffffff;
+  padding: 12px 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-height: 120px;
+}
+
+.node-current .node-checkpoint-card {
+  border-color: #0d9488;
+  background: #ffffff;
+  box-shadow: 0 4px 14px rgba(13, 148, 136, 0.12);
+}
+
+.node-lvl-chip {
+  font-size: 9.5px;
+  text-transform: uppercase;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 4px;
+  align-self: center;
+}
+
+.node-lvl-chip.gold { background: #fef08a; color: #854d0e; }
+.node-lvl-chip.teal { background: #ccfbf1; color: #115e59; }
+.node-lvl-chip.muted { background: #f1f5f9; color: #64748b; }
+
+.node-title {
+  font-size: 12.5px;
+  color: var(--color-primary-dark);
+  line-height: 1.3;
+}
+
+.node-challenge-pill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10.5px;
+  background: #f8fafc;
+  border: 1px dashed #cbd5e1;
+  padding: 3px 6px;
+  border-radius: 4px;
+  color: #334155;
+  text-align: left;
+  line-height: 1.25;
+}
+
+.node-status-foot {
+  margin-top: auto;
+  font-size: 11px;
+  padding-top: 4px;
+}
+
+/* ========================================================
+   2. GAMIFIKASI: RADAR SPIDER-WEB CHART STYLES
+   ======================================================== */
+.radar-pentagon-card {
+  padding: 24px 28px;
+  margin-bottom: 24px;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+}
+
+.radar-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.radar-card-title {
+  font-size: 18px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+  margin-top: 6px;
+  margin-bottom: 4px;
+}
+
+.radar-card-sub {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.radar-mode-switcher {
+  display: flex;
+  background: #f1f5f9;
+  padding: 3px;
+  border-radius: var(--radius-sm);
+  gap: 3px;
+}
+
+.r-switch-btn {
+  border: none;
+  background: transparent;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.r-switch-btn.active {
+  background: #ffffff;
+  color: var(--color-primary-dark);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.radar-main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 28px;
+  align-items: center;
+}
+
+/* Radar SVG Canvas */
+.radar-svg-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.radar-canvas-box {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.radar-svg {
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.radar-ring {
+  fill: transparent;
+  stroke: #e2e8f0;
+  stroke-width: 1.2;
+}
+
+.radar-ring.outer {
+  stroke: #cbd5e1;
+  stroke-width: 1.8;
+}
+
+.radar-ring.inner {
+  stroke-dasharray: 2 2;
+}
+
+.radar-axis-line {
+  stroke: #e2e8f0;
+  stroke-width: 1.2;
+}
+
+.radar-polygon-baseline {
+  fill: rgba(168, 85, 247, 0.16);
+  stroke: #9333ea;
+  stroke-width: 2;
+  stroke-dasharray: 4 3;
+}
+
+.radar-polygon-current {
+  fill: rgba(13, 148, 136, 0.28);
+  stroke: #0d9488;
+  stroke-width: 2.8;
+  filter: drop-shadow(0 4px 10px rgba(13, 148, 136, 0.25));
+}
+
+.radar-vertex-dot {
+  fill: #0d9488;
+  stroke: #ffffff;
+  stroke-width: 2.5;
+}
+
+.radar-vertex-label {
+  font-size: 11px;
+  font-weight: 700;
+  fill: #334155;
+  font-family: inherit;
+}
+
+.radar-legend-bar {
+  display: flex;
+  gap: 16px;
+  margin-top: 10px;
+  font-size: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.legend-dot.baseline {
+  background: #9333ea;
+  border: 1px dashed #ffffff;
+}
+
+.legend-dot.current {
+  background: #0d9488;
+}
+
+/* Radar Right Column Details */
+.radar-details-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.kpi-score-badge-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  background: linear-gradient(135deg, #f0fdfa 0%, #e0f2fe 100%);
+  border: 1.5px solid #99f6e4;
+  border-radius: var(--radius-md);
+}
+
+.kpi-score-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.kpi-lbl {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-subtle);
+  text-transform: uppercase;
+}
+
+.kpi-val-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.kpi-num {
+  font-size: 32px;
+  font-weight: 800;
+  color: #0f766e;
+  line-height: 1;
+}
+
+.kpi-denom {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+.kpi-grade-badge {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #065f46;
+  background: #d1fae5;
+  padding: 3px 8px;
+  border-radius: 12px;
+}
+
+.kpi-growth-box {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kpi-grow-lbl {
+  font-size: 10.5px;
+  color: var(--text-subtle);
+  text-transform: uppercase;
+}
+
+.kpi-grow-num {
+  font-size: 22px;
+  font-weight: 800;
+  color: #10b981;
+}
+
+/* 5 Pillars Breakdown List */
+.pillars-breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pillar-breakdown-item {
+  padding: 10px 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: var(--radius-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pillar-row-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.p-icon {
+  font-size: 18px;
+}
+
+.p-title {
+  font-size: 12.5px;
+  color: var(--color-primary-dark);
+}
+
+.p-desc {
+  font-size: 11px;
+  color: var(--text-subtle);
+}
+
+.pillar-score-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.p-curr {
+  font-size: 14px;
+  font-weight: 800;
+  color: #0f766e;
+}
+
+.p-diff {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #10b981;
+  background: #ecfdf5;
+  padding: 1px 5px;
+  border-radius: 4px;
+}
+
+.pillar-meter-wrap {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.meter-base-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: #c084fc;
+  border-radius: 6px;
+  opacity: 0.6;
+}
+
+.meter-curr-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: linear-gradient(90deg, #14b8a6 0%, #10b981 100%);
+  border-radius: 6px;
+}
+
+/* Quest Modal Detail */
+.quest-modal-hero {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  background: #f8fafc;
+  border-radius: var(--radius-md);
+  border: 1px solid #e2e8f0;
+}
+
+.quest-badge-big {
+  font-size: 36px;
+}
+
+.quest-hero-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+  margin-bottom: 4px;
+}
+
+.q-info-row strong {
+  display: block;
+  font-size: 12px;
+  color: var(--text-subtle);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.challenge-highlight-box {
+  background: #fefce8;
+  border: 1px solid #fef08a;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  color: #854d0e;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+@media (max-width: 900px) {
+  .quest-stations-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .quest-wave-bg {
+    display: none;
+  }
+  .radar-main-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 768px) {

@@ -229,7 +229,30 @@ const initialStudents = [
         coachNotes: 'Kemajuan pesat! Kenzo sudah sangat percaya diri meluncur dan mengambil nafas ritmis.',
         recommendation: 'Sesi berikutnya persiapan tantangan kenaikan level.'
       }
-    ]
+    ],
+    radarSkills: {
+      baseline: {
+        waterConfidence: 55,
+        breathControl: 45,
+        strokeTechnique: 40,
+        bodyBalance: 50,
+        disciplineFocus: 60
+      },
+      current: {
+        waterConfidence: 92,
+        breathControl: 85,
+        strokeTechnique: 88,
+        bodyBalance: 90,
+        disciplineFocus: 85
+      },
+      pillars: [
+        { key: 'waterConfidence', label: 'Keberanian Air (Water Confidence)', icon: '🌊', desc: 'Adaptasi dan ketenangan di dalam air tanpa panik' },
+        { key: 'breathControl', label: 'Ketahanan Nafas (Breath Control)', icon: '🫁', desc: 'Pengambilan nafas ritmis dan ketahanan paru-paru' },
+        { key: 'strokeTechnique', label: 'Teknik Gerak (Propulsion)', icon: '🏊‍♂️', desc: 'Ayunan tangan dan kekuatan dorongan kaki' },
+        { key: 'bodyBalance', label: 'Keseimbangan (Streamline)', icon: '⚖️', desc: 'Posisi tubuh mendatar sejajar permukaan air' },
+        { key: 'disciplineFocus', label: 'Fokus & Mental (Discipline)', icon: '🎯', desc: 'Konsentrasi mendengarkan instruksi coach di kolam' }
+      ]
+    }
   }
 ];
 

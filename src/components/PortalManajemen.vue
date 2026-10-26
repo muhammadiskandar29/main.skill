@@ -1,0 +1,3328 @@
+<template>
+  <div class="portal-manajemen">
+    <!-- Global Alert / Notice Toast -->
+    <transition name="fade">
+      <div v-if="noticeMessage" class="toast-notice">
+        <div class="toast-icon">✓</div>
+        <div class="toast-body">
+          <strong>Notifikasi Sistem:</strong>
+          <span>{{ noticeMessage }}</span>
+        </div>
+      </div>
+    </transition>
+
+    <!-- =========================================================================
+         SUB-MENU 1: RINGKASAN EKSEKUTIF (m_overview)
+         ========================================================================= -->
+    <div v-if="activeMenu === 'm_overview'" class="portal-tab-content">
+      <div class="page-top-bar">
+        <div>
+          <span class="badge-chip teal">Dashboard Manajemen</span>
+          <h2 class="page-title">Ringkasan Operasional & Kinerja</h2>
+          <p class="page-sub">Monitoring aktivitas akademik, penugasan instruktur, dan arus penerimaan pembayaran.</p>
+        </div>
+        <div class="top-date-badge">
+          <span>Tahun Ajaran 2026/2027</span>
+        </div>
+      </div>
+
+      <!-- KPI Metrics Cards Grid -->
+      <div class="metrics-grid">
+        <div class="metric-card card-humanist">
+          <div class="metric-icon-wrap teal">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="8.5" cy="7" r="4"></circle>
+              <line x1="20" y1="8" x2="20" y2="14"></line>
+              <line x1="23" y1="11" x2="17" y2="11"></line>
+            </svg>
+          </div>
+          <div class="metric-data">
+            <span class="metric-lbl">Total Siswa Terbina</span>
+            <strong class="metric-val">{{ store.students.length }} Siswa</strong>
+            <span class="metric-sub text-green">100% Memiliki Pelatih Terikat</span>
+          </div>
+        </div>
+
+        <div class="metric-card card-humanist">
+          <div class="metric-icon-wrap gold">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+          </div>
+          <div class="metric-data">
+            <span class="metric-lbl">Instruktur Berlisensi</span>
+            <strong class="metric-val">{{ store.coaches.length }} Coach</strong>
+            <span class="metric-sub">Tersebar di {{ store.products.length }} Program</span>
+          </div>
+        </div>
+
+        <div class="metric-card card-humanist">
+          <div class="metric-icon-wrap green">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+              <line x1="2" y1="10" x2="22" y2="10"></line>
+            </svg>
+          </div>
+          <div class="metric-data">
+            <span class="metric-lbl">Penerimaan Biaya Kursus</span>
+            <strong class="metric-val">{{ totalRevenueFormatted }}</strong>
+            <span class="metric-sub text-green">{{ paidTransactionsCount }} Tagihan Lunas</span>
+          </div>
+        </div>
+
+        <div class="metric-card card-humanist">
+          <div class="metric-icon-wrap teal">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+            </svg>
+          </div>
+          <div class="metric-data">
+            <span class="metric-lbl">Paket Kursus Terdaftar</span>
+            <strong class="metric-val">{{ store.packages.length }} Skema</strong>
+            <span class="metric-sub">{{ store.products.length }} Program Aktif</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Operational Action Shortcuts -->
+      <div class="management-shortcuts card-humanist">
+        <h4 class="shortcut-title">Aksi Cepat Manajemen</h4>
+        <div class="shortcut-buttons">
+          <button @click="openAddStudentModal" class="btn-primary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>+ Daftarkan Siswa Baru</span>
+          </button>
+
+          <button @click="openAddProductModal" class="btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>+ Tambah Program Pelatihan</span>
+          </button>
+
+          <button @click="openAddPackageModal" class="btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>+ Buat Paket Biaya Baru</span>
+          </button>
+
+          <button @click="openAddCoachModal" class="btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            <span>+ Rekrut Instruktur Baru</span>
+          </button>
+
+          <button @click="$emit('change-menu', 'm_payments')" class="btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+              <line x1="2" y1="10" x2="22" y2="10"></line>
+            </svg>
+            <span>Cek Status Tagihan & QRIS</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Recent Students Summary Table -->
+      <div class="card-humanist table-wrap" style="margin-top: 24px;">
+        <div class="table-header-bar">
+          <h4 class="table-section-title">Siswa yang Baru Mendaftar</h4>
+          <button @click="$emit('change-menu', 'm_students')" class="btn-link">Lihat Semua Siswa →</button>
+        </div>
+        <table class="leads-table">
+          <thead>
+            <tr>
+              <th>Nama Siswa & Usia</th>
+              <th>Nama Orang Tua / Wali</th>
+              <th>Program & Paket</th>
+              <th>Instruktur Terikat</th>
+              <th>Status</th>
+              <th class="text-right">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="stu in (store.students || []).slice(0, 5)" :key="stu.id">
+              <td>
+                <strong>{{ stu.name }}</strong>
+                <span class="sub-cell-txt">{{ stu.age }} Tahun</span>
+              </td>
+              <td>
+                <div class="parent-info">
+                  <span>{{ stu.parentName }}</span>
+                  <span class="font-mono sub-cell-txt">{{ stu.phone }}</span>
+                </div>
+              </td>
+              <td>
+                <span class="badge-chip teal">{{ stu.productName || stu.program }}</span>
+                <div class="sub-cell-txt">{{ stu.packageName }}</div>
+              </td>
+              <td>
+                <strong>{{ stu.assignedCoachName || 'Belum di-assign' }}</strong>
+                <div class="sub-cell-txt">{{ stu.mappingStatus }}</div>
+              </td>
+              <td>
+                <span class="badge-chip green">{{ stu.status }}</span>
+              </td>
+              <td class="text-right">
+                <button @click="openAssignCoachModal(stu)" class="btn-outline-primary-xs">
+                  Assign Coach
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- =========================================================================
+         SUB-MENU 2: MASTER PROGRAM PELATIHAN (m_products)
+         ========================================================================= -->
+    <div v-else-if="activeMenu === 'm_products'" class="portal-tab-content">
+      <div class="page-top-bar">
+        <div>
+          <span class="badge-chip teal">Master Data Akademik</span>
+          <h2 class="page-title">Master Program Pelatihan</h2>
+          <p class="page-sub">Kelola daftar bidang keahlian, gambar banner kurikulum, dan tahapan level capaian.</p>
+        </div>
+        <button @click="openAddProductModal" class="btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>+ Tambah Program Baru</span>
+        </button>
+      </div>
+
+      <!-- Programs Grid Cards -->
+      <div class="products-crud-grid">
+        <div v-for="prod in store.products" :key="prod.id" class="product-crud-card card-humanist">
+          <div class="prod-img-wrap">
+            <img :src="prod.heroImage || '/images/swimming-hero.jpg'" :alt="prod.name" class="prod-thumb" />
+            <span class="badge-chip teal prod-cat-badge">{{ prod.category }}</span>
+          </div>
+
+          <div class="prod-card-body">
+            <div class="prod-title-row">
+              <h3 class="prod-name">{{ prod.name }}</h3>
+              <span class="badge-chip green" v-if="prod.isActive !== false">Aktif</span>
+              <span class="badge-chip gold" v-else>Non-Aktif</span>
+            </div>
+            <p class="prod-desc">{{ prod.shortDesc }}</p>
+
+            <div class="prod-meta-strip">
+              <span>Target: {{ prod.targetAge }}</span>
+              <span>•</span>
+              <span>{{ (prod.levels || []).length }} Level Kurikulum</span>
+              <span>•</span>
+              <span>{{ (store.packages || []).filter(p => p.productId === prod.id).length }} Paket Biaya</span>
+            </div>
+
+            <!-- Mapped Coaches Badges -->
+            <div class="prod-coaches-strip">
+              <span class="lbl-coaches">Instruktur Tersedia:</span>
+              <div v-if="getCoachesForProduct(prod.id).length > 0" class="coach-tag-list">
+                <span v-for="c in getCoachesForProduct(prod.id)" :key="c.id" class="coach-tag">
+                  {{ c.name.split(',')[0] }}
+                </span>
+              </div>
+              <span v-else class="text-muted-tag">Belum ada coach yang dipetakan</span>
+            </div>
+
+            <div class="prod-card-actions">
+              <button @click="openEditProductModal(prod)" class="btn-secondary-sm">
+                Edit Program
+              </button>
+              <button @click="handleDeleteProduct(prod.id)" class="btn-danger-sm">
+                Hapus
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================================================================
+         SUB-MENU 3: PAKET KURSUS & BIAYA (m_packages)
+         ========================================================================= -->
+    <div v-else-if="activeMenu === 'm_packages'" class="portal-tab-content">
+      <div class="page-top-bar">
+        <div>
+          <span class="badge-chip gold">Struktur Tarif & Biaya</span>
+          <h2 class="page-title">Paket Kursus & Skema Biaya</h2>
+          <p class="page-sub">Kelola variasi paket bimbingan, durasi sesi, dan nominal tarif pendaftaran.</p>
+        </div>
+        <button @click="openAddPackageModal" class="btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>+ Tambah Paket Kursus</span>
+        </button>
+      </div>
+
+      <!-- Filter per Program -->
+      <div class="package-filter-bar">
+        <label class="filter-lbl">Filter Program:</label>
+        <select v-model="selectedProductFilter" class="form-select filter-select">
+          <option value="">Semua Program ({{ store.packages.length }} Paket Terdaftar)</option>
+          <option v-for="p in store.products" :key="p.id" :value="p.id">{{ p.name }}</option>
+        </select>
+      </div>
+
+      <div class="packages-table-card card-humanist">
+        <table class="leads-table">
+          <thead>
+            <tr>
+              <th>Program Keahlian</th>
+              <th>Nama Paket</th>
+              <th>Rasio Siswa</th>
+              <th>Biaya Paket</th>
+              <th>Durasi & Pertemuan</th>
+              <th>Label Badge</th>
+              <th class="text-right">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="pkg in filteredPackages" :key="pkg.id">
+              <td><span class="badge-chip teal">{{ pkg.productName }}</span></td>
+              <td><strong>{{ pkg.name }}</strong></td>
+              <td>{{ pkg.ratio }}</td>
+              <td><strong class="color-primary">{{ pkg.formattedPrice }}</strong></td>
+              <td>{{ pkg.duration }} • {{ pkg.meetings }}</td>
+              <td><span class="badge-chip gold">{{ pkg.badge || 'Standar' }}</span></td>
+              <td class="text-right">
+                <button @click="openEditPackageModal(pkg)" class="btn-secondary-xs" style="margin-right: 6px;">
+                  Edit
+                </button>
+                <button @click="handleDeletePackage(pkg.id)" class="btn-danger-sm">
+                  Hapus
+                </button>
+              </td>
+            </tr>
+            <tr v-if="filteredPackages.length === 0">
+              <td colspan="7" class="text-center" style="padding: 32px; color: var(--text-muted);">
+                Belum ada paket untuk program ini. Klik "+ Tambah Paket Kursus" di atas untuk menambahkan.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- =========================================================================
+         SUB-MENU 4: DAFTAR INSTRUKTUR (m_coaches)
+         ========================================================================= -->
+    <div v-else-if="activeMenu === 'm_coaches'" class="portal-tab-content">
+      <div class="page-top-bar">
+        <div>
+          <span class="badge-chip gold">Tenaga Pengajar</span>
+          <h2 class="page-title">Daftar Instruktur & Pelatih Terverifikasi</h2>
+          <p class="page-sub">Menambah coach baru akan otomatis membuat akun login (Default Password: <strong>123</strong>) dan memetakan ke program pelatihan.</p>
+        </div>
+        <button @click="openAddCoachModal" class="btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>+ Tambah Instruktur Baru</span>
+        </button>
+      </div>
+
+      <div class="coaches-grid">
+        <div v-for="c in store.coaches" :key="c.id" class="coach-manage-card card-humanist">
+          <div class="c-head">
+            <img :src="c.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240'" :alt="c.name" class="c-avatar" />
+            <div class="c-title-area">
+              <h3 class="c-name">{{ c.name }}</h3>
+              <span class="badge-chip green">Akun Login Aktif (123)</span>
+            </div>
+          </div>
+
+          <p class="c-spec">{{ c.specialty }}</p>
+          <p class="c-bio">{{ c.bio }}</p>
+
+          <!-- Mapped Products -->
+          <div class="coach-prod-mapping">
+            <span class="lbl-small">Spesialisasi Program:</span>
+            <div class="coach-tags-wrap">
+              <span v-for="p in c.mappedProducts" :key="p.id" class="badge-chip teal">
+                {{ p.name }}
+              </span>
+              <span v-if="!c.mappedProducts || c.mappedProducts.length === 0" class="badge-chip gold">
+                Semua Program
+              </span>
+            </div>
+          </div>
+
+          <div class="c-meta">
+            <span>Email: <strong>{{ c.email }}</strong></span>
+            <span>WhatsApp: <strong>{{ c.phone }}</strong></span>
+          </div>
+
+          <div class="coach-card-actions">
+            <button @click="openEditCoachModal(c)" class="btn-secondary-sm">
+              Edit Data
+            </button>
+            <button @click="handleDeleteCoach(c.id)" class="btn-danger-sm">
+              Hapus
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================================================================
+         SUB-MENU 5: DATA SISWA & WALI (m_students)
+         ========================================================================= -->
+    <div v-else-if="activeMenu === 'm_students'" class="portal-tab-content">
+      <div class="page-top-bar">
+        <div>
+          <span class="badge-chip green">Data Akademik & Siswa</span>
+          <h2 class="page-title">Data Siswa & Wali Murid</h2>
+          <p class="page-sub">Kelola identitas siswa, nama orang tua, penugasan instruktur terikat, dan 4 sesi latihan berkala.</p>
+        </div>
+        <button @click="openAddStudentModal" class="btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>+ Tambah Siswa Baru</span>
+        </button>
+      </div>
+
+      <!-- Search & Filter Bar -->
+      <div class="filter-search-strip card-humanist">
+        <div class="search-input-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input 
+            v-model="studentSearchQuery" 
+            type="text" 
+            placeholder="Cari nama siswa, orang tua, atau nomor telepon..." 
+            class="input-search-clean" 
+          />
+        </div>
+        <div class="filter-count">
+          <span>Menampilkan {{ filteredStudents.length }} dari {{ store.students.length }} siswa</span>
+        </div>
+      </div>
+
+      <!-- Students Table -->
+      <div class="card-humanist table-wrap">
+        <table class="leads-table">
+          <thead>
+            <tr>
+              <th>Identitas Siswa & Usia</th>
+              <th>Nama Orang Tua / Wali</th>
+              <th>Program & Paket</th>
+              <th>Pelatih Terikat & Status Ikatan</th>
+              <th>Jadwal Sesi</th>
+              <th class="text-right">Aksi Manajemen</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="stu in filteredStudents" :key="stu.id">
+              <td>
+                <div class="stu-name-cell">
+                  <strong>{{ stu.name }}</strong>
+                  <span class="sub-cell-txt">{{ stu.age }} Tahun • Bergabung: {{ stu.joinedDate }}</span>
+                </div>
+              </td>
+              <td>
+                <div class="parent-info">
+                  <strong>{{ stu.parentName }}</strong>
+                  <div class="wa-chat-inline">
+                    <span class="font-mono sub-cell-txt">{{ stu.phone }}</span>
+                    <a :href="actions.buildWhatsAppUrl(stu, 'welcome')" target="_blank" class="link-wa-chat" title="Chat via WhatsApp">
+                      Chat WA
+                    </a>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <span class="badge-chip teal">{{ stu.productName || stu.program }}</span>
+                <div class="sub-cell-txt">{{ stu.packageName }}</div>
+              </td>
+              <td>
+                <div class="coach-lock-status">
+                  <strong>{{ stu.assignedCoachName || 'Belum di-assign' }}</strong>
+                  <span class="badge-chip gold" style="font-size: 10.5px; margin-top: 2px;">
+                    {{ stu.mappingStatus || 'Terkunci 4 Sesi' }}
+                  </span>
+                </div>
+              </td>
+              <td>
+                <button @click="openStudentSchedulesModal(stu)" class="btn-schedule-view">
+                  <span class="badge-chip green">{{ (stu.memberSchedules || []).length || 4 }} Sesi Terjadwal</span>
+                  <span class="btn-view-txt">Atur Jadwal ▾</span>
+                </button>
+              </td>
+              <td class="text-right">
+                <div class="table-actions-cluster">
+                  <button @click="openAssignCoachModal(stu)" class="btn-primary-xs" title="Tugaskan / Ganti Pelatih">
+                    Assign Pelatih
+                  </button>
+                  <button @click="openEditStudentModal(stu)" class="btn-secondary-xs" title="Edit Data Siswa">
+                    Edit
+                  </button>
+                  <button @click="handleDeleteStudent(stu.id)" class="btn-danger-xs" title="Hapus Siswa">
+                    Hapus
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr v-if="filteredStudents.length === 0">
+              <td colspan="6" class="text-center" style="padding: 32px; color: var(--text-muted);">
+                Tidak ada data siswa yang cocok dengan pencarian.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- =========================================================================
+         SUB-MENU 6: JADWAL & SESI LATIHAN     <!-- =========================================================================
+         SUB-MENU 6: PLOTTING JADWAL & SESI LATIHAN (m_schedules) - FULL DYNAMIC
+         ========================================================================= -->
+    <div v-else-if="activeMenu === 'm_schedules'" class="portal-tab-content">
+      <div class="page-top-bar">
+        <div>
+          <span class="badge-chip teal">Plotting & Presensi Interaktif</span>
+          <h2 class="page-title">Jadwal & Sesi Latihan Seluruh Siswa</h2>
+          <p class="page-sub">Kelola plotting jadwal dinamis, alokasi instruktur, pelacakan presensi, evaluasi capaian, dan rescheduling fleksibel.</p>
+        </div>
+        <button @click="openCreateScheduleModal()" class="btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>+ Plotting Sesi Latihan Baru</span>
+        </button>
+      </div>
+
+      <!-- Schedule KPI Overview Cards -->
+      <div class="sched-metrics-row">
+        <div class="sched-metric-box">
+          <span class="sched-metric-lbl">Total Sesi Terjadwal</span>
+          <strong class="sched-metric-val">{{ allSchedulesList.length }} Sesi</strong>
+        </div>
+        <div class="sched-metric-box text-green">
+          <span class="sched-metric-lbl">Sesi Terlaksana (Hadir)</span>
+          <strong class="sched-metric-val">{{ countCompletedSchedules }} Sesi</strong>
+        </div>
+        <div class="sched-metric-box text-gold">
+          <span class="sched-metric-lbl">Menunggu Pelaksanaan</span>
+          <strong class="sched-metric-val">{{ countUpcomingSchedules }} Sesi</strong>
+        </div>
+        <div class="sched-metric-box text-blue">
+          <span class="sched-metric-lbl">Izin / Reschedule</span>
+          <strong class="sched-metric-val">{{ countRescheduledSchedules }} Sesi</strong>
+        </div>
+      </div>
+
+      <!-- Multi-Filter & Search Bar -->
+      <div class="schedule-filter-controls card-humanist">
+        <div class="filter-group">
+          <label class="filter-lbl">Filter Program:</label>
+          <select v-model="selectedProgramScheduleFilter" class="form-select filter-select">
+            <option value="">Semua Program ({{ store.products.length }})</option>
+            <option v-for="p in store.products" :key="p.id" :value="p.name">{{ p.name }}</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-lbl">Filter Instruktur:</label>
+          <select v-model="selectedCoachScheduleFilter" class="form-select filter-select">
+            <option value="">Semua Instruktur ({{ store.coaches.length }})</option>
+            <option v-for="c in store.coaches" :key="c.id" :value="c.name">{{ c.name }}</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-lbl">Status Pelaksanaan:</label>
+          <select v-model="selectedStatusScheduleFilter" class="form-select filter-select">
+            <option value="">Semua Status</option>
+            <option value="Terjadwal">Terjadwal</option>
+            <option value="Selesai">Hadir / Selesai</option>
+            <option value="Izin">Izin / Sakit</option>
+            <option value="Reschedule">Reschedule</option>
+          </select>
+        </div>
+
+        <div class="filter-group filter-search-wrap">
+          <label class="filter-lbl">Cari Siswa / Lokasi:</label>
+          <input 
+            v-model="scheduleSearchQuery" 
+            type="text" 
+            placeholder="Ketik nama siswa atau lokasi..." 
+            class="form-input filter-search-input"
+          />
+        </div>
+      </div>
+
+      <!-- Dynamic Schedules Table -->
+      <div class="card-humanist table-wrap">
+        <table class="leads-table">
+          <thead>
+            <tr>
+              <th>Sesi & Waktu</th>
+              <th>Nama Siswa & Wali</th>
+              <th>Program & Lokasi</th>
+              <th>Instruktur Pengampu</th>
+              <th>Status</th>
+              <th>Evaluasi & Catatan</th>
+              <th class="text-right">Aksi Dinamis</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="sch in filteredSchedulesList" :key="sch.id">
+              <td>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span class="badge-chip teal">Sesi {{ sch.sessionNo }}</span>
+                  <strong>{{ sch.day }}</strong>
+                </div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">{{ sch.date }}</div>
+                <div class="font-mono text-xs font-bold" style="color: var(--color-primary); margin-top: 2px;">{{ sch.time }}</div>
+              </td>
+              <td>
+                <strong>{{ sch.studentName }}</strong>
+                <div class="sub-cell-txt">Wali: {{ sch.parentName }}</div>
+                <a v-if="sch.phone" :href="'https://wa.me/' + cleanPhone(sch.phone)" target="_blank" class="sub-cell-wa">
+                  {{ sch.phone }} ↗
+                </a>
+              </td>
+              <td>
+                <span class="badge-chip green">{{ sch.programName || 'Program' }}</span>
+                <div class="font-mono text-xs text-muted" style="margin-top: 4px;">{{ sch.location }}</div>
+              </td>
+              <td>
+                <strong>{{ sch.coachName }}</strong>
+              </td>
+              <td>
+                <span 
+                  class="badge-chip" 
+                  :class="{
+                    'green': sch.status === 'Selesai' || sch.status === 'Hadir',
+                    'gold': sch.status === 'Terjadwal',
+                    'teal': sch.status === 'Izin' || sch.status === 'Izin/Sakit',
+                    'red': sch.status === 'Reschedule' || sch.status === 'Dibatalkan'
+                  }"
+                >
+                  {{ sch.status }}
+                </span>
+              </td>
+              <td>
+                <div class="sched-notes-cell">
+                  <span v-if="sch.rating" class="rating-stars">{{ '★'.repeat(sch.rating) }}</span>
+                  <p class="sched-notes-text">{{ sch.notes || 'Belum ada catatan evaluasi' }}</p>
+                </div>
+              </td>
+              <td class="text-right">
+                <div class="table-actions-inline">
+                  <button 
+                    @click="openAttendanceModal(sch)" 
+                    class="btn-primary-xs"
+                    title="Catat Presensi & Evaluasi Kemampuan"
+                  >
+                    Presensi & Nilai
+                  </button>
+                  <button 
+                    @click="openRescheduleModal(sch)" 
+                    class="btn-secondary-xs"
+                    title="Ubah Tanggal, Waktu atau Pelatih"
+                  >
+                    Reschedule
+                  </button>
+                  <button 
+                    @click="handleDeleteSchedule(sch)" 
+                    class="btn-danger-xs"
+                    title="Hapus Sesi Latihan"
+                  >
+                    Hapus
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr v-if="filteredSchedulesList.length === 0">
+              <td colspan="7" class="text-center" style="padding: 40px; color: var(--text-muted);">
+                Tidak ada data sesi latihan yang sesuai dengan filter.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- =========================================================================
+         SUB-MENU 7: KEUANGAN & PEMBAYARAN (m_payments)
+         ========================================================================= -->
+    <div v-else-if="activeMenu === 'm_payments'" class="portal-tab-content">
+      <div class="page-top-bar">
+        <div>
+          <span class="badge-chip gold">Sistem Keuangan & Billing</span>
+          <h2 class="page-title">Keuangan & Verifikasi Tagihan</h2>
+          <p class="page-sub">Monitoring tagihan paket kursus, verifikasi transfer, dan preview QRIS Dinamis standar ASPI / EMVCo.</p>
+        </div>
+      </div>
+
+      <!-- Tab Switcher -->
+      <div class="tabs-pill" style="margin-bottom: 20px;">
+        <button 
+          class="tab-pill-btn" 
+          :class="{ active: paymentSubTab === 'invoices' }"
+          @click="paymentSubTab = 'invoices'"
+        >
+          Daftar Tagihan & Invoice
+        </button>
+        <button 
+          class="tab-pill-btn" 
+          :class="{ active: paymentSubTab === 'qris_generator' }"
+          @click="paymentSubTab = 'qris_generator'"
+        >
+          Generator QRIS Dinamis (ASPI/EMVCo)
+        </button>
+        <button 
+          class="tab-pill-btn" 
+          :class="{ active: paymentSubTab === 'bank_accounts' }"
+          @click="paymentSubTab = 'bank_accounts'"
+        >
+          Rekening Transfer Bank
+        </button>
+      </div>
+
+      <!-- Subtab A: Invoices -->
+      <div v-if="paymentSubTab === 'invoices'" class="card-humanist table-wrap">
+        <table class="leads-table">
+          <thead>
+            <tr>
+              <th>No. Invoice</th>
+              <th>Siswa & Wali Murid</th>
+              <th>Paket Kursus</th>
+              <th>Nominal Tagihan</th>
+              <th>Metode Bayar</th>
+              <th>Status</th>
+              <th class="text-right">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="trx in store.transactions" :key="trx.id">
+              <td><strong class="font-mono">{{ trx.id }}</strong></td>
+              <td>
+                <strong>{{ trx.studentName }}</strong>
+                <div class="sub-cell-txt">Wali: {{ trx.parentName }}</div>
+              </td>
+              <td>{{ trx.packageName }}</td>
+              <td><strong class="color-primary">{{ trx.formattedAmount }}</strong></td>
+              <td><span class="badge-chip teal">{{ trx.paymentMethodName || 'QRIS Dinamis' }}</span></td>
+              <td>
+                <span class="badge-chip" :class="trx.status?.includes('Lunas') ? 'green' : 'gold'">
+                  {{ trx.status }}
+                </span>
+              </td>
+              <td class="text-right">
+                <button 
+                  v-if="!trx.status?.includes('Lunas')" 
+                  @click="handleVerifyPayment(trx.id)" 
+                  class="btn-primary-xs"
+                >
+                  Verifikasi Lunas
+                </button>
+                <span v-else class="text-green" style="font-size: 12px; font-weight: 700;">✓ Lunas</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Subtab B: QRIS Dynamic Generator -->
+      <div v-else-if="paymentSubTab === 'qris_generator'" class="card-humanist qris-generator-card">
+        <div class="qris-grid">
+          <div class="qris-form-side">
+            <h4 class="form-sec-title">Generator QRIS Dinamis (EMVCo & ASPI)</h4>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
+              Mengonversi QRIS statis yayasan menjadi QRIS dinamis dengan nominal tagihan dan checksum CRC16 resmi.
+            </p>
+
+            <div class="form-group">
+              <label class="form-label">Pilih Paket Tagihan Cepat</label>
+              <select v-model="selectedQrisNominal" @change="generateQrisPreview" class="form-select">
+                <option :value="400000">Group Class — Rp 400.000</option>
+                <option :value="500000">Small Group — Rp 500.000</option>
+                <option :value="700000">Private Class — Rp 700.000</option>
+                <option :value="350000">Reguler Tari — Rp 350.000</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Atau Masukkan Nominal Bebas (Rp)</label>
+              <input 
+                v-model.number="customQrisAmount" 
+                @input="generateQrisPreview" 
+                type="number" 
+                class="form-input" 
+                placeholder="Contoh: 500000" 
+              />
+            </div>
+
+            <div class="qris-meta-box">
+              <div class="box-row">
+                <span>Nama Merchant:</span>
+                <strong>{{ store.paymentConfig.merchantName }}</strong>
+              </div>
+              <div class="box-row">
+                <span>NMID:</span>
+                <span class="font-mono">{{ store.paymentConfig.nmid }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="qris-preview-side">
+            <div class="qris-display-frame">
+              <div class="qris-header-logo">
+                <span class="qris-txt">QRIS</span>
+                <span class="qris-sub">PEMBAYARAN DIGITAL RESMI</span>
+              </div>
+              
+              <div class="qr-canvas-box">
+                <img v-if="qrCodeDataUrl" :src="qrCodeDataUrl" alt="QRIS Dinamis" class="qr-img" />
+                <div v-else class="qr-loading">Menyiapkan QR...</div>
+              </div>
+
+              <div class="qris-nominal-box">
+                <span class="lbl">Total Tagihan:</span>
+                <strong class="nominal-val">Rp {{ activeQrisAmount.toLocaleString('id-ID') }}</strong>
+              </div>
+
+              <div class="qris-footer-notes">
+                <span>Scan menggunakan BCA Mobile, Mandiri Livin, GoPay, OVO, Dana, atau ShopeePay.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subtab C: Bank Accounts -->
+      <div v-else-if="paymentSubTab === 'bank_accounts'" class="bank-accounts-grid">
+        <div v-for="bank in store.paymentConfig.bankAccounts" :key="bank.id" class="bank-card card-humanist">
+          <div class="bank-head">
+            <h4 class="bank-title">{{ bank.bankName }}</h4>
+            <span class="badge-chip teal">{{ bank.badge }}</span>
+          </div>
+          <div class="bank-num font-mono">{{ bank.accountNumber }}</div>
+          <div class="bank-holder">a.n. {{ bank.accountHolder }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- =========================================================================
+         SUB-MENU 8: PENGATURAN AKSES & RBAC (m_rbac)
+         ========================================================================= -->
+    <div v-else-if="activeMenu === 'm_rbac'" class="portal-tab-content">
+      <div class="page-top-bar">
+        <div>
+          <span class="badge-chip gold">Keamanan & Otorisasi</span>
+          <h2 class="page-title">Pengaturan Hak Akses (RBAC) & Akun Pengguna</h2>
+          <p class="page-sub">Manajemen kredensial login (Customer, Coach, Manajemen). Seluruh akun baru memiliki default password: <strong>123</strong>.</p>
+        </div>
+      </div>
+
+      <div class="card-humanist table-wrap">
+        <table class="leads-table">
+          <thead>
+            <tr>
+              <th>Nama Pengguna</th>
+              <th>Email Akun (Login ID)</th>
+              <th>Peran (Role)</th>
+              <th>Default Password</th>
+              <th>Status Akun</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="u in store.users" :key="u.id">
+              <td><strong>{{ u.name }}</strong></td>
+              <td><span class="font-mono">{{ u.email }}</span></td>
+              <td>
+                <span class="badge-chip" :class="u.role === 'manajemen' ? 'gold' : (u.role === 'coach' ? 'teal' : 'green')">
+                  {{ u.role.toUpperCase() }}
+                </span>
+              </td>
+              <td><span class="badge-chip gold">123</span></td>
+              <td><span class="badge-chip green">Aktif</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- =========================================================================
+         MODALS (ENTERPRISE CRUD)
+         ========================================================================= -->
+    <!-- 1. MODAL TAMBAH & EDIT PROGRAM PELATIHAN -->
+    <div v-if="showProductModal" class="modal-backdrop" @click.self="showProductModal = false">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3 class="modal-title">{{ isEditProduct ? 'Edit Program Pelatihan' : 'Tambah Program Pelatihan Baru' }}</h3>
+          <button class="btn-close" @click="showProductModal = false">✕</button>
+        </div>
+        <form @submit.prevent="handleSubmitProduct" class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Nama Program Keahlian <span class="required">*</span></label>
+            <input v-model="productForm.name" type="text" class="form-input" placeholder="Contoh: Skill Renang Prestasi" required />
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Kategori</label>
+              <input v-model="productForm.category" type="text" class="form-input" placeholder="Olahraga & Ketangkasan / Seni" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Target Usia Peserta</label>
+              <input v-model="productForm.targetAge" type="text" class="form-input" placeholder="Usia 5 - 15 Tahun" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Upload Foto / Banner Program</label>
+            <div class="upload-field-box">
+              <input type="file" @change="handleProductImageUpload" accept="image/*" class="file-input" />
+              <div v-if="productUploading" class="upload-status">Mengunggah ke server...</div>
+              <div v-if="productForm.heroImage" class="upload-preview-wrap">
+                <img :src="productForm.heroImage" alt="Preview" class="preview-img" />
+                <span class="preview-path font-mono">{{ productForm.heroImage }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Deskripsi Singkat Program</label>
+            <textarea v-model="productForm.shortDesc" class="form-textarea" rows="2" placeholder="Fokus kurikulum dan capaian..." required></textarea>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" @click="showProductModal = false" class="btn-secondary">Batal</button>
+            <button type="submit" :disabled="productUploading" class="btn-primary">
+              <span v-if="productUploading">Sedang Upload...</span>
+              <span v-else>{{ isEditProduct ? 'Simpan Perubahan' : 'Buat Program Baru' }}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 2. MODAL TAMBAH & EDIT PAKET KURSUS -->
+    <div v-if="showPackageModal" class="modal-backdrop" @click.self="showPackageModal = false">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3 class="modal-title">{{ isEditPackage ? 'Edit Paket Kursus' : 'Tambah Paket Kursus Baru' }}</h3>
+          <button class="btn-close" @click="showPackageModal = false">✕</button>
+        </div>
+        <form @submit.prevent="handleSubmitPackage" class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Pilih Program Keahlian <span class="required">*</span></label>
+            <select v-model="packageForm.productId" class="form-select" required>
+              <option v-for="p in store.products" :key="p.id" :value="p.id">{{ p.name }}</option>
+            </select>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Nama Paket <span class="required">*</span></label>
+              <input v-model="packageForm.name" type="text" class="form-input" placeholder="Contoh: Small Group Class" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Biaya Paket (Rp) <span class="required">*</span></label>
+              <input v-model.number="packageForm.price" type="number" class="form-input" placeholder="500000" required />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Rasio Peserta</label>
+              <input v-model="packageForm.ratio" type="text" class="form-input" placeholder="2-3 anak / kelas" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Durasi per Sesi</label>
+              <input v-model="packageForm.duration" type="text" class="form-input" placeholder="45 menit / sesi" required />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Jumlah Pertemuan</label>
+              <input v-model="packageForm.meetings" type="text" class="form-input" placeholder="4x pertemuan" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Label Badge</label>
+              <input v-model="packageForm.badge" type="text" class="form-input" placeholder="Rekomendasi Coach / Populer" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Keterangan / Fasilitas Tambahan</label>
+            <textarea v-model="packageForm.description" class="form-textarea" rows="2" placeholder="Keunggulan paket ini..."></textarea>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" @click="showPackageModal = false" class="btn-secondary">Batal</button>
+            <button type="submit" class="btn-primary">
+              {{ isEditPackage ? 'Simpan Perubahan' : 'Simpan Paket Baru' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 3. MODAL TAMBAH & EDIT INSTRUKTUR (COACH) -->
+    <div v-if="showCoachModal" class="modal-backdrop" @click.self="showCoachModal = false">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3 class="modal-title">{{ isEditCoach ? 'Edit Data Instruktur' : 'Tambah Instruktur Baru' }}</h3>
+          <button class="btn-close" @click="showCoachModal = false">✕</button>
+        </div>
+        <form @submit.prevent="handleSubmitCoach" class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Nama Lengkap & Gelar <span class="required">*</span></label>
+            <input v-model="coachForm.name" type="text" class="form-input" placeholder="Contoh: Coach Bayu Pratama, S.Pd." required />
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Email Akun (Login ID) <span class="required">*</span></label>
+              <input v-model="coachForm.email" type="email" class="form-input" placeholder="bayu@mineskills.id" required />
+              <span class="form-hint">Otomatis memiliki login Coach (Password: <strong>123</strong>).</span>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nomor WhatsApp <span class="required">*</span></label>
+              <input v-model="coachForm.phone" type="tel" class="form-input" placeholder="0812xxxxxxxx" required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Spesialisasi & Lisensi <span class="required">*</span></label>
+            <input v-model="coachForm.specialty" type="text" class="form-input" placeholder="Contoh: Renang Prestasi & Water Safety (FINA Licensed)" required />
+          </div>
+
+          <!-- Upload Foto Coach -->
+          <div class="form-group">
+            <label class="form-label">Upload Foto Profil Instruktur</label>
+            <div class="upload-field-box">
+              <input type="file" @change="handleCoachImageUpload" accept="image/*" class="file-input" />
+              <div v-if="coachUploading" class="upload-status">Mengunggah foto...</div>
+              <div v-if="coachForm.avatar" class="upload-preview-wrap">
+                <img :src="coachForm.avatar" alt="Preview Coach" class="preview-coach-img" />
+                <span class="preview-path font-mono">{{ coachForm.avatar }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mapping Program -->
+          <div class="form-group">
+            <label class="form-label">Program yang Diampu (Pilih satu atau lebih) <span class="required">*</span></label>
+            <div class="product-checkboxes-grid">
+              <label v-for="p in store.products" :key="p.id" class="prod-checkbox-label">
+                <input type="checkbox" :value="p.id" v-model="coachForm.productIds" class="checkbox-input" />
+                <span>{{ p.name }}</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Bio / Profil Singkat</label>
+            <textarea v-model="coachForm.bio" class="form-textarea" rows="2" placeholder="Pengalaman melatih, latar belakang pendidikan, dsb."></textarea>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" @click="showCoachModal = false" class="btn-secondary">Batal</button>
+            <button type="submit" :disabled="coachUploading" class="btn-primary">
+              <span v-if="coachUploading">Mengupload...</span>
+              <span v-else>{{ isEditCoach ? 'Simpan Perubahan' : 'Daftarkan Instruktur' }}</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 4. MODAL TAMBAH & EDIT SISWA -->
+    <div v-if="showStudentModal" class="modal-backdrop" @click.self="showStudentModal = false">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3 class="modal-title">{{ isEditStudent ? 'Edit Data Siswa' : 'Tambah Siswa Baru' }}</h3>
+          <button class="btn-close" @click="showStudentModal = false">✕</button>
+        </div>
+        <form @submit.prevent="handleSubmitStudent" class="modal-body">
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Nama Lengkap Siswa <span class="required">*</span></label>
+              <input v-model="studentForm.name" type="text" class="form-input" placeholder="Nama ananda" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Usia Siswa (Tahun) <span class="required">*</span></label>
+              <input v-model.number="studentForm.age" type="number" class="form-input" placeholder="Contoh: 7" required />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Nama Orang Tua / Wali <span class="required">*</span></label>
+              <input v-model="studentForm.parentName" type="text" class="form-input" placeholder="Nama ayah / bunda" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Nomor WhatsApp Wali <span class="required">*</span></label>
+              <input v-model="studentForm.phone" type="tel" class="form-input" placeholder="08xxxxxxxx" required />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Program Pilihan</label>
+              <select v-model="studentForm.productId" class="form-select" required>
+                <option v-for="p in store.products" :key="p.id" :value="p.id">{{ p.name }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Paket Kursus</label>
+              <select v-model="studentForm.packageId" class="form-select" required>
+                <option v-for="pkg in availablePackagesForSelectedProduct" :key="pkg.id" :value="pkg.id">
+                  {{ pkg.name }} — {{ pkg.formattedPrice }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Tugaskan Instruktur (Coach)</label>
+              <select v-model="studentForm.assignedCoachId" class="form-select">
+                <option v-for="c in store.coaches" :key="c.id" :value="c.id">{{ c.name }}</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Jumlah Sesi Mengikat</label>
+              <input v-model.number="studentForm.mappingLockSessions" type="number" class="form-input" placeholder="4" />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Catatan Tambahan / Alergi</label>
+            <textarea v-model="studentForm.notes" class="form-textarea" rows="2" placeholder="Kondisi kesehatan atau preferensi jadwal..."></textarea>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" @click="showStudentModal = false" class="btn-secondary">Batal</button>
+            <button type="submit" class="btn-primary">
+              {{ isEditStudent ? 'Simpan Perubahan Siswa' : 'Daftarkan Siswa' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 5. MODAL ASSIGN PELATIH KE SISWA (WITH SESSION LOCK) -->
+    <div v-if="showAssignCoachModalFlag" class="modal-backdrop" @click.self="showAssignCoachModalFlag = false">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3 class="modal-title">Penugasan Instruktur untuk Siswa</h3>
+          <button class="btn-close" @click="showAssignCoachModalFlag = false">✕</button>
+        </div>
+        <form @submit.prevent="handleSaveCoachAssignment" class="modal-body">
+          <div class="assign-student-info card-humanist">
+            <span class="badge-chip teal">{{ activeStudentForAssignment?.productName || 'Program' }}</span>
+            <h4 class="m-stu-name">{{ activeStudentForAssignment?.name }} ({{ activeStudentForAssignment?.age }} th)</h4>
+            <span class="m-parent">Wali: {{ activeStudentForAssignment?.parentName }} • {{ activeStudentForAssignment?.phone }}</span>
+          </div>
+
+          <div class="form-group" style="margin-top: 16px;">
+            <label class="form-label">Pilih Pelatih / Instruktur <span class="required">*</span></label>
+            <select v-model="assignmentForm.coachId" class="form-select" required>
+              <option value="" disabled>-- Pilih Instruktur Resmi --</option>
+              <option v-for="c in store.coaches" :key="c.id" :value="c.id">
+                {{ c.name }} ({{ c.specialty }})
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Durasi Ikatan Sesi Latihan</label>
+            <select v-model.number="assignmentForm.lockSessions" class="form-select">
+              <option :value="4">4 Sesi Mengikat (Paket Reguler Bulanan)</option>
+              <option :value="8">8 Sesi Mengikat (Paket 2 Bulan)</option>
+              <option :value="12">12 Sesi Mengikat (Paket Kuartal)</option>
+            </select>
+            <span class="form-hint">Pelatih ini akan mengajar secara konsisten selama jumlah sesi yang dipilih.</span>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" @click="showAssignCoachModalFlag = false" class="btn-secondary">Batal</button>
+            <button type="submit" class="btn-primary">Tugaskan Instruktur</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 6. MODAL KELOLA JADWAL & SESI LATIHAN SISWA (FULLY DYNAMIC) -->
+    <div v-if="showSchedulesModalFlag" class="modal-backdrop" @click.self="showSchedulesModalFlag = false">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-header">
+          <div>
+            <span class="badge-chip teal">Kelola Sesi Dinamis</span>
+            <h3 class="modal-title">Jadwal Sesi Latihan: {{ activeStudentForSchedules?.name }}</h3>
+          </div>
+          <button class="btn-close" @click="showSchedulesModalFlag = false">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Student Schedule Summary Bar -->
+          <div class="schedules-student-summary card-humanist">
+            <div class="summary-col">
+              <span class="summary-lbl">Program:</span>
+              <strong>{{ activeStudentForSchedules?.productName || 'Skill Renang' }}</strong>
+            </div>
+            <div class="summary-col">
+              <span class="summary-lbl">Instruktur Terikat:</span>
+              <strong>{{ activeStudentForSchedules?.assignedCoachName || 'Belum Ditugaskan' }}</strong>
+            </div>
+            <div class="summary-col">
+              <span class="summary-lbl">Status Progres:</span>
+              <strong class="text-green">{{ activeStudentCompletedCount }} dari {{ (activeStudentForSchedules?.memberSchedules || []).length }} Sesi Selesai ({{ activeStudentProgressPercent }}%)</strong>
+            </div>
+            <div class="summary-action">
+              <button @click="openAddSessionForCurrentStudent()" class="btn-primary-xs">
+                + Tambah Sesi Tambahan
+              </button>
+            </div>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="student-session-progress-wrap">
+            <div class="student-session-progress-bar" :style="{ width: activeStudentProgressPercent + '%' }"></div>
+          </div>
+
+          <!-- Sessions List -->
+          <div class="schedules-list-wrap">
+            <div 
+              v-for="sch in (activeStudentForSchedules?.memberSchedules || [])" 
+              :key="sch.id" 
+              class="schedule-session-item card-humanist"
+            >
+              <div class="sch-left">
+                <span class="badge-chip teal">Sesi {{ sch.sessionNo }}</span>
+                <div class="sch-date-info">
+                  <strong>{{ sch.day }}, {{ sch.date }}</strong>
+                  <span class="font-mono text-xs">{{ sch.time }}</span>
+                </div>
+              </div>
+
+              <div class="sch-mid">
+                <div class="font-mono text-xs text-muted">{{ sch.location }}</div>
+                <div class="text-xs">Coach: <strong>{{ sch.coachName }}</strong></div>
+                <div v-if="sch.notes" class="sch-notes-snippet">
+                  <em>"{{ sch.notes }}"</em>
+                </div>
+              </div>
+
+              <div class="sch-status-col">
+                <span 
+                  class="badge-chip" 
+                  :class="{
+                    'green': sch.status === 'Selesai' || sch.status === 'Hadir',
+                    'gold': sch.status === 'Terjadwal',
+                    'teal': sch.status === 'Izin' || sch.status === 'Izin/Sakit',
+                    'red': sch.status === 'Reschedule' || sch.status === 'Dibatalkan'
+                  }"
+                >
+                  {{ sch.status }}
+                </span>
+              </div>
+
+              <div class="sch-actions">
+                <button 
+                  @click="openAttendanceModal(sch)" 
+                  class="btn-primary-xs"
+                >
+                  Presensi & Nilai
+                </button>
+                <button 
+                  @click="openRescheduleModal(sch)" 
+                  class="btn-secondary-xs"
+                >
+                  Reschedule
+                </button>
+                <button 
+                  @click="handleDeleteSchedule(sch)" 
+                  class="btn-danger-xs"
+                  title="Hapus Sesi"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+
+            <div v-if="(!activeStudentForSchedules?.memberSchedules || activeStudentForSchedules.memberSchedules.length === 0)" class="text-center p-6 text-muted">
+              Belum ada plotting sesi untuk siswa ini. Silakan klik tombol "+ Tambah Sesi Tambahan".
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" @click="showSchedulesModalFlag = false" class="btn-secondary">Tutup</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. MODAL PLOTTING SESI LATIHAN BARU (FULL DYNAMIC) -->
+    <div v-if="showCreateScheduleModal" class="modal-backdrop" @click.self="showCreateScheduleModal = false">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3 class="modal-title">Plotting Sesi Latihan Baru</h3>
+          <button class="btn-close" @click="showCreateScheduleModal = false">✕</button>
+        </div>
+        <form @submit.prevent="handleCreateSchedule" class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Pilih Siswa <span class="required">*</span></label>
+            <select v-model="createScheduleForm.studentId" @change="onStudentSelectedInScheduleForm" class="form-select" required>
+              <option value="" disabled>-- Pilih Siswa Terdaftar --</option>
+              <option v-for="stu in store.students" :key="stu.id" :value="stu.id">
+                {{ stu.name }} ({{ stu.productName || 'Program' }}) — Wali: {{ stu.parentName }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Sesi Ke- <span class="required">*</span></label>
+              <input v-model.number="createScheduleForm.sessionNo" type="number" min="1" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Hari Pelaksanaan <span class="required">*</span></label>
+              <select v-model="createScheduleForm.day" class="form-select" required>
+                <option value="Senin">Senin</option>
+                <option value="Selasa">Selasa</option>
+                <option value="Rabu">Rabu</option>
+                <option value="Kamis">Kamis</option>
+                <option value="Jumat">Jumat</option>
+                <option value="Sabtu">Sabtu</option>
+                <option value="Minggu">Minggu</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Tanggal Pelaksanaan <span class="required">*</span></label>
+              <input v-model="createScheduleForm.date" type="date" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Slot Waktu Latihan <span class="required">*</span></label>
+              <select v-model="createScheduleForm.time" class="form-select" required>
+                <option value="08.00 - 08.45 WIB">08.00 - 08.45 WIB (Pagi 1)</option>
+                <option value="09.00 - 09.45 WIB">09.00 - 09.45 WIB (Pagi 2)</option>
+                <option value="10.00 - 10.45 WIB">10.00 - 10.45 WIB (Pagi 3)</option>
+                <option value="15.30 - 16.15 WIB">15.30 - 16.15 WIB (Sore 1)</option>
+                <option value="16.30 - 17.15 WIB">16.30 - 17.15 WIB (Sore 2)</option>
+                <option value="17.15 - 18.00 WIB">17.15 - 18.00 WIB (Sore 3)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Instruktur Pengampu <span class="required">*</span></label>
+              <select v-model="createScheduleForm.coachName" class="form-select" required>
+                <option v-for="c in store.coaches" :key="c.id" :value="c.name">
+                  {{ c.name }} ({{ c.specialty }})
+                </option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status Awal</label>
+              <select v-model="createScheduleForm.status" class="form-select">
+                <option value="Terjadwal">Terjadwal</option>
+                <option value="Selesai">Hadir / Selesai</option>
+                <option value="Izin">Izin / Sakit</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Lokasi Fasilitas Latihan <span class="required">*</span></label>
+            <input v-model="createScheduleForm.location" type="text" class="form-input" placeholder="Contoh: Kolam Renang Graha Kresna Pratama" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Target Materi / Catatan Sesi</label>
+            <textarea v-model="createScheduleForm.notes" class="form-textarea" rows="2" placeholder="Fokus latihan atau target capaian..."></textarea>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" @click="showCreateScheduleModal = false" class="btn-secondary">Batal</button>
+            <button type="submit" class="btn-primary">Simpan Plotting Sesi</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 8. MODAL PRESENSI & EVALUASI KEMAMPUAN SESI -->
+    <div v-if="showAttendanceModal" class="modal-backdrop" @click.self="showAttendanceModal = false">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3 class="modal-title">Presensi & Catatan Evaluasi Sesi</h3>
+          <button class="btn-close" @click="showAttendanceModal = false">✕</button>
+        </div>
+        <form @submit.prevent="handleSaveAttendance" class="modal-body">
+          <div class="attendance-summary-card card-humanist">
+            <div style="font-size: 13px; color: var(--text-muted);">
+              Siswa: <strong>{{ activeScheduleForAttendance?.studentName }}</strong> • Sesi {{ activeScheduleForAttendance?.sessionNo }}
+            </div>
+            <div style="font-size: 12px; color: var(--text-subtle); margin-top: 2px;">
+              Jadwal: {{ activeScheduleForAttendance?.day }}, {{ activeScheduleForAttendance?.date }} ({{ activeScheduleForAttendance?.time }})
+            </div>
+          </div>
+
+          <div class="form-group" style="margin-top: 16px;">
+            <label class="form-label">Status Kehadiran <span class="required">*</span></label>
+            <select v-model="attendanceForm.status" class="form-select" required>
+              <option value="Selesai">Hadir & Selesai Latihan</option>
+              <option value="Izin">Izin / Sakit</option>
+              <option value="Alpha">Tidak Hadir Tanpa Keterangan</option>
+              <option value="Terjadwal">Kembalikan ke Terjadwal</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Capaian / Penilaian Pelatih</label>
+            <select v-model.number="attendanceForm.rating" class="form-select">
+              <option :value="5">⭐⭐⭐⭐⭐ Sangat Baik (Menguasai Teknik Sempurna)</option>
+              <option :value="4">⭐⭐⭐⭐ Baik (Progres Sangat Positif)</option>
+              <option :value="3">⭐⭐⭐ Cukup (Mulai Memahami Gerakan)</option>
+              <option :value="2">⭐⭐ Butuh Latihan Tambahan</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Catatan Kemampuan & Evaluasi untuk Orang Tua</label>
+            <textarea 
+              v-model="attendanceForm.notes" 
+              class="form-textarea" 
+              rows="3" 
+              placeholder="Contoh: Ananda sudah berani mengambil napas dan meluncur sejauh 4 meter dengan rileks..."
+            ></textarea>
+            <span class="form-hint">Catatan ini akan langsung tampil di Raport Digital Portal Siswa/Wali.</span>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" @click="showAttendanceModal = false" class="btn-secondary">Batal</button>
+            <button type="submit" class="btn-primary">Simpan Presensi & Evaluasi</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 9. MODAL RESCHEDULE SESI LATIHAN -->
+    <div v-if="showRescheduleModal" class="modal-backdrop" @click.self="showRescheduleModal = false">
+      <div class="modal-dialog">
+        <div class="modal-header">
+          <h3 class="modal-title">Reschedule Sesi Latihan</h3>
+          <button class="btn-close" @click="showRescheduleModal = false">✕</button>
+        </div>
+        <form @submit.prevent="handleSaveReschedule" class="modal-body">
+          <div class="attendance-summary-card card-humanist">
+            <div style="font-size: 13px; color: var(--text-muted);">
+              Siswa: <strong>{{ activeScheduleForReschedule?.studentName }}</strong> (Sesi {{ activeScheduleForReschedule?.sessionNo }})
+            </div>
+            <div style="font-size: 12px; color: var(--text-subtle); margin-top: 2px;">
+              Jadwal Semula: {{ activeScheduleForReschedule?.day }}, {{ activeScheduleForReschedule?.date }} ({{ activeScheduleForReschedule?.time }})
+            </div>
+          </div>
+
+          <div class="form-grid" style="margin-top: 16px;">
+            <div class="form-group">
+              <label class="form-label">Hari Baru <span class="required">*</span></label>
+              <select v-model="rescheduleForm.day" class="form-select" required>
+                <option value="Senin">Senin</option>
+                <option value="Selasa">Selasa</option>
+                <option value="Rabu">Rabu</option>
+                <option value="Kamis">Kamis</option>
+                <option value="Jumat">Jumat</option>
+                <option value="Sabtu">Sabtu</option>
+                <option value="Minggu">Minggu</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Tanggal Baru <span class="required">*</span></label>
+              <input v-model="rescheduleForm.date" type="date" class="form-input" required />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Slot Waktu Baru <span class="required">*</span></label>
+              <select v-model="rescheduleForm.time" class="form-select" required>
+                <option value="08.00 - 08.45 WIB">08.00 - 08.45 WIB (Pagi 1)</option>
+                <option value="09.00 - 09.45 WIB">09.00 - 09.45 WIB (Pagi 2)</option>
+                <option value="10.00 - 10.45 WIB">10.00 - 10.45 WIB (Pagi 3)</option>
+                <option value="15.30 - 16.15 WIB">15.30 - 16.15 WIB (Sore 1)</option>
+                <option value="16.30 - 17.15 WIB">16.30 - 17.15 WIB (Sore 2)</option>
+                <option value="17.15 - 18.00 WIB">17.15 - 18.00 WIB (Sore 3)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Instruktur (Bisa Pengganti)</label>
+              <select v-model="rescheduleForm.coachName" class="form-select" required>
+                <option v-for="c in store.coaches" :key="c.id" :value="c.name">
+                  {{ c.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Lokasi</label>
+            <input v-model="rescheduleForm.location" type="text" class="form-input" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Alasan Reschedule <span class="required">*</span></label>
+            <textarea 
+              v-model="rescheduleForm.reason" 
+              class="form-textarea" 
+              rows="2" 
+              placeholder="Contoh: Siswa izin sakit demam, direschedule atas persetujuan wali..."
+              required
+            ></textarea>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" @click="showRescheduleModal = false" class="btn-secondary">Batal</button>
+            <button type="submit" class="btn-primary">Konfirmasi Reschedule</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup>
+import { ref, computed, onMounted } from 'vue';
+import { store, actions } from '../data/store.js';
+import QRCode from 'qrcode';
+import { convertQRIS } from '../utils/qris.js';
+
+const props = defineProps({
+  activeMenu: {
+    type: String,
+    default: 'm_overview'
+  }
+});
+
+defineEmits(['change-menu']);
+
+const noticeMessage = ref('');
+function showNotice(msg) {
+  noticeMessage.value = msg;
+  setTimeout(() => { noticeMessage.value = ''; }, 3500);
+}
+
+// -------------------------------------------------------------
+// STATS & AGGREGATIONS
+// -------------------------------------------------------------
+const paidTransactionsCount = computed(() => {
+  return (store.transactions || []).filter(t => t.status?.includes('Lunas')).length;
+});
+
+const totalRevenueFormatted = computed(() => {
+  const sum = (store.transactions || [])
+    .filter(t => t.status?.includes('Lunas'))
+    .reduce((acc, it) => acc + (it.amount || 0), 0);
+  return `Rp ${sum.toLocaleString('id-ID')}`;
+});
+
+function getCoachesForProduct(productId) {
+  return (store.coaches || []).filter(c => Array.isArray(c.productIds) && c.productIds.includes(productId));
+}
+
+// -------------------------------------------------------------
+// PRODUCT CRUD MODAL
+// -------------------------------------------------------------
+const showProductModal = ref(false);
+const isEditProduct = ref(false);
+const productUploading = ref(false);
+const editingProductId = ref(null);
+const productForm = ref({
+  name: '',
+  category: 'Olahraga & Ketangkasan',
+  targetAge: 'Usia 5 - 15 Tahun',
+  shortDesc: '',
+  heroImage: '/images/swimming-hero.jpg'
+});
+
+function openAddProductModal() {
+  isEditProduct.value = false;
+  editingProductId.value = null;
+  productForm.value = {
+    name: '',
+    category: 'Olahraga & Ketangkasan',
+    targetAge: 'Usia 5 - 15 Tahun',
+    shortDesc: '',
+    heroImage: '/images/swimming-hero.jpg'
+  };
+  showProductModal.value = true;
+}
+
+function openEditProductModal(prod) {
+  isEditProduct.value = true;
+  editingProductId.value = prod.id;
+  productForm.value = {
+    name: prod.name,
+    category: prod.category || 'Olahraga & Ketangkasan',
+    targetAge: prod.targetAge || 'Semua Usia',
+    shortDesc: prod.shortDesc || '',
+    heroImage: prod.heroImage || '/images/swimming-hero.jpg'
+  };
+  showProductModal.value = true;
+}
+
+async function handleProductImageUpload(e) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  try {
+    productUploading.value = true;
+    const url = await actions.uploadImage(file, 'products');
+    productForm.value.heroImage = url;
+    showNotice('Gambar program berhasil diupload!');
+  } catch (err) {
+    alert(err.message || 'Gagal upload gambar');
+  } finally {
+    productUploading.value = false;
+  }
+}
+
+async function handleSubmitProduct() {
+  try {
+    if (isEditProduct.value && editingProductId.value) {
+      await actions.updateProduct(editingProductId.value, productForm.value);
+      showNotice('Program pelatihan berhasil diperbarui!');
+    } else {
+      await actions.addProduct(productForm.value);
+      showNotice('Program pelatihan baru berhasil disimpan!');
+    }
+    showProductModal.value = false;
+  } catch (err) {
+    alert(err.message || 'Gagal menyimpan program');
+  }
+}
+
+async function handleDeleteProduct(id) {
+  if (confirm('Yakin ingin menghapus program pelatihan ini beserta seluruh paketnya?')) {
+    await actions.deleteProduct(id);
+    showNotice('Program pelatihan berhasil dihapus.');
+  }
+}
+
+// -------------------------------------------------------------
+// PACKAGE CRUD MODAL
+// -------------------------------------------------------------
+const showPackageModal = ref(false);
+const isEditPackage = ref(false);
+const editingPackageId = ref(null);
+const selectedProductFilter = ref('');
+const packageForm = ref({
+  productId: store.products[0]?.id || 'prod_swimming',
+  productName: 'Skill Renang',
+  name: '',
+  ratio: '3-4 anak / kelas',
+  price: 450000,
+  duration: '45 menit / sesi',
+  meetings: '4x pertemuan',
+  badge: 'Pilihan Utama',
+  description: ''
+});
+
+const filteredPackages = computed(() => {
+  if (!selectedProductFilter.value) return store.packages;
+  return store.packages.filter(p => p.productId === selectedProductFilter.value);
+});
+
+function openAddPackageModal() {
+  isEditPackage.value = false;
+  editingPackageId.value = null;
+  packageForm.value = {
+    productId: store.products[0]?.id || 'prod_swimming',
+    productName: store.products[0]?.name || 'Skill Renang',
+    name: '',
+    ratio: '3-4 anak / kelas',
+    price: 450000,
+    duration: '45 menit / sesi',
+    meetings: '4x pertemuan',
+    badge: 'Pilihan Utama',
+    description: ''
+  };
+  showPackageModal.value = true;
+}
+
+function openEditPackageModal(pkg) {
+  isEditPackage.value = true;
+  editingPackageId.value = pkg.id;
+  packageForm.value = {
+    productId: pkg.productId,
+    productName: pkg.productName,
+    name: pkg.name,
+    ratio: pkg.ratio,
+    price: pkg.price,
+    duration: pkg.duration,
+    meetings: pkg.meetings,
+    badge: pkg.badge || '',
+    description: pkg.description || ''
+  };
+  showPackageModal.value = true;
+}
+
+async function handleSubmitPackage() {
+  try {
+    const prod = store.products.find(p => p.id === packageForm.value.productId);
+    if (prod) packageForm.value.productName = prod.name;
+    packageForm.value.formattedPrice = `Rp ${Number(packageForm.value.price).toLocaleString('id-ID')}`;
+
+    if (isEditPackage.value && editingPackageId.value) {
+      await actions.updatePackage(editingPackageId.value, packageForm.value);
+      showNotice('Paket kursus berhasil diperbarui!');
+    } else {
+      await actions.addPackage(packageForm.value);
+      showNotice('Paket kursus baru berhasil ditambahkan!');
+    }
+    showPackageModal.value = false;
+  } catch (err) {
+    alert(err.message || 'Gagal menyimpan paket');
+  }
+}
+
+async function handleDeletePackage(id) {
+  if (confirm('Hapus paket kursus ini?')) {
+    await actions.deletePackage(id);
+    showNotice('Paket kursus berhasil dihapus.');
+  }
+}
+
+// -------------------------------------------------------------
+// COACH CRUD MODAL
+// -------------------------------------------------------------
+const showCoachModal = ref(false);
+const isEditCoach = ref(false);
+const editingCoachId = ref(null);
+const coachUploading = ref(false);
+const coachForm = ref({
+  name: '',
+  email: '',
+  phone: '',
+  specialty: '',
+  bio: '',
+  avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240',
+  productIds: []
+});
+
+function openAddCoachModal() {
+  isEditCoach.value = false;
+  editingCoachId.value = null;
+  coachForm.value = {
+    name: '',
+    email: '',
+    phone: '',
+    specialty: '',
+    bio: '',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240',
+    productIds: store.products.length > 0 ? [store.products[0].id] : []
+  };
+  showCoachModal.value = true;
+}
+
+function openEditCoachModal(coach) {
+  isEditCoach.value = true;
+  editingCoachId.value = coach.id;
+  coachForm.value = {
+    name: coach.name,
+    email: coach.email,
+    phone: coach.phone,
+    specialty: coach.specialty,
+    bio: coach.bio || '',
+    avatar: coach.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240',
+    productIds: Array.isArray(coach.productIds) ? [...coach.productIds] : []
+  };
+  showCoachModal.value = true;
+}
+
+async function handleCoachImageUpload(e) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  try {
+    coachUploading.value = true;
+    const url = await actions.uploadImage(file, 'coaches');
+    coachForm.value.avatar = url;
+    showNotice('Foto instruktur berhasil diunggah!');
+  } catch (err) {
+    alert(err.message || 'Gagal upload foto coach');
+  } finally {
+    coachUploading.value = false;
+  }
+}
+
+async function handleSubmitCoach() {
+  try {
+    if (isEditCoach.value && editingCoachId.value) {
+      await actions.updateCoach(editingCoachId.value, coachForm.value);
+      showNotice('Data instruktur berhasil diperbarui!');
+    } else {
+      await actions.addCoach(coachForm.value);
+      showNotice('Instruktur baru berhasil disimpan dan akun user otomatis dibuat (Password: 123)!');
+    }
+    showCoachModal.value = false;
+  } catch (err) {
+    alert(err.message || 'Gagal menyimpan instruktur');
+  }
+}
+
+async function handleDeleteCoach(id) {
+  if (confirm('Hapus instruktur ini? Akun login terkait juga akan dinonaktifkan.')) {
+    await actions.deleteCoach(id);
+    showNotice('Instruktur berhasil dihapus.');
+  }
+}
+
+// -------------------------------------------------------------
+// STUDENT & GUARDIAN CRUD
+// -------------------------------------------------------------
+const showStudentModal = ref(false);
+const isEditStudent = ref(false);
+const editingStudentId = ref(null);
+const studentSearchQuery = ref('');
+const studentForm = ref({
+  name: '',
+  age: 7,
+  parentName: '',
+  phone: '',
+  email: '',
+  productId: 'prod_swimming',
+  packageId: 'pkg_swim_group',
+  assignedCoachId: '',
+  mappingLockSessions: 4,
+  notes: ''
+});
+
+const availablePackagesForSelectedProduct = computed(() => {
+  const prodId = studentForm.value.productId;
+  return (store.packages || []).filter(p => p.productId === prodId);
+});
+
+const filteredStudents = computed(() => {
+  const q = studentSearchQuery.value.trim().toLowerCase();
+  if (!q) return store.students;
+  return store.students.filter(s => 
+    s.name?.toLowerCase().includes(q) ||
+    s.parentName?.toLowerCase().includes(q) ||
+    s.phone?.includes(q) ||
+    s.productName?.toLowerCase().includes(q)
+  );
+});
+
+function openAddStudentModal() {
+  isEditStudent.value = false;
+  editingStudentId.value = null;
+  studentForm.value = {
+    name: '',
+    age: 7,
+    parentName: '',
+    phone: '',
+    email: '',
+    productId: store.products[0]?.id || 'prod_swimming',
+    packageId: store.packages[0]?.id || 'pkg_swim_group',
+    assignedCoachId: store.coaches[0]?.id || '',
+    mappingLockSessions: 4,
+    notes: ''
+  };
+  showStudentModal.value = true;
+}
+
+function openEditStudentModal(stu) {
+  isEditStudent.value = true;
+  editingStudentId.value = stu.id;
+  studentForm.value = {
+    name: stu.name,
+    age: stu.age,
+    parentName: stu.parentName,
+    phone: stu.phone,
+    email: stu.email || '',
+    productId: stu.productId || 'prod_swimming',
+    packageId: stu.packageId || 'pkg_swim_group',
+    assignedCoachId: stu.assignedCoachId || '',
+    mappingLockSessions: stu.mappingLockSessions || 4,
+    notes: stu.notes || ''
+  };
+  showStudentModal.value = true;
+}
+
+async function handleSubmitStudent() {
+  try {
+    if (isEditStudent.value && editingStudentId.value) {
+      await actions.updateStudent(editingStudentId.value, studentForm.value);
+      showNotice('Data siswa berhasil diperbarui!');
+    } else {
+      await actions.addStudent(studentForm.value);
+      showNotice('Siswa baru berhasil didaftarkan dan 4 jadwal sesi otomatis digenerate!');
+    }
+    showStudentModal.value = false;
+  } catch (err) {
+    alert(err.message || 'Gagal menyimpan siswa');
+  }
+}
+
+async function handleDeleteStudent(id) {
+  if (confirm('Yakin ingin menghapus data siswa ini beserta jadwal sesinya?')) {
+    await actions.deleteStudent(id);
+    showNotice('Data siswa berhasil dihapus.');
+  }
+}
+
+// -------------------------------------------------------------
+// ASSIGN COACH MODAL (STUDENT-COACH MAPPING & LOCK SESSIONS)
+// -------------------------------------------------------------
+const showAssignCoachModalFlag = ref(false);
+const activeStudentForAssignment = ref(null);
+const assignmentForm = ref({
+  coachId: '',
+  lockSessions: 4
+});
+
+function openAssignCoachModal(stu) {
+  activeStudentForAssignment.value = stu;
+  assignmentForm.value = {
+    coachId: stu.assignedCoachId || store.coaches[0]?.id || '',
+    lockSessions: stu.mappingLockSessions || 4
+  };
+  showAssignCoachModalFlag.value = true;
+}
+
+async function handleSaveCoachAssignment() {
+  if (!activeStudentForAssignment.value || !assignmentForm.value.coachId) return;
+  await actions.assignCoachToStudent(
+    activeStudentForAssignment.value.id,
+    assignmentForm.value.coachId,
+    assignmentForm.value.lockSessions
+  );
+  showAssignCoachModalFlag.value = false;
+  showNotice(`Pelatih berhasil di-assign dan mengikat selama ${assignmentForm.value.lockSessions} sesi!`);
+}
+
+// -------------------------------------------------------------
+// DYNAMIC SCHEDULES & SESSIONS MANAGEMENT
+// -------------------------------------------------------------
+const showSchedulesModalFlag = ref(false);
+const activeStudentForSchedules = ref(null);
+
+// Filters for Schedules Table
+const selectedCoachScheduleFilter = ref('');
+const selectedProgramScheduleFilter = ref('');
+const selectedStatusScheduleFilter = ref('');
+const scheduleSearchQuery = ref('');
+
+// Computed list of all schedules across all students
+const allSchedulesList = computed(() => {
+  const list = [];
+  (store.students || []).forEach(stu => {
+    (stu.memberSchedules || []).forEach(sch => {
+      list.push({
+        ...sch,
+        studentId: stu.id,
+        studentName: stu.name,
+        studentAge: stu.age,
+        parentName: stu.parentName,
+        phone: stu.phone,
+        programName: stu.productName || stu.program || 'Skill Renang'
+      });
+    });
+  });
+  return list;
+});
+
+const countCompletedSchedules = computed(() => {
+  return allSchedulesList.value.filter(s => s.status === 'Selesai' || s.status === 'Hadir').length;
+});
+
+const countUpcomingSchedules = computed(() => {
+  return allSchedulesList.value.filter(s => s.status === 'Terjadwal').length;
+});
+
+const countRescheduledSchedules = computed(() => {
+  return allSchedulesList.value.filter(s => s.status === 'Reschedule' || s.status === 'Izin' || s.status?.includes('Sakit')).length;
+});
+
+const filteredSchedulesList = computed(() => {
+  let list = allSchedulesList.value;
+  if (selectedCoachScheduleFilter.value) {
+    list = list.filter(s => s.coachName === selectedCoachScheduleFilter.value);
+  }
+  if (selectedProgramScheduleFilter.value) {
+    list = list.filter(s => s.programName === selectedProgramScheduleFilter.value);
+  }
+  if (selectedStatusScheduleFilter.value) {
+    list = list.filter(s => {
+      if (selectedStatusScheduleFilter.value === 'Selesai') return s.status === 'Selesai' || s.status === 'Hadir';
+      if (selectedStatusScheduleFilter.value === 'Izin') return s.status === 'Izin' || s.status?.includes('Sakit');
+      return s.status === selectedStatusScheduleFilter.value;
+    });
+  }
+  if (scheduleSearchQuery.value.trim()) {
+    const q = scheduleSearchQuery.value.trim().toLowerCase();
+    list = list.filter(s => 
+      s.studentName?.toLowerCase().includes(q) ||
+      s.parentName?.toLowerCase().includes(q) ||
+      s.phone?.includes(q) ||
+      s.location?.toLowerCase().includes(q) ||
+      s.programName?.toLowerCase().includes(q)
+    );
+  }
+  return list;
+});
+
+function openStudentSchedulesModal(stu) {
+  activeStudentForSchedules.value = stu;
+  showSchedulesModalFlag.value = true;
+}
+
+const activeStudentCompletedCount = computed(() => {
+  if (!activeStudentForSchedules.value) return 0;
+  const list = activeStudentForSchedules.value.memberSchedules || [];
+  return list.filter(s => s.status === 'Selesai' || s.status === 'Hadir').length;
+});
+
+const activeStudentProgressPercent = computed(() => {
+  if (!activeStudentForSchedules.value) return 0;
+  const list = activeStudentForSchedules.value.memberSchedules || [];
+  if (list.length === 0) return 0;
+  return Math.round((activeStudentCompletedCount.value / list.length) * 100);
+});
+
+// -------------------------------------------------------------
+// MODAL 7: CREATE / PLOT NEW SESSION
+// -------------------------------------------------------------
+const showCreateScheduleModal = ref(false);
+const createScheduleForm = ref({
+  studentId: '',
+  sessionNo: 1,
+  date: '',
+  day: 'Sabtu',
+  time: '09.00 - 09.45 WIB',
+  coachName: '',
+  location: 'Kolam Renang Graha Kresna Pratama',
+  status: 'Terjadwal',
+  notes: ''
+});
+
+function openCreateScheduleModal(prefillStudentId = null) {
+  const targetStudentId = prefillStudentId || (store.students[0]?.id || '');
+  const stu = store.students.find(s => s.id === targetStudentId);
+  const existingCount = stu?.memberSchedules?.length || 0;
+  
+  const today = new Date();
+  const dateStr = today.toISOString().split('T')[0];
+
+  createScheduleForm.value = {
+    studentId: targetStudentId,
+    sessionNo: existingCount + 1,
+    date: dateStr,
+    day: 'Sabtu',
+    time: '09.00 - 09.45 WIB',
+    coachName: stu?.assignedCoachName || store.coaches[0]?.name || 'Coach Dimas Prasetyo, S.Or.',
+    location: stu?.location || 'Kolam Renang Graha Kresna Pratama',
+    status: 'Terjadwal',
+    notes: `Sesi latihan ke-${existingCount + 1}`
+  };
+  showCreateScheduleModal.value = true;
+}
+
+function onStudentSelectedInScheduleForm() {
+  const stu = store.students.find(s => s.id === createScheduleForm.value.studentId);
+  if (stu) {
+    createScheduleForm.value.sessionNo = (stu.memberSchedules?.length || 0) + 1;
+    if (stu.assignedCoachName) createScheduleForm.value.coachName = stu.assignedCoachName;
+    if (stu.location) createScheduleForm.value.location = stu.location;
+    createScheduleForm.value.notes = `Sesi latihan ke-${createScheduleForm.value.sessionNo}`;
+  }
+}
+
+function openAddSessionForCurrentStudent() {
+  if (!activeStudentForSchedules.value) return;
+  openCreateScheduleModal(activeStudentForSchedules.value.id);
+}
+
+async function handleCreateSchedule() {
+  try {
+    if (!createScheduleForm.value.studentId) {
+      alert('Pilih siswa terlebih dahulu!');
+      return;
+    }
+    const created = await actions.addSchedule(createScheduleForm.value);
+    showNotice(`Plotting Sesi ${created.sessionNo} untuk ${created.studentName} berhasil dibuat!`);
+    showCreateScheduleModal.value = false;
+    
+    // Refresh student modal if open
+    if (activeStudentForSchedules.value && activeStudentForSchedules.value.id === createScheduleForm.value.studentId) {
+      const refreshed = store.students.find(s => s.id === activeStudentForSchedules.value.id);
+      if (refreshed) activeStudentForSchedules.value = refreshed;
+    }
+  } catch (err) {
+    alert(err.message || 'Gagal membuat jadwal sesi');
+  }
+}
+
+// -------------------------------------------------------------
+// MODAL 8: ATTENDANCE & PROGRESS EVALUATION
+// -------------------------------------------------------------
+const showAttendanceModal = ref(false);
+const activeScheduleForAttendance = ref(null);
+const attendanceForm = ref({
+  status: 'Selesai',
+  rating: 5,
+  notes: ''
+});
+
+function openAttendanceModal(sch) {
+  activeScheduleForAttendance.value = sch;
+  attendanceForm.value = {
+    status: sch.status === 'Terjadwal' ? 'Selesai' : sch.status,
+    rating: sch.rating || 5,
+    notes: sch.notes || ''
+  };
+  showAttendanceModal.value = true;
+}
+
+async function handleSaveAttendance() {
+  if (!activeScheduleForAttendance.value) return;
+  try {
+    await actions.updateSchedule(activeScheduleForAttendance.value.id, {
+      status: attendanceForm.value.status,
+      rating: attendanceForm.value.rating,
+      notes: attendanceForm.value.notes
+    });
+    activeScheduleForAttendance.value.status = attendanceForm.value.status;
+    activeScheduleForAttendance.value.rating = attendanceForm.value.rating;
+    activeScheduleForAttendance.value.notes = attendanceForm.value.notes;
+    showNotice(`Presensi & evaluasi sesi ${activeScheduleForAttendance.value.sessionNo} berhasil disimpan!`);
+    showAttendanceModal.value = false;
+    
+    if (activeStudentForSchedules.value) {
+      const refreshed = store.students.find(s => s.id === activeStudentForSchedules.value.id);
+      if (refreshed) activeStudentForSchedules.value = refreshed;
+    }
+  } catch (err) {
+    alert(err.message || 'Gagal menyimpan presensi');
+  }
+}
+
+// -------------------------------------------------------------
+// MODAL 9: RESCHEDULE SESSION
+// -------------------------------------------------------------
+const showRescheduleModal = ref(false);
+const activeScheduleForReschedule = ref(null);
+const rescheduleForm = ref({
+  date: '',
+  day: 'Sabtu',
+  time: '09.00 - 09.45 WIB',
+  coachName: '',
+  location: '',
+  reason: ''
+});
+
+function openRescheduleModal(sch) {
+  activeScheduleForReschedule.value = sch;
+  rescheduleForm.value = {
+    date: sch.date || new Date().toISOString().split('T')[0],
+    day: sch.day || 'Sabtu',
+    time: sch.time || '09.00 - 09.45 WIB',
+    coachName: sch.coachName || '',
+    location: sch.location || '',
+    reason: ''
+  };
+  showRescheduleModal.value = true;
+}
+
+async function handleSaveReschedule() {
+  if (!activeScheduleForReschedule.value) return;
+  try {
+    const noteText = rescheduleForm.value.reason 
+      ? `Reschedule: ${rescheduleForm.value.reason}` 
+      : `Jadwal diubah ke ${rescheduleForm.value.day}, ${rescheduleForm.value.date}`;
+      
+    await actions.updateSchedule(activeScheduleForReschedule.value.id, {
+      date: rescheduleForm.value.date,
+      day: rescheduleForm.value.day,
+      time: rescheduleForm.value.time,
+      coachName: rescheduleForm.value.coachName,
+      location: rescheduleForm.value.location,
+      status: 'Reschedule',
+      notes: noteText
+    });
+    showNotice(`Sesi ${activeScheduleForReschedule.value.sessionNo} berhasil di-reschedule!`);
+    showRescheduleModal.value = false;
+
+    if (activeStudentForSchedules.value) {
+      const refreshed = store.students.find(s => s.id === activeStudentForSchedules.value.id);
+      if (refreshed) activeStudentForSchedules.value = refreshed;
+    }
+  } catch (err) {
+    alert(err.message || 'Gagal reschedule');
+  }
+}
+
+async function handleDeleteSchedule(sch) {
+  if (confirm(`Yakin ingin menghapus sesi latihan ke-${sch.sessionNo} untuk ${sch.studentName}?`)) {
+    try {
+      await actions.deleteSchedule(sch.id);
+      showNotice(`Sesi latihan ke-${sch.sessionNo} berhasil dihapus.`);
+      if (activeStudentForSchedules.value) {
+        const refreshed = store.students.find(s => s.id === activeStudentForSchedules.value.id);
+        if (refreshed) activeStudentForSchedules.value = refreshed;
+      }
+    } catch (err) {
+      alert(err.message || 'Gagal menghapus sesi');
+    }
+  }
+}
+
+function cleanPhone(num) {
+  if (!num) return '';
+  return num.replace(/\D/g, '');
+}
+
+// -------------------------------------------------------------
+// PAYMENTS & QRIS ASPI
+// -------------------------------------------------------------
+const paymentSubTab = ref('invoices');
+const selectedQrisNominal = ref(500000);
+const customQrisAmount = ref(null);
+const qrCodeDataUrl = ref('');
+
+const activeQrisAmount = computed(() => {
+  return customQrisAmount.value || selectedQrisNominal.value || 500000;
+});
+
+async function generateQrisPreview() {
+  try {
+    const rawStatic = store.paymentConfig?.rawQrisStatic || '00020101021126650014ID.GO.IDR.WWW011893600998000001234502150001234567890120303UMI51660014ID.LINKAJA.WWW011893600821000001234502150001234567890120303UMI5204581253033605802ID5914MINE.SKILLS ID6007JAKARTA61051234063040ADB';
+    const res = convertQRIS(rawStatic, { amount: activeQrisAmount.value });
+    const qrisStr = typeof res === 'string' ? res : (res?.qris || rawStatic);
+    qrCodeDataUrl.value = await QRCode.toDataURL(qrisStr, {
+      width: 240,
+      margin: 1,
+      color: { dark: '#000000', light: '#ffffff' }
+    });
+  } catch (err) {
+    console.warn('QRIS generation error:', err);
+  }
+}
+
+async function handleVerifyPayment(invoiceId) {
+  await actions.verifyPayment(invoiceId);
+  showNotice(`Invoice ${invoiceId} berhasil diverifikasi Lunas!`);
+}
+
+onMounted(() => {
+  generateQrisPreview();
+});
+</script>
+
+<style scoped>
+.portal-tab-content {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.page-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+  margin-top: 4px;
+}
+
+.page-sub {
+  font-size: 13.5px;
+  color: var(--text-muted);
+}
+
+.top-date-badge {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-subtle);
+  background-color: var(--bg-surface);
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: 1px solid var(--border-subtle);
+}
+
+/* Toast Notice */
+.toast-notice {
+  position: fixed;
+  top: 80px;
+  right: 28px;
+  z-index: 2000;
+  background-color: #07333e;
+  color: #ffffff;
+  padding: 12px 18px;
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px rgba(7, 51, 62, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.toast-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background-color: #3f7e2f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.toast-body strong {
+  display: block;
+  font-size: 12px;
+  color: #e5a024;
+}
+
+.toast-body span {
+  font-size: 13px;
+}
+
+/* Metrics */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.metric-card {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding: 18px 20px;
+}
+
+.metric-icon-wrap {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.metric-icon-wrap.teal { background-color: var(--color-primary-soft); color: var(--color-primary); }
+.metric-icon-wrap.green { background-color: var(--color-accent-green-soft); color: var(--color-accent-green-dark); }
+.metric-icon-wrap.gold { background-color: var(--color-accent-gold-soft); color: var(--color-accent-gold-dark); }
+
+.metric-data {
+  display: flex;
+  flex-direction: column;
+}
+
+.metric-lbl {
+  font-size: 12px;
+  color: var(--text-subtle);
+  font-weight: 600;
+}
+
+.metric-val {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+}
+
+.metric-sub {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.text-green { color: var(--color-accent-green-dark); font-weight: 600; }
+
+/* Shortcuts */
+.management-shortcuts {
+  padding: 20px;
+}
+
+.shortcut-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+  margin-bottom: 12px;
+}
+
+.shortcut-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Tables */
+.table-wrap {
+  padding: 0;
+  overflow: hidden;
+  background-color: #ffffff;
+}
+
+.table-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.table-section-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+}
+
+.btn-link {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--color-primary);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.leads-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  text-align: left;
+}
+
+.leads-table th {
+  background-color: #f7faf9;
+  padding: 12px 18px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+  border-bottom: 1.5px solid var(--border-subtle);
+}
+
+.leads-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--border-subtle);
+  vertical-align: middle;
+}
+
+.leads-table tbody tr:hover {
+  background-color: #f7faf9;
+}
+
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+
+.sub-cell-txt {
+  display: block;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.stu-name-cell strong {
+  font-size: 13.5px;
+  color: var(--color-primary-dark);
+}
+
+.wa-chat-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.link-wa-chat {
+  font-size: 11px;
+  font-weight: 700;
+  color: #25d366;
+  text-decoration: underline;
+}
+
+.btn-schedule-view {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.btn-view-txt {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.table-actions-cluster {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.btn-primary-xs {
+  background-color: var(--color-primary);
+  color: #ffffff;
+  padding: 5px 10px;
+  border-radius: var(--radius-xs);
+  font-size: 11.5px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-secondary-xs {
+  background-color: var(--bg-subtle);
+  color: var(--text-main);
+  border: 1px solid var(--border-subtle);
+  padding: 5px 9px;
+  border-radius: var(--radius-xs);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-danger-xs {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  padding: 5px 9px;
+  border-radius: var(--radius-xs);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-outline-primary-xs {
+  border: 1px solid var(--color-primary);
+  color: var(--color-primary);
+  background: transparent;
+  padding: 5px 10px;
+  border-radius: var(--radius-xs);
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Filter Strip */
+.filter-search-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 18px;
+  margin-bottom: 16px;
+}
+
+.search-input-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 360px;
+  color: var(--text-subtle);
+}
+
+.input-search-clean {
+  border: none;
+  outline: none;
+  font-size: 13.5px;
+  width: 100%;
+  background: transparent;
+}
+
+.filter-count {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Products CRUD Grid */
+.products-crud-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.product-crud-card {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.prod-img-wrap {
+  position: relative;
+  height: 180px;
+}
+
+.prod-thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.prod-cat-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+.prod-card-body {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.prod-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.prod-name {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+}
+
+.prod-desc {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  line-height: 1.45;
+  margin-bottom: 14px;
+}
+
+.prod-meta-strip {
+  display: flex;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--text-subtle);
+  margin-bottom: 12px;
+}
+
+.prod-coaches-strip {
+  background-color: var(--bg-subtle);
+  border-radius: var(--radius-xs);
+  padding: 8px 10px;
+  margin-bottom: 16px;
+}
+
+.lbl-coaches {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-subtle);
+  margin-bottom: 4px;
+}
+
+.coach-tag-list {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.coach-tag {
+  background-color: #ffffff;
+  border: 1px solid var(--border-subtle);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+.prod-card-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 12px;
+  margin-top: auto;
+}
+
+.btn-secondary-sm {
+  background-color: var(--bg-subtle);
+  color: var(--text-main);
+  border: 1px solid var(--border-subtle);
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn-danger-sm {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Packages Filter */
+.package-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.filter-lbl {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.filter-select {
+  width: auto;
+  min-width: 260px;
+}
+
+/* Coaches Grid */
+.coaches-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.coach-manage-card {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.c-head {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.c-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-md);
+  object-fit: cover;
+  border: 2px solid var(--border-subtle);
+}
+
+.c-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+}
+
+.c-spec {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 6px;
+}
+
+.c-bio {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.45;
+  margin-bottom: 12px;
+}
+
+.coach-prod-mapping {
+  background-color: var(--bg-subtle);
+  border-radius: var(--radius-xs);
+  padding: 8px 10px;
+  margin-bottom: 12px;
+}
+
+.lbl-small {
+  display: block;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--text-subtle);
+  margin-bottom: 4px;
+}
+
+.coach-tags-wrap {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.c-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+.coach-card-actions {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid var(--border-subtle);
+  padding-top: 12px;
+  margin-top: auto;
+}
+
+/* QRIS & Payment */
+.qris-generator-card {
+  padding: 28px;
+}
+
+.qris-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+}
+
+.form-sec-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+  margin-bottom: 6px;
+}
+
+.qris-meta-box {
+  background-color: var(--bg-subtle);
+  border-radius: var(--radius-sm);
+  padding: 12px;
+  margin-top: 16px;
+}
+
+.box-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12.5px;
+  padding: 4px 0;
+}
+
+.qris-display-frame {
+  background-color: #ffffff;
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  text-align: center;
+  box-shadow: var(--shadow-card);
+}
+
+.qris-header-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.qris-txt {
+  font-size: 24px;
+  font-weight: 900;
+  color: #dc2626;
+  letter-spacing: 0.1em;
+}
+
+.qris-sub {
+  font-size: 9px;
+  font-weight: 800;
+  color: #07333e;
+  letter-spacing: 0.05em;
+}
+
+.qr-canvas-box {
+  background-color: #ffffff;
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.qr-img {
+  width: 200px;
+  height: 200px;
+}
+
+.qris-nominal-box {
+  background-color: #f7faf9;
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  margin: 12px 0;
+}
+
+.nominal-val {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+}
+
+.qris-footer-notes {
+  font-size: 10.5px;
+  color: var(--text-muted);
+}
+
+.bank-accounts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.bank-card {
+  padding: 20px;
+}
+
+.bank-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.bank-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+}
+
+.bank-num {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--color-primary);
+  margin-bottom: 4px;
+}
+
+.bank-holder {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Modals */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(9, 35, 43, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-dialog {
+  background-color: #ffffff;
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 48px rgba(9, 35, 43, 0.25);
+  width: 100%;
+  max-width: 580px;
+  max-height: 90vh;
+  overflow-y: auto;
+  border: 1px solid var(--border-subtle);
+}
+
+.modal-dialog.modal-lg {
+  max-width: 720px;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.modal-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+}
+
+.btn-close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: var(--text-subtle);
+  cursor: pointer;
+}
+
+.modal-body {
+  padding: 20px 24px;
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.upload-field-box {
+  background-color: var(--bg-subtle);
+  border: 1.5px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  padding: 12px;
+}
+
+.upload-preview-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.preview-img {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+
+.preview-coach-img {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: var(--radius-md);
+}
+
+.preview-path {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.product-checkboxes-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.prod-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.required { color: #dc2626; }
+
+/* Student Schedule Dynamic Overview & Progress */
+.sched-metrics-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.sched-metric-box {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sched-metric-lbl {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+  letter-spacing: 0.03em;
+}
+
+.sched-metric-val {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+}
+
+.sched-metric-box.text-green .sched-metric-val { color: #16a34a; }
+.sched-metric-box.text-gold .sched-metric-val { color: #d97706; }
+.sched-metric-box.text-blue .sched-metric-val { color: #0284c7; }
+
+/* Filter Controls Bar */
+.schedule-filter-controls {
+  display: flex;
+  gap: 16px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-width: 180px;
+}
+
+.filter-search-wrap {
+  flex: 1.5;
+  min-width: 220px;
+}
+
+.filter-search-input {
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.sub-cell-wa {
+  display: inline-block;
+  font-size: 11px;
+  color: #16a34a;
+  font-weight: 700;
+  text-decoration: none;
+  margin-top: 2px;
+}
+
+.sub-cell-wa:hover {
+  text-decoration: underline;
+}
+
+.sched-notes-cell {
+  max-width: 220px;
+}
+
+.rating-stars {
+  color: #e5a024;
+  font-size: 11px;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.sched-notes-text {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.35;
+  margin: 0;
+}
+
+.table-actions-inline {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+.btn-primary-xs {
+  background-color: var(--color-primary);
+  color: #ffffff;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-primary-xs:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.btn-secondary-xs {
+  background-color: var(--bg-subtle);
+  color: var(--text-main);
+  border: 1px solid var(--border-subtle);
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-secondary-xs:hover {
+  background-color: var(--color-primary-soft);
+  color: var(--color-primary);
+}
+
+.btn-danger-xs {
+  background-color: #fef2f2;
+  color: #dc2626;
+  border: 1px solid #fecaca;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-danger-xs:hover {
+  background-color: #dc2626;
+  color: #ffffff;
+}
+
+/* Student Schedule Modal Items */
+.schedules-student-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.summary-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.summary-lbl {
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--text-subtle);
+  font-weight: 700;
+}
+
+.summary-col strong {
+  font-size: 13.5px;
+  color: var(--color-primary-dark);
+}
+
+.student-session-progress-wrap {
+  width: 100%;
+  height: 8px;
+  background-color: #e2e8e5;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.student-session-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #0d4d5d, #16a34a);
+  border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+.schedules-list-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.schedule-session-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 12px;
+}
+
+.sch-left {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 160px;
+}
+
+.sch-date-info strong {
+  display: block;
+  font-size: 13px;
+  color: var(--color-primary-dark);
+}
+
+.sch-date-info span {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.sch-mid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+}
+
+.sch-notes-snippet {
+  font-size: 11.5px;
+  color: var(--color-primary);
+  margin-top: 2px;
+}
+
+.sch-status-col {
+  min-width: 90px;
+  text-align: center;
+}
+
+.sch-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.attendance-summary-card {
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  background-color: #f7faf9;
+  border: 1px solid var(--border-subtle);
+}
+
+@media (max-width: 900px) {
+  .metrics-grid,
+  .products-crud-grid,
+  .coaches-grid,
+  .qris-grid,
+  .bank-accounts-grid,
+  .sched-metrics-row {
+    grid-template-columns: 1fr;
+  }
+  .schedule-filter-controls {
+    flex-direction: column;
+  }
+}
+</style>

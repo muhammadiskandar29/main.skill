@@ -2536,7 +2536,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, onMounted } from 'vue';
+import { ref, reactive, computed, onMounted, watch } from 'vue';
 import { store, actions } from '../data/store.js';
 import { uploadImage } from '../data/api.js';
 import QRCode from 'qrcode';
@@ -2882,38 +2882,67 @@ async function handleDeleteLocation(id) {
 // WEBSITE & BRAND CMS (m_website)
 // -------------------------------------------------------------
 const websiteBrandForm = ref({
-  name: store.businessProfile?.name || 'mine.skills',
-  umbrellaTagline: store.businessProfile?.umbrellaTagline || 'Beyond Skills, Shaping Future Achievers',
-  callCenter: store.businessProfile?.contacts?.callCenter || '085286274726',
-  officialEmail: store.businessProfile?.contacts?.officialEmail || 'halo@mineskills.id',
-  addressFull: store.businessProfile?.contacts?.addressFull || 'Graha Kresna Pratama, Pondok Gede, Kota Bekasi, Jawa Barat 17411',
-  operatingHours: store.businessProfile?.contacts?.operatingHours || 'Setiap Hari: 07.30 - 18.00 WIB'
+  name: store.brand?.name || 'mine.skills',
+  umbrellaTagline: store.brand?.umbrellaTagline || 'Beyond Skills, Shaping Future Achievers',
+  callCenter: store.brand?.callCenter || '085286274726',
+  officialEmail: store.brand?.officialEmail || 'halo@mineskills.id',
+  addressFull: store.brand?.addressFull || 'Graha Kresna Pratama, Pondok Gede, Kota Bekasi, Jawa Barat 17411',
+  operatingHours: store.brand?.operatingHours || 'Setiap Hari: 07.30 - 18.00 WIB'
 });
 
 const websiteHeroForm = ref({
-  badgeText: store.heroConfig?.badgeText || 'Pusat Kursus & Pelatihan Keahlian Anak Terintegrasi',
-  headline: store.heroConfig?.headline || 'Kembangkan Potensi & Bakat Terbaik Sejak Dini',
-  subheadline: store.heroConfig?.subheadline || 'Program terpadu renang prestasi, otomotif mengemudi, dan seni tari dengan pelatih berpengalaman dan kurikulum bertahap.',
-  primaryCta: store.heroConfig?.primaryCta || 'Daftar Kelas Sekarang'
+  badgeText: store.hero?.badgeText || 'Pusat Kursus & Pelatihan Keahlian Anak Terintegrasi',
+  headline: store.hero?.headline || 'Kembangkan Potensi & Bakat Terbaik Sejak Dini',
+  subheadline: store.hero?.subheadline || 'Program terpadu renang prestasi, otomotif mengemudi, dan seni tari dengan pelatih berpengalaman dan kurikulum bertahap.',
+  primaryCta: store.hero?.primaryCta || 'Daftar Kelas Sekarang'
 });
+
+// Keep form in sync if store.brand or store.hero updates
+watch(
+  () => store.brand,
+  (b) => {
+    if (b) {
+      if (b.name) websiteBrandForm.value.name = b.name;
+      if (b.umbrellaTagline) websiteBrandForm.value.umbrellaTagline = b.umbrellaTagline;
+      if (b.callCenter) websiteBrandForm.value.callCenter = b.callCenter;
+      if (b.officialEmail) websiteBrandForm.value.officialEmail = b.officialEmail;
+      if (b.addressFull) websiteBrandForm.value.addressFull = b.addressFull;
+      if (b.operatingHours) websiteBrandForm.value.operatingHours = b.operatingHours;
+    }
+  },
+  { deep: true }
+);
+
+watch(
+  () => store.hero,
+  (h) => {
+    if (h) {
+      if (h.badgeText) websiteHeroForm.value.badgeText = h.badgeText;
+      if (h.headline) websiteHeroForm.value.headline = h.headline;
+      if (h.subheadline) websiteHeroForm.value.subheadline = h.subheadline;
+      if (h.primaryCta) websiteHeroForm.value.primaryCta = h.primaryCta;
+    }
+  },
+  { deep: true }
+);
 
 async function handleSaveWebsiteConfig() {
   try {
-    if (store.businessProfile) {
-      store.businessProfile.name = websiteBrandForm.value.name;
-      store.businessProfile.umbrellaTagline = websiteBrandForm.value.umbrellaTagline;
-      if (!store.businessProfile.contacts) store.businessProfile.contacts = {};
-      store.businessProfile.contacts.callCenter = websiteBrandForm.value.callCenter;
-      store.businessProfile.contacts.officialEmail = websiteBrandForm.value.officialEmail;
-      store.businessProfile.contacts.addressFull = websiteBrandForm.value.addressFull;
-      store.businessProfile.contacts.operatingHours = websiteBrandForm.value.operatingHours;
-    }
-    if (store.heroConfig) {
-      store.heroConfig.badgeText = websiteHeroForm.value.badgeText;
-      store.heroConfig.headline = websiteHeroForm.value.headline;
-      store.heroConfig.subheadline = websiteHeroForm.value.subheadline;
-      store.heroConfig.primaryCta = websiteHeroForm.value.primaryCta;
-    }
+    await actions.updateBrand({
+      name: websiteBrandForm.value.name,
+      umbrellaTagline: websiteBrandForm.value.umbrellaTagline,
+      callCenter: websiteBrandForm.value.callCenter,
+      callCenterDisplay: websiteBrandForm.value.callCenter,
+      officialEmail: websiteBrandForm.value.officialEmail,
+      addressFull: websiteBrandForm.value.addressFull,
+      operatingHours: websiteBrandForm.value.operatingHours
+    });
+    await actions.updateHero({
+      badgeText: websiteHeroForm.value.badgeText,
+      headline: websiteHeroForm.value.headline,
+      subheadline: websiteHeroForm.value.subheadline,
+      primaryCta: websiteHeroForm.value.primaryCta
+    });
     showNotice('Pengaturan profil brand dan konten website berhasil disimpan!');
   } catch (err) {
     alert(err.message || 'Gagal menyimpan konfigurasi website');

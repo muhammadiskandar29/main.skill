@@ -1163,8 +1163,70 @@ export async function deleteBankAccount(id) {
   return { success: true, id };
 }
 
+// -------------------------------------------------------------
+// Website CMS Config (Brand & Hero Content) CRUD
+// -------------------------------------------------------------
+let inMemoryBrandConfig = {
+  name: 'mine.skills',
+  logoPath: '/images/mine-skills-logo.png',
+  umbrellaTagline: 'Pusat Pembinaan & Akselerasi Potensi Anak',
+  callCenter: '085286274726',
+  callCenterDisplay: '085286274726',
+  officialEmail: 'halo@mineskills.id',
+  primaryLocation: 'Kolam Graha Kresna Pratama, Jatiwaringin',
+  addressFull: 'Komplek Graha Kresna Pratama, Jl. Raya Jatiwaringin No. 45, Pondok Gede, Kota Bekasi',
+  operatingHours: 'Setiap Hari: 07.30 - 18.00 WIB'
+};
+
+let inMemoryHeroConfig = {
+  badgeText: 'AKADEMI PENGEMBANGAN SKILL TERSTRUKTUR & BERSERTIFIKASI',
+  headline: 'Pusat Pembinaan & Akselerasi Potensi Anak Berjenjang',
+  subheadline: 'Ekosistem pembinaan bakat profesional dengan rasio kelas kecil dan instruktur terverifikasi. Didukung kurikulum terukur agar setiap anak menguasai skill dengan aman, gembira, dan percaya diri.',
+  primaryCta: 'Daftar Sekarang',
+  secondaryCta: 'Lihat Program Pelatihan',
+  heroImage: '/images/swimming-hero.jpg'
+};
+
+export async function getBrandConfig() {
+  await ensureAppSettingsTable();
+  const cfg = await getById('app_settings', 'brand_config');
+  if (cfg) {
+    inMemoryBrandConfig = { ...inMemoryBrandConfig, ...cfg };
+    return inMemoryBrandConfig;
+  }
+  return inMemoryBrandConfig;
+}
+
+export async function updateBrandConfig(patch) {
+  await ensureAppSettingsTable();
+  const current = await getBrandConfig();
+  const updated = { ...current, ...patch };
+  inMemoryBrandConfig = updated;
+  await upsertRecord('app_settings', 'brand_config', updated);
+  return updated;
+}
+
+export async function getHeroConfig() {
+  await ensureAppSettingsTable();
+  const cfg = await getById('app_settings', 'hero_config');
+  if (cfg) {
+    inMemoryHeroConfig = { ...inMemoryHeroConfig, ...cfg };
+    return inMemoryHeroConfig;
+  }
+  return inMemoryHeroConfig;
+}
+
+export async function updateHeroConfig(patch) {
+  await ensureAppSettingsTable();
+  const current = await getHeroConfig();
+  const updated = { ...current, ...patch };
+  inMemoryHeroConfig = updated;
+  await upsertRecord('app_settings', 'hero_config', updated);
+  return updated;
+}
+
 export async function getBootstrapData() {
-  const [products, coaches, packages, students, transactions, users, locations, coachAttendances, paymentConfig] = await Promise.all([
+  const [products, coaches, packages, students, transactions, users, locations, coachAttendances, paymentConfig, brand, hero] = await Promise.all([
     getAllProducts(),
     getAllCoaches(),
     getAllPackages(),
@@ -1173,7 +1235,9 @@ export async function getBootstrapData() {
     getAllUsers(),
     getAllLocations(),
     getAllCoachAttendances(),
-    getPaymentConfig()
+    getPaymentConfig(),
+    getBrandConfig(),
+    getHeroConfig()
   ]);
 
   return {
@@ -1185,6 +1249,9 @@ export async function getBootstrapData() {
     users,
     locations,
     coachAttendances,
-    paymentConfig
+    paymentConfig,
+    brand,
+    hero
   };
 }
+

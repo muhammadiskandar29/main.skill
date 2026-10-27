@@ -360,4 +360,40 @@ export async function apiDeleteBankAccount(id) {
   return json;
 }
 
+// Website Brand & Hero CMS
+export async function apiGetBrandConfig() {
+  const res = await fetch(`${API_BASE}/settings/brand`);
+  const json = await res.json();
+  return json.data;
+}
+
+export async function apiUpdateBrandConfig(brandData) {
+  const res = await fetch(`${API_BASE}/settings/brand`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(brandData)
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Gagal update profil brand');
+  return json.data;
+}
+
+export async function apiGetHeroConfig() {
+  const res = await fetch(`${API_BASE}/settings/hero`);
+  const json = await res.json();
+  return json.data;
+}
+
+export async function apiUpdateHeroConfig(heroData) {
+  const res = await fetch(`${API_BASE}/settings/hero`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(heroData)
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Gagal update hero banner');
+  return json.data;
+}
+
+
 

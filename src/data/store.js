@@ -31,7 +31,11 @@ import {
   apiUpdatePaymentConfig,
   apiAddBankAccount,
   apiUpdateBankAccount,
-  apiDeleteBankAccount
+  apiDeleteBankAccount,
+  apiGetBrandConfig,
+  apiUpdateBrandConfig,
+  apiGetHeroConfig,
+  apiUpdateHeroConfig
 } from './api.js';
 
 const STORAGE_KEY = 'mine_skills_auth_session_v3';
@@ -463,6 +467,28 @@ const initialRbacMatrix = {
   }
 };
 
+export function persistLocalStore(key, data) {
+  try {
+    localStorage.setItem(`mine_skills_${key}_v1`, JSON.stringify(data));
+  } catch (e) {
+    console.warn(`[Store] LocalStorage write error for ${key}:`, e);
+  }
+}
+
+export function loadLocalStore(key, fallback) {
+  try {
+    const raw = localStorage.getItem(`mine_skills_${key}_v1`);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(fallback) && Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (!Array.isArray(fallback) && typeof parsed === 'object' && parsed !== null) return { ...fallback, ...parsed };
+    }
+  } catch (e) {
+    console.warn(`[Store] LocalStorage read error for ${key}:`, e);
+  }
+  return fallback;
+}
+
 function loadSavedSession() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -489,18 +515,18 @@ export const store = reactive({
   activePortalMenu: 'm_overview',
   isLoading: false,
 
-  products: initialProducts,
-  packages: initialPackages,
-  coaches: initialCoaches,
-  students: initialStudents,
-  transactions: initialTransactions,
-  users: initialUsers,
-  locations: initialLocations,
-  coachAttendances: initialCoachAttendances,
+  products: loadLocalStore('products', initialProducts),
+  packages: loadLocalStore('packages', initialPackages),
+  coaches: loadLocalStore('coaches', initialCoaches),
+  students: loadLocalStore('students', initialStudents),
+  transactions: loadLocalStore('transactions', initialTransactions),
+  users: loadLocalStore('users', initialUsers),
+  locations: loadLocalStore('locations', initialLocations),
+  coachAttendances: loadLocalStore('coachAttendances', initialCoachAttendances),
 
-  brand: initialBrand,
-  hero: initialHero,
-  paymentConfig: initialPaymentConfig,
+  brand: loadLocalStore('brand', initialBrand),
+  hero: loadLocalStore('hero', initialHero),
+  paymentConfig: loadLocalStore('paymentConfig', initialPaymentConfig),
   rbacMatrix: initialRbacMatrix,
 
   usps: [
@@ -618,33 +644,56 @@ export const actions = {
       if (data) {
         if (Array.isArray(data.products) && data.products.length > 0) {
           store.products = data.products;
+          persistLocalStore('products', store.products);
         }
         if (Array.isArray(data.coaches) && data.coaches.length > 0) {
           store.coaches = data.coaches;
+          persistLocalStore('coaches', store.coaches);
         }
         if (Array.isArray(data.packages) && data.packages.length > 0) {
           store.packages = data.packages;
+          persistLocalStore('packages', store.packages);
         }
         if (Array.isArray(data.students) && data.students.length > 0) {
           store.students = data.students;
+          persistLocalStore('students', store.students);
         }
         if (Array.isArray(data.transactions) && data.transactions.length > 0) {
           store.transactions = data.transactions;
+          persistLocalStore('transactions', store.transactions);
         }
         if (Array.isArray(data.users) && data.users.length > 0) {
           store.users = data.users;
+          persistLocalStore('users', store.users);
         }
         if (Array.isArray(data.locations) && data.locations.length > 0) {
           store.locations = data.locations;
+          persistLocalStore('locations', store.locations);
         }
         if (Array.isArray(data.coachAttendances) && data.coachAttendances.length > 0) {
           store.coachAttendances = data.coachAttendances;
+          persistLocalStore('coachAttendances', store.coachAttendances);
         }
         if (data.paymentConfig) {
           store.paymentConfig = {
             ...store.paymentConfig,
             ...data.paymentConfig
           };
+          persistLocalStore('paymentConfig', store.paymentConfig);
+        }
+        if (data.brand) {
+          store.brand = {
+            ...store.brand,
+            ...data.brand
+          };
+          persistLocalStore('brand', store.brand);
+        }
+        if (data.hero) {
+          store.hero = {
+            ...store.hero,
+            ...data.hero
+          };
+          persistLocalStore('hero', store.hero);
         }
 
         // Set default current user if role matches
@@ -691,177 +740,637 @@ export const actions = {
     return await uploadImage(file, folder);
   },
 
-  // Products CRUD
+  // -------------------------------------------------------------
+  // PRODUCTS CRUD (Instant Optimistic & Background Sync)
+  // -------------------------------------------------------------
   async addProduct(productData) {
-    const created = await apiCreateProduct(productData);
-    await this.init();
-    return created;
+    const id = productData.id || `prod_${Date.now()}`;
+    let formattedLevels = [
+      { levelNumber: 1, title: 'Dasar / Starter', focus: 'Pengenalan & Teori Dasar', challenge: 'Uji Teori & Praktik Awal' },
+      { levelNumber: 2, title: 'Praktik Menengah', focus: 'Penguasaan Teknik Inti', challenge: 'Simulasi Mandiri' },
+      { levelNumber: 3, title: 'Tingkat Mahir', focus: 'Evaluasi & Sertifikasi', challenge: 'Ujian Kelulusan' }
+    ];
+    if (Array.isArray(productData.levels) && productData.levels.length > 0) {
+      formattedLevels = productData.levels.map((lvl, idx) => ({
+        levelNumber: parseInt(lvl.levelNumber) || (idx + 1),
+        title: lvl.title?.trim() || `Level ${idx + 1}`,
+        focus: lvl.focus?.trim() || '',
+        challenge: lvl.challenge?.trim() || ''
+      }));
+    }
+
+    const newProduct = {
+      id,
+      name: productData.name?.trim() || 'Program Pelatihan Baru',
+      slug: productData.slug || productData.name?.toLowerCase().replace(/[^a-z0-9]+/g, '-') || id,
+      shortDesc: productData.shortDesc?.trim() || '',
+      category: productData.category || 'Olahraga & Ketangkasan',
+      targetAge: productData.targetAge || 'Semua Usia',
+      heroImage: productData.heroImage || '/images/swimming-hero.jpg',
+      isActive: productData.isActive !== false,
+      featured: Boolean(productData.featured),
+      locationIds: Array.isArray(productData.locationIds) ? productData.locationIds : [],
+      levels: formattedLevels
+    };
+
+    store.products = [...(store.products || []), newProduct];
+    persistLocalStore('products', store.products);
+
+    // Auto-create default package for this new product if none exists
+    const hasPkg = (store.packages || []).some(p => p.productId === id);
+    if (!hasPkg) {
+      const defaultPkg = {
+        id: `pkg_${id}_reguler`,
+        productId: id,
+        productName: newProduct.name,
+        name: 'Reguler Class',
+        ratio: '3 - 4 anak / kelas',
+        price: 450000,
+        formattedPrice: 'Rp 450.000',
+        duration: '45 menit / sesi',
+        meetings: '4x pertemuan',
+        badge: 'Pilihan Populer',
+        description: 'Sesi latihan terpandu dengan kurikulum berjenjang'
+      };
+      store.packages = [...(store.packages || []), defaultPkg];
+      persistLocalStore('packages', store.packages);
+      apiCreatePackage(defaultPkg).catch(e => console.warn('[Store] Default package sync:', e.message));
+    }
+
+    // Background sync to DB
+    apiCreateProduct(newProduct).then(res => {
+      if (res && res.id && res.id !== id) {
+        newProduct.id = res.id;
+        persistLocalStore('products', store.products);
+      }
+    }).catch(err => {
+      console.warn('[Store] apiCreateProduct background sync warning:', err.message);
+    });
+
+    return newProduct;
   },
 
   async updateProduct(id, updatedData) {
-    const updated = await apiUpdateProduct(id, updatedData);
-    await this.init();
-    return updated;
+    const idx = (store.products || []).findIndex(p => p.id === id);
+    if (idx > -1) {
+      if (Array.isArray(updatedData.levels)) {
+        updatedData.levels = updatedData.levels.map((lvl, i) => ({
+          levelNumber: parseInt(lvl.levelNumber) || (i + 1),
+          title: lvl.title?.trim() || `Level ${i + 1}`,
+          focus: lvl.focus?.trim() || '',
+          challenge: lvl.challenge?.trim() || ''
+        }));
+      }
+      Object.assign(store.products[idx], updatedData);
+      persistLocalStore('products', store.products);
+
+      // Propagate product name changes to linked packages and students
+      if (updatedData.name) {
+        (store.packages || []).forEach(pkg => {
+          if (pkg.productId === id) pkg.productName = updatedData.name;
+        });
+        persistLocalStore('packages', store.packages);
+
+        (store.students || []).forEach(stu => {
+          if (stu.productId === id) stu.productName = updatedData.name;
+        });
+        persistLocalStore('students', store.students);
+      }
+    }
+
+    apiUpdateProduct(id, updatedData).catch(err => {
+      console.warn('[Store] apiUpdateProduct background sync warning:', err.message);
+    });
+
+    return store.products[idx];
   },
 
   async deleteProduct(id) {
-    await apiDeleteProduct(id);
-    await this.init();
+    store.products = (store.products || []).filter(p => p.id !== id);
+    store.packages = (store.packages || []).filter(p => p.productId !== id);
+    persistLocalStore('products', store.products);
+    persistLocalStore('packages', store.packages);
+
+    apiDeleteProduct(id).catch(err => {
+      console.warn('[Store] apiDeleteProduct background sync warning:', err.message);
+    });
+
+    return true;
   },
 
-  // Packages CRUD (Dinamis 1 - 20 Paket per Produk)
+  // -------------------------------------------------------------
+  // PACKAGES CRUD (Dinamis 1 - 20 Paket per Produk)
+  // -------------------------------------------------------------
   async addPackage(pkgData) {
-    const created = await apiCreatePackage(pkgData);
-    await this.init();
-    return created;
+    const id = pkgData.id || `pkg_${Date.now()}`;
+    const prod = (store.products || []).find(p => p.id === pkgData.productId);
+    const priceNum = parseInt(pkgData.price) || 450000;
+    const newPkg = {
+      id,
+      productId: pkgData.productId || store.products[0]?.id || 'prod_swimming',
+      productName: prod?.name || pkgData.productName || 'Program Skill',
+      name: pkgData.name?.trim() || 'Paket Kursus Baru',
+      ratio: pkgData.ratio || '3 - 4 anak / kelas',
+      price: priceNum,
+      formattedPrice: `Rp ${priceNum.toLocaleString('id-ID')}`,
+      duration: pkgData.duration || '45 menit / sesi',
+      meetings: pkgData.meetings || '4x pertemuan',
+      badge: pkgData.badge || '',
+      description: pkgData.description || ''
+    };
+
+    store.packages = [...(store.packages || []), newPkg];
+    persistLocalStore('packages', store.packages);
+
+    apiCreatePackage(newPkg).catch(err => {
+      console.warn('[Store] apiCreatePackage background sync warning:', err.message);
+    });
+
+    return newPkg;
   },
 
   async updatePackage(id, patch) {
-    const updated = await apiUpdatePackage(id, patch);
-    await this.init();
-    return updated;
+    const idx = (store.packages || []).findIndex(p => p.id === id);
+    if (idx > -1) {
+      if (patch.price !== undefined) {
+        const priceNum = parseInt(patch.price) || 0;
+        patch.price = priceNum;
+        patch.formattedPrice = `Rp ${priceNum.toLocaleString('id-ID')}`;
+      }
+      if (patch.productId) {
+        const prod = (store.products || []).find(p => p.id === patch.productId);
+        if (prod) patch.productName = prod.name;
+      }
+      Object.assign(store.packages[idx], patch);
+      persistLocalStore('packages', store.packages);
+    }
+
+    apiUpdatePackage(id, patch).catch(err => {
+      console.warn('[Store] apiUpdatePackage background sync warning:', err.message);
+    });
+
+    return store.packages[idx];
   },
 
   async deletePackage(id) {
-    await apiDeletePackage(id);
-    await this.init();
+    store.packages = (store.packages || []).filter(p => p.id !== id);
+    persistLocalStore('packages', store.packages);
+
+    apiDeletePackage(id).catch(err => {
+      console.warn('[Store] apiDeletePackage background sync warning:', err.message);
+    });
+
+    return true;
   },
 
-  // Locations Dynamic CRUD
+  // -------------------------------------------------------------
+  // LOCATIONS DYNAMIC CRUD (Master Fasilitas & Geofence)
+  // -------------------------------------------------------------
   async addLocation(locData) {
-    try {
-      const created = await apiCreateLocation(locData);
-      await this.init();
-      return created;
-    } catch (err) {
-      console.warn('[Store] apiCreateLocation failed, saving locally:', err);
-      const newLoc = {
-        ...locData,
-        id: locData.id || `loc_${Date.now()}`,
-        latitude: parseFloat(locData.latitude) || -6.2847,
-        longitude: parseFloat(locData.longitude) || 106.9142,
-        radiusMeters: parseInt(locData.radiusMeters) || 250,
-        productIds: Array.isArray(locData.productIds) ? locData.productIds : ['prod_swimming'],
-        isActive: locData.isActive !== false
-      };
-      store.locations = [...(store.locations || []), newLoc];
-      return newLoc;
-    }
+    const id = locData.id || `loc_${Date.now()}`;
+    const newLoc = {
+      id,
+      name: locData.name?.trim() || 'Lokasi Baru',
+      area: locData.area?.trim() || '',
+      address: locData.address?.trim() || '',
+      latitude: parseFloat(locData.latitude) || -6.2847,
+      longitude: parseFloat(locData.longitude) || 106.9142,
+      radiusMeters: parseInt(locData.radiusMeters) || 250,
+      productIds: Array.isArray(locData.productIds) && locData.productIds.length > 0 ? locData.productIds : [(store.products[0]?.id || 'prod_swimming')],
+      facilities: locData.facilities || 'Fasilitas lengkap',
+      image: locData.image || 'https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?auto=format&fit=crop&q=80&w=600',
+      isActive: locData.isActive !== false
+    };
+
+    store.locations = [...(store.locations || []), newLoc];
+    persistLocalStore('locations', store.locations);
+
+    apiCreateLocation(newLoc).catch(err => {
+      console.warn('[Store] apiCreateLocation background sync warning:', err.message);
+    });
+
+    return newLoc;
   },
 
   async updateLocation(id, patch) {
-    try {
-      const updated = await apiUpdateLocation(id, patch);
-      await this.init();
-      return updated;
-    } catch (err) {
-      console.warn('[Store] apiUpdateLocation failed, updating locally:', err);
-      const idx = (store.locations || []).findIndex(l => l.id === id);
-      if (idx > -1) {
-        store.locations[idx] = {
-          ...store.locations[idx],
-          ...patch,
-          latitude: patch.latitude !== undefined ? parseFloat(patch.latitude) : store.locations[idx].latitude,
-          longitude: patch.longitude !== undefined ? parseFloat(patch.longitude) : store.locations[idx].longitude,
-          radiusMeters: patch.radiusMeters !== undefined ? parseInt(patch.radiusMeters) : store.locations[idx].radiusMeters
-        };
-      }
-      return store.locations[idx];
+    const idx = (store.locations || []).findIndex(l => l.id === id);
+    if (idx > -1) {
+      if (patch.latitude !== undefined) patch.latitude = parseFloat(patch.latitude);
+      if (patch.longitude !== undefined) patch.longitude = parseFloat(patch.longitude);
+      if (patch.radiusMeters !== undefined) patch.radiusMeters = parseInt(patch.radiusMeters);
+      Object.assign(store.locations[idx], patch);
+      persistLocalStore('locations', store.locations);
     }
+
+    apiUpdateLocation(id, patch).catch(err => {
+      console.warn('[Store] apiUpdateLocation background sync warning:', err.message);
+    });
+
+    return store.locations[idx];
   },
 
   async deleteLocation(id) {
-    try {
-      await apiDeleteLocation(id);
-      await this.init();
-    } catch (err) {
-      console.warn('[Store] apiDeleteLocation failed, deleting locally:', err);
-      store.locations = (store.locations || []).filter(l => l.id !== id);
-    }
+    store.locations = (store.locations || []).filter(l => l.id !== id);
+    persistLocalStore('locations', store.locations);
+
+    apiDeleteLocation(id).catch(err => {
+      console.warn('[Store] apiDeleteLocation background sync warning:', err.message);
+    });
+
+    return true;
   },
 
-  // Coaches CRUD (Auto-creates User with password 123)
+  // -------------------------------------------------------------
+  // COACHES CRUD (Auto-creates User with password 123)
+  // -------------------------------------------------------------
   async addCoach(coachData) {
-    const created = await apiCreateCoach(coachData);
-    await this.init();
-    return created;
+    const id = coachData.id || `coach_${Date.now()}`;
+    const newCoach = {
+      id,
+      name: coachData.name?.trim() || 'Instruktur Baru',
+      email: coachData.email?.trim() || `${coachData.name?.toLowerCase().replace(/[^a-z0-9]/g, '') || 'coach'}@mineskills.id`,
+      phone: coachData.phone || '081234567890',
+      specialty: coachData.specialty || 'Instruktur Keahlian',
+      bio: coachData.bio || 'Pelatih bersertifikasi profesional.',
+      avatar: coachData.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240',
+      productIds: Array.isArray(coachData.productIds) && coachData.productIds.length > 0 ? coachData.productIds : [(store.products[0]?.id || 'prod_swimming')]
+    };
+
+    store.coaches = [...(store.coaches || []), newCoach];
+    persistLocalStore('coaches', store.coaches);
+
+    // Auto-create login user in store.users
+    const userEmail = newCoach.email.toLowerCase();
+    const existingUser = (store.users || []).find(u => u.email.toLowerCase() === userEmail);
+    if (!existingUser) {
+      const newUser = {
+        id: `usr_${id}`,
+        name: newCoach.name,
+        email: userEmail,
+        role: 'coach',
+        password: '123'
+      };
+      store.users = [...(store.users || []), newUser];
+      persistLocalStore('users', store.users);
+    }
+
+    apiCreateCoach(newCoach).catch(err => {
+      console.warn('[Store] apiCreateCoach background sync warning:', err.message);
+    });
+
+    return newCoach;
   },
 
   async updateCoach(id, patch) {
-    const updated = await apiUpdateCoach(id, patch);
-    await this.init();
-    return updated;
+    const idx = (store.coaches || []).findIndex(c => c.id === id);
+    if (idx > -1) {
+      const oldEmail = store.coaches[idx].email;
+      Object.assign(store.coaches[idx], patch);
+      persistLocalStore('coaches', store.coaches);
+
+      // Update linked user
+      const user = (store.users || []).find(u => u.id === `usr_${id}` || (oldEmail && u.email === oldEmail));
+      if (user) {
+        if (patch.name) user.name = patch.name;
+        if (patch.email) user.email = patch.email.toLowerCase();
+        persistLocalStore('users', store.users);
+      }
+    }
+
+    apiUpdateCoach(id, patch).catch(err => {
+      console.warn('[Store] apiUpdateCoach background sync warning:', err.message);
+    });
+
+    return store.coaches[idx];
   },
 
   async deleteCoach(id) {
-    await apiDeleteCoach(id);
-    await this.init();
+    const coach = (store.coaches || []).find(c => c.id === id);
+    store.coaches = (store.coaches || []).filter(c => c.id !== id);
+    if (coach) {
+      store.users = (store.users || []).filter(u => u.id !== `usr_${id}` && u.email !== coach.email);
+    }
+    persistLocalStore('coaches', store.coaches);
+    persistLocalStore('users', store.users);
+
+    apiDeleteCoach(id).catch(err => {
+      console.warn('[Store] apiDeleteCoach background sync warning:', err.message);
+    });
+
+    return true;
   },
 
-  // Customer Registration Flow
+  // -------------------------------------------------------------
+  // CUSTOMER REGISTRATION FLOW (Instant Registration)
+  // -------------------------------------------------------------
   async registerLead(regData) {
-    const result = await apiRegisterCustomer(regData);
-    await this.init();
-    return result;
+    const student = await this.addStudent({
+      name: regData.studentName,
+      age: regData.studentAge,
+      parentName: regData.parentName,
+      phone: regData.phone,
+      email: regData.email,
+      productId: regData.productId,
+      packageId: regData.packageId,
+      location: regData.location,
+      notes: regData.notes
+    });
+
+    apiRegisterCustomer(regData).catch(err => {
+      console.warn('[Store] apiRegisterCustomer background sync warning:', err.message);
+    });
+
+    return { student };
   },
 
-  // Students CRUD
+  // -------------------------------------------------------------
+  // STUDENTS CRUD (Auto-creates 4 Member Schedules & User Account)
+  // -------------------------------------------------------------
   async addStudent(studentData) {
-    const created = await apiCreateStudent(studentData);
-    await this.init();
-    return created;
+    const id = studentData.id || `stu_${Date.now()}`;
+    const prod = (store.products || []).find(p => p.id === studentData.productId);
+    const pkg = (store.packages || []).find(p => p.id === studentData.packageId);
+    const assignedCoach = (store.coaches || []).find(c => c.id === studentData.assignedCoachId) || (store.coaches || [])[0];
+
+    const initialSchedules = [];
+    const days = ['Sabtu', 'Minggu', 'Sabtu', 'Minggu'];
+    for (let i = 1; i <= 4; i++) {
+      initialSchedules.push({
+        id: `sch_${id}_${i}`,
+        studentId: id,
+        studentName: studentData.name,
+        sessionNo: i,
+        date: `Sesi ${i}`,
+        day: days[i - 1],
+        time: '08.00 - 08.45 WIB',
+        coachName: assignedCoach?.name || 'Coach Dimas Prasetyo, S.Or.',
+        location: studentData.location || 'Kolam Graha Kresna Pratama',
+        status: i === 1 ? 'Mendatang (Aktif)' : 'Terjadwal',
+        notes: `Sesi latihan ke-${i}`
+      });
+    }
+
+    const newStudent = {
+      id,
+      name: studentData.name?.trim() || 'Siswa Baru',
+      age: parseInt(studentData.age) || 7,
+      parentName: studentData.parentName?.trim() || 'Orang Tua',
+      phone: studentData.phone || '',
+      email: studentData.email || '',
+      productId: studentData.productId || prod?.id || 'prod_swimming',
+      productName: prod?.name || studentData.productName || 'Skill Renang',
+      packageId: studentData.packageId || pkg?.id || 'pkg_swim_group',
+      packageName: pkg?.name || studentData.packageName || 'Group Class',
+      assignedCoachId: assignedCoach?.id || '',
+      assignedCoachName: assignedCoach?.name || '',
+      mappingLockSessions: parseInt(studentData.mappingLockSessions) || 4,
+      sessionsCompletedWithCoach: 0,
+      mappingStatus: `Terkunci (${studentData.mappingLockSessions || 4} Sesi Terikat)`,
+      joinedDate: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
+      status: 'Aktif',
+      currentLevel: 1,
+      currentLevelTitle: 'Level 1: Water Explorer',
+      targetChallenge: '5 Meter Freestyle Challenge',
+      completedSessions: 0,
+      packageTotalSessions: 4,
+      overallProgress: 0,
+      memberSchedules: initialSchedules,
+      sessionReports: [],
+      notes: studentData.notes || ''
+    };
+
+    store.students = [newStudent, ...(store.students || [])];
+    persistLocalStore('students', store.students);
+
+    // Auto-create parent user login if email provided
+    if (studentData.email) {
+      const userEmail = studentData.email.toLowerCase();
+      const existing = (store.users || []).find(u => u.email.toLowerCase() === userEmail);
+      if (!existing) {
+        store.users = [...(store.users || []), {
+          id: `usr_${id}`,
+          name: studentData.parentName || studentData.name,
+          email: userEmail,
+          role: 'customer',
+          password: '123'
+        }];
+        persistLocalStore('users', store.users);
+      }
+    }
+
+    // Auto-create invoice
+    const now = new Date();
+    const pkgPrice = pkg?.price || 450000;
+    const invId = `INV-MS-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 900) + 100)}`;
+    const invoice = {
+      id: invId,
+      studentId: id,
+      studentName: newStudent.name,
+      parentName: newStudent.parentName,
+      phone: newStudent.phone,
+      productId: newStudent.productId,
+      productName: newStudent.productName,
+      packageId: newStudent.packageId,
+      packageName: `${newStudent.productName} - ${newStudent.packageName}`,
+      amount: pkgPrice,
+      formattedAmount: `Rp ${pkgPrice.toLocaleString('id-ID')}`,
+      paymentMethod: 'qris',
+      paymentMethodName: 'QRIS Dinamis ASPI',
+      status: 'Menunggu Pembayaran',
+      paidAt: '-',
+      created_at: now.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
+    };
+    store.transactions = [invoice, ...(store.transactions || [])];
+    persistLocalStore('transactions', store.transactions);
+
+    apiCreateStudent(newStudent).catch(err => {
+      console.warn('[Store] apiCreateStudent background sync warning:', err.message);
+    });
+
+    return newStudent;
   },
 
   async updateStudent(id, patch) {
-    const updated = await apiUpdateStudent(id, patch);
-    await this.init();
-    return updated;
+    const idx = (store.students || []).findIndex(s => s.id === id);
+    if (idx > -1) {
+      if (patch.productId) {
+        const prod = (store.products || []).find(p => p.id === patch.productId);
+        if (prod) patch.productName = prod.name;
+      }
+      if (patch.packageId) {
+        const pkg = (store.packages || []).find(p => p.id === patch.packageId);
+        if (pkg) patch.packageName = pkg.name;
+      }
+      if (patch.assignedCoachId) {
+        const coach = (store.coaches || []).find(c => c.id === patch.assignedCoachId);
+        if (coach) patch.assignedCoachName = coach.name;
+      }
+      Object.assign(store.students[idx], patch);
+      persistLocalStore('students', store.students);
+    }
+
+    apiUpdateStudent(id, patch).catch(err => {
+      console.warn('[Store] apiUpdateStudent background sync warning:', err.message);
+    });
+
+    return store.students[idx];
   },
 
   async deleteStudent(id) {
-    await apiDeleteStudent(id);
-    await this.init();
+    store.students = (store.students || []).filter(s => s.id !== id);
+    store.transactions = (store.transactions || []).filter(t => t.studentId !== id);
+    persistLocalStore('students', store.students);
+    persistLocalStore('transactions', store.transactions);
+
+    apiDeleteStudent(id).catch(err => {
+      console.warn('[Store] apiDeleteStudent background sync warning:', err.message);
+    });
+
+    return true;
   },
 
-  // Schedules Dynamic CRUD
+  // -------------------------------------------------------------
+  // SCHEDULES DYNAMIC CRUD
+  // -------------------------------------------------------------
   async addSchedule(scheduleData) {
-    const created = await apiCreateSchedule(scheduleData);
-    await this.init();
-    return created;
+    const student = (store.students || []).find(s => s.id === scheduleData.studentId);
+    const id = scheduleData.id || `sch_${scheduleData.studentId || 'manual'}_${Date.now()}`;
+    const newSch = {
+      id,
+      studentId: scheduleData.studentId,
+      studentName: student?.name || scheduleData.studentName || 'Siswa',
+      parentName: student?.parentName || scheduleData.parentName || 'Wali',
+      phone: student?.phone || scheduleData.phone || '',
+      programName: student?.productName || scheduleData.programName || 'Skill Renang',
+      sessionNo: (student?.memberSchedules?.length || 0) + 1,
+      date: scheduleData.date || new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
+      day: scheduleData.day || 'Sabtu',
+      time: scheduleData.time || '08.00 - 08.45 WIB',
+      coachName: scheduleData.coachName || student?.assignedCoachName || 'Coach Dimas Prasetyo, S.Or.',
+      location: scheduleData.location || student?.location || 'Kolam Graha Kresna Pratama',
+      status: scheduleData.status || 'Terjadwal',
+      notes: scheduleData.notes || `Sesi latihan ke-${(student?.memberSchedules?.length || 0) + 1}`
+    };
+
+    if (student) {
+      if (!Array.isArray(student.memberSchedules)) student.memberSchedules = [];
+      student.memberSchedules.push(newSch);
+      student.packageTotalSessions = Math.max(student.packageTotalSessions || 4, student.memberSchedules.length);
+      persistLocalStore('students', store.students);
+    }
+
+    apiCreateSchedule(newSch).catch(err => {
+      console.warn('[Store] apiCreateSchedule background sync warning:', err.message);
+    });
+
+    return newSch;
   },
 
   async updateSchedule(scheduleId, patch) {
-    const updated = await apiUpdateSchedule(scheduleId, patch);
-    await this.init();
-    return updated;
+    let foundSch = null;
+    let targetStudent = null;
+    for (const stu of (store.students || [])) {
+      if (Array.isArray(stu.memberSchedules)) {
+        const sch = stu.memberSchedules.find(s => s.id === scheduleId);
+        if (sch) {
+          foundSch = sch;
+          targetStudent = stu;
+          Object.assign(sch, patch);
+          break;
+        }
+      }
+    }
+
+    if (targetStudent) {
+      const completedCount = targetStudent.memberSchedules.filter(s => s.status === 'Selesai' || s.status === 'Hadir').length;
+      targetStudent.completedSessions = completedCount;
+      targetStudent.sessionsCompletedWithCoach = completedCount;
+      const total = targetStudent.packageTotalSessions || targetStudent.memberSchedules.length || 4;
+      targetStudent.overallProgress = Math.round((completedCount / total) * 100);
+      persistLocalStore('students', store.students);
+    }
+
+    apiUpdateSchedule(scheduleId, patch).catch(err => {
+      console.warn('[Store] apiUpdateSchedule background sync warning:', err.message);
+    });
+
+    return foundSch;
   },
 
   async deleteSchedule(scheduleId) {
-    await apiDeleteSchedule(scheduleId);
-    await this.init();
+    for (const stu of (store.students || [])) {
+      if (Array.isArray(stu.memberSchedules)) {
+        const beforeLen = stu.memberSchedules.length;
+        stu.memberSchedules = stu.memberSchedules.filter(s => s.id !== scheduleId);
+        if (stu.memberSchedules.length !== beforeLen) {
+          stu.packageTotalSessions = stu.memberSchedules.length;
+          const completedCount = stu.memberSchedules.filter(s => s.status === 'Selesai' || s.status === 'Hadir').length;
+          stu.completedSessions = completedCount;
+          stu.sessionsCompletedWithCoach = completedCount;
+          stu.overallProgress = stu.memberSchedules.length > 0 ? Math.round((completedCount / stu.memberSchedules.length) * 100) : 0;
+          persistLocalStore('students', store.students);
+          break;
+        }
+      }
+    }
+
+    apiDeleteSchedule(scheduleId).catch(err => {
+      console.warn('[Store] apiDeleteSchedule background sync warning:', err.message);
+    });
+
+    return true;
   },
 
   // Assign / Reassign Coach to Student (with session lock count)
   async assignCoachToStudent(studentId, coachId, lockSessionsCount = 4) {
-    const coach = store.coaches.find(c => c.id === coachId);
+    const coach = (store.coaches || []).find(c => c.id === coachId);
     if (!coach) return false;
 
-    await apiUpdateStudent(studentId, {
+    const student = (store.students || []).find(s => s.id === studentId);
+    if (student) {
+      student.assignedCoachId = coach.id;
+      student.assignedCoachName = coach.name;
+      student.mappingLockSessions = lockSessionsCount;
+      student.sessionsCompletedWithCoach = 0;
+      student.mappingStatus = `Terkunci (${lockSessionsCount} Sesi Terikat)`;
+
+      if (Array.isArray(student.memberSchedules)) {
+        student.memberSchedules.forEach(sch => {
+          if (sch.status !== 'Selesai' && sch.status !== 'Hadir') {
+            sch.coachName = coach.name;
+          }
+        });
+      }
+      persistLocalStore('students', store.students);
+    }
+
+    apiUpdateStudent(studentId, {
       assignedCoachId: coach.id,
       assignedCoachName: coach.name,
       mappingLockSessions: lockSessionsCount,
       sessionsCompletedWithCoach: 0,
       mappingStatus: `Terkunci (${lockSessionsCount} Sesi Terikat)`
+    }).catch(err => {
+      console.warn('[Store] assignCoach background sync warning:', err.message);
     });
-    await this.init();
+
     return true;
   },
 
   // Payment Verification
   async verifyPayment(invoiceId) {
-    const res = await apiVerifyPayment(invoiceId);
-    await this.init();
-    return res;
+    const trx = (store.transactions || []).find(t => t.id === invoiceId);
+    if (trx) {
+      trx.status = 'Lunas (Verified)';
+      trx.paidAt = new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
+      persistLocalStore('transactions', store.transactions);
+    }
+
+    apiVerifyPayment(invoiceId).catch(err => {
+      console.warn('[Store] apiVerifyPayment background sync warning:', err.message);
+    });
+
+    return trx;
   },
 
   // Session Evaluation Report (Coach Role)
@@ -904,58 +1413,53 @@ export const actions = {
 
   // Coach Attendance & Geolocation Actions
   async recordCoachAttendance(payload) {
-    try {
-      const recorded = await apiRecordCoachAttendance(payload);
-      // Prepend to local store list
-      const existingIdx = (store.coachAttendances || []).findIndex(a => a.id === recorded.id);
-      if (existingIdx > -1) {
-        store.coachAttendances[existingIdx] = recorded;
-      } else {
-        store.coachAttendances = [recorded, ...(store.coachAttendances || [])];
+    const fallbackRecord = {
+      id: `att_${Date.now()}`,
+      coachId: payload.coachId || 'coach_1',
+      coachName: payload.coachName || 'Coach Adit',
+      coachAvatar: payload.coachAvatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240',
+      date: payload.date || new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
+      time: payload.time || new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB',
+      timestamp: Date.now(),
+      sessionType: payload.sessionType || 'Sesi Pagi (08.00 - 09.30 WIB)',
+      locationName: payload.locationName || 'Kolam Graha Kresna Pratama, Jatiwaringin',
+      latitude: parseFloat(payload.latitude) || -6.2847,
+      longitude: parseFloat(payload.longitude) || 106.9142,
+      accuracy: payload.accuracy ? Math.round(payload.accuracy) : 10,
+      distanceFromVenue: payload.distanceFromVenue || 15,
+      status: payload.status || 'Hadir di Lokasi',
+      isVerified: true,
+      notes: payload.notes || 'Presensi mandiri pelatih dengan GPS real-time'
+    };
+
+    store.coachAttendances = [fallbackRecord, ...(store.coachAttendances || [])];
+    persistLocalStore('coachAttendances', store.coachAttendances);
+
+    apiRecordCoachAttendance(payload).then(res => {
+      if (res && res.id) {
+        fallbackRecord.id = res.id;
+        persistLocalStore('coachAttendances', store.coachAttendances);
       }
-      return recorded;
-    } catch (err) {
-      console.warn('[Store] API recordCoachAttendance failed, saving locally:', err.message);
-      const fallbackRecord = {
-        id: `att_${Date.now()}`,
-        coachId: payload.coachId || 'coach_1',
-        coachName: payload.coachName || 'Coach Adit',
-        coachAvatar: payload.coachAvatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240',
-        date: payload.date || new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
-        time: payload.time || new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB',
-        timestamp: Date.now(),
-        sessionType: payload.sessionType || 'Sesi Pagi (08.00 - 09.30 WIB)',
-        locationName: payload.locationName || 'Kolam Graha Kresna Pratama, Jatiwaringin',
-        latitude: parseFloat(payload.latitude) || -6.2847,
-        longitude: parseFloat(payload.longitude) || 106.9142,
-        accuracy: payload.accuracy ? Math.round(payload.accuracy) : 10,
-        distanceFromVenue: payload.distanceFromVenue || 15,
-        status: payload.status || 'Hadir di Lokasi',
-        isVerified: true,
-        notes: payload.notes || 'Presensi mandiri pelatih dengan GPS real-time'
-      };
-      store.coachAttendances = [fallbackRecord, ...(store.coachAttendances || [])];
-      return fallbackRecord;
-    }
+    }).catch(err => {
+      console.warn('[Store] apiRecordCoachAttendance background sync warning:', err.message);
+    });
+
+    return fallbackRecord;
   },
 
   async verifyCoachAttendance(id) {
-    try {
-      const verified = await apiVerifyCoachAttendance(id);
-      const match = (store.coachAttendances || []).find(a => a.id === id);
-      if (match) {
-        match.isVerified = true;
-        match.verifiedAt = verified.verifiedAt;
-      }
-      return verified;
-    } catch (err) {
-      const match = (store.coachAttendances || []).find(a => a.id === id);
-      if (match) {
-        match.isVerified = true;
-        match.verifiedAt = new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
-      }
-      return match;
+    const match = (store.coachAttendances || []).find(a => a.id === id);
+    if (match) {
+      match.isVerified = true;
+      match.verifiedAt = new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
+      persistLocalStore('coachAttendances', store.coachAttendances);
     }
+
+    apiVerifyCoachAttendance(id).catch(err => {
+      console.warn('[Store] apiVerifyCoachAttendance background sync warning:', err.message);
+    });
+
+    return match;
   },
 
   cleanWaNumber(phoneStr) {
@@ -994,63 +1498,92 @@ export const actions = {
   },
 
   // -------------------------------------------------------------
-  // Dynamic Payment & Bank Accounts CRUD
+  // PROFIL BRAND & WEBSITE CMS CRUD
+  // -------------------------------------------------------------
+  async updateBrand(brandPatch) {
+    store.brand = { ...store.brand, ...brandPatch };
+    persistLocalStore('brand', store.brand);
+
+    apiUpdateBrandConfig(brandPatch).catch(err => {
+      console.warn('[Store] apiUpdateBrandConfig background sync warning:', err.message);
+    });
+
+    return store.brand;
+  },
+
+  async updateHero(heroPatch) {
+    store.hero = { ...store.hero, ...heroPatch };
+    persistLocalStore('hero', store.hero);
+
+    apiUpdateHeroConfig(heroPatch).catch(err => {
+      console.warn('[Store] apiUpdateHeroConfig background sync warning:', err.message);
+    });
+
+    return store.hero;
+  },
+
+  // -------------------------------------------------------------
+  // DYNAMIC PAYMENT & BANK ACCOUNTS CRUD
   // -------------------------------------------------------------
   async updatePaymentConfig(patch) {
-    try {
-      const updated = await apiUpdatePaymentConfig(patch);
-      store.paymentConfig = { ...store.paymentConfig, ...updated };
-      return updated;
-    } catch (err) {
-      store.paymentConfig = { ...store.paymentConfig, ...patch };
-      return store.paymentConfig;
-    }
+    store.paymentConfig = { ...store.paymentConfig, ...patch };
+    persistLocalStore('paymentConfig', store.paymentConfig);
+
+    apiUpdatePaymentConfig(patch).catch(err => {
+      console.warn('[Store] apiUpdatePaymentConfig background sync warning:', err.message);
+    });
+
+    return store.paymentConfig;
   },
 
   async addBankAccount(bankData) {
-    try {
-      const created = await apiAddBankAccount(bankData);
-      if (!store.paymentConfig.bankAccounts) store.paymentConfig.bankAccounts = [];
-      const exists = store.paymentConfig.bankAccounts.find(b => b.id === created.id);
-      if (!exists) {
-        store.paymentConfig.bankAccounts.push(created);
-      } else {
-        Object.assign(exists, created);
+    const newBank = {
+      id: `bank_${Date.now()}`,
+      bankName: bankData.bankName || 'Bank Baru',
+      accountNumber: bankData.accountNumber || '',
+      accountHolder: bankData.accountHolder || 'YAYASAN MINE SKILLS INDONESIA',
+      badge: bankData.badge || 'Verifikasi Otomatis'
+    };
+
+    if (!store.paymentConfig.bankAccounts) store.paymentConfig.bankAccounts = [];
+    store.paymentConfig.bankAccounts.push(newBank);
+    persistLocalStore('paymentConfig', store.paymentConfig);
+
+    apiAddBankAccount(newBank).then(res => {
+      if (res && res.id) {
+        newBank.id = res.id;
+        persistLocalStore('paymentConfig', store.paymentConfig);
       }
-      return created;
-    } catch (err) {
-      const fallback = {
-        id: `bank_${Date.now()}`,
-        ...bankData
-      };
-      if (!store.paymentConfig.bankAccounts) store.paymentConfig.bankAccounts = [];
-      store.paymentConfig.bankAccounts.push(fallback);
-      return fallback;
-    }
+    }).catch(err => {
+      console.warn('[Store] apiAddBankAccount background sync warning:', err.message);
+    });
+
+    return newBank;
   },
 
   async updateBankAccount(id, patch) {
-    try {
-      const updated = await apiUpdateBankAccount(id, patch);
-      const match = (store.paymentConfig.bankAccounts || []).find(b => b.id === id);
-      if (match) Object.assign(match, updated);
-      return updated;
-    } catch (err) {
-      const match = (store.paymentConfig.bankAccounts || []).find(b => b.id === id);
-      if (match) Object.assign(match, patch);
-      return match;
+    const match = (store.paymentConfig.bankAccounts || []).find(b => b.id === id);
+    if (match) {
+      Object.assign(match, patch);
+      persistLocalStore('paymentConfig', store.paymentConfig);
     }
+
+    apiUpdateBankAccount(id, patch).catch(err => {
+      console.warn('[Store] apiUpdateBankAccount background sync warning:', err.message);
+    });
+
+    return match;
   },
 
   async deleteBankAccount(id) {
-    try {
-      await apiDeleteBankAccount(id);
-      store.paymentConfig.bankAccounts = (store.paymentConfig.bankAccounts || []).filter(b => b.id !== id);
-      return true;
-    } catch (err) {
-      store.paymentConfig.bankAccounts = (store.paymentConfig.bankAccounts || []).filter(b => b.id !== id);
-      return true;
-    }
+    store.paymentConfig.bankAccounts = (store.paymentConfig.bankAccounts || []).filter(b => b.id !== id);
+    persistLocalStore('paymentConfig', store.paymentConfig);
+
+    apiDeleteBankAccount(id).catch(err => {
+      console.warn('[Store] apiDeleteBankAccount background sync warning:', err.message);
+    });
+
+    return true;
   }
 };
 

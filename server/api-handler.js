@@ -39,7 +39,11 @@ import {
   updatePaymentConfig,
   addBankAccount,
   updateBankAccount,
-  deleteBankAccount
+  deleteBankAccount,
+  getBrandConfig,
+  updateBrandConfig,
+  getHeroConfig,
+  updateHeroConfig
 } from './neon-db.js';
 
 export async function parseJsonBody(req) {
@@ -387,6 +391,31 @@ export async function handleApiRequest(req, res) {
       if (method === 'DELETE') {
         await deleteBankAccount(bankId);
         return sendJson(res, 200, { success: true, message: 'Rekening bank berhasil dihapus.' });
+      }
+    }
+
+    // 13. WEBSITE CMS (BRAND & HERO)
+    if (pathname === '/api/settings/brand') {
+      if (method === 'GET') {
+        const brand = await getBrandConfig();
+        return sendJson(res, 200, { success: true, data: brand });
+      }
+      if (method === 'PUT' || method === 'POST') {
+        const body = await parseJsonBody(req);
+        const updated = await updateBrandConfig(body);
+        return sendJson(res, 200, { success: true, data: updated });
+      }
+    }
+
+    if (pathname === '/api/settings/hero') {
+      if (method === 'GET') {
+        const hero = await getHeroConfig();
+        return sendJson(res, 200, { success: true, data: hero });
+      }
+      if (method === 'PUT' || method === 'POST') {
+        const body = await parseJsonBody(req);
+        const updated = await updateHeroConfig(body);
+        return sendJson(res, 200, { success: true, data: updated });
       }
     }
 

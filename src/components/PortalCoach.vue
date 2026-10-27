@@ -588,6 +588,20 @@
             <strong>{{ stu.currentLevelTitle }}</strong>
             <p>{{ stu.targetChallenge }}</p>
           </div>
+
+          <!-- Asesmen & Keselamatan Siswa (Intake Assessment) -->
+          <div v-if="stu.waterConfidence || stu.medicalCondition" class="binaan-intake-strip">
+            <div class="intake-pill">
+              <span>🌊 Status Air: <strong>{{ stu.waterConfidence || 'Pemula' }}</strong> (Takut: {{ stu.waterFear || 'Tidak' }})</span>
+            </div>
+            <div v-if="stu.medicalCondition && stu.medicalCondition !== 'Tidak ada'" class="intake-pill warning">
+              <span>⚠️ Catatan Medis: <strong>{{ stu.medicalCondition }}</strong></span>
+            </div>
+            <div v-if="stu.coachNotes" class="intake-pill notes">
+              <span>📝 Catatan Wali: <em>"{{ stu.coachNotes }}"</em></span>
+            </div>
+          </div>
+
           <div class="binaan-progress">
             <span>Progress Paket: {{ stu.completedSessions }}/{{ stu.packageTotalSessions }} Sesi</span>
           </div>
@@ -1264,6 +1278,34 @@ const coachAttendanceHistory = computed(() => {
   font-size: 12px;
   color: var(--text-subtle);
   font-weight: 600;
+}
+
+.binaan-intake-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: #f8fafc;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  margin-bottom: 12px;
+  font-size: 11.5px;
+}
+
+.intake-pill {
+  color: var(--text-color);
+  line-height: 1.4;
+}
+
+.intake-pill.warning {
+  color: #b45309;
+  background: #fef3c7;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+.intake-pill.notes {
+  color: var(--text-muted);
 }
 
 /* Progress Input Grid & Live WhatsApp Preview */

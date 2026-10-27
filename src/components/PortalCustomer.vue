@@ -783,6 +783,10 @@ const studentData = computed(() => {
     const found = (store.students || []).find(s => s.id === currentStudentId);
     if (found) return found;
   }
+  if (store.currentUser?.email) {
+    const foundEmail = (store.students || []).find(s => s.email && s.email.toLowerCase() === store.currentUser.email.toLowerCase());
+    if (foundEmail) return foundEmail;
+  }
   return (store.students || [])[0] || {
     name: 'Kenzo Al-Fatih',
     age: 7,

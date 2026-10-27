@@ -599,8 +599,18 @@
             <tr v-for="stu in filteredStudents" :key="stu.id">
               <td>
                 <div class="stu-name-cell">
-                  <strong>{{ stu.name }}</strong>
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <strong>{{ stu.name }}</strong>
+                    <span v-if="stu.nickname" class="badge-chip gold mini" style="font-size: 10px; padding: 1px 6px;">{{ stu.nickname }}</span>
+                  </div>
                   <span class="sub-cell-txt">{{ stu.age }} Tahun • Bergabung: {{ stu.joinedDate }}</span>
+                  <div v-if="stu.location" class="sub-cell-txt" style="margin-top: 2px; color: var(--color-primary);">
+                    📍 {{ stu.location }} <span v-if="stu.preferredDay">• {{ stu.preferredDay }} ({{ stu.preferredTime }})</span>
+                  </div>
+                  <div v-if="stu.waterConfidence || (stu.medicalCondition && stu.medicalCondition !== 'Tidak ada')" style="margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px;">
+                    <span v-if="stu.waterConfidence" class="badge-chip teal" style="font-size: 10px; padding: 2px 6px;" :title="'Kemampuan awal: ' + stu.waterConfidence">🌊 {{ stu.waterConfidence }}</span>
+                    <span v-if="stu.medicalCondition && stu.medicalCondition !== 'Tidak ada'" class="badge-chip gold" style="font-size: 10px; padding: 2px 6px;" :title="'Catatan medis: ' + stu.medicalCondition">⚠️ {{ stu.medicalCondition }}</span>
+                  </div>
                 </div>
               </td>
               <td>

@@ -1,4 +1,5 @@
 import { reactive, watch } from 'vue';
+import { convertQRIS } from '../utils/qris.js';
 import {
   fetchBootstrap,
   apiCreateProduct,
@@ -1061,26 +1062,55 @@ export const actions = {
   },
 
   // -------------------------------------------------------------
-  // CUSTOMER REGISTRATION FLOW (Instant Registration)
+  // CUSTOMER REGISTRATION FLOW (Instant Registration & Dynamic ASPI QRIS)
   // -------------------------------------------------------------
   async registerLead(regData) {
-    const student = await this.addStudent({
-      name: regData.studentName,
-      age: regData.studentAge,
-      parentName: regData.parentName,
-      phone: regData.phone,
+    const student = await this.addStudent(regData);
+
+    const userEmail = (regData.email || '').trim().toLowerCase();
+    const createdUser = (store.users || []).find(u => u.email.toLowerCase() === userEmail) || {
+      id: `usr_${student.id}`,
+      name: regData.parentName || student.name,
       email: regData.email,
-      productId: regData.productId,
-      packageId: regData.packageId,
-      location: regData.location,
-      notes: regData.notes
-    });
+      role: 'customer',
+      student_id: student.id,
+      password: '123'
+    };
+    if (createdUser && !createdUser.student_id) {
+      createdUser.student_id = student.id;
+    }
+
+    const transaction = (store.transactions || []).find(t => t.studentId === student.id) || (store.transactions || [])[0];
+
+    const pkgPrice = transaction?.amount || 400000;
+    let dynamicQris = store.paymentConfig?.rawQrisStatic || '';
+    try {
+      if (store.paymentConfig?.rawQrisStatic) {
+        dynamicQris = convertQRIS(store.paymentConfig.rawQrisStatic, { amount: pkgPrice });
+        if (typeof dynamicQris !== 'string') {
+          dynamicQris = dynamicQris?.qris || store.paymentConfig.rawQrisStatic;
+        }
+      }
+    } catch (e) {
+      console.warn('[Store] QRIS dynamic conversion error:', e);
+    }
+
+    if (transaction) {
+      transaction.qrisString = dynamicQris;
+    }
 
     apiRegisterCustomer(regData).catch(err => {
       console.warn('[Store] apiRegisterCustomer background sync warning:', err.message);
     });
 
-    return { student };
+    return {
+      student,
+      user: createdUser,
+      transaction,
+      schedules: student.memberSchedules,
+      qrisString: dynamicQris,
+      amount: pkgPrice
+    };
   },
 
   // -------------------------------------------------------------
@@ -1092,19 +1122,22 @@ export const actions = {
     const pkg = (store.packages || []).find(p => p.id === studentData.packageId);
     const assignedCoach = (store.coaches || []).find(c => c.id === studentData.assignedCoachId) || (store.coaches || [])[0];
 
+    const studentLocation = studentData.location || (store.locations[0]?.name || 'Kolam Graha Kresna Pratama');
+    const studentDay = studentData.preferredDay || 'Sabtu';
+    const studentTime = studentData.preferredTime || '09.00 - 09.45 WIB';
+
     const initialSchedules = [];
-    const days = ['Sabtu', 'Minggu', 'Sabtu', 'Minggu'];
     for (let i = 1; i <= 4; i++) {
       initialSchedules.push({
         id: `sch_${id}_${i}`,
         studentId: id,
-        studentName: studentData.name,
+        studentName: studentData.name || studentData.studentName || 'Siswa Baru',
         sessionNo: i,
         date: `Sesi ${i}`,
-        day: days[i - 1],
-        time: '08.00 - 08.45 WIB',
+        day: studentDay,
+        time: studentTime,
         coachName: assignedCoach?.name || 'Coach Dimas Prasetyo, S.Or.',
-        location: studentData.location || 'Kolam Graha Kresna Pratama',
+        location: studentLocation,
         status: i === 1 ? 'Mendatang (Aktif)' : 'Terjadwal',
         notes: `Sesi latihan ke-${i}`
       });
@@ -1112,15 +1145,43 @@ export const actions = {
 
     const newStudent = {
       id,
-      name: studentData.name?.trim() || 'Siswa Baru',
-      age: parseInt(studentData.age) || 7,
+      name: studentData.name?.trim() || studentData.studentName?.trim() || 'Siswa Baru',
+      nickname: studentData.nickname?.trim() || (studentData.name || studentData.studentName || '').split(' ')[0] || 'Ananda',
+      age: parseInt(studentData.age || studentData.studentAge) || 7,
+      gender: studentData.gender || 'Laki-laki',
+      schoolGrade: studentData.schoolGrade || '',
       parentName: studentData.parentName?.trim() || 'Orang Tua',
       phone: studentData.phone || '',
       email: studentData.email || '',
+      address: studentData.address || '',
+      
+      // Assessment & Health (from Google Form SOP)
+      swimmingExperience: studentData.swimmingExperience || 'Belum pernah',
+      waterConfidence: studentData.waterConfidence || 'Belum berani masuk air',
+      waterFear: studentData.waterFear || 'Tidak',
+      masteredStyles: Array.isArray(studentData.masteredStyles) ? studentData.masteredStyles : ['Belum menguasai gaya tertentu'],
+      medicalCondition: studentData.medicalCondition || 'Tidak ada',
+      coachNotes: studentData.coachNotes || studentData.notes || '',
+
+      // Course & Location
       productId: studentData.productId || prod?.id || 'prod_swimming',
       productName: prod?.name || studentData.productName || 'Skill Renang',
       packageId: studentData.packageId || pkg?.id || 'pkg_swim_group',
       packageName: pkg?.name || studentData.packageName || 'Group Class',
+      location: studentLocation,
+      preferredDay: studentDay,
+      preferredTime: studentTime,
+
+      // Program Goals & Referral
+      programGoals: Array.isArray(studentData.programGoals) ? studentData.programGoals : [studentData.programGoals || 'Belajar berenang dari dasar'],
+      referralSource: studentData.referralSource || 'Instagram',
+
+      // Consent & Agreement
+      consentProgressDocumentation: studentData.consentProgressDocumentation !== false,
+      consentPromotionalUsage: Boolean(studentData.consentPromotionalUsage),
+      parentDeclaration: true,
+
+      // Operations & Academic
       assignedCoachId: assignedCoach?.id || '',
       assignedCoachName: assignedCoach?.name || '',
       mappingLockSessions: parseInt(studentData.mappingLockSessions) || 4,
@@ -1136,7 +1197,7 @@ export const actions = {
       overallProgress: 0,
       memberSchedules: initialSchedules,
       sessionReports: [],
-      notes: studentData.notes || ''
+      notes: studentData.coachNotes || studentData.medicalCondition || studentData.notes || ''
     };
 
     store.students = [newStudent, ...(store.students || [])];
@@ -1152,15 +1213,19 @@ export const actions = {
           name: studentData.parentName || studentData.name,
           email: userEmail,
           role: 'customer',
+          student_id: id,
           password: '123'
         }];
+        persistLocalStore('users', store.users);
+      } else {
+        existing.student_id = id;
         persistLocalStore('users', store.users);
       }
     }
 
     // Auto-create invoice
     const now = new Date();
-    const pkgPrice = pkg?.price || 450000;
+    const pkgPrice = pkg?.price || 400000;
     const invId = `INV-MS-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 900) + 100)}`;
     const invoice = {
       id: invId,

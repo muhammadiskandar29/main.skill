@@ -414,6 +414,7 @@ const initialPaymentConfig = {
   merchantName: 'MINE.SKILLS INDONESIA',
   merchantCity: 'JAKARTA',
   nmid: 'ID1020038847291',
+  qrisImageUrl: '',
   bankAccounts: [
     {
       id: 'bca',

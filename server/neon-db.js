@@ -1067,6 +1067,7 @@ let inMemoryPaymentConfig = {
   merchantName: 'MINE.SKILLS INDONESIA',
   merchantCity: 'JAKARTA',
   nmid: 'ID1020038847291',
+  qrisImageUrl: '',
   bankAccounts: [
     {
       id: 'bca',
@@ -1123,6 +1124,7 @@ export async function updatePaymentConfig(patch) {
     merchantCity: patch.merchantCity !== undefined ? patch.merchantCity : current.merchantCity,
     nmid: patch.nmid !== undefined ? patch.nmid : current.nmid,
     rawQrisStatic: patch.rawQrisStatic !== undefined ? patch.rawQrisStatic : current.rawQrisStatic,
+    qrisImageUrl: patch.qrisImageUrl !== undefined ? patch.qrisImageUrl : current.qrisImageUrl,
     bankAccounts: Array.isArray(patch.bankAccounts) ? patch.bankAccounts : current.bankAccounts
   };
   inMemoryPaymentConfig = updated;

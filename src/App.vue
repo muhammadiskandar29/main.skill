@@ -1,7 +1,7 @@
 <template>
   <div class="app-container" :class="{ 'portal-mode': store.currentRole !== 'public' }">
     <!-- Master Header & Nav -->
-    <HeaderNav @open-register="isRegisterOpen = true" />
+    <HeaderNav @open-register="handleOpenRegister" />
 
     <!-- Role Quick Navigation Bar -->
     <div class="role-bar">
@@ -49,7 +49,7 @@
     <!-- MAIN VIEW AREA -->
     <!-- VIEW A: PUBLIC COMPANY PROFILE -->
     <main v-if="store.currentRole === 'public'" class="site-content">
-      <CompanyProfile @open-register="isRegisterOpen = true" />
+      <CompanyProfile @open-register="handleOpenRegister" />
     </main>
 
     <!-- VIEW B: RBAC PORTAL (CUSTOMER / COACH / MANAJEMEN) -->
@@ -282,6 +282,8 @@
     <!-- Registration Modal -->
     <RegistrationModal 
       v-if="isRegisterOpen" 
+      :initial-product-id="selectedRegisterProductId"
+      :initial-package-id="selectedRegisterPackageId"
       @close="isRegisterOpen = false" 
     />
   </div>
@@ -298,6 +300,14 @@ import PortalCoach from './components/PortalCoach.vue';
 import PortalManajemen from './components/PortalManajemen.vue';
 
 const isRegisterOpen = ref(false);
+const selectedRegisterProductId = ref('');
+const selectedRegisterPackageId = ref('');
+
+function handleOpenRegister(productId = '', packageId = '') {
+  selectedRegisterProductId.value = productId || (store.products[0]?.id || '');
+  selectedRegisterPackageId.value = packageId || '';
+  isRegisterOpen.value = true;
+}
 
 const openGroups = ref({
   cms: true,

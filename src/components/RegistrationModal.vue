@@ -57,6 +57,34 @@
               <p class="step-pane-desc">Informasi dasar ananda dan kontak resmi untuk pelaporan perkembangan serta akun portal.</p>
             </div>
 
+            <!-- Bagian 0: Pilihan Cabang Program (Dinamis dari Master Produk) -->
+            <div class="card-section" style="margin-bottom: 18px;">
+              <div class="card-section-header-row">
+                <span class="card-section-badge">Pilihan Program Pembinaan (Dinamis Master)</span>
+                <span class="badge-chip gold mini">{{ store.products.length }} Program Tersedia</span>
+              </div>
+              <label class="form-label">Pilih Program / Cabang Keahlian yang Diikuti <span class="required">*</span></label>
+              
+              <div class="products-pill-grid">
+                <button 
+                  v-for="prod in store.products" 
+                  :key="prod.id"
+                  type="button" 
+                  class="product-pill-card" 
+                  :class="{ active: formData.productId === prod.id }"
+                  @click="selectProduct(prod.id)"
+                >
+                  <div class="pill-card-top">
+                    <span class="pill-emoji">{{ getProductIcon(prod) }}</span>
+                    <span v-if="formData.productId === prod.id" class="badge-chip teal mini">Dipilih ✓</span>
+                  </div>
+                  <strong class="pill-name">{{ prod.name }}</strong>
+                  <span class="pill-cat">{{ prod.category }}</span>
+                  <span class="pill-target">🎯 {{ prod.targetAge }}</span>
+                </button>
+              </div>
+            </div>
+
             <!-- Bagian A: Data Anak -->
             <div class="card-section">
               <span class="card-section-badge">Data Ananda</span>
@@ -189,16 +217,17 @@
           </div>
 
           <!-- =====================================================================
-               STEP 2: ASESMEN KEMAMPUAN RENANG & KESEHATAN (SEKSI C & D)
+               STEP 2: ASESMEN KEMAMPUAN & KESEHATAN (SEKSI C & D)
                ===================================================================== -->
           <div v-else-if="currentStep === 2" class="wizard-step-pane">
             <div class="step-intro-banner">
-              <h4 class="step-pane-title">B. Informasi Kemampuan & Keselamatan Air</h4>
-              <p class="step-pane-desc">Data ini sangat penting bagi Coach agar dapat menyesuaikan pendekatan latihan dengan aman & terukur.</p>
+              <h4 class="step-pane-title">B. Asesmen Kemampuan & Kesiapan: {{ currentSelectedProduct?.name }}</h4>
+              <p class="step-pane-desc">Data ini sangat penting bagi Coach/Instruktur agar dapat menyesuaikan pendekatan latihan dengan aman & terukur.</p>
             </div>
 
-            <div class="card-section">
-              <span class="card-section-badge">Kemampuan Renang Anak Saat Ini</span>
+            <!-- Jika Renang: Tampilkan Asesmen Spesifik Air & Water Safety -->
+            <div v-if="isSwimming" class="card-section">
+              <span class="card-section-badge">Kemampuan Renang & Keselamatan Air</span>
 
               <!-- Pernah les renang -->
               <div class="form-group">
@@ -270,6 +299,43 @@
               </div>
             </div>
 
+            <!-- Jika Non-Renang (Tari / Mengemudi / dll): Tampilkan Asesmen Bidang Terkait -->
+            <div v-else class="card-section">
+              <span class="card-section-badge">Pengalaman & Tingkat Kemampuan Awal</span>
+
+              <div class="form-group">
+                <label class="form-label">Pengalaman di bidang {{ currentSelectedProduct?.name }} sebelumnya? <span class="required">*</span></label>
+                <div class="chips-grid-4">
+                  <button 
+                    v-for="exp in experienceOptions" 
+                    :key="exp"
+                    type="button" 
+                    class="chip-card-btn"
+                    :class="{ active: formData.swimmingExperience === exp }"
+                    @click="formData.swimmingExperience = exp"
+                  >
+                    <span class="chip-title">{{ exp }}</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-top: 18px;">
+                <label class="form-label">Tingkat penguasaan atau kesiapan awal saat ini? <span class="required">*</span></label>
+                <div class="chips-grid-wrap">
+                  <button 
+                    v-for="cap in ['Pemula (Mulai dari Nol)', 'Tingkat Dasar (Pernah Belajar Mandiri)', 'Tingkat Menengah (Sudah Berpengalaman)', 'Tingkat Lanjut (Persiapan Ujian / Pentas)']" 
+                    :key="cap"
+                    type="button" 
+                    class="chip-card-btn mini"
+                    :class="{ active: formData.waterConfidence === cap }"
+                    @click="formData.waterConfidence = cap"
+                  >
+                    <span>{{ cap }}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
             <!-- Bagian D: Kesehatan & Keselamatan -->
             <div class="card-section" style="margin-top: 18px;">
               <span class="card-section-badge">Informasi Kesehatan & Keselamatan</span>
@@ -305,13 +371,43 @@
                ===================================================================== -->
           <div v-else-if="currentStep === 3" class="wizard-step-pane">
             <div class="step-intro-banner">
-              <h4 class="step-pane-title">C. Pilihan Kelas, Jadwal & Fasilitas Kolam</h4>
-              <p class="step-pane-desc">Semua paket terdiri dari 4 sesi berjenjang. Penempatan level resmi akan ditentukan melalui evaluasi coach.</p>
+              <h4 class="step-pane-title">C. Pilihan Program, Paket Kelas, Jadwal & Fasilitas</h4>
+              <p class="step-pane-desc">Semua paket terdiri dari 4 sesi berjenjang. Pilihan paket dan fasilitas kolam/studio tersinkronisasi otomatis dengan program pilihan Anda.</p>
+            </div>
+
+            <!-- Bagian 1: Konfirmasi / Ganti Program Pelatihan (Dinamis dari Master Produk) -->
+            <div class="card-section">
+              <div class="card-section-header-row">
+                <span class="card-section-badge">1. Program Pembinaan yang Dipilih (Dinamis Master Produk)</span>
+                <span class="badge-chip gold mini">{{ store.products.length }} Program Tersedia</span>
+              </div>
+              <p class="section-sub-hint">Pilih cabang keahlian di bawah untuk menyesuaikan paket kelas & lokasi fasilitas:</p>
+
+              <div class="products-choice-grid">
+                <div 
+                  v-for="prod in store.products" 
+                  :key="prod.id"
+                  class="prod-choice-card"
+                  :class="{ selected: formData.productId === prod.id }"
+                  @click="selectProduct(prod.id)"
+                >
+                  <div class="prod-choice-top">
+                    <div class="prod-choice-icon-wrap">{{ getProductIcon(prod) }}</div>
+                    <div class="prod-radio-indicator"></div>
+                  </div>
+                  <h4 class="prod-choice-name">{{ prod.name }}</h4>
+                  <span class="prod-choice-category">{{ prod.category }}</span>
+                  <span class="prod-choice-age">🎯 {{ prod.targetAge }}</span>
+                </div>
+              </div>
             </div>
 
             <!-- Pilihan Jenis Kelas (Dinamis dari Master Paket) -->
-            <div class="card-section">
-              <span class="card-section-badge">Pilih Jenis Kelas Pelatihan (Dinamis Master)</span>
+            <div class="card-section" style="margin-top: 18px;">
+              <div class="card-section-header-row">
+                <span class="card-section-badge">2. Pilih Skema Paket Kelas — {{ currentSelectedProduct?.name }}</span>
+                <span class="badge-chip teal mini">{{ availablePackages.length }} Paket Aktif</span>
+              </div>
 
               <div class="package-cards-grid">
                 <div 
@@ -337,15 +433,18 @@
               </div>
             </div>
 
-            <!-- Pilihan Kolam Latihan (Dinamis dari Master Lokasi) -->
+            <!-- Pilihan Lokasi Latihan (Dinamis dari Master Lokasi untuk Produk Terpilih) -->
             <div class="card-section" style="margin-top: 18px;">
-              <span class="card-section-badge">Pilihan Fasilitas Kolam & Geofence</span>
+              <div class="card-section-header-row">
+                <span class="card-section-badge">3. Fasilitas & Lokasi Latihan</span>
+                <span class="badge-chip green mini">{{ availableLocations.length }} Fasilitas Mendukung</span>
+              </div>
 
               <div class="form-group">
-                <label class="form-label">Pilih Kolam Renang Latihan <span class="required">*</span></label>
+                <label class="form-label">Pilih Fasilitas / Lokasi Pelatihan <span class="required">*</span></label>
                 <div class="venues-choice-grid">
                   <div 
-                    v-for="loc in store.locations" 
+                    v-for="loc in availableLocations" 
                     :key="loc.id"
                     class="venue-choice-box"
                     :class="{ selected: formData.location === loc.name }"
@@ -355,7 +454,7 @@
                     <div class="venue-choice-info">
                       <strong class="venue-choice-title">{{ loc.name }}</strong>
                       <span class="venue-choice-sub">{{ loc.area }} • {{ loc.address }}</span>
-                      <span class="venue-choice-facilities">🏊 {{ loc.facilities }}</span>
+                      <span class="venue-choice-facilities">📍 {{ loc.facilities }}</span>
                     </div>
                   </div>
                 </div>
@@ -440,7 +539,7 @@
                 <span class="price-banner-label">Total Biaya Paket (Dihitung Otomatis):</span>
                 <strong class="price-banner-val">{{ currentSelectedPackage?.formattedPrice || 'Rp 400.000' }}</strong>
                 <span class="price-banner-sub">
-                  {{ currentSelectedPackage?.name }} • {{ currentSelectedPackage?.meetings || '4x pertemuan' }} • {{ currentSelectedPackage?.duration || '45 menit/sesi' }}
+                  {{ currentSelectedProduct?.name }} • {{ currentSelectedPackage?.name }} • {{ currentSelectedPackage?.meetings || '4x pertemuan' }} • {{ currentSelectedPackage?.duration || '90 menit/sesi' }}
                 </span>
                 <span class="price-venue-tag">📍 {{ formData.location }} • {{ formData.preferredDay }} ({{ formData.preferredTime }})</span>
               </div>
@@ -556,7 +655,7 @@
               class="btn-gold btn-submit-wizard"
             >
               <span v-if="isSubmitting">Menerbitkan Invoice & QRIS...</span>
-              <span v-else>Daftar Sekarang & Dapatkan QRIS ({{ currentSelectedPackage?.formattedPrice }})</span>
+              <span v-else>Daftar {{ currentSelectedProduct?.name }} & Dapatkan QRIS ({{ currentSelectedPackage?.formattedPrice }})</span>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <polyline points="9 18 15 12 9 6"></polyline>
               </svg>
@@ -646,6 +745,17 @@ import { ref, computed, onMounted } from 'vue';
 import { store, actions } from '../data/store.js';
 import QRCode from 'qrcode';
 
+const props = defineProps({
+  initialProductId: {
+    type: String,
+    default: ''
+  },
+  initialPackageId: {
+    type: String,
+    default: ''
+  }
+});
+
 const emit = defineEmits(['close']);
 
 // 4 Interactive Steps
@@ -681,6 +791,7 @@ const formData = ref({
 
   // Step 3: Pilihan Kelas, Jadwal, Kolam
   productId: store.products[0]?.id || 'prod_swimming',
+  productName: store.products[0]?.name || 'Skill Renang',
   packageId: store.packages[0]?.id || 'pkg_swim_group',
   location: store.locations[0]?.name || 'Kolam Graha Kresna Pratama',
   preferredDay: 'Sabtu',
@@ -739,7 +850,20 @@ function toggleStyleOption(style) {
   }
 }
 
-// Packages dynamically from Master
+// Dynamic Product Computations
+const currentSelectedProduct = computed(() => {
+  return (store.products || []).find(p => p.id === formData.value.productId) || (store.products || [])[0];
+});
+
+const isSwimming = computed(() => {
+  const p = currentSelectedProduct.value;
+  if (!p) return true;
+  const name = (p.name || '').toLowerCase();
+  const slug = (p.slug || '').toLowerCase();
+  return slug.includes('swim') || name.includes('renang');
+});
+
+// Packages dynamically from Master for selected product
 const availablePackages = computed(() => {
   const pkgs = (store.packages || []).filter(p => p.productId === formData.value.productId);
   return pkgs.length > 0 ? pkgs : store.packages;
@@ -749,20 +873,60 @@ const currentSelectedPackage = computed(() => {
   return availablePackages.value.find(p => p.id === formData.value.packageId) || availablePackages.value[0];
 });
 
-function onProductChange() {
-  const pkgs = availablePackages.value;
+// Locations filtered for selected product
+const availableLocations = computed(() => {
+  const selectedProdId = formData.value.productId;
+  const filtered = (store.locations || []).filter(loc => {
+    if (!loc.productIds || loc.productIds.length === 0) return true;
+    return loc.productIds.includes(selectedProdId);
+  });
+  return filtered.length > 0 ? filtered : store.locations;
+});
+
+function getProductIcon(prod) {
+  if (!prod) return '⭐';
+  const name = (prod.name || '').toLowerCase();
+  const slug = (prod.slug || '').toLowerCase();
+  if (slug.includes('swim') || name.includes('renang')) return '🏊';
+  if (slug.includes('dance') || name.includes('tari')) return '💃';
+  if (slug.includes('driv') || name.includes('mengemudi') || name.includes('mobil')) return '🚗';
+  if (slug.includes('code') || name.includes('coding') || name.includes('robot')) return '💻';
+  if (slug.includes('music') || name.includes('musik')) return '🎵';
+  if (slug.includes('art') || name.includes('gambar') || name.includes('lukis')) return '🎨';
+  if (slug.includes('badminton') || name.includes('bulutangkis')) return '🏸';
+  if (slug.includes('futsal') || name.includes('bola')) return '⚽';
+  return '⭐';
+}
+
+function selectProduct(prodId) {
+  formData.value.productId = prodId;
+  const prod = (store.products || []).find(p => p.id === prodId);
+  if (prod) {
+    formData.value.productName = prod.name;
+  }
+  
+  // Synchronize package
+  const pkgs = (store.packages || []).filter(p => p.productId === prodId);
   if (pkgs.length > 0) {
-    formData.value.packageId = pkgs[0].id;
+    if (!pkgs.some(p => p.id === formData.value.packageId)) {
+      formData.value.packageId = pkgs[0].id;
+    }
+  } else if (store.packages.length > 0) {
+    formData.value.packageId = store.packages[0].id;
+  }
+  
+  // Synchronize location
+  const locs = availableLocations.value;
+  if (locs.length > 0 && !locs.some(l => l.name === formData.value.location)) {
+    formData.value.location = locs[0].name;
   }
 }
 
 onMounted(() => {
-  if (store.products.length > 0) {
-    formData.value.productId = store.products[0].id;
-    onProductChange();
-  }
-  if (store.locations.length > 0) {
-    formData.value.location = store.locations[0].name;
+  const targetProdId = props.initialProductId || (store.products[0]?.id || 'prod_swimming');
+  selectProduct(targetProdId);
+  if (props.initialPackageId && store.packages.some(p => p.id === props.initialPackageId)) {
+    formData.value.packageId = props.initialPackageId;
   }
 });
 
@@ -1081,6 +1245,180 @@ function getWaConfirmationUrl() {
   margin-bottom: 14px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+
+.card-section-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.card-section-header-row .card-section-badge {
+  margin-bottom: 0;
+}
+
+.section-sub-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0 0 14px;
+}
+
+/* Products Pill Selector (Step 1) */
+.products-pill-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.product-pill-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 12px 14px;
+  background: #f8fafc;
+  border: 2px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.product-pill-card:hover {
+  border-color: var(--color-primary-light);
+  background: #ffffff;
+  transform: translateY(-1px);
+}
+
+.product-pill-card.active {
+  border-color: var(--color-accent-gold);
+  background: #fffdf5;
+  box-shadow: 0 0 0 3px rgba(229, 160, 36, 0.15);
+}
+
+.pill-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 6px;
+}
+
+.pill-emoji {
+  font-size: 22px;
+}
+
+.pill-name {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+  margin-bottom: 2px;
+}
+
+.pill-cat {
+  font-size: 11px;
+  color: #0f766e;
+  font-weight: 600;
+}
+
+.pill-target {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Products Choice Grid (Step 3) */
+.products-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.prod-choice-card {
+  padding: 14px;
+  border-radius: var(--radius-md);
+  border: 2px solid var(--border-subtle);
+  background: #f8fafc;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.prod-choice-card:hover {
+  border-color: var(--color-primary);
+  background: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.prod-choice-card.selected {
+  border-color: var(--color-accent-gold);
+  background: #fffdf7;
+  box-shadow: 0 0 0 3px rgba(229, 160, 36, 0.18);
+}
+
+.prod-choice-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.prod-choice-icon-wrap {
+  font-size: 24px;
+}
+
+.prod-radio-indicator {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e1;
+  background: #ffffff;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.prod-choice-card.selected .prod-radio-indicator {
+  border-color: var(--color-accent-gold);
+  background: var(--color-accent-gold);
+  box-shadow: inset 0 0 0 3px #ffffff;
+}
+
+.prod-choice-name {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+  margin: 0 0 4px;
+}
+
+.prod-choice-category {
+  font-size: 11px;
+  font-weight: 700;
+  color: #0f766e;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.prod-choice-age {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+.empty-packages-notice {
+  padding: 24px;
+  text-align: center;
+  background: #f8fafc;
+  border: 1px dashed var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  font-size: 13px;
 }
 
 .form-grid-3 {

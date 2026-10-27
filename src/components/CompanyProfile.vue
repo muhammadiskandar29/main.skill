@@ -401,7 +401,7 @@
                       <polyline points="12 5 19 12 12 19"></polyline>
                     </svg>
                   </button>
-                  <button @click="$emit('open-register')" class="btn-gold">
+                  <button @click="$emit('open-register', prog.id)" class="btn-gold">
                     <span>Daftar Program Ini</span>
                   </button>
                 </div>
@@ -478,7 +478,7 @@
             </ul>
 
             <div class="tier-footer">
-              <button @click="$emit('open-register')" class="btn-gold full-width">
+              <button @click="$emit('open-register', pkg.productId, pkg.id)" class="btn-gold full-width">
                 <span>Pilih Paket & Daftar</span>
               </button>
             </div>

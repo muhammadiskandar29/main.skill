@@ -634,6 +634,17 @@
               <span>Bayar Tagihan Ini via QRIS ({{ trx.formattedAmount || ('Rp ' + Number(trx.amount || 0).toLocaleString('id-ID')) }})</span>
             </button>
           </div>
+
+          <!-- Tombol Unduh Invoice Resmi jika sudah Lunas -->
+          <div v-else style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed #cbd5e1; display: flex; justify-content: flex-end;">
+            <button @click="downloadCustomerInvoice(trx)" class="btn-secondary" style="padding: 8px 16px; font-size: 12.5px; display: inline-flex; align-items: center; gap: 7px; color: #15803d; border-color: #86efac; background: #f0fdf4; font-weight: 700; cursor: pointer;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+              </svg>
+              <span>Unduh Tanda Terima / Invoice Ber-Cap LUNAS (PDF)</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -764,6 +775,7 @@ import { ref, computed } from 'vue';
 import { store } from '../data/store.js';
 import QRCode from 'qrcode';
 import { convertStaticQrisToDynamic } from '../utils/qris.js';
+import { generateInvoicePdf } from '../utils/invoicePdf.js';
 
 const props = defineProps({
   activeMenu: {
@@ -773,6 +785,15 @@ const props = defineProps({
 });
 
 defineEmits(['change-menu']);
+
+function downloadCustomerInvoice(trx) {
+  try {
+    const doc = generateInvoicePdf(trx, store.brand);
+    doc.save(`Invoice_${trx.id}_LUNAS.pdf`);
+  } catch (err) {
+    alert('Gagal mengunduh invoice: ' + err.message);
+  }
+}
 
 const showCustomerQris = ref(false);
 const qrisPayAmount = ref(500000);

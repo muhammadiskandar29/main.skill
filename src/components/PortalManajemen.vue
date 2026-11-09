@@ -1292,11 +1292,38 @@
                 <button 
                   v-if="!trx.status?.includes('Lunas')" 
                   @click="handleVerifyPayment(trx.id)" 
-                  class="btn-primary-xs"
+                  class="btn-primary-xs btn-verify-glow"
+                  title="Verifikasi Lunas, Otomatis Unduh PDF Resmi Ber-Cap LUNAS & Buka WA Wali Murid"
                 >
-                  Verifikasi Lunas
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span>Verifikasi Lunas</span>
                 </button>
-                <span v-else class="text-green" style="font-size: 12px; font-weight: 700;">✓ Lunas</span>
+                <div v-else class="paid-action-buttons">
+                  <span class="status-lunas-badge">✓ Lunas</span>
+                  <button 
+                    @click="downloadInvoice(trx)" 
+                    class="btn-invoice-action pdf" 
+                    title="Unduh Invoice PDF Ber-Cap LUNAS"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                    </svg>
+                    <span>PDF</span>
+                  </button>
+                  <button 
+                    @click="sendInvoiceWa(trx)" 
+                    class="btn-invoice-action wa" 
+                    title="Kirim Tanda Terima Resmi ke WhatsApp Wali Murid"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                    </svg>
+                    <span>WA</span>
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -2870,6 +2897,7 @@ import { uploadImage } from '../data/api.js';
 import QRCode from 'qrcode';
 import jsQR from 'jsqr';
 import { convertQRIS } from '../utils/qris.js';
+import { generateInvoicePdf, buildInvoiceWhatsAppUrl } from '../utils/invoicePdf.js';
 
 const props = defineProps({
   activeMenu: {
@@ -4264,8 +4292,52 @@ async function generateQrisPreview() {
 }
 
 async function handleVerifyPayment(invoiceId) {
-  await actions.verifyPayment(invoiceId);
-  showNotice(`Invoice ${invoiceId} berhasil diverifikasi Lunas!`);
+  try {
+    await actions.verifyPayment(invoiceId);
+    const trx = (store.transactions || []).find(t => t.id === invoiceId);
+
+    if (trx) {
+      // 1. Generate & auto-download official PDF invoice with red "LUNAS" stamp
+      try {
+        const doc = generateInvoicePdf(trx, store.brand);
+        doc.save(`Invoice_${trx.id}_LUNAS.pdf`);
+      } catch (pdfErr) {
+        console.warn('[PDF] Auto-download error:', pdfErr);
+      }
+
+      // 2. Open WhatsApp click-to-chat to customer / parent's phone number
+      if (trx.phone) {
+        const waUrl = buildInvoiceWhatsAppUrl(trx, store.brand);
+        window.open(waUrl, '_blank');
+      }
+
+      showNotice(`Invoice ${invoiceId} diverifikasi LUNAS! PDF ber-cap LUNAS terunduh dan WA disiapkan.`);
+    } else {
+      showNotice(`Invoice ${invoiceId} berhasil diverifikasi Lunas!`);
+    }
+  } catch (err) {
+    alert(err.message || 'Gagal memverifikasi pembayaran');
+  }
+}
+
+function downloadInvoice(trx) {
+  try {
+    const doc = generateInvoicePdf(trx, store.brand);
+    doc.save(`Invoice_${trx.id}_LUNAS.pdf`);
+    showNotice(`Invoice resmi ${trx.id} ber-cap LUNAS berhasil diunduh!`);
+  } catch (err) {
+    alert('Gagal mengunduh invoice PDF: ' + err.message);
+  }
+}
+
+function sendInvoiceWa(trx) {
+  if (!trx.phone) {
+    alert('Nomor telepon / WhatsApp wali murid tidak tersedia untuk invoice ini.');
+    return;
+  }
+  const waUrl = buildInvoiceWhatsAppUrl(trx, store.brand);
+  window.open(waUrl, '_blank');
+  showNotice(`Membuka WhatsApp untuk mengirim bukti pembayaran ke ${trx.parentName}...`);
 }
 
 onMounted(() => {
@@ -6144,5 +6216,80 @@ onMounted(() => {
   .modal-geo-summary {
     grid-template-columns: 1fr 1fr;
   }
+}
+
+/* Paid Action Buttons & Verified Glow */
+.btn-verify-glow {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: linear-gradient(135deg, #0d4d5d 0%, #10b981 100%);
+  color: #ffffff;
+  border: none;
+  font-weight: 700;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+  transition: all 0.2s ease;
+}
+
+.btn-verify-glow:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+}
+
+.paid-action-buttons {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.status-lunas-badge {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #15803d;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.btn-invoice-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 9px;
+  border-radius: 4px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.btn-invoice-action.pdf {
+  background: #eff6ff;
+  border-color: #bfdbfe;
+  color: #1d4ed8;
+}
+
+.btn-invoice-action.pdf:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  color: #1e40af;
+  transform: translateY(-1px);
+}
+
+.btn-invoice-action.wa {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+  color: #15803d;
+}
+
+.btn-invoice-action.wa:hover {
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #166534;
+  transform: translateY(-1px);
 }
 </style>

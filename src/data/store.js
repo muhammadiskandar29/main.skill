@@ -1435,6 +1435,7 @@ export const actions = {
   async updateStudent(id, patch) {
     const idx = (store.students || []).findIndex(s => s.id === id);
     if (idx > -1) {
+      const oldStudent = { ...store.students[idx] };
       if (patch.productId) {
         const prod = (store.products || []).find(p => p.id === patch.productId);
         if (prod) patch.productName = prod.name;
@@ -1448,6 +1449,53 @@ export const actions = {
         if (coach) patch.assignedCoachName = coach.name;
       }
       Object.assign(store.students[idx], patch);
+
+      // Cascade updates to transactions
+      if (Array.isArray(store.transactions)) {
+        store.transactions.forEach(trx => {
+          if (trx.studentId === id || trx.studentName === oldStudent.name) {
+            if (patch.name) trx.studentName = patch.name;
+            if (patch.parentName) trx.parentName = patch.parentName;
+            if (patch.phone) trx.phone = patch.phone;
+          }
+        });
+        persistLocalStore('transactions', store.transactions);
+      }
+
+      // Cascade updates to schedules
+      if (Array.isArray(store.schedules)) {
+        store.schedules.forEach(sch => {
+          if (sch.studentId === id || sch.studentName === oldStudent.name) {
+            if (patch.name) sch.studentName = patch.name;
+            if (patch.parentName) sch.parentName = patch.parentName;
+            if (patch.phone) sch.phone = patch.phone;
+            if (patch.location) sch.location = patch.location;
+          }
+        });
+        persistLocalStore('schedules', store.schedules);
+      }
+
+      // Cascade updates to user account (Wali Murid login)
+      if (Array.isArray(store.users)) {
+        const matchedUser = store.users.find(u => 
+          u.student_id === id || 
+          (u.email && u.email.toLowerCase() === (oldStudent.email || '').toLowerCase())
+        );
+        if (matchedUser) {
+          if (patch.parentName) matchedUser.name = patch.parentName;
+          if (patch.email) matchedUser.email = patch.email;
+          if (patch.phone) matchedUser.phone = patch.phone;
+          persistLocalStore('users', store.users);
+        }
+      }
+
+      // Cascade to active currentUser session if logged in as this customer
+      if (store.currentUser && (store.currentUser.student_id === id || store.currentUser.email === oldStudent.email)) {
+        if (patch.parentName) store.currentUser.name = patch.parentName;
+        if (patch.email) store.currentUser.email = patch.email;
+        if (patch.phone) store.currentUser.phone = patch.phone;
+      }
+
       persistLocalStore('students', store.students);
     }
 

@@ -176,9 +176,14 @@
                 <span class="badge-chip green">{{ stu.status }}</span>
               </td>
               <td class="text-right">
-                <button @click="openAssignCoachModal(stu)" class="btn-outline-primary-xs">
-                  Assign Coach
-                </button>
+                <div style="display: inline-flex; gap: 6px;">
+                  <button @click="openEditStudentModal(stu)" class="btn-secondary-xs" title="Edit Data Siswa & Wali">
+                    Edit
+                  </button>
+                  <button @click="openAssignCoachModal(stu)" class="btn-outline-primary-xs">
+                    Assign Coach
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -2160,73 +2165,168 @@
 
     <!-- 4. MODAL TAMBAH & EDIT SISWA -->
     <div v-if="showStudentModal" class="modal-backdrop" @click.self="showStudentModal = false">
-      <div class="modal-dialog">
+      <div class="modal-dialog modal-dialog-lg" style="max-width: 680px;">
         <div class="modal-header">
-          <h3 class="modal-title">{{ isEditStudent ? 'Edit Data Siswa' : 'Tambah Siswa Baru' }}</h3>
+          <div>
+            <span class="badge-chip teal">{{ isEditStudent ? 'Pembaruan Data Dinamis' : 'Pendaftaran Siswa Baru' }}</span>
+            <h3 class="modal-title">{{ isEditStudent ? 'Edit Data Siswa & Wali Murid' : 'Tambah Siswa Baru' }}</h3>
+          </div>
           <button class="btn-close" @click="showStudentModal = false">✕</button>
         </div>
-        <form @submit.prevent="handleSubmitStudent" class="modal-body">
-          <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label">Nama Lengkap Siswa <span class="required">*</span></label>
-              <input v-model="studentForm.name" type="text" class="form-input" placeholder="Nama ananda" required />
+        <form @submit.prevent="handleSubmitStudent" class="modal-body" style="max-height: 75vh; overflow-y: auto; padding: 22px;">
+          <!-- SECTION 1: DATA SISWA / ANAK -->
+          <div style="margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; border-bottom: 1.5px solid #e2e8f0; padding-bottom: 6px;">
+              <span style="font-size: 16px;">👦</span>
+              <strong style="font-size: 14px; color: var(--color-primary-dark); text-transform: uppercase; letter-spacing: 0.03em;">
+                1. Data Identitas Siswa (Ananda)
+              </strong>
             </div>
-            <div class="form-group">
-              <label class="form-label">Usia Siswa (Tahun) <span class="required">*</span></label>
-              <input v-model.number="studentForm.age" type="number" class="form-input" placeholder="Contoh: 7" required />
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Nama Lengkap Siswa <span class="required">*</span></label>
+                <input v-model="studentForm.name" type="text" class="form-input" placeholder="Nama lengkap ananda" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Nama Panggilan (Nickname)</label>
+                <input v-model="studentForm.nickname" type="text" class="form-input" placeholder="Contoh: Kenzo" />
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Usia Siswa (Tahun) <span class="required">*</span></label>
+                <input v-model.number="studentForm.age" type="number" min="1" max="60" class="form-input" placeholder="Contoh: 7" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Status Keaktifan Siswa</label>
+                <select v-model="studentForm.status" class="form-select">
+                  <option value="Aktif / Enrolled">🟢 Aktif / Enrolled</option>
+                  <option value="inactive">⚪ Nonaktif / Berhenti</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Kemampuan Awal Siswa</label>
+                <select v-model="studentForm.waterConfidence" class="form-select">
+                  <option value="Pemula Belum Mengapung">Pemula Belum Mengapung / Takut Air</option>
+                  <option value="Sudah Berani Masuk Air">Sudah Berani Masuk Air & Mengapung</option>
+                  <option value="Bisa Gaya Dada Dasar">Bisa Gaya Dada / Freestyle Dasar</option>
+                  <option value="Tingkat Lanjutan / Prestasi">Tingkat Lanjutan / Penguatan Fisik</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Catatan Medis / Alergi</label>
+                <input v-model="studentForm.medicalCondition" type="text" class="form-input" placeholder="Contoh: Asma ringan, alergi kaporit, atau Tidak ada" />
+              </div>
             </div>
           </div>
 
-          <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label">Nama Orang Tua / Wali <span class="required">*</span></label>
-              <input v-model="studentForm.parentName" type="text" class="form-input" placeholder="Nama ayah / bunda" required />
+          <!-- SECTION 2: DATA ORANG TUA / WALI MURID -->
+          <div style="margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; border-bottom: 1.5px solid #e2e8f0; padding-bottom: 6px;">
+              <span style="font-size: 16px;">👨‍👩‍👧</span>
+              <strong style="font-size: 14px; color: var(--color-primary-dark); text-transform: uppercase; letter-spacing: 0.03em;">
+                2. Data Orang Tua / Wali Murid
+              </strong>
             </div>
-            <div class="form-group">
-              <label class="form-label">Nomor WhatsApp Wali <span class="required">*</span></label>
-              <input v-model="studentForm.phone" type="tel" class="form-input" placeholder="08xxxxxxxx" required />
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Nama Orang Tua / Wali <span class="required">*</span></label>
+                <input v-model="studentForm.parentName" type="text" class="form-input" placeholder="Contoh: Bunda Sarah / Bapak Budi" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Nomor WhatsApp Aktif <span class="required">*</span></label>
+                <input v-model="studentForm.phone" type="tel" class="form-input" placeholder="08xxxxxxxx" required />
+                <span class="sub-cell-txt" style="font-size: 11px; color: var(--text-muted); margin-top: 3px;">
+                  *Nomor tujuan pengiriman otomatis Invoice PDF ber-cap LUNAS
+                </span>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Alamat Email Terdaftar</label>
+                <input v-model="studentForm.email" type="email" class="form-input" placeholder="nama@email.com" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Lokasi Cabang / Fasilitas Latihan</label>
+                <select v-model="studentForm.location" class="form-select">
+                  <option v-for="loc in (store.locations || [])" :key="loc.id" :value="loc.name">
+                    📍 {{ loc.name }} ({{ loc.city || 'Jabodetabek' }})
+                  </option>
+                  <option value="Kolam Graha Kresna Pratama Jatiwaringin">📍 Kolam Graha Kresna Pratama Jatiwaringin</option>
+                  <option value="Studio Tari Cempaka Putih">📍 Studio Tari Cempaka Putih</option>
+                </select>
+              </div>
             </div>
           </div>
 
-          <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label">Program Pilihan</label>
-              <select v-model="studentForm.productId" class="form-select" required>
-                <option v-for="p in store.products" :key="p.id" :value="p.id">{{ p.name }}</option>
-              </select>
+          <!-- SECTION 3: PROGRAM, PAKET & JADWAL -->
+          <div style="margin-bottom: 16px;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; border-bottom: 1.5px solid #e2e8f0; padding-bottom: 6px;">
+              <span style="font-size: 16px;">🏊</span>
+              <strong style="font-size: 14px; color: var(--color-primary-dark); text-transform: uppercase; letter-spacing: 0.03em;">
+                3. Program Kursus & Pendampingan Pelatih
+              </strong>
             </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Program Pilihan</label>
+                <select v-model="studentForm.productId" class="form-select" required>
+                  <option v-for="p in store.products" :key="p.id" :value="p.id">{{ p.name }}</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Paket Kursus</label>
+                <select v-model="studentForm.packageId" class="form-select" required>
+                  <option v-for="pkg in availablePackagesForSelectedProduct" :key="pkg.id" :value="pkg.id">
+                    {{ pkg.name }} — {{ pkg.formattedPrice }}
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Tugaskan Instruktur (Coach)</label>
+                <select v-model="studentForm.assignedCoachId" class="form-select">
+                  <option value="">Belum Ditugaskan</option>
+                  <option v-for="c in store.coaches" :key="c.id" :value="c.id">{{ c.name }}</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Pilihan Hari & Jam Rutin</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                  <select v-model="studentForm.preferredDay" class="form-select">
+                    <option value="Senin">Senin</option>
+                    <option value="Selasa">Selasa</option>
+                    <option value="Rabu">Rabu</option>
+                    <option value="Kamis">Kamis</option>
+                    <option value="Jumat">Jumat</option>
+                    <option value="Sabtu">Sabtu</option>
+                    <option value="Minggu">Minggu</option>
+                  </select>
+                  <input v-model="studentForm.preferredTime" type="text" class="form-input" placeholder="08:00 - 09:00" />
+                </div>
+              </div>
+            </div>
+
             <div class="form-group">
-              <label class="form-label">Paket Kursus</label>
-              <select v-model="studentForm.packageId" class="form-select" required>
-                <option v-for="pkg in availablePackagesForSelectedProduct" :key="pkg.id" :value="pkg.id">
-                  {{ pkg.name }} — {{ pkg.formattedPrice }}
-                </option>
-              </select>
+              <label class="form-label">Catatan Tambahan / Preferensi Khusus</label>
+              <textarea v-model="studentForm.notes" class="form-textarea" rows="2" placeholder="Catatan operasional atau kebutuhan khusus ananda..."></textarea>
             </div>
           </div>
 
-          <div class="form-grid">
-            <div class="form-group">
-              <label class="form-label">Tugaskan Instruktur (Coach)</label>
-              <select v-model="studentForm.assignedCoachId" class="form-select">
-                <option v-for="c in store.coaches" :key="c.id" :value="c.id">{{ c.name }}</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Jumlah Sesi Pendampingan</label>
-              <input v-model.number="studentForm.mappingLockSessions" type="number" class="form-input" placeholder="4" />
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label class="form-label">Catatan Tambahan / Alergi</label>
-            <textarea v-model="studentForm.notes" class="form-textarea" rows="2" placeholder="Kondisi kesehatan atau preferensi jadwal..."></textarea>
-          </div>
-
-          <div class="modal-footer">
+          <div class="modal-footer" style="padding-top: 14px; border-top: 1px solid #e2e8f0;">
             <button type="button" @click="showStudentModal = false" class="btn-secondary">Batal</button>
-            <button type="submit" class="btn-primary">
-              {{ isEditStudent ? 'Simpan Perubahan Siswa' : 'Daftarkan Siswa' }}
+            <button type="submit" class="btn-primary" style="padding: 10px 22px;">
+              {{ isEditStudent ? 'Simpan Perubahan Siswa & Wali Murid' : 'Daftarkan Siswa' }}
             </button>
           </div>
         </form>
@@ -3545,10 +3645,17 @@ function openAddStudentModal() {
   editingStudentId.value = null;
   studentForm.value = {
     name: '',
+    nickname: '',
     age: 7,
     parentName: '',
     phone: '',
     email: '',
+    location: (store.locations && store.locations[0]?.name) || 'Kolam Graha Kresna Pratama Jatiwaringin',
+    preferredDay: 'Sabtu',
+    preferredTime: '08:00 - 09:00',
+    waterConfidence: 'Pemula Belum Mengapung',
+    medicalCondition: 'Tidak ada',
+    status: 'Aktif / Enrolled',
     productId: store.products[0]?.id || 'prod_swimming',
     packageId: store.packages[0]?.id || 'pkg_swim_group',
     assignedCoachId: store.coaches[0]?.id || '',
@@ -3562,13 +3669,20 @@ function openEditStudentModal(stu) {
   isEditStudent.value = true;
   editingStudentId.value = stu.id;
   studentForm.value = {
-    name: stu.name,
-    age: stu.age,
-    parentName: stu.parentName,
-    phone: stu.phone,
+    name: stu.name || '',
+    nickname: stu.nickname || '',
+    age: stu.age || 7,
+    parentName: stu.parentName || '',
+    phone: stu.phone || '',
     email: stu.email || '',
-    productId: stu.productId || 'prod_swimming',
-    packageId: stu.packageId || 'pkg_swim_group',
+    location: stu.location || (store.locations && store.locations[0]?.name) || 'Kolam Graha Kresna Pratama Jatiwaringin',
+    preferredDay: stu.preferredDay || 'Sabtu',
+    preferredTime: stu.preferredTime || '08:00 - 09:00',
+    waterConfidence: stu.waterConfidence || 'Pemula Belum Mengapung',
+    medicalCondition: stu.medicalCondition || 'Tidak ada',
+    status: stu.status || 'Aktif / Enrolled',
+    productId: stu.productId || store.products[0]?.id || 'prod_swimming',
+    packageId: stu.packageId || store.packages[0]?.id || 'pkg_swim_group',
     assignedCoachId: stu.assignedCoachId || '',
     mappingLockSessions: stu.mappingLockSessions || 4,
     notes: stu.notes || ''
@@ -3580,10 +3694,10 @@ async function handleSubmitStudent() {
   try {
     if (isEditStudent.value && editingStudentId.value) {
       await actions.updateStudent(editingStudentId.value, studentForm.value);
-      showNotice('Data siswa berhasil diperbarui!');
+      showNotice(`✅ Data siswa "${studentForm.value.name}" & Wali Murid "${studentForm.value.parentName}" berhasil diperbarui secara dinamis!`);
     } else {
       await actions.addStudent(studentForm.value);
-      showNotice('Siswa baru berhasil didaftarkan dan 4 jadwal sesi otomatis digenerate!');
+      showNotice(`✅ Siswa baru "${studentForm.value.name}" berhasil didaftarkan dan jadwal sesi otomatis diterbitkan!`);
     }
     showStudentModal.value = false;
   } catch (err) {

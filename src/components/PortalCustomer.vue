@@ -19,6 +19,15 @@
               <span class="dot">•</span>
               <span>Paket: {{ studentData.packageType }}</span>
             </p>
+            <div style="margin-top: 8px;">
+              <button @click="openEditCustProfileModal" class="btn-edit-cust-profile" title="Ubah data profil siswa & kontak wali murid">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                <span>Edit Profil Siswa & Wali</span>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -767,12 +776,84 @@
         </div>
       </div>
     </div>
+
+    <!-- MODAL EDIT PROFIL SISWA & WALI OLEH CUSTOMER -->
+    <div v-if="showEditCustProfileModal" class="modal-backdrop" @click.self="showEditCustProfileModal = false">
+      <div class="modal-dialog" style="max-width: 540px;">
+        <div class="modal-header">
+          <div>
+            <span class="badge-chip gold">Profil Mandiri</span>
+            <h3 class="modal-title">Edit Profil Siswa & Wali Murid</h3>
+          </div>
+          <button class="btn-close" @click="showEditCustProfileModal = false">✕</button>
+        </div>
+        <form @submit.prevent="handleSaveCustProfile" class="modal-body" style="padding: 20px;">
+          <!-- Data Siswa -->
+          <div style="margin-bottom: 16px;">
+            <div style="font-size: 13px; font-weight: 800; color: var(--color-primary-dark); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+              <span>👦</span> Data Ananda (Siswa)
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Nama Lengkap Siswa <span class="required">*</span></label>
+                <input v-model="custProfileForm.name" type="text" class="form-input" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Nama Panggilan (Nickname)</label>
+                <input v-model="custProfileForm.nickname" type="text" class="form-input" placeholder="Contoh: Kenzo" />
+              </div>
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Usia Ananda (Tahun) <span class="required">*</span></label>
+                <input v-model.number="custProfileForm.age" type="number" min="1" max="40" class="form-input" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Catatan Medis / Alergi</label>
+                <input v-model="custProfileForm.medicalCondition" type="text" class="form-input" placeholder="Misal: Asma ringan, alergi kaporit, dll" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Data Orang Tua -->
+          <div style="margin-bottom: 16px; border-top: 1px solid #e2e8f0; padding-top: 14px;">
+            <div style="font-size: 13px; font-weight: 800; color: var(--color-primary-dark); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+              <span>👨‍👩‍👧</span> Data Orang Tua / Wali
+            </div>
+            <div class="form-grid">
+              <div class="form-group">
+                <label class="form-label">Nama Ayah / Bunda (Wali) <span class="required">*</span></label>
+                <input v-model="custProfileForm.parentName" type="text" class="form-input" required />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Nomor WhatsApp Aktif <span class="required">*</span></label>
+                <input v-model="custProfileForm.phone" type="tel" class="form-input" placeholder="08xxxxxxxx" required />
+                <span style="font-size: 10.5px; color: var(--text-muted); display: block; margin-top: 2px;">
+                  *Nomor tujuan kirim invoice PDF resmi ber-cap LUNAS & laporan coach
+                </span>
+              </div>
+            </div>
+            <div class="form-group" style="margin-top: 8px;">
+              <label class="form-label">Alamat Email Terdaftar</label>
+              <input v-model="custProfileForm.email" type="email" class="form-input" placeholder="email@gmail.com" />
+            </div>
+          </div>
+
+          <div class="modal-footer" style="padding-top: 12px; border-top: 1px solid #e2e8f0;">
+            <button type="button" @click="showEditCustProfileModal = false" class="btn-secondary">Batal</button>
+            <button type="submit" class="btn-primary" :disabled="isSavingCustProfile">
+              {{ isSavingCustProfile ? 'Menyimpan...' : 'Simpan Perubahan' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
 import { ref, computed } from 'vue';
-import { store } from '../data/store.js';
+import { store, actions } from '../data/store.js';
 import QRCode from 'qrcode';
 import { convertStaticQrisToDynamic } from '../utils/qris.js';
 import { generateInvoicePdf } from '../utils/invoicePdf.js';
@@ -799,6 +880,47 @@ const showCustomerQris = ref(false);
 const qrisPayAmount = ref(500000);
 const custQrisDataUrl = ref('');
 const copiedBankId = ref('');
+
+// CUSTOMER EDIT PROFILE (SISWA & WALI MURID)
+const showEditCustProfileModal = ref(false);
+const isSavingCustProfile = ref(false);
+const custProfileForm = ref({
+  name: '',
+  nickname: '',
+  age: 7,
+  parentName: '',
+  phone: '',
+  email: '',
+  medicalCondition: ''
+});
+
+function openEditCustProfileModal() {
+  const current = studentData.value;
+  custProfileForm.value = {
+    name: current.name || '',
+    nickname: current.nickname || current.name?.split(' ')[0] || '',
+    age: current.age || 7,
+    parentName: current.parentName || '',
+    phone: current.phone || '',
+    email: current.email || (store.currentUser?.email || ''),
+    medicalCondition: current.medicalCondition || ''
+  };
+  showEditCustProfileModal.value = true;
+}
+
+async function handleSaveCustProfile() {
+  if (!studentData.value?.id) return;
+  isSavingCustProfile.value = true;
+  try {
+    await actions.updateStudent(studentData.value.id, custProfileForm.value);
+    showEditCustProfileModal.value = false;
+    alert('✅ Profil ananda & kontak wali murid berhasil diperbarui secara dinamis!');
+  } catch (err) {
+    alert(err.message || 'Gagal memperbarui profil');
+  } finally {
+    isSavingCustProfile.value = false;
+  }
+}
 
 function copyBankAcc(accNum, bankName) {
   if (navigator?.clipboard?.writeText) {
@@ -2363,5 +2485,28 @@ function printReport() {
   .assessment-indicators-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.btn-edit-cust-profile {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(13, 77, 93, 0.08);
+  border: 1px solid rgba(13, 77, 93, 0.2);
+  color: var(--color-primary-dark, #09343f);
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-edit-cust-profile:hover {
+  background: var(--color-primary, #0d4d5d);
+  color: #ffffff;
+  border-color: var(--color-primary, #0d4d5d);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(13, 77, 93, 0.15);
 }
 </style>

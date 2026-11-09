@@ -517,6 +517,48 @@ export async function updateStudent(id, patch) {
 
   const updated = { ...existing, ...patch };
   await upsertRecord('students', id, updated);
+
+  const sql = getSql();
+  if (sql) {
+    try {
+      // 1. Cascade to student_schedules
+      if (patch.name || patch.parentName || patch.phone || patch.location) {
+        const scheds = await queryTable('student_schedules', `WHERE data->>'studentId' = $1`, [id]);
+        for (const sch of scheds) {
+          if (patch.name) sch.studentName = patch.name;
+          if (patch.parentName) sch.parentName = patch.parentName;
+          if (patch.phone) sch.phone = patch.phone;
+          if (patch.location) sch.location = patch.location;
+          await upsertRecord('student_schedules', sch.id, sch);
+        }
+      }
+
+      // 2. Cascade to transactions
+      if (patch.name || patch.parentName || patch.phone) {
+        const trxs = await queryTable('transactions', `WHERE data->>'studentId' = $1 OR data->>'studentName' = $2`, [id, existing.name]);
+        for (const trx of trxs) {
+          if (patch.name) trx.studentName = patch.name;
+          if (patch.parentName) trx.parentName = patch.parentName;
+          if (patch.phone) trx.phone = patch.phone;
+          await upsertRecord('transactions', trx.id, trx);
+        }
+      }
+
+      // 3. Cascade to parent user account
+      if (patch.parentName || patch.phone || patch.email) {
+        const users = await queryTable('users', `WHERE data->>'student_id' = $1 OR LOWER(data->>'email') = LOWER($2)`, [id, existing.email || '']);
+        for (const u of users) {
+          if (patch.parentName) u.name = patch.parentName;
+          if (patch.phone) u.phone = patch.phone;
+          if (patch.email) u.email = patch.email;
+          await upsertRecord('users', u.id, u);
+        }
+      }
+    } catch (e) {
+      console.warn('[Neon DB] cascade error in updateStudent:', e.message);
+    }
+  }
+
   return updated;
 }
 

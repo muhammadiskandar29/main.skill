@@ -690,7 +690,7 @@ export async function registerCustomerFlow({
     assignedCoachName: assignedCoach?.name || 'Coach Dimas Prasetyo, S.Or.',
     mappingLockSessions: 4,
     sessionsCompletedWithCoach: 0,
-    mappingStatus: 'Terkunci (4 Sesi Terikat)',
+    mappingStatus: `Didampingi ${assignedCoach?.name || 'Coach Adit'} (4 Sesi)`,
     location: location || 'Kolam Graha Kresna Pratama, Jatiwaringin',
     currentLevel: 1,
     currentLevelTitle: 'Level 1: Water Explorer',
@@ -807,6 +807,10 @@ export async function loginUser(email, password) {
 
   if (!user) {
     return { success: false, message: 'Email tidak ditemukan.' };
+  }
+
+  if (user.status === 'inactive' || user.status === 'Nonaktif' || user.status === 'Nonaktif / Diberhentikan') {
+    return { success: false, message: 'Akun Anda dinonaktifkan sementara. Silakan hubungi tim administrasi manajemen.' };
   }
 
   if (password === '123' || user.password === password) {

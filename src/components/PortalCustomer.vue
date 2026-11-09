@@ -118,7 +118,7 @@
                     📍 Sedang Ditempuh (75%)
                   </span>
                   <span v-else class="text-muted">
-                    Terkunci
+                    Belum Terbuka
                   </span>
                 </div>
               </div>
@@ -400,7 +400,7 @@
               </span>
               <strong class="step-name">{{ lvl.title }}</strong>
               <span class="step-status">
-                {{ currentStudentLevel > lvl.levelNumber ? 'Lulus & Tersertifikasi' : (currentStudentLevel === lvl.levelNumber ? 'Sedang Berlangsung' : 'Terkunci') }}
+                {{ currentStudentLevel > lvl.levelNumber ? 'Lulus & Tersertifikasi' : (currentStudentLevel === lvl.levelNumber ? 'Sedang Berlangsung' : 'Belum Terbuka') }}
               </span>
               <p v-if="lvl.focus" class="step-focus-text">{{ lvl.focus }}</p>
             </div>
@@ -492,7 +492,7 @@
           class="schedule-card card-humanist"
         >
           <div class="sch-badge-row">
-            <span class="badge-chip" :class="sch.status.includes('Selesai') ? 'green' : 'gold'">
+            <span class="badge-chip" :class="sch.status.includes('Selesai') ? 'green' : (sch.status.includes('Mendatang') ? 'teal' : 'gold')">
               Sesi Ke-{{ sch.sessionNo }} ({{ sch.status }})
             </span>
             <span class="sch-date">{{ sch.date }}</span>
@@ -501,16 +501,19 @@
           <p class="sch-program">{{ studentData.program }} • {{ studentData.packageType }}</p>
           <div class="sch-meta">
             <div class="meta-row">
-              <span class="lbl">Coach Pembimbing:</span>
-              <strong class="val">{{ sch.coach || studentData.assignedCoachName }}</strong>
+              <span class="lbl">Pelatih Pendamping:</span>
+              <strong class="val">{{ sch.coachName || sch.coach || studentData.assignedCoachName }}</strong>
+              <span v-if="sch.isSubstitute" class="badge-chip gold mini" style="font-size: 10px; margin-left: 6px;">
+                Coach Pengganti ({{ sch.substituteReason || 'Tugas Khusus' }})
+              </span>
             </div>
             <div class="meta-row">
               <span class="lbl">Lokasi:</span>
-              <span class="val">{{ studentData.location }}</span>
+              <span class="val">{{ sch.location || studentData.location }}</span>
             </div>
           </div>
           <div class="sch-preparation">
-            <strong>Persiapan:</strong> Hadir 10 menit sebelum sesi, bawa kacamata renang & pakaian renang standar.
+            <strong>Aturan Izin:</strong> Konfirmasi berhalangan hadir wajib disampaikan maksimal 24 jam sebelum sesi dimulai agar hak sesi pengganti (make-up class) tidak hangus.
           </div>
         </div>
       </div>
@@ -577,30 +580,59 @@
         </button>
       </div>
 
-      <div class="billing-card card-humanist">
-        <div class="billing-header">
-          <div>
-            <span class="badge-chip green">Lunas (Paket Aktif)</span>
-            <h3 class="billing-pkg">{{ studentData.packageType }} (4x Pertemuan)</h3>
-            <span class="billing-inv">No. Invoice: INV-MS-202610-044</span>
-          </div>
-          <div class="billing-total">
-            <span class="lbl">Total Dibayarkan</span>
-            <strong class="val">Rp 500.000</strong>
-          </div>
+      <!-- Banner Kuota Sesi Selesai / Perlu Perpanjangan -->
+      <div v-if="studentData.completedSessions >= studentData.packageTotalSessions" class="renewal-alert-banner" style="background: linear-gradient(135deg, #fef3c7, #fef9c3); border: 1.5px solid #fde047; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
+        <div>
+          <span class="badge-chip gold" style="font-size: 11px; margin-bottom: 4px;">Paket Sesi Tuntas ({{ studentData.completedSessions }}/{{ studentData.packageTotalSessions }} Pertemuan)</span>
+          <h4 style="font-size: 16px; font-weight: 800; color: #854d0e; margin: 4px 0 2px;">Ananda telah menyelesaikan paket latihan sebelumnya! 🎉</h4>
+          <p style="font-size: 13px; color: #713f12; margin: 0;">Tagihan perpanjangan paket baru telah disiapkan oleh admin. Silakan bayar tagihan di bawah agar sesi latihan lanjutan dapat segera dimulai.</p>
         </div>
-        <div class="billing-details">
-          <div class="b-row">
-            <span>Sesi Terpakai:</span>
-            <strong>{{ studentData.completedSessions }} dari {{ studentData.packageTotalSessions }} Sesi</strong>
+      </div>
+
+      <!-- Daftar Invoice & Status Paket Siswa -->
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        <div 
+          v-for="trx in studentTransactions" 
+          :key="trx.id"
+          class="billing-card card-humanist"
+        >
+          <div class="billing-header">
+            <div>
+              <span class="badge-chip" :class="trx.status.includes('Lunas') ? 'green' : 'gold'">
+                {{ trx.status }}
+              </span>
+              <h3 class="billing-pkg">{{ trx.packageName || studentData.packageType }}</h3>
+              <span class="billing-inv">No. Invoice: {{ trx.id }}</span>
+            </div>
+            <div class="billing-total">
+              <span class="lbl">Total Tagihan</span>
+              <strong class="val">{{ trx.formattedAmount || ('Rp ' + Number(trx.amount || 0).toLocaleString('id-ID')) }}</strong>
+            </div>
           </div>
-          <div class="b-row">
-            <span>Sisa Pertemuan:</span>
-            <strong>{{ studentData.packageTotalSessions - studentData.completedSessions }} Sesi Terikat ke {{ studentData.assignedCoachName }}</strong>
+          <div class="billing-details">
+            <div class="b-row">
+              <span>Sesi Terpakai:</span>
+              <strong>{{ studentData.completedSessions }} dari {{ studentData.packageTotalSessions }} Sesi</strong>
+            </div>
+            <div class="b-row">
+              <span>Sisa Pertemuan:</span>
+              <strong>{{ Math.max(0, studentData.packageTotalSessions - studentData.completedSessions) }} Sesi (Didampingi {{ studentData.assignedCoachName }})</strong>
+            </div>
+            <div class="b-row">
+              <span>Metode Pembayaran:</span>
+              <span>{{ trx.paymentMethodName || 'QRIS Dinamis ASPI' }}</span>
+            </div>
           </div>
-          <div class="b-row">
-            <span>Metode Pembayaran:</span>
-            <span>QRIS Dinamis ASPI (Terverifikasi Otomatis)</span>
+
+          <!-- Tombol Bayar jika status Menunggu Pembayaran -->
+          <div v-if="!trx.status.includes('Lunas')" style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed #cbd5e1; display: flex; justify-content: flex-end;">
+            <button @click="openQrisModal(trx.amount, trx.packageName)" class="btn-primary" style="padding: 9px 18px; font-size: 13px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="4" width="20" height="16" rx="2"></rect>
+                <line x1="2" y1="10" x2="22" y2="10"></line>
+              </svg>
+              <span>Bayar Tagihan Ini via QRIS ({{ trx.formattedAmount || ('Rp ' + Number(trx.amount || 0).toLocaleString('id-ID')) }})</span>
+            </button>
           </div>
         </div>
       </div>
@@ -691,7 +723,7 @@
             <div class="quest-hero-meta">
               <h4 class="quest-hero-title">{{ selectedQuestLevel.title }}</h4>
               <span class="badge-chip" :class="currentStudentLevel > selectedQuestLevel.levelNumber ? 'green' : (currentStudentLevel === selectedQuestLevel.levelNumber ? 'gold' : 'teal')">
-                {{ currentStudentLevel > selectedQuestLevel.levelNumber ? '✓ Lulus & Memperoleh Sertifikat' : (currentStudentLevel === selectedQuestLevel.levelNumber ? 'Sedang Ditempuh (Sesi Aktif)' : 'Terkunci (Level Berikutnya)') }}
+                {{ currentStudentLevel > selectedQuestLevel.levelNumber ? '✓ Lulus & Memperoleh Sertifikat' : (currentStudentLevel === selectedQuestLevel.levelNumber ? 'Sedang Ditempuh (Sesi Aktif)' : 'Belum Terbuka (Level Berikutnya)') }}
               </span>
             </div>
           </div>
@@ -805,6 +837,14 @@ const studentData = computed(() => {
     memberSchedules: [],
     sessionReports: []
   };
+});
+
+const studentTransactions = computed(() => {
+  const sId = studentData.value?.id;
+  const sName = studentData.value?.name;
+  const all = store.transactions || [];
+  const filtered = all.filter(t => (sId && t.studentId === sId) || (sName && t.studentName?.toLowerCase() === sName.toLowerCase()));
+  return filtered.length > 0 ? filtered : all.slice(0, 2);
 });
 
 const activeProduct = computed(() => {

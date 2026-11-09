@@ -40,7 +40,7 @@
           <div class="metric-data">
             <span class="metric-lbl">Total Siswa Terbina</span>
             <strong class="metric-val">{{ store.students.length }} Siswa</strong>
-            <span class="metric-sub text-green">100% Memiliki Pelatih Terikat</span>
+            <span class="metric-sub text-green">100% Memiliki Pelatih Pendamping</span>
           </div>
         </div>
 
@@ -147,7 +147,7 @@
               <th>Nama Siswa & Usia</th>
               <th>Nama Orang Tua / Wali</th>
               <th>Program & Paket</th>
-              <th>Instruktur Terikat</th>
+              <th>Pelatih Pendamping</th>
               <th>Status</th>
               <th class="text-right">Aksi</th>
             </tr>
@@ -507,7 +507,9 @@
             <img :src="c.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240'" :alt="c.name" class="c-avatar" />
             <div class="c-title-area">
               <h3 class="c-name">{{ c.name }}</h3>
-              <span class="badge-chip green">Akun Login Aktif (123)</span>
+              <span :class="['badge-chip', c.status === 'inactive' ? 'gray' : 'green']">
+                {{ c.status === 'inactive' ? '⚪ Nonaktif / Berhenti' : '🟢 Akun Login Aktif (123)' }}
+              </span>
             </div>
           </div>
 
@@ -536,6 +538,9 @@
             <button @click="openEditCoachModal(c)" class="btn-secondary-sm">
               Edit Data
             </button>
+            <button @click="handleToggleCoach(c.id)" :class="c.status === 'inactive' ? 'btn-success-sm' : 'btn-warning-sm'">
+              {{ c.status === 'inactive' ? 'Aktifkan Kembali' : 'Nonaktifkan' }}
+            </button>
             <button @click="handleDeleteCoach(c.id)" class="btn-danger-sm">
               Hapus
             </button>
@@ -552,7 +557,7 @@
         <div>
           <span class="badge-chip green">Data Akademik & Siswa</span>
           <h2 class="page-title">Data Siswa & Wali Murid</h2>
-          <p class="page-sub">Kelola identitas siswa, nama orang tua, penugasan instruktur terikat, dan 4 sesi latihan berkala.</p>
+          <p class="page-sub">Kelola data siswa, orang tua, pendampingan pelatih rutin, perpanjangan paket 4 sesi, dan status keaktifan.</p>
         </div>
         <button @click="openAddStudentModal" class="btn-primary">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -577,8 +582,15 @@
             class="input-search-clean" 
           />
         </div>
-        <div class="filter-count">
-          <span>Menampilkan {{ filteredStudents.length }} dari {{ store.students.length }} siswa</span>
+        <div style="display: flex; align-items: center; gap: 10px;">
+          <select v-model="studentStatusFilter" class="form-select filter-select" style="min-width: 150px; font-size: 13px;">
+            <option value="all">Semua Siswa</option>
+            <option value="active">🟢 Siswa Aktif</option>
+            <option value="inactive">⚪ Nonaktif / Berhenti</option>
+          </select>
+          <div class="filter-count">
+            <span>{{ filteredStudents.length }} dari {{ store.students.length }} siswa</span>
+          </div>
         </div>
       </div>
 
@@ -590,7 +602,7 @@
               <th>Identitas Siswa & Usia</th>
               <th>Nama Orang Tua / Wali</th>
               <th>Program & Paket</th>
-              <th>Pelatih Terikat & Status Ikatan</th>
+              <th>Pelatih Pendamping</th>
               <th>Jadwal Sesi</th>
               <th class="text-right">Aksi Manajemen</th>
             </tr>
@@ -602,6 +614,9 @@
                   <div style="display: flex; align-items: center; gap: 6px;">
                     <strong>{{ stu.name }}</strong>
                     <span v-if="stu.nickname" class="badge-chip gold mini" style="font-size: 10px; padding: 1px 6px;">{{ stu.nickname }}</span>
+                    <span :class="['badge-chip', stu.status === 'inactive' ? 'gray' : 'green', 'mini']" style="font-size: 10px; padding: 1px 6px;">
+                      {{ stu.status === 'inactive' ? '⚪ Nonaktif' : '🟢 Aktif' }}
+                    </span>
                   </div>
                   <span class="sub-cell-txt">{{ stu.age }} Tahun • Bergabung: {{ stu.joinedDate }}</span>
                   <div v-if="stu.location" class="sub-cell-txt" style="margin-top: 2px; color: var(--color-primary);">
@@ -632,7 +647,7 @@
                 <div class="coach-lock-status">
                   <strong>{{ stu.assignedCoachName || 'Belum di-assign' }}</strong>
                   <span class="badge-chip gold" style="font-size: 10.5px; margin-top: 2px;">
-                    {{ stu.mappingStatus || 'Terkunci 4 Sesi' }}
+                    {{ stu.mappingStatus || 'Didampingi (4 Sesi)' }}
                   </span>
                 </div>
               </td>
@@ -644,8 +659,14 @@
               </td>
               <td class="text-right">
                 <div class="table-actions-cluster">
+                  <button @click="openRenewModal(stu)" class="btn-success-xs" title="Perpanjang 4 Sesi & Terbitkan Tagihan Baru">
+                    🔄 Perpanjang
+                  </button>
                   <button @click="openAssignCoachModal(stu)" class="btn-primary-xs" title="Tugaskan / Ganti Pelatih">
-                    Assign Pelatih
+                    Ganti Pelatih
+                  </button>
+                  <button @click="handleToggleStudentStatus(stu)" :class="stu.status === 'inactive' ? 'btn-secondary-xs' : 'btn-warning-xs'" :title="stu.status === 'inactive' ? 'Aktifkan Siswa' : 'Nonaktifkan Siswa'">
+                    {{ stu.status === 'inactive' ? 'Aktifkan' : 'Nonaktif' }}
                   </button>
                   <button @click="openEditStudentModal(stu)" class="btn-secondary-xs" title="Edit Data Siswa">
                     Edit
@@ -783,6 +804,11 @@
               </td>
               <td>
                 <strong>{{ sch.coachName }}</strong>
+                <div v-if="sch.isSubstitute" style="margin-top: 4px;">
+                  <span class="badge-chip gold mini" style="font-size: 10px; padding: 1px 6px;">🔄 Coach Pengganti</span>
+                  <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Utama: {{ sch.originalCoachName }}</div>
+                  <div v-if="sch.substituteReason" style="font-size: 10.5px; font-style: italic; color: var(--text-muted);">"{{ sch.substituteReason }}"</div>
+                </div>
               </td>
               <td>
                 <span 
@@ -813,9 +839,16 @@
                     Presensi & Nilai
                   </button>
                   <button 
+                    @click="openSubstituteCoachModal(sch)" 
+                    class="btn-warning-xs"
+                    title="Tugaskan Coach Pengganti Khusus Sesi Ini"
+                  >
+                    Ganti Coach
+                  </button>
+                  <button 
                     @click="openRescheduleModal(sch)" 
                     class="btn-secondary-xs"
-                    title="Ubah Tanggal, Waktu atau Pelatih"
+                    title="Ubah Tanggal, Waktu atau Lokasi"
                   >
                     Reschedule
                   </button>
@@ -1610,6 +1643,78 @@
             </div>
           </form>
         </div>
+
+        <!-- FAQ CMS MANAGEMENT CARD -->
+        <div class="card-humanist website-config-card">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <div>
+              <span class="badge-chip gold mini">FAQ Dinamis CMS</span>
+              <h3 class="form-section-title" style="margin: 4px 0 0 0;">Daftar Pertanyaan Umum (FAQ)</h3>
+              <p style="font-size: 12px; color: var(--text-muted); margin: 2px 0 0 0;">
+                Atur FAQ publik website, termasuk ketentuan konfirmasi izin minimal 24 jam sebelum latihan.
+              </p>
+            </div>
+            <button v-if="isEditFaq" @click="resetFaqForm" class="btn-secondary-xs">
+              + Batal Edit / Tambah Baru
+            </button>
+          </div>
+
+          <!-- FAQ Form -->
+          <form @submit.prevent="handleSaveFaq" class="faq-form-box" style="background: var(--bg-surface); padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px;">
+            <h4 style="font-size: 13px; font-weight: 700; margin: 0 0 12px 0; color: var(--color-primary);">
+              {{ isEditFaq ? '✏️ Edit Pertanyaan FAQ' : '➕ Tambah Pertanyaan FAQ Baru' }}
+            </h4>
+            <div class="form-group">
+              <label class="form-label">Kategori FAQ</label>
+              <select v-model="faqForm.category" class="form-select">
+                <option value="Operasional">Operasional & Jadwal</option>
+                <option value="Izin & Reschedule">Izin & Reschedule</option>
+                <option value="Pelatih & Kurikulum">Pelatih & Kurikulum</option>
+                <option value="Biaya & Paket">Biaya & Pembayaran</option>
+                <option value="Fasilitas & Keamanan">Fasilitas & Keamanan</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Pertanyaan <span class="required">*</span></label>
+              <input v-model="faqForm.question" type="text" class="form-input" placeholder="Contoh: Bagaimana jika murid berhalangan hadir?" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Jawaban Penjelasan <span class="required">*</span></label>
+              <textarea v-model="faqForm.answer" class="form-textarea" rows="3" placeholder="Tuliskan jawaban yang ramah dan jelas..." required></textarea>
+            </div>
+            <div style="display: flex; gap: 8px; justify-content: flex-end;">
+              <button v-if="isEditFaq" type="button" @click="resetFaqForm" class="btn-secondary-sm">Batal</button>
+              <button type="submit" class="btn-primary-sm">
+                {{ isEditFaq ? 'Simpan Perubahan FAQ' : 'Publikasikan FAQ' }}
+              </button>
+            </div>
+          </form>
+
+          <!-- FAQ Items List -->
+          <div class="faq-items-list" style="display: flex; flex-direction: column; gap: 10px;">
+            <div 
+              v-for="f in store.faqs" 
+              :key="f.id" 
+              class="faq-item-row"
+              style="padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.03); display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;"
+            >
+              <div style="flex: 1;">
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                  <span class="badge-chip teal mini" style="font-size: 10px; padding: 1px 6px;">{{ f.category || 'FAQ' }}</span>
+                  <strong style="font-size: 13.5px;">{{ f.question }}</strong>
+                </div>
+                <p style="font-size: 12px; color: var(--text-muted); margin: 0; line-height: 1.5;">{{ f.answer }}</p>
+              </div>
+              <div style="display: flex; gap: 6px; flex-shrink: 0;">
+                <button type="button" @click="handleEditFaq(f)" class="btn-secondary-xs" title="Edit FAQ">Edit</button>
+                <button type="button" @click="handleDeleteFaq(f.id)" class="btn-danger-xs" title="Hapus FAQ">Hapus</button>
+              </div>
+            </div>
+            <div v-if="!store.faqs || store.faqs.length === 0" style="text-align: center; padding: 20px; color: var(--text-muted); font-size: 13px;">
+              Belum ada pertanyaan FAQ. Tambahkan melalui form di atas.
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -1646,7 +1751,21 @@
                 </span>
               </td>
               <td><span class="badge-chip gold">123</span></td>
-              <td><span class="badge-chip green">Aktif</span></td>
+              <td>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span :class="['badge-chip', u.status === 'inactive' ? 'gray' : 'green']">
+                    {{ u.status === 'inactive' ? '⚪ Nonaktif' : '🟢 Aktif' }}
+                  </span>
+                  <button 
+                    v-if="u.id !== store.currentUser.id" 
+                    @click="actions.toggleUserStatus(u.id)" 
+                    class="btn-secondary-xs"
+                    style="padding: 2px 8px; font-size: 11px;"
+                  >
+                    {{ u.status === 'inactive' ? 'Aktifkan' : 'Nonaktifkan' }}
+                  </button>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -2067,7 +2186,7 @@
               </select>
             </div>
             <div class="form-group">
-              <label class="form-label">Jumlah Sesi Mengikat</label>
+              <label class="form-label">Jumlah Sesi Pendampingan</label>
               <input v-model.number="studentForm.mappingLockSessions" type="number" class="form-input" placeholder="4" />
             </div>
           </div>
@@ -2087,11 +2206,11 @@
       </div>
     </div>
 
-    <!-- 5. MODAL ASSIGN PELATIH KE SISWA (WITH SESSION LOCK) -->
+    <!-- 5. MODAL ASSIGN PELATIH KE SISWA (WITH SESSION PENDAMPINGAN) -->
     <div v-if="showAssignCoachModalFlag" class="modal-backdrop" @click.self="showAssignCoachModalFlag = false">
       <div class="modal-dialog">
         <div class="modal-header">
-          <h3 class="modal-title">Penugasan Instruktur untuk Siswa</h3>
+          <h3 class="modal-title">Penugasan Pelatih Pendamping Siswa</h3>
           <button class="btn-close" @click="showAssignCoachModalFlag = false">✕</button>
         </div>
         <form @submit.prevent="handleSaveCoachAssignment" class="modal-body">
@@ -2112,18 +2231,18 @@
           </div>
 
           <div class="form-group">
-            <label class="form-label">Durasi Ikatan Sesi Latihan</label>
+            <label class="form-label">Periode Pendampingan Belajar</label>
             <select v-model.number="assignmentForm.lockSessions" class="form-select">
-              <option :value="4">4 Sesi Mengikat (Paket Reguler Bulanan)</option>
-              <option :value="8">8 Sesi Mengikat (Paket 2 Bulan)</option>
-              <option :value="12">12 Sesi Mengikat (Paket Kuartal)</option>
+              <option :value="4">4 Sesi Pendampingan Rutin (Paket Reguler Bulanan)</option>
+              <option :value="8">8 Sesi Pendampingan Rutin (Paket 2 Bulan)</option>
+              <option :value="12">12 Sesi Pendampingan Rutin (Paket Kuartal)</option>
             </select>
-            <span class="form-hint">Pelatih ini akan mengajar secara konsisten selama jumlah sesi yang dipilih.</span>
+            <span class="form-hint">Pelatih ini akan mendampingi siswa secara konsisten selama jumlah sesi yang dipilih.</span>
           </div>
 
           <div class="modal-footer">
             <button type="button" @click="showAssignCoachModalFlag = false" class="btn-secondary">Batal</button>
-            <button type="submit" class="btn-primary">Tugaskan Instruktur</button>
+            <button type="submit" class="btn-primary">Tugaskan Pelatih</button>
           </div>
         </form>
       </div>
@@ -2148,7 +2267,7 @@
               <strong>{{ activeStudentForSchedules?.productName || 'Skill Renang' }}</strong>
             </div>
             <div class="summary-col">
-              <span class="summary-lbl">Instruktur Terikat:</span>
+              <span class="summary-lbl">Pelatih Pendamping:</span>
               <strong>{{ activeStudentForSchedules?.assignedCoachName || 'Belum Ditugaskan' }}</strong>
             </div>
             <div class="summary-col">
@@ -2537,6 +2656,205 @@
             <button type="button" @click="showBankModal = false" class="btn-secondary">Batal</button>
             <button type="submit" class="btn-primary">
               {{ bankModalMode === 'create' ? 'Simpan Rekening Baru' : 'Perbarui Rekening' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 9. MODAL: PERPANJANG PAKET SISWA (MANUAL RENEWAL FLOW) -->
+    <div v-if="showRenewModal" class="modal-backdrop" @click.self="showRenewModal = false">
+      <div class="modal-dialog modal-md">
+        <div class="modal-header">
+          <div class="modal-header-info">
+            <span class="badge-chip gold">Perpanjangan Paket 4 Sesi</span>
+            <h3 class="modal-title">Perpanjang Sesi Belajar: {{ activeStudentForRenew?.name }}</h3>
+          </div>
+          <button class="btn-close" @click="showRenewModal = false">✕</button>
+        </div>
+
+        <div v-if="renewSuccessResult" class="modal-body">
+          <div class="alert-success-box" style="padding: 16px; border-radius: 12px; background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.3); text-align: center; margin-bottom: 16px;">
+            <div style="font-size: 28px; margin-bottom: 8px;">🎉</div>
+            <h4 style="margin: 0 0 6px 0; color: var(--color-success); font-size: 16px;">Perpanjangan Berhasil Dibuat!</h4>
+            <p style="font-size: 13px; color: var(--text-muted); margin: 0;">
+              Tagihan baru <strong>{{ renewSuccessResult.transaction?.invoiceNumber }}</strong> telah diterbitkan dan 4 sesi lanjutan (Sesi {{ (activeStudentForRenew?.memberSchedules || []).length - 3 }} - {{ (activeStudentForRenew?.memberSchedules || []).length }}) telah dimasukkan ke jadwal siswa.
+            </p>
+          </div>
+
+          <div class="renew-summary-card card-humanist" style="padding: 16px; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+              <span style="color: var(--text-muted); font-size: 13px;">Nominal Tagihan:</span>
+              <strong style="color: var(--color-primary); font-size: 15px;">Rp {{ (renewSuccessResult.transaction?.amount || 0).toLocaleString('id-ID') }}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+              <span style="color: var(--text-muted); font-size: 13px;">Pelatih Pendamping:</span>
+              <strong>{{ renewSuccessResult.student?.assignedCoachName }}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: var(--text-muted); font-size: 13px;">Status Pembayaran:</span>
+              <span class="badge-chip gold mini">Menunggu Pembayaran</span>
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 10px;">
+            <a 
+              :href="actions.buildWhatsAppUrl(activeStudentForRenew, 'renewal')" 
+              target="_blank" 
+              class="btn-primary" 
+              style="display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none;"
+            >
+              <span>Kirim Tagihan & Jadwal ke WhatsApp Wali Murid</span>
+              <span>↗</span>
+            </a>
+            <button type="button" @click="showRenewModal = false" class="btn-secondary">
+              Tutup Modal
+            </button>
+          </div>
+        </div>
+
+        <form v-else @submit.prevent="handleSubmitRenew" class="modal-body">
+          <div class="assign-student-info card-humanist" style="margin-bottom: 16px;">
+            <span class="badge-chip teal">{{ activeStudentForRenew?.productName || 'Program' }}</span>
+            <h4 class="m-stu-name">{{ activeStudentForRenew?.name }} ({{ activeStudentForRenew?.age }} th)</h4>
+            <span class="m-parent">Wali: {{ activeStudentForRenew?.parentName }} • {{ activeStudentForRenew?.phone }}</span>
+            <div style="margin-top: 6px; font-size: 12px; color: var(--color-primary);">
+              Sesi saat ini: <strong>{{ activeStudentForRenew?.completedSessions || 4 }} / {{ activeStudentForRenew?.packageTotalSessions || 4 }} Sesi Selesai</strong>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Pilih Paket Perpanjangan <span class="required">*</span></label>
+            <select v-model="renewForm.packageId" class="form-select" required>
+              <option v-for="pkg in (store.packages || [])" :key="pkg.id" :value="pkg.id">
+                {{ pkg.name }} ({{ pkg.sessionsCount }} Sesi) — {{ pkg.formattedPrice }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Pelatih Pendamping Siswa <span class="required">*</span></label>
+            <select v-model="renewForm.coachId" class="form-select" required>
+              <option v-for="c in store.coaches" :key="c.id" :value="c.id">
+                {{ c.name }} ({{ c.specialty }})
+              </option>
+            </select>
+            <span class="form-hint">Dapat tetap didampingi pelatih lama atau ditugaskan ke pelatih baru.</span>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Mulai Sesi Pertama Tanggal <span class="required">*</span></label>
+              <input v-model="renewForm.startDate" type="date" class="form-input" required />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Hari Pelatihan Rutin</label>
+              <select v-model="renewForm.preferredDay" class="form-select">
+                <option value="Senin">Senin</option>
+                <option value="Selasa">Selasa</option>
+                <option value="Rabu">Rabu</option>
+                <option value="Kamis">Kamis</option>
+                <option value="Jumat">Jumat</option>
+                <option value="Sabtu">Sabtu</option>
+                <option value="Minggu">Minggu</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Jam Latihan</label>
+              <select v-model="renewForm.preferredTime" class="form-select">
+                <option value="08:00 - 09:00">08:00 - 09:00 WIB (Pagi)</option>
+                <option value="09:00 - 10:00">09:00 - 10:00 WIB (Pagi)</option>
+                <option value="15:30 - 16:30">15:30 - 16:30 WIB (Sore)</option>
+                <option value="16:30 - 17:30">16:30 - 17:30 WIB (Sore)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Lokasi Fasilitas</label>
+              <select v-model="renewForm.location" class="form-select">
+                <option v-for="loc in store.locations" :key="loc.id" :value="loc.name">
+                  {{ loc.name }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <div class="alert-info-box" style="padding: 12px; border-radius: 8px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); font-size: 12px; color: var(--text-muted); margin-top: 10px;">
+            💡 <strong>Otomatisasi Sistem:</strong> Menekan konfirmasi perpanjangan akan secara otomatis:
+            <ul style="margin: 4px 0 0 16px; padding: 0;">
+              <li>Menerbitkan invoice QRIS dynamic & transfer baru di menu Billing wali murid.</li>
+              <li>Menambahkan 4 sesi latihan baru secara berurutan.</li>
+              <li>Menyediakan template pesan WhatsApp konfirmasi perpanjangan untuk wali murid.</li>
+            </ul>
+          </div>
+
+          <div class="modal-footer" style="margin-top: 18px;">
+            <button type="button" @click="showRenewModal = false" class="btn-secondary">Batal</button>
+            <button type="submit" class="btn-primary">
+              Konfirmasi & Terbitkan Tagihan Baru
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 10. MODAL: TUGASKAN COACH PENGGANTI SESI INI -->
+    <div v-if="showSubstituteCoachModal" class="modal-backdrop" @click.self="showSubstituteCoachModal = false">
+      <div class="modal-dialog modal-md">
+        <div class="modal-header">
+          <div class="modal-header-info">
+            <span class="badge-chip gold">Coach Pengganti Sesi</span>
+            <h3 class="modal-title">Ganti Coach untuk Sesi {{ activeScheduleForSubstitute?.sessionNo }}</h3>
+          </div>
+          <button class="btn-close" @click="showSubstituteCoachModal = false">✕</button>
+        </div>
+
+        <form @submit.prevent="handleSubmitSubstituteCoach" class="modal-body">
+          <div class="assign-student-info card-humanist" style="margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <strong>Siswa: {{ activeScheduleForSubstitute?.studentName }}</strong>
+              <span class="badge-chip teal mini">{{ activeScheduleForSubstitute?.programName }}</span>
+            </div>
+            <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">
+              Jadwal: {{ activeScheduleForSubstitute?.day }}, {{ activeScheduleForSubstitute?.date }} ({{ activeScheduleForSubstitute?.time }})
+            </div>
+            <div style="font-size: 12px; margin-top: 4px; color: var(--color-primary);">
+              Pelatih Utama Saat Ini: <strong>{{ activeScheduleForSubstitute?.coachName }}</strong>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Pilih Coach Pengganti <span class="required">*</span></label>
+            <select v-model="substituteForm.newCoachId" class="form-select" required>
+              <option value="" disabled>-- Pilih Coach Pengganti --</option>
+              <option v-for="c in store.coaches" :key="c.id" :value="c.id">
+                {{ c.name }} ({{ c.specialty }})
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Alasan Penggantian Coach <span class="required">*</span></label>
+            <textarea 
+              v-model="substituteForm.reason" 
+              class="form-textarea" 
+              rows="2" 
+              placeholder="Contoh: Coach utama izin sakit demam (konfirmasi >24 jam sebelum latihan)..."
+              required
+            ></textarea>
+            <span class="form-hint">Alasan ini akan tercatat transparan di portal orang tua dan laporan presensi.</span>
+          </div>
+
+          <div class="alert-info-box" style="padding: 10px 12px; border-radius: 8px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2); font-size: 12px; color: var(--text-muted);">
+            ℹ️ Penggantian ini hanya berlaku khusus untuk Sesi {{ activeScheduleForSubstitute?.sessionNo }}. Sesi lainnya tetap didampingi oleh coach utama.
+          </div>
+
+          <div class="modal-footer" style="margin-top: 16px;">
+            <button type="button" @click="showSubstituteCoachModal = false" class="btn-secondary">Batal</button>
+            <button type="submit" class="btn-primary">
+              Simpan Coach Pengganti
             </button>
           </div>
         </form>
@@ -3127,6 +3445,19 @@ async function handleDeleteCoach(id) {
   }
 }
 
+async function handleToggleCoach(id) {
+  const coach = (store.coaches || []).find(c => c.id === id);
+  if (!coach) return;
+  const isInactive = coach.status === 'inactive';
+  const confirmMsg = isInactive
+    ? `Aktifkan kembali instruktur ${coach.name}? Akun login coach akan diaktifkan.`
+    : `Nonaktifkan instruktur ${coach.name}? Akun login coach akan dinonaktifkan dan tidak dapat login.`;
+  if (confirm(confirmMsg)) {
+    await actions.toggleCoachStatus(id);
+    showNotice(`Status instruktur ${coach.name} berhasil diperbarui.`);
+  }
+}
+
 // -------------------------------------------------------------
 // STUDENT & GUARDIAN CRUD
 // -------------------------------------------------------------
@@ -3134,6 +3465,7 @@ const showStudentModal = ref(false);
 const isEditStudent = ref(false);
 const editingStudentId = ref(null);
 const studentSearchQuery = ref('');
+const studentStatusFilter = ref('all');
 const studentForm = ref({
   name: '',
   age: 7,
@@ -3153,15 +3485,32 @@ const availablePackagesForSelectedProduct = computed(() => {
 });
 
 const filteredStudents = computed(() => {
+  let list = store.students || [];
+  if (studentStatusFilter.value === 'active') {
+    list = list.filter(s => s.status !== 'inactive');
+  } else if (studentStatusFilter.value === 'inactive') {
+    list = list.filter(s => s.status === 'inactive');
+  }
   const q = studentSearchQuery.value.trim().toLowerCase();
-  if (!q) return store.students;
-  return store.students.filter(s => 
+  if (!q) return list;
+  return list.filter(s => 
     s.name?.toLowerCase().includes(q) ||
     s.parentName?.toLowerCase().includes(q) ||
     s.phone?.includes(q) ||
     s.productName?.toLowerCase().includes(q)
   );
 });
+
+async function handleToggleStudentStatus(stu) {
+  const isInactive = stu.status === 'inactive';
+  const confirmMsg = isInactive
+    ? `Aktifkan kembali siswa ${stu.name}? Akun wali murid akan diaktifkan.`
+    : `Nonaktifkan siswa ${stu.name}? Akun wali murid akan dinonaktifkan dan tidak dapat login.`;
+  if (confirm(confirmMsg)) {
+    await actions.toggleStudentStatus(stu.id);
+    showNotice(`Status siswa ${stu.name} berhasil diperbarui.`);
+  }
+}
 
 function openAddStudentModal() {
   isEditStudent.value = false;
@@ -3248,7 +3597,150 @@ async function handleSaveCoachAssignment() {
     assignmentForm.value.lockSessions
   );
   showAssignCoachModalFlag.value = false;
-  showNotice(`Pelatih berhasil di-assign dan mengikat selama ${assignmentForm.value.lockSessions} sesi!`);
+  showNotice(`Pelatih pendamping berhasil ditugaskan untuk ${assignmentForm.value.lockSessions} sesi rutin!`);
+}
+
+// -------------------------------------------------------------
+// RENEWAL PACKAGE MODAL & ACTIONS
+// -------------------------------------------------------------
+const showRenewModal = ref(false);
+const activeStudentForRenew = ref(null);
+const renewSuccessResult = ref(null);
+const renewForm = ref({
+  packageId: '',
+  coachId: '',
+  sessionsToAdd: 4,
+  startDate: '',
+  preferredDay: 'Sabtu',
+  preferredTime: '08:00 - 09:00',
+  location: ''
+});
+
+function openRenewModal(stu) {
+  activeStudentForRenew.value = stu;
+  renewSuccessResult.value = null;
+  const currentPkg = (store.packages || []).find(p => p.id === stu.packageId) || store.packages[0];
+
+  const d = new Date();
+  d.setDate(d.getDate() + 7);
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+
+  renewForm.value = {
+    packageId: currentPkg?.id || (store.packages[0]?.id || ''),
+    coachId: stu.assignedCoachId || (store.coaches[0]?.id || ''),
+    sessionsToAdd: 4,
+    startDate: `${yyyy}-${mm}-${dd}`,
+    preferredDay: stu.preferredDay || 'Sabtu',
+    preferredTime: stu.preferredTime || '08:00 - 09:00',
+    location: stu.location || (store.locations[0]?.name || 'Kolam Renang Pusat')
+  };
+  showRenewModal.value = true;
+}
+
+async function handleSubmitRenew() {
+  if (!activeStudentForRenew.value) return;
+  try {
+    const res = await actions.renewStudentPackage(activeStudentForRenew.value.id, renewForm.value);
+    renewSuccessResult.value = res;
+    showNotice(`Paket ${activeStudentForRenew.value.name} berhasil diperpanjang (+4 sesi) dan tagihan baru diterbitkan!`);
+  } catch (err) {
+    alert(err.message || 'Gagal memperpanjang paket');
+  }
+}
+
+// -------------------------------------------------------------
+// SUBSTITUTE COACH PER-SESSION MODAL & ACTIONS
+// -------------------------------------------------------------
+const showSubstituteCoachModal = ref(false);
+const activeScheduleForSubstitute = ref(null);
+const substituteForm = ref({
+  newCoachId: '',
+  reason: 'Coach utama berhalangan hadir (konfirmasi >24 jam)'
+});
+
+function openSubstituteCoachModal(sch) {
+  activeScheduleForSubstitute.value = sch;
+  const otherCoach = (store.coaches || []).find(c => c.name !== sch.coachName) || store.coaches[0];
+  substituteForm.value = {
+    newCoachId: otherCoach?.id || '',
+    reason: 'Coach utama berhalangan hadir (konfirmasi >24 jam)'
+  };
+  showSubstituteCoachModal.value = true;
+}
+
+async function handleSubmitSubstituteCoach() {
+  if (!activeScheduleForSubstitute.value) return;
+  const newCoach = (store.coaches || []).find(c => c.id === substituteForm.value.newCoachId);
+  if (!newCoach) {
+    alert('Pilih coach pengganti yang valid');
+    return;
+  }
+  try {
+    await actions.reassignSessionCoach(activeScheduleForSubstitute.value.id, {
+      newCoachId: newCoach.id,
+      newCoachName: newCoach.name,
+      reason: substituteForm.value.reason
+    });
+    showSubstituteCoachModal.value = false;
+    showNotice(`Coach sesi berhasil digantikan oleh ${newCoach.name}!`);
+  } catch (err) {
+    alert(err.message || 'Gagal mengganti coach sesi');
+  }
+}
+
+// -------------------------------------------------------------
+// FAQ CMS MANAGEMENT
+// -------------------------------------------------------------
+const isEditFaq = ref(false);
+const editingFaqId = ref(null);
+const faqForm = ref({
+  question: '',
+  answer: '',
+  category: 'Operasional'
+});
+
+function resetFaqForm() {
+  isEditFaq.value = false;
+  editingFaqId.value = null;
+  faqForm.value = {
+    question: '',
+    answer: '',
+    category: 'Operasional'
+  };
+}
+
+function handleEditFaq(f) {
+  isEditFaq.value = true;
+  editingFaqId.value = f.id;
+  faqForm.value = {
+    question: f.question,
+    answer: f.answer,
+    category: f.category || 'Operasional'
+  };
+}
+
+async function handleSaveFaq() {
+  if (!faqForm.value.question.trim() || !faqForm.value.answer.trim()) {
+    alert('Pertanyaan dan jawaban FAQ wajib diisi.');
+    return;
+  }
+  if (isEditFaq.value && editingFaqId.value) {
+    await actions.updateFaq(editingFaqId.value, faqForm.value);
+    showNotice('FAQ berhasil diperbarui!');
+  } else {
+    await actions.addFaq(faqForm.value);
+    showNotice('FAQ baru berhasil ditambahkan!');
+  }
+  resetFaqForm();
+}
+
+async function handleDeleteFaq(id) {
+  if (confirm('Yakin ingin menghapus pertanyaan FAQ ini?')) {
+    await actions.deleteFaq(id);
+    showNotice('FAQ berhasil dihapus.');
+  }
 }
 
 // -------------------------------------------------------------
@@ -4776,6 +5268,74 @@ onMounted(() => {
 .btn-danger-xs:hover {
   background-color: #dc2626;
   color: #ffffff;
+}
+
+.btn-success-xs {
+  background-color: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.btn-success-xs:hover {
+  background-color: #059669;
+  color: #ffffff;
+}
+
+.btn-warning-xs {
+  background-color: #fffbeb;
+  color: #d97706;
+  border: 1px solid #fde68a;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.btn-warning-xs:hover {
+  background-color: #d97706;
+  color: #ffffff;
+}
+
+.btn-success-sm {
+  background-color: #059669;
+  color: #ffffff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.btn-success-sm:hover {
+  background-color: #047857;
+}
+
+.btn-warning-sm {
+  background-color: #f59e0b;
+  color: #ffffff;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.btn-warning-sm:hover {
+  background-color: #d97706;
+}
+
+.badge-chip.gray {
+  background: rgba(156, 163, 175, 0.15);
+  color: #9ca3af;
+  border: 1px solid rgba(156, 163, 175, 0.3);
 }
 
 /* Student Schedule Modal Items */

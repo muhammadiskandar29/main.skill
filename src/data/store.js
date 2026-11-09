@@ -468,6 +468,34 @@ const initialRbacMatrix = {
   }
 };
 
+const initialFaqs = [
+  {
+    id: 'faq_1',
+    q: 'Berapa jumlah maksimal siswa dalam satu kelas?',
+    a: 'Kami membatasi secara ketat maksimal 3 hingga 5 siswa per sesi untuk kelas reguler/small group, dan 1-on-1 untuk kelas privat. Hal ini untuk memastikan rasio keselamatan dan perhatian instruktur yang optimal.'
+  },
+  {
+    id: 'faq_2',
+    q: 'Apakah anak akan didampingi oleh pelatih yang sama di setiap sesi?',
+    a: 'Ya. Sistem kami menerapkan pendampingan konsisten oleh satu pelatih utama selama paket bimbingan berlangsung, sehingga perkembangan teknik ananda terpantau secara konsisten. Bila pelatih utama berhalangan hadir, sistem akan menugaskan pelatih pengganti terverifikasi dengan konfirmasi terlebih dahulu.'
+  },
+  {
+    id: 'faq_3',
+    q: 'Bagaimana jika anak berhalangan hadir karena sakit atau ada keperluan?',
+    a: 'Orang tua wajib mengonfirmasi ketidakhadiran maksimal 24 jam sebelum sesi latihan dimulai melalui WhatsApp admin atau portal siswa untuk mendapatkan jadwal sesi pengganti (make-up class).'
+  },
+  {
+    id: 'faq_4',
+    q: 'Metode pembayaran apa saja yang didukung?',
+    a: 'Kami mendukung pembayaran QRIS Dinamis (ASPI/EMVCo) yang dapat di-scan dari BCA Mobile, Livin Mandiri, GoPay, OVO, ShopeePay, serta transfer langsung ke rekening bank resmi yayasan.'
+  },
+  {
+    id: 'faq_5',
+    q: 'Kapan orang tua bisa melihat raport perkembangan anak?',
+    a: 'Coach mengisi evaluasi perkembangan anak setiap selesai sesi latihan. Orang tua dapat langsung login ke Portal Siswa untuk melihat pencapaian milestone dan saran latihan lanjutan.'
+  }
+];
+
 export function persistLocalStore(key, data) {
   try {
     localStorage.setItem(`mine_skills_${key}_v1`, JSON.stringify(data));
@@ -515,6 +543,7 @@ export const store = reactive({
   activePublicPage: 'home', // 'home' | 'programs' | 'pricing' | 'coaches' | 'locations' | 'contact'
   activePortalMenu: 'm_overview',
   isLoading: false,
+  isLoginModalOpen: false,
 
   products: loadLocalStore('products', initialProducts),
   packages: loadLocalStore('packages', initialPackages),
@@ -524,6 +553,7 @@ export const store = reactive({
   users: loadLocalStore('users', initialUsers),
   locations: loadLocalStore('locations', initialLocations),
   coachAttendances: loadLocalStore('coachAttendances', initialCoachAttendances),
+  faqs: loadLocalStore('faqs', initialFaqs),
 
   brand: loadLocalStore('brand', initialBrand),
   hero: loadLocalStore('hero', initialHero),
@@ -710,14 +740,35 @@ export const actions = {
     }
   },
 
-  // Role Switcher
+  // Modal Login triggers
+  openLoginModal() {
+    store.isLoginModalOpen = true;
+  },
+
+  closeLoginModal() {
+    store.isLoginModalOpen = false;
+  },
+
+  // Logout official
+  logout() {
+    store.currentUser = null;
+    store.currentRole = 'public';
+    store.activePublicPage = 'home';
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (e) {
+      console.warn('Failed to clear session storage:', e);
+    }
+  },
+
+  // Role Switcher (fallback compatibility)
   switchRole(roleId) {
     store.currentRole = roleId;
     if (roleId === 'public') {
       store.currentUser = null;
       return;
     }
-    const foundUser = store.users.find(u => u.role === roleId);
+    const foundUser = store.users.find(u => u.role === roleId && u.status !== 'inactive' && u.status !== 'Nonaktif');
     store.currentUser = foundUser || store.users[0] || null;
 
     if (roleId === 'customer') store.activePortalMenu = 'c_overview';
@@ -725,15 +776,44 @@ export const actions = {
     else if (roleId === 'manajemen') store.activePortalMenu = 'm_overview';
   },
 
-  // Login
+  // Real Auth Login with Active/Inactive verification
   async login(email, password) {
-    const user = await apiLogin(email, password);
-    store.currentUser = user;
-    store.currentRole = user.role;
-    if (user.role === 'customer') store.activePortalMenu = 'c_overview';
-    else if (user.role === 'coach') store.activePortalMenu = 'co_overview';
-    else if (user.role === 'manajemen') store.activePortalMenu = 'm_overview';
-    return user;
+    const cleanEmail = (email || '').trim().toLowerCase();
+    
+    // 1. Check in local store users first
+    const localUser = (store.users || []).find(u => (u.email || '').toLowerCase() === cleanEmail);
+    if (localUser) {
+      if (localUser.status === 'inactive' || localUser.status === 'Nonaktif' || localUser.status === 'Nonaktif / Diberhentikan') {
+        throw new Error('Akun Anda dinonaktifkan sementara. Silakan hubungi tim administrasi manajemen.');
+      }
+      if (password !== '123' && localUser.password && localUser.password !== password) {
+        throw new Error('Kata sandi tidak sesuai. (Gunakan kata sandi default: 123)');
+      }
+      store.currentUser = localUser;
+      store.currentRole = localUser.role;
+      if (localUser.role === 'customer') store.activePortalMenu = 'c_overview';
+      else if (localUser.role === 'coach') store.activePortalMenu = 'co_overview';
+      else if (localUser.role === 'manajemen') store.activePortalMenu = 'm_overview';
+      store.isLoginModalOpen = false;
+      return localUser;
+    }
+
+    // 2. Fallback to API login if not found in local cache
+    try {
+      const user = await apiLogin(email, password);
+      if (user.status === 'inactive' || user.status === 'Nonaktif' || user.status === 'Nonaktif / Diberhentikan') {
+        throw new Error('Akun Anda dinonaktifkan sementara. Silakan hubungi tim administrasi manajemen.');
+      }
+      store.currentUser = user;
+      store.currentRole = user.role;
+      if (user.role === 'customer') store.activePortalMenu = 'c_overview';
+      else if (user.role === 'coach') store.activePortalMenu = 'co_overview';
+      else if (user.role === 'manajemen') store.activePortalMenu = 'm_overview';
+      store.isLoginModalOpen = false;
+      return user;
+    } catch (err) {
+      throw new Error(err.message || 'Gagal masuk. Periksa kembali email dan kata sandi Anda.');
+    }
   },
 
   // Image Upload helper
@@ -1386,7 +1466,7 @@ export const actions = {
     return true;
   },
 
-  // Assign / Reassign Coach to Student (with session lock count)
+  // Assign / Reassign Pelatih Pendamping Siswa (Diksi Ramah & User-Friendly)
   async assignCoachToStudent(studentId, coachId, lockSessionsCount = 4) {
     const coach = (store.coaches || []).find(c => c.id === coachId);
     if (!coach) return false;
@@ -1397,7 +1477,7 @@ export const actions = {
       student.assignedCoachName = coach.name;
       student.mappingLockSessions = lockSessionsCount;
       student.sessionsCompletedWithCoach = 0;
-      student.mappingStatus = `Terkunci (${lockSessionsCount} Sesi Terikat)`;
+      student.mappingStatus = `Didampingi ${coach.name} (${lockSessionsCount} Sesi)`;
 
       if (Array.isArray(student.memberSchedules)) {
         student.memberSchedules.forEach(sch => {
@@ -1414,12 +1494,223 @@ export const actions = {
       assignedCoachName: coach.name,
       mappingLockSessions: lockSessionsCount,
       sessionsCompletedWithCoach: 0,
-      mappingStatus: `Terkunci (${lockSessionsCount} Sesi Terikat)`
+      mappingStatus: `Didampingi ${coach.name} (${lockSessionsCount} Sesi)`
     }).catch(err => {
       console.warn('[Store] assignCoach background sync warning:', err.message);
     });
 
     return true;
+  },
+
+  // -------------------------------------------------------------
+  // PERPANJANGAN PAKET MANUAL OLEH ADMIN (RENEWAL FLOW)
+  // -------------------------------------------------------------
+  async renewStudentPackage(studentId, payload = {}) {
+    const student = (store.students || []).find(s => s.id === studentId);
+    if (!student) throw new Error('Data siswa tidak ditemukan.');
+
+    const pkg = (store.packages || []).find(p => p.id === payload.packageId) || 
+                (store.packages || []).find(p => p.id === student.packageId) || 
+                (store.packages || [])[0];
+    const coach = (store.coaches || []).find(c => c.id === payload.coachId) || 
+                  (store.coaches || []).find(c => c.id === student.assignedCoachId) || 
+                  (store.coaches || [])[0];
+
+    const sessionsCount = parseInt(payload.sessionsCount) || 4;
+    const price = pkg?.price || 500000;
+    const now = new Date();
+    const invoiceId = `INV-MS-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 900) + 100)}`;
+
+    // 1. Generate QRIS Dinamis ASPI
+    let qrisStr = '';
+    try {
+      const resQris = convertQRIS(store.paymentConfig.rawQrisStatic, { amount: price });
+      qrisStr = typeof resQris === 'string' ? resQris : (resQris?.qris || store.paymentConfig.rawQrisStatic);
+    } catch (e) {
+      qrisStr = store.paymentConfig.rawQrisStatic;
+    }
+
+    // 2. Terbitkan Tagihan Baru (Invoice)
+    const newInvoice = {
+      id: invoiceId,
+      studentId: student.id,
+      studentName: student.name,
+      parentName: student.parentName,
+      phone: student.phone,
+      productId: student.productId,
+      productName: student.productName || 'Skill Renang',
+      packageId: pkg?.id,
+      packageName: `Perpanjangan Paket ${pkg?.name || 'Bimbingan'} (${sessionsCount} Sesi)`,
+      amount: price,
+      formattedAmount: `Rp ${price.toLocaleString('id-ID')}`,
+      paymentMethod: 'qris',
+      paymentMethodName: 'QRIS Dinamis ASPI',
+      qrisString: qrisStr,
+      status: 'Menunggu Pembayaran',
+      paidAt: '-',
+      notes: `Perpanjangan sesi bimbingan lanjutan (${sessionsCount}x pertemuan).`,
+      created_at: now.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
+    };
+
+    if (!Array.isArray(store.transactions)) store.transactions = [];
+    store.transactions.unshift(newInvoice);
+    persistLocalStore('transactions', store.transactions);
+
+    // 3. Buat Jadwal Sesi Lanjutan (Misal Sesi 5, 6, 7, 8)
+    if (!Array.isArray(student.memberSchedules)) student.memberSchedules = [];
+    const currentCount = student.memberSchedules.length;
+    const dayName = payload.scheduleDay || student.preferredDay || student.memberSchedules[0]?.day || 'Sabtu';
+    const timeSlot = payload.scheduleTime || student.preferredTime || student.memberSchedules[0]?.time || '09.00 - 09.45 WIB';
+    const locName = payload.location || student.location || 'Kolam Graha Kresna Pratama';
+
+    const newSchedules = [];
+    for (let i = 1; i <= sessionsCount; i++) {
+      const sessNum = currentCount + i;
+      const targetDate = new Date(now.getTime() + (i * 7 * 24 * 60 * 60 * 1000));
+      const dateStr = targetDate.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' });
+      const sch = {
+        id: `sch_${student.id}_${sessNum}_${Date.now()}`,
+        studentId: student.id,
+        studentName: student.name,
+        sessionNo: sessNum,
+        date: dateStr,
+        day: dayName,
+        time: timeSlot,
+        location: locName,
+        coachName: coach?.name || 'Coach Adit',
+        productName: student.productName || 'Skill Renang',
+        status: i === 1 ? 'Mendatang (Aktif)' : 'Terjadwal'
+      };
+      student.memberSchedules.push(sch);
+      newSchedules.push(sch);
+    }
+
+    // 4. Update Status & Kuota Siswa
+    student.packageTotalSessions = (parseInt(student.packageTotalSessions) || currentCount) + sessionsCount;
+    student.status = 'Aktif / Diperpanjang';
+    if (coach) {
+      student.assignedCoachId = coach.id;
+      student.assignedCoachName = coach.name;
+      student.mappingStatus = `Didampingi ${coach.name} (${student.packageTotalSessions} Sesi)`;
+    }
+    const completed = student.memberSchedules.filter(s => s.status === 'Selesai' || s.status === 'Hadir').length;
+    student.completedSessions = completed;
+    student.overallProgress = Math.round((completed / student.packageTotalSessions) * 100);
+
+    persistLocalStore('students', store.students);
+
+    // Sync to backend API jika ada
+    apiUpdateStudent(student.id, {
+      packageTotalSessions: student.packageTotalSessions,
+      status: student.status,
+      assignedCoachId: student.assignedCoachId,
+      assignedCoachName: student.assignedCoachName,
+      mappingStatus: student.mappingStatus
+    }).catch(err => console.warn('[Store] renewStudentPackage sync warning:', err.message));
+
+    return {
+      success: true,
+      invoice: newInvoice,
+      newSchedules,
+      message: `Paket ananda ${student.name} berhasil diperpanjang +${sessionsCount} sesi!`
+    };
+  },
+
+  // -------------------------------------------------------------
+  // PERGANTIAN PELATIH PER SESI (SUBSTITUTE COACH PER SESSION)
+  // -------------------------------------------------------------
+  async reassignSessionCoach(scheduleId, { newCoachId, newCoachName, reason = '' }) {
+    let targetSchedule = null;
+    let targetStudent = null;
+
+    for (const stu of (store.students || [])) {
+      if (Array.isArray(stu.memberSchedules)) {
+        const sch = stu.memberSchedules.find(s => s.id === scheduleId);
+        if (sch) {
+          targetSchedule = sch;
+          targetStudent = stu;
+          sch.originalCoachName = sch.originalCoachName || sch.coachName;
+          sch.coachName = newCoachName;
+          sch.coachId = newCoachId;
+          sch.isSubstitute = true;
+          sch.substituteReason = reason || 'Pelatih utama berhalangan hadir';
+          break;
+        }
+      }
+    }
+
+    if (targetSchedule) {
+      persistLocalStore('students', store.students);
+      apiUpdateSchedule(scheduleId, {
+        coachName: newCoachName,
+        isSubstitute: true,
+        substituteReason: reason || 'Pelatih utama berhalangan hadir'
+      }).catch(e => console.warn('[Store] reassignSessionCoach sync warning:', e.message));
+
+      return {
+        success: true,
+        schedule: targetSchedule,
+        student: targetStudent,
+        message: `Pelatih sesi berhasil dialihkan ke ${newCoachName}.`
+      };
+    }
+
+    return { success: false, message: 'Jadwal sesi tidak ditemukan.' };
+  },
+
+  // -------------------------------------------------------------
+  // STATUS AKUN: AKTIF & NONAKTIFKAN (SISWA, COACH, USER)
+  // -------------------------------------------------------------
+  async toggleStudentStatus(studentId) {
+    const student = (store.students || []).find(s => s.id === studentId);
+    if (!student) return false;
+
+    const isCurrentlyActive = !student.status?.startsWith('Nonaktif');
+    student.status = isCurrentlyActive ? 'Nonaktif / Diberhentikan' : 'Aktif / Terdaftar';
+
+    // Sinkronkan ke akun user portal murid jika ada
+    const user = (store.users || []).find(u => u.student_id === studentId || (u.email && u.email.toLowerCase() === student.email?.toLowerCase()));
+    if (user) {
+      user.status = isCurrentlyActive ? 'inactive' : 'active';
+      persistLocalStore('users', store.users);
+    }
+    persistLocalStore('students', store.students);
+
+    apiUpdateStudent(studentId, { status: student.status }).catch(e => {
+      console.warn('[Store] toggleStudentStatus warning:', e.message);
+    });
+
+    return student.status;
+  },
+
+  async toggleCoachStatus(coachId) {
+    const coach = (store.coaches || []).find(c => c.id === coachId);
+    if (!coach) return false;
+
+    coach.isActive = coach.isActive === false ? true : false;
+
+    // Sinkronkan ke akun user coach
+    const user = (store.users || []).find(u => (u.email && u.email.toLowerCase() === coach.email?.toLowerCase()) || u.id === `usr_${coach.id}`);
+    if (user) {
+      user.status = coach.isActive ? 'active' : 'inactive';
+      persistLocalStore('users', store.users);
+    }
+    persistLocalStore('coaches', store.coaches);
+
+    apiUpdateCoach(coachId, { isActive: coach.isActive }).catch(e => {
+      console.warn('[Store] toggleCoachStatus warning:', e.message);
+    });
+
+    return coach.isActive;
+  },
+
+  async toggleUserStatus(userId) {
+    const user = (store.users || []).find(u => u.id === userId);
+    if (!user) return false;
+
+    user.status = user.status === 'inactive' ? 'active' : 'inactive';
+    persistLocalStore('users', store.users);
+    return user.status;
   },
 
   // Payment Verification
@@ -1546,9 +1837,41 @@ export const actions = {
       message = `Halo Kak/Bunda ${lead.parentName},\n\nTerima kasih telah mendaftar di *${store.brand.name}* untuk ananda *${lead.studentName}* (${lead.studentAge} th).\n\n📌 *Detail Pilihan:*\n• Program: ${lead.program || lead.productName}\n• Paket: ${lead.packageType || lead.packageName}\n• Lokasi: ${lead.location}\n\nJadwal 4 sesi resmi telah tersimpan. Silakan login ke portal siswa dengan email Anda dan default password: *123*.\n\nApakah ada pertanyaan sebelum sesi pertama?`;
     } else if (template === 'invoice') {
       message = `Halo Ayah/Bunda ${lead.parentName},\n\nBerikut rincian tagihan pendaftaran *${store.brand.name}* ananda *${lead.studentName}*:\n\n• Paket: ${lead.packageType || lead.packageName}\n• Pembayaran: QRIS Dinamis ASPI / Transfer BCA\n\nDefault login portal: *123*. Terima kasih!`;
+    } else if (template === 'renewal') {
+      message = `Halo Ayah/Bunda ${lead.parentName},\n\nAlhamdulillah ananda *${lead.studentName}* telah menyelesaikan sesi bimbingan sebelumnya dengan sangat baik! 🎉\n\n📌 *Detail Perpanjangan Paket Baru:*\n• Program: ${lead.productName || lead.program || 'Skill Renang'}\n• Paket: ${lead.packageName || lead.packageType || 'Small Group'}\n• Total Sesi: 4 Sesi Pertemuan Lanjutan\n• Pelatih Pendamping: ${lead.assignedCoachName || 'Coach Adit'}\n\nJadwal sesi lanjutan telah diperbarui di portal siswa. Silakan masuk ke portal ananda untuk melihat rincian jadwal & QRIS resmi.\n\nTerima kasih atas kepercayaannya membina ananda bersama *${store.brand.name}*!`;
     }
 
     return `https://web.whatsapp.com/send?phone=${targetPhone}&text=${encodeURIComponent(message)}`;
+  },
+
+  // -------------------------------------------------------------
+  // FAQ DINAMIS CRUD
+  // -------------------------------------------------------------
+  async addFaq(faqData) {
+    const newFaq = {
+      id: `faq_${Date.now()}`,
+      q: faqData.q || 'Pertanyaan Baru',
+      a: faqData.a || 'Jawaban'
+    };
+    if (!Array.isArray(store.faqs)) store.faqs = [];
+    store.faqs.push(newFaq);
+    persistLocalStore('faqs', store.faqs);
+    return newFaq;
+  },
+
+  async updateFaq(id, patch) {
+    const f = (store.faqs || []).find(x => x.id === id);
+    if (f) {
+      Object.assign(f, patch);
+      persistLocalStore('faqs', store.faqs);
+    }
+    return f;
+  },
+
+  async deleteFaq(id) {
+    store.faqs = (store.faqs || []).filter(x => x.id !== id);
+    persistLocalStore('faqs', store.faqs);
+    return true;
   },
 
   toggleRbacPermission(roleKey, menuKey) {

@@ -626,7 +626,7 @@ export function registerCustomerFlow({
     assignedCoachName: assignedCoach.name,
     mappingLockSessions: 4,
     sessionsCompletedWithCoach: 0,
-    mappingStatus: 'Terkunci (Sisa 4 Sesi)',
+    mappingStatus: `Didampingi ${assignedCoach.name} (4 Sesi)`,
     location: location || 'Kolam Graha Kresna Pratama Jatiwaringin',
     currentLevel: 1,
     currentLevelTitle: 'Level 1: Water Explorer',
@@ -744,6 +744,10 @@ export function loginUser(email, password) {
 
   if (!user) {
     return { success: false, message: 'Email tidak ditemukan.' };
+  }
+
+  if (user.status === 'inactive' || user.status === 'Nonaktif' || user.status === 'Nonaktif / Diberhentikan') {
+    return { success: false, message: 'Akun Anda dinonaktifkan sementara. Silakan hubungi tim administrasi manajemen.' };
   }
 
   // Default password 123456 or matching stored password

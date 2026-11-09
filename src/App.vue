@@ -3,49 +3,6 @@
     <!-- Master Header & Nav -->
     <HeaderNav @open-register="handleOpenRegister" />
 
-    <!-- Role Quick Navigation Bar -->
-    <div class="role-bar">
-      <div class="container-custom role-bar-inner">
-        <div class="role-bar-left">
-          <span class="role-bar-title">Mode Simulasi RBAC:</span>
-          <div class="role-chips">
-            <button 
-              @click="actions.switchRole('public')" 
-              class="role-chip" 
-              :class="{ active: store.currentRole === 'public' }"
-            >
-              Company Profile (Publik)
-            </button>
-            <button 
-              @click="actions.switchRole('customer')" 
-              class="role-chip" 
-              :class="{ active: store.currentRole === 'customer' }"
-            >
-              Role: Customer (Orang Tua Siswa)
-            </button>
-            <button 
-              @click="actions.switchRole('coach')" 
-              class="role-chip" 
-              :class="{ active: store.currentRole === 'coach' }"
-            >
-              Role: Coach (Pelatih)
-            </button>
-            <button 
-              @click="actions.switchRole('manajemen')" 
-              class="role-chip" 
-              :class="{ active: store.currentRole === 'manajemen' }"
-            >
-              Role: Manajemen (Admin CMS & CRM)
-            </button>
-          </div>
-        </div>
-
-        <div v-if="store.currentUser" class="role-bar-right">
-          <span class="user-active-txt">Login Sebagai: <strong>{{ store.currentUser.name }}</strong></span>
-        </div>
-      </div>
-    </div>
-
     <!-- MAIN VIEW AREA -->
     <!-- VIEW A: PUBLIC COMPANY PROFILE -->
     <main v-if="store.currentRole === 'public'" class="site-content">
@@ -244,12 +201,20 @@
 
         <!-- Sidebar Footer -->
         <div class="sidebar-footer">
-          <button @click="actions.switchRole('public')" class="btn-sidebar-home">
+          <button @click="viewWebsite" class="btn-sidebar-home" title="Lihat Tampilan Website Publik">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
               <polyline points="9 22 9 12 15 12 15 22"/>
             </svg>
-            <span>Tampilan Company Profile</span>
+            <span>Tampilan Website Publik</span>
+          </button>
+          <button @click="handleLogout" class="btn-sidebar-logout" title="Keluar dari akun">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            <span>Keluar Akun (Logout)</span>
           </button>
         </div>
       </aside>
@@ -279,6 +244,13 @@
       </main>
     </div>
 
+    <!-- Real Authentication Login Modal -->
+    <LoginModal 
+      v-if="store.isLoginModalOpen" 
+      @close="actions.closeLoginModal()" 
+      @open-register="handleOpenRegister" 
+    />
+
     <!-- Registration Modal -->
     <RegistrationModal 
       v-if="isRegisterOpen" 
@@ -295,6 +267,7 @@ import { store, actions } from './data/store.js';
 import HeaderNav from './components/HeaderNav.vue';
 import CompanyProfile from './components/CompanyProfile.vue';
 import RegistrationModal from './components/RegistrationModal.vue';
+import LoginModal from './components/LoginModal.vue';
 import PortalCustomer from './components/PortalCustomer.vue';
 import PortalCoach from './components/PortalCoach.vue';
 import PortalManajemen from './components/PortalManajemen.vue';
@@ -307,6 +280,18 @@ function handleOpenRegister(productId = '', packageId = '') {
   selectedRegisterProductId.value = productId || (store.products[0]?.id || '');
   selectedRegisterPackageId.value = packageId || '';
   isRegisterOpen.value = true;
+}
+
+function viewWebsite() {
+  store.currentRole = 'public';
+  store.activePublicPage = 'home';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function handleLogout() {
+  if (confirm('Apakah Anda yakin ingin keluar dari akun?')) {
+    actions.logout();
+  }
 }
 
 const openGroups = ref({
@@ -652,6 +637,29 @@ const allowedSidebarMenus = computed(() => {
 .btn-sidebar-home:hover {
   background-color: var(--color-primary-soft);
   color: var(--color-primary);
+}
+
+.btn-sidebar-logout {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 700;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  background-color: #fef2f2;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: all 0.2s ease;
+}
+
+.btn-sidebar-logout:hover {
+  background-color: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
 }
 
 @media (max-width: 900px) {

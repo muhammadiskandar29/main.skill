@@ -900,28 +900,33 @@ function buildCoachWaUrl(coach) {
   return `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(msg)}`;
 }
 
-const faqItems = [
-  {
-    q: 'Berapa jumlah maksimal siswa dalam satu kelas?',
-    a: 'Kami membatasi secara ketat maksimal 3 hingga 5 siswa per sesi untuk kelas reguler/small group, dan 1-on-1 untuk kelas privat. Hal ini untuk memastikan rasio keselamatan dan perhatian instruktur yang optimal.'
-  },
-  {
-    q: 'Apakah jadwal sesi latihan mengikat dengan satu coach tertentu?',
-    a: 'Ya. Sistem kami menerapkan ikatan siswa ke coach tertentu selama paket 4 atau 8 sesi berlangsung, sehingga perkembangan teknik ananda terpantau secara konsisten oleh satu pelatih yang memahami karakter anak.'
-  },
-  {
-    q: 'Bagaimana jika anak berhalangan hadir karena sakit?',
-    a: 'Orang tua dapat mengajukan reschedule minimal 6 jam sebelum sesi dimulai melalui nomor WhatsApp admin atau portal siswa untuk mendapatkan jadwal make-up class pengganti.'
-  },
-  {
-    q: 'Metode pembayaran apa saja yang didukung?',
-    a: 'Kami mendukung pembayaran QRIS Dinamis (ASPI/EMVCo) yang dapat di-scan dari BCA Mobile, Livin Mandiri, GoPay, OVO, ShopeePay, serta transfer langsung ke rekening bank resmi yayasan.'
-  },
-  {
-    q: 'Kapan orang tua bisa melihat raport perkembangan anak?',
-    a: 'Coach mengisi evaluasi perkembangan anak setiap selesai sesi latihan. Orang tua dapat langsung login ke Portal Siswa untuk melihat pencapaian milestone dan saran latihan lanjutan.'
+const faqItems = computed(() => {
+  if (Array.isArray(store.faqs) && store.faqs.length > 0) {
+    return store.faqs;
   }
-];
+  return [
+    {
+      q: 'Berapa jumlah maksimal siswa dalam satu kelas?',
+      a: 'Kami membatasi secara ketat maksimal 3 hingga 5 siswa per sesi untuk kelas reguler/small group, dan 1-on-1 untuk kelas privat. Hal ini untuk memastikan rasio keselamatan dan perhatian instruktur yang optimal.'
+    },
+    {
+      q: 'Apakah anak akan didampingi oleh pelatih yang sama di setiap sesi?',
+      a: 'Ya. Sistem kami menerapkan pendampingan konsisten oleh satu pelatih utama selama paket bimbingan berlangsung agar perkembangan teknik ananda terpantau optimal. Bila pelatih utama berhalangan hadir, sistem akan menugaskan pelatih pengganti terverifikasi dengan konfirmasi terlebih dahulu.'
+    },
+    {
+      q: 'Bagaimana jika anak berhalangan hadir karena sakit?',
+      a: 'Orang tua wajib mengonfirmasi ketidakhadiran maksimal 24 jam sebelum sesi latihan dimulai melalui nomor WhatsApp admin atau portal siswa untuk mendapatkan jadwal sesi pengganti (make-up class).'
+    },
+    {
+      q: 'Metode pembayaran apa saja yang didukung?',
+      a: 'Kami mendukung pembayaran QRIS Dinamis (ASPI/EMVCo) yang dapat di-scan dari BCA Mobile, Livin Mandiri, GoPay, OVO, ShopeePay, serta transfer langsung ke rekening bank resmi yayasan.'
+    },
+    {
+      q: 'Kapan orang tua bisa melihat raport perkembangan anak?',
+      a: 'Coach mengisi evaluasi perkembangan anak setiap selesai sesi latihan. Orang tua dapat langsung login ke Portal Siswa untuk melihat pencapaian milestone dan saran latihan lanjutan.'
+    }
+  ];
+});
 </script>
 
 <style scoped>

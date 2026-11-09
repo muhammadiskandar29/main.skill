@@ -1,273 +1,371 @@
 <template>
   <div class="login-page-wrapper">
-    <!-- ANIMATED BACKGROUND MESH & GLOWING FLOATING ORBS -->
-    <div class="animated-bg-container">
-      <div class="glow-orb orb-1"></div>
-      <div class="glow-orb orb-2"></div>
-      <div class="glow-orb orb-3"></div>
-      <div class="glow-orb orb-4"></div>
-      <div class="grid-overlay"></div>
+    <!-- BACKGROUND AMBIENT GLOW MESH -->
+    <div class="ambient-mesh">
+      <div class="mesh-orb orb-teal"></div>
+      <div class="mesh-orb orb-gold"></div>
+      <div class="mesh-orb orb-blue"></div>
+      <div class="mesh-grid"></div>
+    </div>
 
-      <!-- Floating Ambient Skill Badges (Interactive 3D-feel) -->
-      <div class="floating-badge float-swimming">
-        <span class="badge-icon">🏊‍♂️</span>
-        <div class="badge-text">
-          <strong>Skill Renang</strong>
-          <span>Level 1 - 4 Terukur</span>
-        </div>
+    <!-- 1. IKLAN BERJALAN / RUNNING NEWS TICKER (SMOOTH INFINITE MARQUEE) -->
+    <div class="running-ticker-bar">
+      <div class="ticker-badge">
+        <span class="ticker-pulse"></span>
+        <span class="ticker-badge-text">📢 INFO TERKINI</span>
       </div>
-
-      <div class="floating-badge float-dance">
-        <span class="badge-icon">💃</span>
-        <div class="badge-text">
-          <strong>Seni Tari</strong>
-          <span>Motorik & Ekspresi</span>
-        </div>
-      </div>
-
-      <div class="floating-badge float-coach">
-        <span class="badge-icon">🥋</span>
-        <div class="badge-text">
-          <strong>Coach Terverifikasi</strong>
-          <span>Sertifikasi Resmi</span>
-        </div>
-      </div>
-
-      <div class="floating-badge float-cert">
-        <span class="badge-icon">🏆</span>
-        <div class="badge-text">
-          <strong>Raport Digital</strong>
-          <span>Evaluasi Berkala</span>
+      <div class="ticker-track-wrap">
+        <div class="ticker-track">
+          <div class="ticker-group">
+            <span class="ticker-item"><span class="t-icon">🏊‍♂️</span> <strong>Akademi Renang:</strong> Pendaftaran Semester Baru Dibuka! Rasio Privat 1 Coach : 3 Siswa</span>
+            <span class="ticker-sep">•</span>
+            <span class="ticker-item"><span class="t-icon">🎁</span> <strong>Promo Early Bird:</strong> Potongan Biaya Kursus s.d 20% untuk Pendaftaran Bulan Ini</span>
+            <span class="ticker-sep">•</span>
+            <span class="ticker-item"><span class="t-icon">💃</span> <strong>Kelas Seni Tari:</strong> Eksplorasi Gerak Tari Tradisional & Modern Kontemporer</span>
+            <span class="ticker-sep">•</span>
+            <span class="ticker-item"><span class="t-icon">📊</span> <strong>Raport Digital:</strong> Monitoring Kemampuan Siswa & Presensi Geofencing Real-Time</span>
+            <span class="ticker-sep">•</span>
+            <span class="ticker-item"><span class="t-icon">⭐</span> <strong>Rating 4.9/5:</strong> Dipercaya lebih dari 1,200+ Wali Murid di 15+ Cabang</span>
+            <span class="ticker-sep">•</span>
+            <span class="ticker-item"><span class="t-icon">💬</span> <strong>CS & Konsultasi:</strong> WhatsApp Resmi 0812-9900-8800</span>
+            <span class="ticker-sep">•</span>
+          </div>
+          <!-- Duplicate for seamless loop -->
+          <div class="ticker-group" aria-hidden="true">
+            <span class="ticker-item"><span class="t-icon">🏊‍♂️</span> <strong>Akademi Renang:</strong> Pendaftaran Semester Baru Dibuka! Rasio Privat 1 Coach : 3 Siswa</span>
+            <span class="ticker-sep">•</span>
+            <span class="ticker-item"><span class="t-icon">🎁</span> <strong>Promo Early Bird:</strong> Potongan Biaya Kursus s.d 20% untuk Pendaftaran Bulan Ini</span>
+            <span class="ticker-sep">•</span>
+            <span class="ticker-item"><span class="t-icon">💃</span> <strong>Kelas Seni Tari:</strong> Eksplorasi Gerak Tari Tradisional & Modern Kontemporer</span>
+            <span class="ticker-sep">•</span>
+            <span class="ticker-item"><span class="t-icon">📊</span> <strong>Raport Digital:</strong> Monitoring Kemampuan Siswa & Presensi Geofencing Real-Time</span>
+            <span class="ticker-sep">•</span>
+            <span class="ticker-item"><span class="t-icon">⭐</span> <strong>Rating 4.9/5:</strong> Dipercaya lebih dari 1,200+ Wali Murid di 15+ Cabang</span>
+            <span class="ticker-sep">•</span>
+            <span class="ticker-item"><span class="t-icon">💬</span> <strong>CS & Konsultasi:</strong> WhatsApp Resmi 0812-9900-8800</span>
+            <span class="ticker-sep">•</span>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Top Bar with Back to Website link -->
-    <header class="login-top-bar">
-      <div class="container-custom top-bar-inner">
-        <a href="javascript:void(0)" @click="goToHome" class="brand-link" title="Kembali ke Beranda">
+    <!-- 2. COMPACT HEADER BAR -->
+    <header class="portal-header">
+      <div class="portal-header-container">
+        <a href="javascript:void(0)" @click="goToHome" class="header-logo-wrap" title="Kembali ke Beranda mine.skills">
           <img 
             :src="store.brand.logoPath || '/images/mine-skills-logo.png'" 
             alt="mine.skills Logo" 
-            class="top-logo-img" 
+            class="header-logo-img" 
           />
+          <div class="logo-divider"></div>
+          <span class="header-portal-label">Portal Akses Terpadu</span>
         </a>
-        <button @click="goToHome" class="btn-back-home">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <polyline points="15 18 9 12 15 6"></polyline>
-          </svg>
-          <span>Kembali ke Website Beranda</span>
-        </button>
+
+        <div class="header-actions">
+          <button @click="goToHome" class="btn-back-clean" title="Kembali ke Halaman Depan">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="15 18 9 12 15 6"></polyline>
+            </svg>
+            <span>Website Beranda</span>
+          </button>
+        </div>
       </div>
     </header>
 
-    <!-- Center Card with Glassmorphism & Interactive Elements -->
-    <main class="login-main-container">
-      <div class="login-card-glass">
-        <!-- Interactive Security Pill & Brand Tag -->
-        <div class="card-security-pill">
-          <span class="pulse-green"></span>
-          <span class="security-txt">Gerbang Resmi • Terproteksi JWT 256-Bit</span>
-        </div>
+    <!-- 3. MAIN CONTENT: RESPONSIVE 2-COLUMN SPLIT PORTAL -->
+    <main class="portal-main-area">
+      <div class="portal-grid">
+        
+        <!-- LEFT PANEL: INTERACTIVE BRAND SHOWCASE & CAROUSEL -->
+        <section class="showcase-panel">
+          <div class="showcase-content">
+            <!-- Top Tag -->
+            <div class="showcase-badge">
+              <span class="badge-dot"></span>
+              <span>Platform Manajemen Akademi & Kursus Anak</span>
+            </div>
 
-        <div class="login-card-header">
-          <h2 class="login-title">Masuk ke Portal</h2>
-          <p class="login-sub">
-            Silakan pilih peran akun atau masukkan email & kata sandi Anda.
-          </p>
-        </div>
+            <h1 class="showcase-title">
+              Membangun Potensi & Prestasi Anak Sejak Dini.
+            </h1>
+            <p class="showcase-subtitle">
+              Satu portal terintegrasi untuk Wali Murid memantau perkembangan, Pelatih mencatat presensi, dan Manajemen mengelola operasional secara transparan.
+            </p>
 
-        <!-- INTERACTIVE ROLE SELECTOR TABS -->
-        <div class="role-selector-tabs">
-          <button 
-            type="button" 
-            class="role-tab" 
-            :class="{ active: activeRoleTab === 'customer' }"
-            @click="selectRoleTab('customer')"
-          >
-            <span class="tab-emoji">👨‍👩‍👧</span>
-            <span class="tab-label">Wali Murid</span>
-          </button>
-          <button 
-            type="button" 
-            class="role-tab" 
-            :class="{ active: activeRoleTab === 'coach' }"
-            @click="selectRoleTab('coach')"
-          >
-            <span class="tab-emoji">🥋</span>
-            <span class="tab-label">Pelatih (Coach)</span>
-          </button>
-          <button 
-            type="button" 
-            class="role-tab" 
-            :class="{ active: activeRoleTab === 'manajemen' }"
-            @click="selectRoleTab('manajemen')"
-          >
-            <span class="tab-emoji">⚙️</span>
-            <span class="tab-label">Manajemen</span>
-          </button>
-        </div>
+            <!-- INTERACTIVE SHOWCASE SLIDER -->
+            <div class="feature-slider-card">
+              <div class="slider-header">
+                <span class="slider-tag">{{ activeSlide.category }}</span>
+                <div class="slider-dots">
+                  <button 
+                    v-for="(slide, idx) in slides" 
+                    :key="idx" 
+                    class="dot" 
+                    :class="{ active: currentSlideIdx === idx }"
+                    @click="setSlide(idx)"
+                    :title="slide.title"
+                  ></button>
+                </div>
+              </div>
 
-        <!-- Alert Error jika ada kendala / akun nonaktif -->
-        <transition name="fade-slide">
-          <div v-if="errorMessage" class="login-alert-box error">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="12" y1="8" x2="12" y2="12"></line>
-              <line x1="12" y1="16" x2="12.01" y2="16"></line>
-            </svg>
-            <span>{{ errorMessage }}</span>
-          </div>
-        </transition>
+              <div class="slider-body">
+                <div class="slider-icon-box">
+                  <span class="big-icon">{{ activeSlide.icon }}</span>
+                </div>
+                <div class="slider-text">
+                  <h3 class="slide-headline">{{ activeSlide.title }}</h3>
+                  <p class="slide-desc">{{ activeSlide.desc }}</p>
+                  <div class="slide-highlight-pill">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>{{ activeSlide.highlight }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-        <!-- Form Login -->
-        <form @submit.prevent="handleLoginSubmit" class="login-form">
-          <div class="form-group">
-            <label class="form-label">
-              <span>Alamat Email Terdaftar</span>
-              <span class="role-hint-pill" :class="activeRoleTab">Akun {{ getRoleName(activeRoleTab) }}</span>
-            </label>
-            <div class="input-icon-wrap" :class="{ focused: isEmailFocused }">
-              <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                <polyline points="22,6 12,13 2,6"></polyline>
-              </svg>
-              <input 
-                v-model="email" 
-                type="email" 
-                class="form-input with-icon" 
-                placeholder="nama@email.com" 
-                required 
-                autocomplete="username"
-                @focus="isEmailFocused = true"
-                @blur="isEmailFocused = false"
-              />
+            <!-- MINI METRICS STATS BAR -->
+            <div class="metrics-row">
+              <div class="metric-box">
+                <span class="metric-val">1,500+</span>
+                <span class="metric-lbl">Siswa Aktif</span>
+              </div>
+              <div class="metric-divider"></div>
+              <div class="metric-box">
+                <span class="metric-val">40+</span>
+                <span class="metric-lbl">Pelatih Resmi</span>
+              </div>
+              <div class="metric-divider"></div>
+              <div class="metric-box">
+                <span class="metric-val">15+</span>
+                <span class="metric-lbl">Titik Lokasi</span>
+              </div>
+              <div class="metric-divider"></div>
+              <div class="metric-box">
+                <span class="metric-val">99.4%</span>
+                <span class="metric-lbl">Kepuasan Wali</span>
+              </div>
+            </div>
+
+            <!-- MINI TESTIMONIAL CHIP -->
+            <div class="mini-testimonial">
+              <div class="parent-avatar">👩‍👧</div>
+              <div class="testimonial-body">
+                <div class="stars">★★★★★</div>
+                <p class="quote">"Raport digital & presensi geofencing coach bikin jadwal renang anak saya terpantau sangat rapi!"</p>
+                <span class="author">— Bunda Sarah, Wali Murid Kenzo</span>
+              </div>
             </div>
           </div>
+        </section>
 
-          <div class="form-group">
-            <div class="label-row">
-              <label class="form-label">Kata Sandi</label>
-              <span class="sub-hint">Default akun demo: <strong>123</strong></span>
+        <!-- RIGHT PANEL: COMPACT, BALANCED, ULTRA-RESPONSIVE LOGIN CARD -->
+        <section class="login-panel">
+          <div class="login-card">
+            <!-- Card Header -->
+            <div class="card-head">
+              <div class="security-chip">
+                <span class="lock-icon">🔒</span>
+                <span>JWT Secure 256-Bit Auth</span>
+              </div>
+              <h2 class="card-title">Masuk ke Portal</h2>
+              <p class="card-desc">Pilih peran akun Anda untuk diarahkan ke dashboard kerja.</p>
             </div>
-            <div class="input-icon-wrap" :class="{ focused: isPassFocused }">
-              <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-              </svg>
-              <input 
-                v-model="password" 
-                :type="showPassword ? 'text' : 'password'" 
-                class="form-input with-icon with-eye" 
-                placeholder="Masukkan kata sandi..." 
-                required 
-                autocomplete="current-password"
-                @focus="isPassFocused = true"
-                @blur="isPassFocused = false"
-              />
+
+            <!-- INTERACTIVE ROLE SWITCHER -->
+            <div class="role-selector" role="tablist">
               <button 
                 type="button" 
-                class="btn-toggle-eye" 
-                @click="showPassword = !showPassword" 
-                tabindex="-1"
-                :title="showPassword ? 'Sembunyikan Kata Sandi' : 'Tampilkan Kata Sandi'"
+                class="role-btn" 
+                :class="{ active: activeRoleTab === 'customer' }"
+                @click="selectRoleTab('customer')"
               >
-                <svg v-if="showPassword" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
-                  <line x1="1" y1="1" x2="23" y2="23"></line>
-                </svg>
-                <svg v-else width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                  <circle cx="12" cy="12" r="3"></circle>
-                </svg>
+                <span class="btn-emoji">👨‍👩‍👧</span>
+                <span class="btn-text">Wali Murid</span>
+              </button>
+              <button 
+                type="button" 
+                class="role-btn" 
+                :class="{ active: activeRoleTab === 'coach' }"
+                @click="selectRoleTab('coach')"
+              >
+                <span class="btn-emoji">🥋</span>
+                <span class="btn-text">Pelatih (Coach)</span>
+              </button>
+              <button 
+                type="button" 
+                class="role-btn" 
+                :class="{ active: activeRoleTab === 'manajemen' }"
+                @click="selectRoleTab('manajemen')"
+              >
+                <span class="btn-emoji">⚙️</span>
+                <span class="btn-text">Manajemen</span>
               </button>
             </div>
-          </div>
 
-          <button type="submit" :disabled="isLoading" class="btn-submit-glow">
-            <span v-if="isLoading" class="btn-loading-row">
-              <svg class="spinner" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <circle cx="12" cy="12" r="10" stroke-opacity="0.25"></circle>
-                <path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"></path>
-              </svg>
-              <span>Memverifikasi Akses JWT...</span>
-            </span>
-            <span v-else class="btn-text-row">
-              <span>Masuk ke Dashboard {{ getRoleName(activeRoleTab) }}</span>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
-            </span>
-          </button>
-        </form>
-
-        <!-- Quick 1-Click Fast Switch Chips -->
-        <div class="quick-access-section">
-          <div class="quick-access-header">
-            <span class="quick-line"></span>
-            <span class="quick-tag">Atau Pilih 1-Klik Akun Langsung</span>
-            <span class="quick-line"></span>
-          </div>
-
-          <div class="quick-chip-grid">
-            <button 
-              type="button" 
-              class="quick-login-card" 
-              :class="{ active: activeRoleTab === 'customer' }"
-              @click="selectRoleTab('customer')"
-            >
-              <div class="chip-avatar parent">👨‍👩‍👧</div>
-              <div class="chip-info">
-                <strong>Bunda Sarah</strong>
-                <span>Wali Murid (Kenzo)</span>
+            <!-- ERROR ALERT -->
+            <transition name="alert-slide">
+              <div v-if="errorMessage" class="error-banner">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span>{{ errorMessage }}</span>
               </div>
-              <span class="chip-badge">Siswa</span>
-            </button>
+            </transition>
 
-            <button 
-              type="button" 
-              class="quick-login-card" 
-              :class="{ active: activeRoleTab === 'coach' }"
-              @click="selectRoleTab('coach')"
-            >
-              <div class="chip-avatar coach">🥋</div>
-              <div class="chip-info">
-                <strong>Coach Adit</strong>
-                <span>Pelatih Renang</span>
+            <!-- LOGIN FORM -->
+            <form @submit.prevent="handleLoginSubmit" class="form-container">
+              <!-- Email Input -->
+              <div class="field-wrap">
+                <div class="field-label-row">
+                  <label class="field-label">Alamat Email Terdaftar</label>
+                  <span class="field-role-tag" :class="activeRoleTab">Akun {{ getRoleName(activeRoleTab) }}</span>
+                </div>
+                <div class="input-shell" :class="{ focused: isEmailFocused }">
+                  <svg class="field-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                  </svg>
+                  <input 
+                    v-model="email" 
+                    type="email" 
+                    class="clean-input" 
+                    placeholder="nama@email.com" 
+                    required 
+                    autocomplete="username"
+                    @focus="isEmailFocused = true"
+                    @blur="isEmailFocused = false"
+                  />
+                </div>
               </div>
-              <span class="chip-badge">Coach</span>
-            </button>
 
-            <button 
-              type="button" 
-              class="quick-login-card" 
-              :class="{ active: activeRoleTab === 'manajemen' }"
-              @click="selectRoleTab('manajemen')"
-            >
-              <div class="chip-avatar admin">⚙️</div>
-              <div class="chip-info">
-                <strong>Admin Pusat</strong>
-                <span>Tim Manajemen</span>
+              <!-- Password Input -->
+              <div class="field-wrap">
+                <div class="field-label-row">
+                  <label class="field-label">Kata Sandi</label>
+                  <span class="demo-tag">Default demo: <strong>123</strong></span>
+                </div>
+                <div class="input-shell" :class="{ focused: isPassFocused }">
+                  <svg class="field-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                    <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                  </svg>
+                  <input 
+                    v-model="password" 
+                    :type="showPassword ? 'text' : 'password'" 
+                    class="clean-input with-toggle" 
+                    placeholder="Masukkan kata sandi..." 
+                    required 
+                    autocomplete="current-password"
+                    @focus="isPassFocused = true"
+                    @blur="isPassFocused = false"
+                  />
+                  <button 
+                    type="button" 
+                    class="eye-btn" 
+                    @click="showPassword = !showPassword"
+                    :title="showPassword ? 'Sembunyikan' : 'Lihat'"
+                    tabindex="-1"
+                  >
+                    <svg v-if="showPassword" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path>
+                      <line x1="1" y1="1" x2="23" y2="23"></line>
+                    </svg>
+                    <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                  </button>
+                </div>
               </div>
-              <span class="chip-badge">Admin</span>
-            </button>
+
+              <!-- Submit Button -->
+              <button type="submit" :disabled="isLoading" class="btn-primary-action">
+                <span v-if="isLoading" class="loading-state">
+                  <span class="spinner-circle"></span>
+                  <span>Memverifikasi Akses JWT...</span>
+                </span>
+                <span v-else class="ready-state">
+                  <span>Masuk Dashboard {{ getRoleName(activeRoleTab) }}</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </span>
+              </button>
+            </form>
+
+            <!-- FAST 1-CLICK DEMO ACCOUNT SELECTOR -->
+            <div class="fast-demo-box">
+              <div class="fast-demo-title">
+                <span>Pilih Cepat Akun Demo (1-Klik)</span>
+              </div>
+              <div class="fast-pills">
+                <button 
+                  type="button" 
+                  class="demo-pill" 
+                  :class="{ active: activeRoleTab === 'customer' }"
+                  @click="selectRoleTab('customer')"
+                  title="Masuk sebagai Wali Murid (Bunda Sarah)"
+                >
+                  <span class="pill-ico">👨‍👩‍👧</span>
+                  <div class="pill-meta">
+                    <strong>Bunda Sarah</strong>
+                    <small>Wali Murid</small>
+                  </div>
+                </button>
+
+                <button 
+                  type="button" 
+                  class="demo-pill" 
+                  :class="{ active: activeRoleTab === 'coach' }"
+                  @click="selectRoleTab('coach')"
+                  title="Masuk sebagai Coach Adit"
+                >
+                  <span class="pill-ico">🥋</span>
+                  <div class="pill-meta">
+                    <strong>Coach Adit</strong>
+                    <small>Pelatih Renang</small>
+                  </div>
+                </button>
+
+                <button 
+                  type="button" 
+                  class="demo-pill" 
+                  :class="{ active: activeRoleTab === 'manajemen' }"
+                  @click="selectRoleTab('manajemen')"
+                  title="Masuk sebagai Admin Pusat"
+                >
+                  <span class="pill-ico">⚙️</span>
+                  <div class="pill-meta">
+                    <strong>Admin Pusat</strong>
+                    <small>Manajemen</small>
+                  </div>
+                </button>
+              </div>
+            </div>
+
+            <!-- CARD FOOTER -->
+            <div class="card-foot">
+              <p>
+                Belum mendaftar kursus? 
+                <a href="javascript:void(0)" @click="$emit('open-register')" class="register-link">
+                  Daftar Siswa Baru Sekarang ➔
+                </a>
+              </p>
+            </div>
           </div>
-        </div>
-
-        <!-- Footer link back to register -->
-        <div class="login-card-footer">
-          <p class="footer-msg">
-            Belum mendaftarkan anak Anda di mine.skills? 
-            <a href="javascript:void(0)" @click="$emit('open-register')" class="reg-link">Daftar Siswa Baru Sekarang ➔</a>
-          </p>
-        </div>
+        </section>
       </div>
     </main>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import confetti from 'canvas-confetti';
 import { store, actions } from '../data/store.js';
 
@@ -288,6 +386,50 @@ const roleCredentials = {
   coach: { email: 'adit.coach@mine.skills.id', pass: '123' },
   manajemen: { email: 'admin@mine.skills.id', pass: '123' }
 };
+
+// Interactive Feature Slider Data
+const currentSlideIdx = ref(0);
+const slides = [
+  {
+    category: 'AKADEMI RENANG',
+    icon: '🏊‍♂️',
+    title: 'Kurikulum Bertingkat Level 1 - 4 & Privat Rasio',
+    desc: 'Metode pengajaran aman & terukur dengan instruktur bersertifikasi PRSI / Swimming Instructor Indonesia.',
+    highlight: 'Rasio Eksklusif 1 Pelatih Maksimal 3 Siswa'
+  },
+  {
+    category: 'SENI TARI & GERAK',
+    icon: '💃',
+    title: 'Pengembangan Motorik, Postur, & Ekspresi Pentas',
+    desc: 'Kelas tari anak mulai usia dini untuk melatih keluwesan, disiplin ritme, dan kepercayaan diri di atas panggung.',
+    highlight: 'Pentas Seni Tahunan & Uji Sertifikasi Gerak'
+  },
+  {
+    category: 'RAPORT DIGITAL & ABSENSI',
+    icon: '📊',
+    title: 'Pantau Perkembangan Anak Secara Transparan',
+    desc: 'Setiap latihan tervalidasi dengan presensi GPS pelatih dan e-raport digital berkala yang bisa diunduh kapan saja.',
+    highlight: 'Invoice Otomatis Cap LUNAS & E-Raport PDF'
+  }
+];
+
+const activeSlide = computed(() => slides[currentSlideIdx.value]);
+
+let slideInterval = null;
+
+function setSlide(idx) {
+  currentSlideIdx.value = idx;
+}
+
+onMounted(() => {
+  slideInterval = setInterval(() => {
+    currentSlideIdx.value = (currentSlideIdx.value + 1) % slides.length;
+  }, 4500);
+});
+
+onUnmounted(() => {
+  if (slideInterval) clearInterval(slideInterval);
+});
 
 function selectRoleTab(roleKey) {
   activeRoleTab.value = roleKey;
@@ -316,16 +458,15 @@ async function handleLoginSubmit() {
   try {
     const user = await actions.login(email.value, password.value);
     
-    // Trigger celebratory confetti burst on success
+    // Confetti celebration
     try {
       confetti({
-        particleCount: 50,
-        spread: 60,
+        particleCount: 60,
+        spread: 70,
         origin: { y: 0.6 }
       });
     } catch (e) {}
 
-    // Small delay for smooth visual transition
     setTimeout(() => {
       emit('login-success', user);
     }, 300);
@@ -338,20 +479,21 @@ async function handleLoginSubmit() {
 </script>
 
 <style scoped>
+/* =========================================================================
+   PAGE WRAPPER & AMBIENT BACKGROUND
+   ========================================================================= */
 .login-page-wrapper {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #06232c;
+  background-color: #071f26;
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
   font-family: var(--font-primary, 'Plus Jakarta Sans', sans-serif);
+  color: #ffffff;
 }
 
-/* =========================================================================
-   ANIMATED BACKGROUND MESH & GLOWING ORBS
-   ========================================================================= */
-.animated-bg-container {
+.ambient-mesh {
   position: absolute;
   inset: 0;
   overflow: hidden;
@@ -359,486 +501,705 @@ async function handleLoginSubmit() {
   z-index: 1;
 }
 
-.grid-overlay {
+.mesh-grid {
   position: absolute;
   inset: 0;
   background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 50px 50px;
-  opacity: 0.6;
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 40px 40px;
 }
 
-.glow-orb {
+.mesh-orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(80px);
-  opacity: 0.45;
-  mix-blend-mode: screen;
+  filter: blur(90px);
+  opacity: 0.4;
 }
 
-.orb-1 {
-  width: 550px;
-  height: 550px;
-  background: radial-gradient(circle, #0d7a8e 0%, rgba(13, 122, 142, 0) 70%);
+.orb-teal {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, #0e7490 0%, transparent 70%);
   top: -150px;
-  left: -100px;
-  animation: floatOrb1 16s ease-in-out infinite alternate;
+  left: -120px;
+  animation: orbDrift1 18s ease-in-out infinite alternate;
 }
 
-.orb-2 {
+.orb-gold {
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, #e5a024 0%, rgba(229, 160, 36, 0) 70%);
-  bottom: -100px;
-  right: -100px;
-  animation: floatOrb2 18s ease-in-out infinite alternate;
+  background: radial-gradient(circle, #d97706 0%, transparent 70%);
+  bottom: -150px;
+  right: -80px;
+  animation: orbDrift2 20s ease-in-out infinite alternate;
 }
 
-.orb-3 {
-  width: 420px;
-  height: 420px;
-  background: radial-gradient(circle, #10b981 0%, rgba(16, 185, 129, 0) 70%);
-  top: 40%;
-  right: 15%;
-  animation: floatOrb3 14s ease-in-out infinite alternate;
+.orb-blue {
+  width: 450px;
+  height: 450px;
+  background: radial-gradient(circle, #2563eb 0%, transparent 70%);
+  top: 35%;
+  right: 25%;
+  animation: orbDrift3 16s ease-in-out infinite alternate;
 }
 
-.orb-4 {
-  width: 380px;
-  height: 380px;
-  background: radial-gradient(circle, #3b82f6 0%, rgba(59, 130, 246, 0) 70%);
-  bottom: 20%;
-  left: 20%;
-  animation: floatOrb4 20s ease-in-out infinite alternate;
-}
-
-@keyframes floatOrb1 {
+@keyframes orbDrift1 {
   0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(120px, 80px) scale(1.15); }
-  100% { transform: translate(40px, 160px) scale(0.95); }
+  100% { transform: translate(80px, 100px) scale(1.1); }
 }
-
-@keyframes floatOrb2 {
+@keyframes orbDrift2 {
   0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-100px, -60px) scale(1.2); }
-  100% { transform: translate(-40px, -120px) scale(1.05); }
+  100% { transform: translate(-80px, -70px) scale(1.15); }
 }
-
-@keyframes floatOrb3 {
+@keyframes orbDrift3 {
   0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-80px, 60px) scale(0.9); }
-  100% { transform: translate(-140px, -40px) scale(1.1); }
-}
-
-@keyframes floatOrb4 {
-  0% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(80px, -80px) scale(1.15); }
-  100% { transform: translate(40px, 40px) scale(1); }
-}
-
-/* Floating Ambient Badges */
-.floating-badge {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 16px;
-  background: rgba(13, 77, 93, 0.45);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 12px;
-  color: #ffffff;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
-  animation: floatBadge 6s ease-in-out infinite;
-  z-index: 2;
-  user-select: none;
-}
-
-.float-swimming {
-  top: 18%;
-  left: 8%;
-  animation-delay: 0s;
-}
-
-.float-dance {
-  bottom: 22%;
-  left: 7%;
-  animation-delay: 1.5s;
-}
-
-.float-coach {
-  top: 22%;
-  right: 8%;
-  animation-delay: 2.5s;
-}
-
-.float-cert {
-  bottom: 18%;
-  right: 8%;
-  animation-delay: 3.8s;
-}
-
-@keyframes floatBadge {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-12px); }
-}
-
-.badge-icon {
-  font-size: 24px;
-}
-
-.badge-text strong {
-  display: block;
-  font-size: 12.5px;
-  font-weight: 700;
-  color: #ffffff;
-}
-
-.badge-text span {
-  display: block;
-  font-size: 11px;
-  color: #c9e1e7;
-}
-
-@media (max-width: 1200px) {
-  .floating-badge {
-    display: none;
-  }
+  100% { transform: translate(-60px, 50px) scale(0.9); }
 }
 
 /* =========================================================================
-   TOP BAR
+   1. RUNNING TICKER / MARQUEE BAR ("IKLAN BERJALAN")
    ========================================================================= */
-.login-top-bar {
-  padding: 22px 0;
+.running-ticker-bar {
   position: relative;
   z-index: 10;
-}
-
-.top-bar-inner {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.top-logo-img {
-  height: 42px;
-  width: auto;
-  object-fit: contain;
-  filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
-  transition: transform 0.2s ease;
-}
-
-.top-logo-img:hover {
-  transform: scale(1.03);
-}
-
-.btn-back-home {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.1);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.22);
-  padding: 8px 18px;
-  border-radius: 999px;
-  font-size: 13.5px;
-  font-weight: 600;
-  cursor: pointer;
-  backdrop-filter: blur(12px);
-  transition: all 0.25s ease;
-}
-
-.btn-back-home:hover {
-  background: rgba(255, 255, 255, 0.2);
-  border-color: #ffffff;
-  transform: translateX(-3px);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-}
-
-/* =========================================================================
-   CENTER GLASS CARD
-   ========================================================================= */
-.login-main-container {
-  flex: 1;
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 20px 16px 40px;
-  position: relative;
-  z-index: 5;
+  background: linear-gradient(90deg, #09323c 0%, #0d4653 50%, #09323c 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  height: 38px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
 }
 
-.login-card-glass {
-  width: 100%;
-  max-width: 480px;
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(24px);
-  border: 1.5px solid rgba(255, 255, 255, 0.8);
-  border-radius: 20px;
-  padding: 36px 36px 30px;
-  box-shadow: 
-    0 24px 60px rgba(0, 0, 0, 0.4),
-    0 0 0 1px rgba(255, 255, 255, 0.2) inset;
-  position: relative;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  animation: cardEntry 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes cardEntry {
-  from {
-    opacity: 0;
-    transform: translateY(24px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.card-security-pill {
-  display: inline-flex;
+.ticker-badge {
+  display: flex;
   align-items: center;
   gap: 8px;
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
-  padding: 5px 12px;
-  border-radius: 999px;
-  margin-bottom: 16px;
+  padding: 0 16px;
+  background: #e5a024;
+  color: #05232a;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  height: 100%;
+  white-space: nowrap;
+  z-index: 3;
+  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.25);
 }
 
-.pulse-green {
+.ticker-pulse {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background-color: #16a34a;
-  box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7);
-  animation: pulseGreenAnim 2s infinite;
+  background: #b45309;
+  animation: pulseBadge 1.5s infinite;
 }
 
-@keyframes pulseGreenAnim {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.7); }
-  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(22, 163, 74, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+@keyframes pulseBadge {
+  0% { transform: scale(0.9); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.4; }
+  100% { transform: scale(0.9); opacity: 1; }
 }
 
-.security-txt {
-  font-size: 11px;
+.ticker-track-wrap {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+  mask-image: linear-gradient(to right, transparent, black 25px, black calc(100% - 25px), transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 25px, black calc(100% - 25px), transparent);
+}
+
+.ticker-track {
+  display: flex;
+  width: max-content;
+  animation: tickerScroll 35s linear infinite;
+}
+
+.ticker-track:hover {
+  animation-play-state: paused;
+}
+
+.ticker-group {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding-right: 18px;
+}
+
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #e0f2fe;
+  white-space: nowrap;
+}
+
+.ticker-item strong {
+  color: #fbbf24;
   font-weight: 700;
-  color: #15803d;
+}
+
+.t-icon {
+  font-size: 13px;
+}
+
+.ticker-sep {
+  color: rgba(255, 255, 255, 0.35);
+  font-size: 12px;
+}
+
+@keyframes tickerScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* =========================================================================
+   2. PORTAL HEADER
+   ========================================================================= */
+.portal-header {
+  position: relative;
+  z-index: 10;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(7, 31, 38, 0.6);
+  backdrop-filter: blur(12px);
+}
+
+.portal-header-container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.header-logo-img {
+  height: 38px;
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+}
+
+.logo-divider {
+  width: 1px;
+  height: 20px;
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.header-portal-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #94a3b8;
   letter-spacing: 0.02em;
 }
 
-.login-card-header {
-  margin-bottom: 22px;
+.btn-back-clean {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
-.login-title {
-  font-size: 26px;
-  font-weight: 800;
-  color: #09343f;
-  letter-spacing: -0.02em;
-  margin: 0 0 6px 0;
-}
-
-.login-sub {
-  font-size: 13.5px;
-  color: #64748b;
-  line-height: 1.5;
-  margin: 0;
+.btn-back-clean:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: translateX(-2px);
 }
 
 /* =========================================================================
-   INTERACTIVE ROLE SELECTOR TABS
+   3. MAIN CONTENT: 2-COLUMN SPLIT GRID
    ========================================================================= */
-.role-selector-tabs {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
-  background: #f1f5f9;
-  padding: 5px;
-  border-radius: 12px;
-  margin-bottom: 22px;
-}
-
-.role-tab {
+.portal-main-area {
+  flex: 1;
+  position: relative;
+  z-index: 5;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 3px;
-  padding: 8px 6px;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  background: transparent;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 24px 20px;
 }
 
-.role-tab:hover {
-  background: rgba(255, 255, 255, 0.6);
-}
-
-.role-tab.active {
-  background: #ffffff;
-  border-color: rgba(13, 77, 93, 0.15);
-  box-shadow: 0 3px 10px rgba(13, 77, 93, 0.12);
-}
-
-.tab-emoji {
-  font-size: 17px;
-  line-height: 1;
-}
-
-.tab-label {
-  font-size: 11.5px;
-  font-weight: 700;
-  color: #475569;
-  transition: color 0.2s ease;
-}
-
-.role-tab.active .tab-label {
-  color: #0d4d5d;
-}
-
-/* Alert Box */
-.login-alert-box {
-  display: flex;
+.portal-grid {
+  width: 100%;
+  max-width: 1180px;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 36px;
   align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  margin-bottom: 18px;
-}
-
-.login-alert-box.error {
-  background: #fef2f2;
-  border: 1px solid #fecdd3;
-  color: #b91c1c;
-}
-
-.fade-slide-enter-active, .fade-slide-leave-active {
-  transition: all 0.3s ease;
-}
-.fade-slide-enter-from, .fade-slide-leave-to {
-  opacity: 0;
-  transform: translateY(-8px);
 }
 
 /* =========================================================================
-   FORM STYLING
+   LEFT PANEL: SHOWCASE & CAROUSEL
    ========================================================================= */
-.login-form {
+.showcase-panel {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.showcase-content {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+.showcase-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(13, 77, 93, 0.6);
+  border: 1px solid rgba(45, 212, 191, 0.35);
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #5eead4;
+  width: fit-content;
 }
 
-.form-label {
+.badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #2dd4bf;
+  box-shadow: 0 0 8px #2dd4bf;
+}
+
+.showcase-title {
+  font-size: 32px;
+  font-weight: 800;
+  line-height: 1.25;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.showcase-subtitle {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #94a3b8;
+  margin: 0;
+  max-width: 520px;
+}
+
+/* Feature Slider Card */
+.feature-slider-card {
+  background: rgba(13, 77, 93, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 18px 20px;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.slider-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 8px;
+}
+
+.slider-tag {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #fbbf24;
+  letter-spacing: 0.06em;
+}
+
+.slider-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.25);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.25s ease;
+}
+
+.dot.active {
+  width: 22px;
+  background: #2dd4bf;
+  box-shadow: 0 0 8px rgba(45, 212, 191, 0.6);
+}
+
+.slider-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.slider-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.big-icon {
+  font-size: 26px;
+}
+
+.slider-text {
+  flex: 1;
+}
+
+.slide-headline {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  margin: 0 0 5px 0;
+}
+
+.slide-desc {
   font-size: 12.5px;
+  line-height: 1.5;
+  color: #cbd5e1;
+  margin: 0 0 8px 0;
+}
+
+.slide-highlight-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(45, 212, 191, 0.12);
+  color: #2dd4bf;
+  border: 1px solid rgba(45, 212, 191, 0.3);
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* Metrics Row */
+.metrics-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(5, 23, 29, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 12px 18px;
+}
+
+.metric-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.metric-val {
+  font-size: 18px;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1.1;
+}
+
+.metric-lbl {
+  font-size: 10.5px;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+.metric-divider {
+  width: 1px;
+  height: 24px;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Mini Testimonial */
+.mini-testimonial {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+.parent-avatar {
+  font-size: 24px;
+}
+
+.testimonial-body .stars {
+  color: #fbbf24;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 2px;
+}
+
+.testimonial-body .quote {
+  font-size: 11.5px;
+  color: #cbd5e1;
+  margin: 3px 0 2px 0;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+.testimonial-body .author {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #5eead4;
+}
+
+/* =========================================================================
+   RIGHT PANEL: COMPACT LOGIN CARD
+   ========================================================================= */
+.login-panel {
+  display: flex;
+  justify-content: center;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 440px;
+  background: #ffffff;
+  color: #0f172a;
+  border-radius: 18px;
+  padding: 24px 26px 20px;
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.45),
+    0 0 0 1px rgba(255, 255, 255, 0.1);
+  position: relative;
+  animation: cardIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card-head {
+  margin-bottom: 16px;
+}
+
+.security-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #047857;
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-bottom: 8px;
+}
+
+.card-title {
+  font-size: 22px;
+  font-weight: 800;
+  color: #09343f;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.02em;
+}
+
+.card-desc {
+  font-size: 12.5px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Role Selector Segmented Controls */
+.role-selector {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 4px;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 10px;
+  margin-bottom: 16px;
+}
+
+.role-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px 4px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.role-btn:hover {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.role-btn.active {
+  background: #ffffff;
+  border-color: rgba(13, 77, 93, 0.15);
+  box-shadow: 0 2px 8px rgba(13, 77, 93, 0.12);
+}
+
+.btn-emoji {
+  font-size: 14px;
+}
+
+.btn-text {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #475569;
+  white-space: nowrap;
+}
+
+.role-btn.active .btn-text {
+  color: #0d4d5d;
+}
+
+/* Error Banner */
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  background: #fef2f2;
+  border: 1px solid #fecdd3;
+  color: #b91c1c;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.alert-slide-enter-active, .alert-slide-leave-active {
+  transition: all 0.25s ease;
+}
+.alert-slide-enter-from, .alert-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+/* Form Styles */
+.form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.field-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.field-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.field-label {
+  font-size: 11.5px;
   font-weight: 700;
   color: #1e293b;
 }
 
-.role-hint-pill {
-  font-size: 10.5px;
+.field-role-tag {
+  font-size: 9.5px;
   font-weight: 700;
-  padding: 2px 8px;
+  padding: 1px 7px;
   border-radius: 999px;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
 }
 
-.role-hint-pill.customer {
-  background: #fdf4ff;
-  color: #a21caf;
-  border: 1px solid #f0abfc;
-}
+.field-role-tag.customer { background: #fae8ff; color: #a21caf; border: 1px solid #f0abfc; }
+.field-role-tag.coach { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
+.field-role-tag.manajemen { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
 
-.role-hint-pill.coach {
-  background: #eff6ff;
-  color: #1d4ed8;
-  border: 1px solid #bfdbfe;
-}
-
-.role-hint-pill.manajemen {
-  background: #fefce8;
-  color: #a16207;
-  border: 1px solid #fef08a;
-}
-
-.label-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.sub-hint {
-  font-size: 11px;
+.demo-tag {
+  font-size: 10.5px;
   color: #64748b;
 }
 
-.sub-hint strong {
+.demo-tag strong {
   color: #0d4d5d;
 }
 
-.input-icon-wrap {
+.input-shell {
   position: relative;
   display: flex;
   align-items: center;
   border: 1.5px solid #cbd5e1;
-  border-radius: 10px;
+  border-radius: 8px;
   background: #ffffff;
   transition: all 0.2s ease;
 }
 
-.input-icon-wrap.focused {
+.input-shell.focused {
   border-color: #0d4d5d;
-  box-shadow: 0 0 0 4px rgba(13, 77, 93, 0.12);
+  box-shadow: 0 0 0 3px rgba(13, 77, 93, 0.12);
 }
 
-.input-icon {
+.field-icon {
   position: absolute;
-  left: 14px;
+  left: 12px;
   color: #94a3b8;
   pointer-events: none;
   transition: color 0.2s ease;
 }
 
-.input-icon-wrap.focused .input-icon {
+.input-shell.focused .field-icon {
   color: #0d4d5d;
 }
 
-.form-input {
+.clean-input {
   width: 100%;
-  padding: 12px 14px 12px 42px;
+  padding: 10px 12px 10px 38px;
   border: none;
   background: transparent;
-  font-size: 14px;
+  font-size: 13px;
   font-family: inherit;
   color: #0f172a;
   outline: none;
 }
 
-.form-input.with-eye {
-  padding-right: 44px;
+.clean-input.with-toggle {
+  padding-right: 38px;
 }
 
-.btn-toggle-eye {
+.eye-btn {
   position: absolute;
-  right: 12px;
+  right: 10px;
   background: transparent;
   border: none;
   color: #94a3b8;
@@ -847,233 +1208,254 @@ async function handleLoginSubmit() {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.2s ease;
 }
 
-.btn-toggle-eye:hover {
+.eye-btn:hover {
   color: #0d4d5d;
 }
 
-/* Submit Button with Gradient and Glow */
-.btn-submit-glow {
+/* Submit Action Button */
+.btn-primary-action {
   margin-top: 4px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 13px 20px;
-  background: linear-gradient(135deg, #0d4d5d 0%, #115f73 50%, #09343f 100%);
+  padding: 11px 18px;
+  background: linear-gradient(135deg, #0d4d5d 0%, #156d82 50%, #09343f 100%);
   color: #ffffff;
   border: none;
-  border-radius: 10px;
-  font-size: 14px;
+  border-radius: 9px;
+  font-size: 13.5px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 6px 20px rgba(13, 77, 93, 0.35);
-  transition: all 0.25s ease;
+  box-shadow: 0 4px 14px rgba(13, 77, 93, 0.3);
+  transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
 }
 
-.btn-submit-glow::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  transition: left 0.6s ease;
+.btn-primary-action:hover {
+  transform: translateY(-1.5px);
+  box-shadow: 0 8px 20px rgba(13, 77, 93, 0.4);
+  background: linear-gradient(135deg, #10596b 0%, #187a92 50%, #0d4d5d 100%);
 }
 
-.btn-submit-glow:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 26px rgba(13, 77, 93, 0.45);
-  background: linear-gradient(135deg, #0f5b6e 0%, #15738b 50%, #0d4d5d 100%);
-}
-
-.btn-submit-glow:hover::after {
-  left: 100%;
-}
-
-.btn-submit-glow:disabled {
+.btn-primary-action:disabled {
   opacity: 0.7;
   cursor: not-allowed;
   transform: none;
 }
 
-.btn-text-row, .btn-loading-row {
+.ready-state, .loading-state {
   display: inline-flex;
   align-items: center;
   gap: 8px;
 }
 
-.spinner {
-  animation: spin 1s linear infinite;
+.spinner-circle {
+  width: 15px;
+  height: 15px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
-  from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
 
-/* =========================================================================
-   QUICK 1-CLICK TEST CHIPS
-   ========================================================================= */
-.quick-access-section {
-  margin-top: 24px;
+/* Fast 1-Click Demo Pills */
+.fast-demo-box {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
 }
 
-.quick-access-header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-}
-
-.quick-line {
-  flex: 1;
-  height: 1px;
-  background-color: #e2e8f0;
-}
-
-.quick-tag {
-  font-size: 11px;
-  font-weight: 700;
-  color: #94a3b8;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.quick-chip-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-}
-
-.quick-login-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 10px 6px;
-  background: #f8fafc;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  position: relative;
-}
-
-.quick-login-card:hover {
-  background: #ffffff;
-  border-color: #0d4d5d;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(13, 77, 93, 0.1);
-}
-
-.quick-login-card.active {
-  background: #ffffff;
-  border-color: #e5a024;
-  box-shadow: 0 0 0 2px rgba(229, 160, 36, 0.35);
-}
-
-.chip-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+.fast-demo-title {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
-.chip-avatar.parent { background-color: #fae8ff; }
-.chip-avatar.coach { background-color: #dbeafe; }
-.chip-avatar.admin { background-color: #fef9c3; }
-
-.chip-info strong {
-  display: block;
-  font-size: 11.5px;
+.fast-demo-title span {
+  font-size: 10.5px;
   font-weight: 700;
-  color: #1e293b;
-  margin-bottom: 1px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
-.chip-info span {
-  display: block;
-  font-size: 10px;
-  color: #64748b;
+.fast-pills {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.demo-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 7px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s ease;
+}
+
+.demo-pill:hover {
+  background: #ffffff;
+  border-color: #0d4d5d;
+  box-shadow: 0 2px 6px rgba(13, 77, 93, 0.08);
+}
+
+.demo-pill.active {
+  background: #ffffff;
+  border-color: #e5a024;
+  box-shadow: 0 0 0 1.5px #e5a024;
+}
+
+.pill-ico {
+  font-size: 14px;
+}
+
+.pill-meta {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.pill-meta strong {
+  font-size: 10.5px;
+  color: #1e293b;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 90px;
 }
 
-.chip-badge {
-  position: absolute;
-  top: -6px;
-  right: -4px;
+.pill-meta small {
   font-size: 9px;
-  font-weight: 800;
-  padding: 1px 6px;
-  border-radius: 999px;
-  background: #0d4d5d;
-  color: #ffffff;
-  text-transform: uppercase;
+  color: #64748b;
+  white-space: nowrap;
 }
 
-/* Footer Link */
-.login-card-footer {
-  margin-top: 20px;
-  padding-top: 16px;
+/* Card Footer */
+.card-foot {
+  margin-top: 14px;
+  padding-top: 10px;
   border-top: 1px solid #f1f5f9;
   text-align: center;
 }
 
-.footer-msg {
-  font-size: 12.5px;
+.card-foot p {
+  font-size: 11.5px;
   color: #64748b;
   margin: 0;
 }
 
-.reg-link {
+.register-link {
   color: #0d4d5d;
   font-weight: 700;
   text-decoration: none;
-  transition: color 0.2s ease;
 }
 
-.reg-link:hover {
+.register-link:hover {
   color: #e5a024;
   text-decoration: underline;
 }
 
-/* Mobile responsive */
-@media (max-width: 520px) {
-  .login-card-glass {
-    padding: 24px 20px 20px;
-    border-radius: 16px;
+/* =========================================================================
+   RESPONSIVE DESIGN (TABLETS & PHONES)
+   ========================================================================= */
+@media (max-width: 992px) {
+  .portal-main-area {
+    padding: 20px 16px;
   }
-  .quick-chip-grid {
+
+  .portal-grid {
     grid-template-columns: 1fr;
+    gap: 24px;
   }
-  .quick-login-card {
-    flex-direction: row;
-    gap: 10px;
+
+  .showcase-panel {
+    text-align: center;
+    align-items: center;
+  }
+
+  .showcase-content {
+    align-items: center;
+  }
+
+  .showcase-title {
+    font-size: 24px;
+  }
+
+  .showcase-subtitle {
+    font-size: 13px;
+  }
+
+  .feature-slider-card {
+    max-width: 500px;
+    width: 100%;
     text-align: left;
-    padding: 8px 12px;
   }
-  .chip-avatar {
-    margin-bottom: 0;
+
+  .metrics-row {
+    width: 100%;
+    max-width: 500px;
   }
-  .chip-info span {
-    max-width: none;
+
+  .mini-testimonial {
+    max-width: 500px;
+    width: 100%;
+    text-align: left;
   }
-  .chip-badge {
-    top: 50%;
-    right: 10px;
-    transform: translateY(-50%);
+
+  .login-card {
+    max-width: 480px;
+  }
+}
+
+@media (max-width: 540px) {
+  .portal-header-container {
+    padding: 0 16px;
+  }
+
+  .header-portal-label {
+    display: none;
+  }
+
+  .logo-divider {
+    display: none;
+  }
+
+  .showcase-panel {
+    display: none; /* Hide large showcase on small mobile to give instant access to login */
+  }
+
+  .login-card {
+    padding: 20px 18px 16px;
+    border-radius: 14px;
+  }
+
+  .fast-pills {
+    grid-template-columns: 1fr;
+    gap: 5px;
+  }
+
+  .demo-pill {
+    padding: 7px 10px;
+  }
+
+  .demo-pill strong {
+    font-size: 11.5px;
+  }
+
+  .demo-pill small {
+    font-size: 10px;
   }
 }
 </style>

@@ -1,8 +1,12 @@
 <IfModule mod_rewrite.c>
   RewriteEngine On
   RewriteBase /main.skill/
-  RewriteRule ^index\.html$ - [L]
+
+  # If request directly to a file or folder inside dist, allow it
+  RewriteRule ^dist/ - [L]
+
+  # Route everything else to dist folder
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
-  RewriteRule . /main.skill/index.html [L]
+  RewriteRule ^(.*)$ dist/index.html [L]
 </IfModule>

@@ -45,6 +45,7 @@ import {
   getHeroConfig,
   updateHeroConfig
 } from './neon-db.js';
+import { sendWhatsAppInvoiceBackground } from './whatsapp-service.js';
 
 export async function parseJsonBody(req) {
   if (req.body) {
@@ -296,6 +297,13 @@ export async function handleApiRequest(req, res) {
       const verified = await verifyTransaction(id);
       if (!verified) return sendJson(res, 404, { success: false, message: 'Invoice tidak ditemukan.' });
       return sendJson(res, 200, { success: true, data: verified });
+    }
+
+    // 8b. WHATSAPP BACKGROUND AUTO-DISPATCH (PDF ATTACHED)
+    if (pathname === '/api/whatsapp/send-invoice' && method === 'POST') {
+      const body = await parseJsonBody(req);
+      const result = await sendWhatsAppInvoiceBackground(body);
+      return sendJson(res, 200, result);
     }
 
     // 9. AUTH

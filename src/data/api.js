@@ -230,6 +230,21 @@ export async function apiVerifyPayment(invoiceId) {
   return json.data;
 }
 
+// Background WhatsApp Invoice Dispatcher
+export async function apiSendWhatsAppInvoice(payload) {
+  try {
+    const res = await fetch(`${API_BASE}/whatsapp/send-invoice`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    return await res.json();
+  } catch (err) {
+    console.warn('[API] WhatsApp background send error:', err);
+    return { success: false, message: err.message };
+  }
+}
+
 // Auth Login
 export async function apiLogin(email, password) {
   const res = await fetch(`${API_BASE}/auth/login`, {

@@ -4297,21 +4297,29 @@ async function handleVerifyPayment(invoiceId) {
     const trx = (store.transactions || []).find(t => t.id === invoiceId);
 
     if (trx) {
-      // 1. Generate & auto-download official PDF invoice with red "LUNAS" stamp
+      // 1. Generate official PDF invoice with red "LUNAS" stamp
+      let pdfDataUri = null;
       try {
         const doc = generateInvoicePdf(trx, store.brand);
         doc.save(`Invoice_${trx.id}_LUNAS.pdf`);
+        pdfDataUri = doc.output('datauristring');
       } catch (pdfErr) {
-        console.warn('[PDF] Auto-download error:', pdfErr);
+        console.warn('[PDF] Generation error:', pdfErr);
       }
 
-      // 2. Open WhatsApp click-to-chat to customer / parent's phone number
+      // 2. Automated background dispatch to parent's WhatsApp (attaching PDF base64)
+      // Executed seamlessly in background without opening disruptive WhatsApp Web browser tabs
       if (trx.phone) {
-        const waUrl = buildInvoiceWhatsAppUrl(trx, store.brand);
-        window.open(waUrl, '_blank');
+        try {
+          await actions.sendWhatsAppInvoiceBackground(trx, pdfDataUri);
+          showNotice(`✅ Invoice ${invoiceId} DIVERIFIKASI LUNAS! File PDF resmi ber-cap LUNAS otomatis terkirim dari sistem ke WhatsApp ${trx.parentName || 'Wali Murid'} (${trx.phone}).`);
+        } catch (waErr) {
+          console.warn('[WA Background Dispatch Warning]:', waErr);
+          showNotice(`Invoice ${invoiceId} diverifikasi LUNAS & PDF tersimpan. Pengiriman WA latar belakang sedang diproses.`);
+        }
+      } else {
+        showNotice(`Invoice ${invoiceId} berhasil diverifikasi Lunas!`);
       }
-
-      showNotice(`Invoice ${invoiceId} diverifikasi LUNAS! PDF ber-cap LUNAS terunduh dan WA disiapkan.`);
     } else {
       showNotice(`Invoice ${invoiceId} berhasil diverifikasi Lunas!`);
     }
@@ -4330,14 +4338,24 @@ function downloadInvoice(trx) {
   }
 }
 
-function sendInvoiceWa(trx) {
+async function sendInvoiceWa(trx) {
   if (!trx.phone) {
     alert('Nomor telepon / WhatsApp wali murid tidak tersedia untuk invoice ini.');
     return;
   }
-  const waUrl = buildInvoiceWhatsAppUrl(trx, store.brand);
-  window.open(waUrl, '_blank');
-  showNotice(`Membuka WhatsApp untuk mengirim bukti pembayaran ke ${trx.parentName}...`);
+  try {
+    showNotice(`Mengirim invoice PDF ke nomor WhatsApp ${trx.parentName} di latar belakang...`);
+    const doc = generateInvoicePdf(trx, store.brand);
+    const pdfDataUri = doc.output('datauristring');
+    await actions.sendWhatsAppInvoiceBackground(trx, pdfDataUri);
+    showNotice(`✅ Invoice PDF resmi ber-cap LUNAS berhasil terkirim dari sistem ke nomor WhatsApp ${trx.parentName} (${trx.phone})!`);
+  } catch (err) {
+    // If background fails, offer fallback to manual click-to-chat
+    if (confirm(`Pengiriman otomatis di background mengalami kendala (${err.message}). Apakah Anda ingin membuka WhatsApp Web secara manual?`)) {
+      const waUrl = buildInvoiceWhatsAppUrl(trx, store.brand);
+      window.open(waUrl, '_blank');
+    }
+  }
 }
 
 onMounted(() => {

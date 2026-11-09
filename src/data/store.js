@@ -20,6 +20,7 @@ import {
   apiDeleteStudent,
   apiRegisterCustomer,
   apiVerifyPayment,
+  apiSendWhatsAppInvoice,
   apiLogin,
   uploadImage,
   apiGetCoachAttendances,
@@ -1823,6 +1824,23 @@ export const actions = {
     });
 
     return trx;
+  },
+
+  // Send WhatsApp Invoice in Background (Server-side delivery with PDF)
+  async sendWhatsAppInvoiceBackground(trx, pdfBase64 = null) {
+    if (!trx) return { success: false, message: 'Data invoice tidak ditemukan' };
+    const payload = {
+      targetPhone: trx.phone,
+      studentName: trx.studentName,
+      parentName: trx.parentName,
+      invoiceId: trx.id,
+      packageName: trx.packageName,
+      amount: trx.amount,
+      paidAt: trx.paidAt || new Date().toLocaleString('id-ID'),
+      pdfBase64: pdfBase64,
+      pdfFilename: `Invoice_${trx.id}_LUNAS.pdf`
+    };
+    return await apiSendWhatsAppInvoice(payload);
   },
 
   // Session Evaluation Report (Coach Role)

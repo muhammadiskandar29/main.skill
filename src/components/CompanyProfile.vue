@@ -807,20 +807,19 @@
             </ul>
           </div>
 
-          <!-- Col 4: Role Switchers for Testing -->
+          <!-- Col 4: Portal & Layanan Siswa -->
           <div class="footer-nav-col">
-            <h5 class="footer-col-title">Simulasi Akses Portal (RBAC)</h5>
-            <p class="footer-role-hint">Pilih hak akses untuk memeriksa fungsi portal masing-masing peran:</p>
-            <div class="footer-role-buttons">
-              <button @click="switchRole('customer')" class="footer-role-btn">
-                <span>Portal Siswa & Wali</span>
-              </button>
-              <button @click="switchRole('coach')" class="footer-role-btn">
-                <span>Portal Instruktur / Coach</span>
-              </button>
-              <button @click="switchRole('manajemen')" class="footer-role-btn">
-                <span>Portal Manajemen (Admin)</span>
-              </button>
+            <h5 class="footer-col-title">Gerbang Akses Terpadu</h5>
+            <p class="footer-role-hint">Portal terpusat untuk evaluasi perkembangan ananda, jadwal bimbingan coach, dan operasional akademik.</p>
+            <div class="footer-auth-box">
+              <a href="/login" class="footer-portal-link">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                  <polyline points="10 17 15 12 10 7"></polyline>
+                  <line x1="15" y1="12" x2="3" y2="12"></line>
+                </svg>
+                <span>Portal Masuk Siswa & Coach</span>
+              </a>
             </div>
           </div>
         </div>
@@ -2287,29 +2286,30 @@ const faqItems = computed(() => {
   margin-bottom: 12px;
 }
 
-.footer-role-buttons {
+.footer-auth-box {
   display: flex;
-  flex-direction: column;
-  gap: 8px;
+  margin-top: 8px;
 }
 
-.footer-role-btn {
+.footer-portal-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   background-color: rgba(255, 255, 255, 0.08);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #c9e1e7;
+  padding: 8px 14px;
   border-radius: var(--radius-sm);
-  padding: 7px 12px;
   font-size: 12px;
   font-weight: 600;
-  text-align: left;
-  cursor: pointer;
+  text-decoration: none;
   transition: all var(--transition-fast);
 }
 
-.footer-role-btn:hover {
-  background-color: #e5a024;
+.footer-portal-link:hover {
+  background-color: var(--color-accent-gold);
+  border-color: var(--color-accent-gold);
   color: #1a1600;
-  border-color: #e5a024;
 }
 
 .footer-bottom-row {

@@ -1700,10 +1700,10 @@
             >
               <div style="flex: 1;">
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
-                  <span class="badge-chip teal mini" style="font-size: 10px; padding: 1px 6px;">{{ f.category || 'FAQ' }}</span>
-                  <strong style="font-size: 13.5px;">{{ f.question }}</strong>
+                  <span class="badge-chip teal mini" style="font-size: 10px; padding: 1px 6px;">{{ f.category || 'Operasional' }}</span>
+                  <strong style="font-size: 13.5px;">{{ f.question || f.q }}</strong>
                 </div>
-                <p style="font-size: 12px; color: var(--text-muted); margin: 0; line-height: 1.5;">{{ f.answer }}</p>
+                <p style="font-size: 12px; color: var(--text-muted); margin: 0; line-height: 1.5;">{{ f.answer || f.a }}</p>
               </div>
               <div style="display: flex; gap: 6px; flex-shrink: 0;">
                 <button type="button" @click="handleEditFaq(f)" class="btn-secondary-xs" title="Edit FAQ">Edit</button>
@@ -3715,8 +3715,8 @@ function handleEditFaq(f) {
   isEditFaq.value = true;
   editingFaqId.value = f.id;
   faqForm.value = {
-    question: f.question,
-    answer: f.answer,
+    question: f.question || f.q || '',
+    answer: f.answer || f.a || '',
     category: f.category || 'Operasional'
   };
 }
@@ -3726,14 +3726,25 @@ async function handleSaveFaq() {
     alert('Pertanyaan dan jawaban FAQ wajib diisi.');
     return;
   }
-  if (isEditFaq.value && editingFaqId.value) {
-    await actions.updateFaq(editingFaqId.value, faqForm.value);
-    showNotice('FAQ berhasil diperbarui!');
-  } else {
-    await actions.addFaq(faqForm.value);
-    showNotice('FAQ baru berhasil ditambahkan!');
+  const payload = {
+    question: faqForm.value.question.trim(),
+    answer: faqForm.value.answer.trim(),
+    q: faqForm.value.question.trim(),
+    a: faqForm.value.answer.trim(),
+    category: faqForm.value.category || 'Operasional'
+  };
+  try {
+    if (isEditFaq.value && editingFaqId.value) {
+      await actions.updateFaq(editingFaqId.value, payload);
+      showNotice('FAQ berhasil diperbarui!');
+    } else {
+      await actions.addFaq(payload);
+      showNotice('FAQ baru berhasil ditambahkan!');
+    }
+    resetFaqForm();
+  } catch (err) {
+    alert(err.message || 'Gagal menyimpan FAQ');
   }
-  resetFaqForm();
 }
 
 async function handleDeleteFaq(id) {

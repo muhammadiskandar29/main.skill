@@ -472,29 +472,61 @@ const initialFaqs = [
   {
     id: 'faq_1',
     q: 'Berapa jumlah maksimal siswa dalam satu kelas?',
-    a: 'Kami membatasi secara ketat maksimal 3 hingga 5 siswa per sesi untuk kelas reguler/small group, dan 1-on-1 untuk kelas privat. Hal ini untuk memastikan rasio keselamatan dan perhatian instruktur yang optimal.'
+    question: 'Berapa jumlah maksimal siswa dalam satu kelas?',
+    a: 'Kami membatasi secara ketat maksimal 3 hingga 5 siswa per sesi untuk kelas reguler/small group, dan 1-on-1 untuk kelas privat. Hal ini untuk memastikan rasio keselamatan dan perhatian instruktur yang optimal.',
+    answer: 'Kami membatasi secara ketat maksimal 3 hingga 5 siswa per sesi untuk kelas reguler/small group, dan 1-on-1 untuk kelas privat. Hal ini untuk memastikan rasio keselamatan dan perhatian instruktur yang optimal.',
+    category: 'Operasional'
   },
   {
     id: 'faq_2',
     q: 'Apakah anak akan didampingi oleh pelatih yang sama di setiap sesi?',
-    a: 'Ya. Sistem kami menerapkan pendampingan konsisten oleh satu pelatih utama selama paket bimbingan berlangsung, sehingga perkembangan teknik ananda terpantau secara konsisten. Bila pelatih utama berhalangan hadir, sistem akan menugaskan pelatih pengganti terverifikasi dengan konfirmasi terlebih dahulu.'
+    question: 'Apakah anak akan didampingi oleh pelatih yang sama di setiap sesi?',
+    a: 'Ya. Sistem kami menerapkan pendampingan konsisten oleh satu pelatih utama selama paket bimbingan berlangsung, sehingga perkembangan teknik ananda terpantau secara konsisten. Bila pelatih utama berhalangan hadir, sistem akan menugaskan pelatih pengganti terverifikasi dengan konfirmasi terlebih dahulu.',
+    answer: 'Ya. Sistem kami menerapkan pendampingan konsisten oleh satu pelatih utama selama paket bimbingan berlangsung, sehingga perkembangan teknik ananda terpantau secara konsisten. Bila pelatih utama berhalangan hadir, sistem akan menugaskan pelatih pengganti terverifikasi dengan konfirmasi terlebih dahulu.',
+    category: 'Pelatih & Kurikulum'
   },
   {
     id: 'faq_3',
     q: 'Bagaimana jika anak berhalangan hadir karena sakit atau ada keperluan?',
-    a: 'Orang tua wajib mengonfirmasi ketidakhadiran maksimal 24 jam sebelum sesi latihan dimulai melalui WhatsApp admin atau portal siswa untuk mendapatkan jadwal sesi pengganti (make-up class).'
+    question: 'Bagaimana jika anak berhalangan hadir karena sakit atau ada keperluan?',
+    a: 'Orang tua wajib mengonfirmasi ketidakhadiran maksimal 24 jam sebelum sesi latihan dimulai melalui WhatsApp admin atau portal siswa untuk mendapatkan jadwal sesi pengganti (make-up class).',
+    answer: 'Orang tua wajib mengonfirmasi ketidakhadiran maksimal 24 jam sebelum sesi latihan dimulai melalui WhatsApp admin atau portal siswa untuk mendapatkan jadwal sesi pengganti (make-up class).',
+    category: 'Izin & Reschedule'
   },
   {
     id: 'faq_4',
     q: 'Metode pembayaran apa saja yang didukung?',
-    a: 'Kami mendukung pembayaran QRIS Dinamis (ASPI/EMVCo) yang dapat di-scan dari BCA Mobile, Livin Mandiri, GoPay, OVO, ShopeePay, serta transfer langsung ke rekening bank resmi yayasan.'
+    question: 'Metode pembayaran apa saja yang didukung?',
+    a: 'Kami mendukung pembayaran QRIS Dinamis (ASPI/EMVCo) yang dapat di-scan dari BCA Mobile, Livin Mandiri, GoPay, OVO, ShopeePay, serta transfer langsung ke rekening bank resmi yayasan.',
+    answer: 'Kami mendukung pembayaran QRIS Dinamis (ASPI/EMVCo) yang dapat di-scan dari BCA Mobile, Livin Mandiri, GoPay, OVO, ShopeePay, serta transfer langsung ke rekening bank resmi yayasan.',
+    category: 'Biaya & Paket'
   },
   {
     id: 'faq_5',
     q: 'Kapan orang tua bisa melihat raport perkembangan anak?',
-    a: 'Coach mengisi evaluasi perkembangan anak setiap selesai sesi latihan. Orang tua dapat langsung login ke Portal Siswa untuk melihat pencapaian milestone dan saran latihan lanjutan.'
+    question: 'Kapan orang tua bisa melihat raport perkembangan anak?',
+    a: 'Coach mengisi evaluasi perkembangan anak setiap selesai sesi latihan. Orang tua dapat langsung login ke Portal Siswa untuk melihat pencapaian milestone dan saran latihan lanjutan.',
+    answer: 'Coach mengisi evaluasi perkembangan anak setiap selesai sesi latihan. Orang tua dapat langsung login ke Portal Siswa untuk melihat pencapaian milestone dan saran latihan lanjutan.',
+    category: 'Pelatih & Kurikulum'
   }
 ];
+
+function normalizeFaqList(list) {
+  const arr = Array.isArray(list) && list.length > 0 ? list : initialFaqs;
+  return arr.map((f, i) => {
+    const q = f.q || f.question || `Pertanyaan ${i + 1}`;
+    const a = f.a || f.answer || '';
+    const category = f.category || 'Operasional';
+    return {
+      id: f.id || `faq_${i + 1}`,
+      q,
+      question: q,
+      a,
+      answer: a,
+      category
+    };
+  });
+}
 
 export function persistLocalStore(key, data) {
   try {
@@ -553,7 +585,7 @@ export const store = reactive({
   users: loadLocalStore('users', initialUsers),
   locations: loadLocalStore('locations', initialLocations),
   coachAttendances: loadLocalStore('coachAttendances', initialCoachAttendances),
-  faqs: loadLocalStore('faqs', initialFaqs),
+  faqs: normalizeFaqList(loadLocalStore('faqs', initialFaqs)),
 
   brand: loadLocalStore('brand', initialBrand),
   hero: loadLocalStore('hero', initialHero),
@@ -1848,13 +1880,19 @@ export const actions = {
   // FAQ DINAMIS CRUD
   // -------------------------------------------------------------
   async addFaq(faqData) {
+    const q = (faqData.q || faqData.question || 'Pertanyaan Baru').trim();
+    const a = (faqData.a || faqData.answer || 'Jawaban belum diisi').trim();
+    const category = faqData.category || 'Operasional';
     const newFaq = {
       id: `faq_${Date.now()}`,
-      q: faqData.q || 'Pertanyaan Baru',
-      a: faqData.a || 'Jawaban'
+      q,
+      question: q,
+      a,
+      answer: a,
+      category
     };
     if (!Array.isArray(store.faqs)) store.faqs = [];
-    store.faqs.push(newFaq);
+    store.faqs.unshift(newFaq);
     persistLocalStore('faqs', store.faqs);
     return newFaq;
   },
@@ -1862,7 +1900,16 @@ export const actions = {
   async updateFaq(id, patch) {
     const f = (store.faqs || []).find(x => x.id === id);
     if (f) {
-      Object.assign(f, patch);
+      const q = (patch.q !== undefined ? patch.q : (patch.question !== undefined ? patch.question : (f.q || f.question))).trim();
+      const a = (patch.a !== undefined ? patch.a : (patch.answer !== undefined ? patch.answer : (f.a || f.answer))).trim();
+      const category = patch.category || f.category || 'Operasional';
+      Object.assign(f, patch, {
+        q,
+        question: q,
+        a,
+        answer: a,
+        category
+      });
       persistLocalStore('faqs', store.faqs);
     }
     return f;

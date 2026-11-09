@@ -81,53 +81,123 @@
           </button>
         </template>
 
-        <!-- MODE 2: LOGGED IN USER (Profile & Logout Action) -->
+        <!-- MODE 2: LOGGED IN USER (Sleek Profile & Quick Portal Access) -->
         <template v-else>
-          <div class="logged-in-profile">
-            <div class="user-meta-header">
-              <span class="user-greeting-name">{{ store.currentUser?.name || 'Pengguna' }}</span>
-              <span class="badge-role-tag" :class="store.currentRole">
-                {{ getRoleDisplay(store.currentRole) }}
-              </span>
-            </div>
-
-            <!-- Tombol Kembali ke Website Publik -->
+          <div class="logged-in-container">
+            <!-- Action Button: Portal or Website -->
             <button 
-              v-if="store.currentRole !== 'public'" 
+              v-if="store.currentRole === 'public'" 
+              @click="backToPortal" 
+              class="btn-portal-pill" 
+              title="Masuk ke Dashboard Portal Anda"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+              <span>Dashboard {{ getUserRoleLabel() }}</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+            <button 
+              v-else 
               @click="viewPublicSite" 
-              class="btn-subtle-nav" 
+              class="btn-website-pill" 
               title="Lihat Beranda Website Publik"
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                <polyline points="9 22 9 12 15 12 15 22"/>
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
               </svg>
-              <span class="desktop-only">Website</span>
+              <span>Website Beranda</span>
             </button>
 
-            <!-- Tombol Buka Portal jika sedang di public page -->
-            <button 
-              v-else 
-              @click="backToPortal" 
-              class="btn-primary-portal-nav" 
-              title="Masuk ke Halaman Portal Anda"
-            >
-              <span>Buka Portal Saya</span>
-            </button>
+            <!-- User Profile Pill & Dropdown -->
+            <div class="user-pill-dropdown-wrap">
+              <div 
+                class="user-profile-pill" 
+                @click.stop="isUserMenuOpen = !isUserMenuOpen"
+                :class="{ active: isUserMenuOpen }"
+                title="Menu Akun Pengguna"
+              >
+                <div class="user-avatar-badge">
+                  {{ getUserInitials(store.currentUser?.name) }}
+                </div>
+                <div class="user-pill-info">
+                  <span class="user-pill-name">{{ getShortName(store.currentUser?.name) }}</span>
+                  <span class="user-pill-role" :class="store.currentUser?.role">
+                    {{ getUserRoleLabel() }}
+                  </span>
+                </div>
+                <svg class="chevron-arrow" :class="{ open: isUserMenuOpen }" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
 
-            <!-- Tombol Logout Resmi -->
-            <button 
-              @click="handleLogout" 
-              class="btn-logout-header" 
-              title="Keluar dari Akun"
-            >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                <polyline points="16 17 21 12 16 7"></polyline>
-                <line x1="21" y1="12" x2="9" y2="12"></line>
-              </svg>
-              <span class="desktop-only">Keluar</span>
-            </button>
+              <!-- Sleek Dropdown Popover -->
+              <transition name="dropdown-anim">
+                <div v-if="isUserMenuOpen" class="user-popover-menu" @click.stop>
+                  <div class="popover-profile-header">
+                    <div class="popover-avatar">
+                      {{ getUserInitials(store.currentUser?.name) }}
+                    </div>
+                    <div class="popover-meta">
+                      <strong class="popover-fullname">{{ store.currentUser?.name }}</strong>
+                      <span class="popover-email">{{ store.currentUser?.email }}</span>
+                      <span class="popover-role-tag" :class="store.currentUser?.role">
+                        {{ getUserRoleLabel() }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="popover-divider"></div>
+
+                  <div class="popover-actions">
+                    <button 
+                      v-if="store.currentRole === 'public'" 
+                      @click="backToPortal(); isUserMenuOpen = false" 
+                      class="popover-item primary"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="3" width="7" height="7"></rect>
+                        <rect x="14" y="14" width="7" height="7"></rect>
+                        <rect x="3" y="14" width="7" height="7"></rect>
+                      </svg>
+                      <span>Masuk ke Dashboard Portal</span>
+                    </button>
+
+                    <button 
+                      v-else 
+                      @click="viewPublicSite(); isUserMenuOpen = false" 
+                      class="popover-item"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                      </svg>
+                      <span>Halaman Beranda Website</span>
+                    </button>
+
+                    <button 
+                      @click="handleLogout(); isUserMenuOpen = false" 
+                      class="popover-item danger"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                      </svg>
+                      <span>Keluar Akun (Logout)</span>
+                    </button>
+                  </div>
+                </div>
+              </transition>
+            </div>
           </div>
         </template>
       </div>
@@ -136,9 +206,27 @@
 </template>
 
 <script setup>
+import { ref, onMounted, onUnmounted } from 'vue';
 import { store, actions } from '../data/store.js';
 
 defineEmits(['open-register']);
+
+const isUserMenuOpen = ref(false);
+
+function closeMenuOnClickOutside(e) {
+  const el = document.querySelector('.user-pill-dropdown-wrap');
+  if (el && !el.contains(e.target)) {
+    isUserMenuOpen.value = false;
+  }
+}
+
+onMounted(() => {
+  window.addEventListener('click', closeMenuOnClickOutside);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('click', closeMenuOnClickOutside);
+});
 
 function navigateTo(page) {
   store.activePublicPage = page;
@@ -168,11 +256,29 @@ function handleLogout() {
   }
 }
 
-function getRoleDisplay(role) {
+function getShortName(name) {
+  if (!name) return 'Akun';
+  const clean = name.replace(/&.*$/g, '').trim();
+  const parts = clean.split(' ');
+  return parts[0] || clean;
+}
+
+function getUserInitials(name) {
+  if (!name) return 'U';
+  const clean = name.replace(/&.*$/g, '').trim();
+  const parts = clean.split(' ').filter(Boolean);
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+  return parts[0].substring(0, 2).toUpperCase();
+}
+
+function getUserRoleLabel() {
+  const role = store.currentUser?.role;
+  if (role === 'manajemen') return 'Admin';
+  if (role === 'coach') return 'Coach';
   if (role === 'customer') return 'Wali Murid';
-  if (role === 'coach') return 'Pelatih (Coach)';
-  if (role === 'manajemen') return 'Manajemen';
-  return 'Pengguna';
+  return 'Member';
 }
 </script>
 
@@ -277,109 +383,278 @@ function getRoleDisplay(role) {
   font-weight: 700;
 }
 
-/* Logged In Bar */
-.logged-in-profile {
+/* Logged In Container */
+.logged-in-container {
   display: flex;
   align-items: center;
   gap: 12px;
+  position: relative;
 }
 
-.user-meta-header {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-}
-
-.user-greeting-name {
+.btn-portal-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, #0d4d5d 0%, #09343f 100%);
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 999px;
   font-size: 13px;
-  font-weight: 800;
-  color: var(--color-primary-dark, #09343f);
-  line-height: 1.2;
-}
-
-.badge-role-tag {
-  font-size: 10px;
   font-weight: 700;
-  text-transform: uppercase;
-  padding: 2px 6px;
-  border-radius: 4px;
-  letter-spacing: 0.04em;
-  margin-top: 2px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(13, 77, 93, 0.2);
+  transition: all 0.2s ease;
 }
 
-.badge-role-tag.customer {
-  background: #ccfbf1;
-  color: #0f766e;
+.btn-portal-pill:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(13, 77, 93, 0.3);
+  background: linear-gradient(135deg, #0f5b6e 0%, #0d4d5d 100%);
 }
 
-.badge-role-tag.coach {
-  background: #fef3c7;
-  color: #b45309;
-}
-
-.badge-role-tag.manajemen {
-  background: #e0f2fe;
-  color: #0369a1;
-}
-
-.btn-subtle-nav {
+.btn-website-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background-color: var(--bg-subtle, #f8fafc);
-  color: var(--text-main, #334155);
-  border: 1px solid var(--border-subtle, #cbd5e1);
-  padding: 7px 12px;
-  border-radius: var(--radius-md, 8px);
-  font-size: 12.5px;
+  background: #f8fafc;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.btn-subtle-nav:hover {
-  background-color: #ffffff;
-  border-color: var(--color-primary, #0d4d5d);
-  color: var(--color-primary, #0d4d5d);
+.btn-website-pill:hover {
+  background: #ffffff;
+  border-color: #0d4d5d;
+  color: #0d4d5d;
 }
 
-.btn-primary-portal-nav {
-  display: inline-flex;
+/* User Pill Trigger */
+.user-pill-dropdown-wrap {
+  position: relative;
+}
+
+.user-profile-pill {
+  display: flex;
   align-items: center;
-  padding: 7px 14px;
-  background: var(--color-primary, #0d4d5d);
+  gap: 10px;
+  padding: 5px 12px 5px 6px;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.user-profile-pill:hover,
+.user-profile-pill.active {
+  background: #ffffff;
+  border-color: #0d4d5d;
+  box-shadow: 0 4px 14px rgba(13, 77, 93, 0.12);
+}
+
+.user-avatar-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0d4d5d 0%, #1a7185 100%);
   color: #ffffff;
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(13, 77, 93, 0.25);
+  flex-shrink: 0;
+}
+
+.user-pill-info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.user-pill-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.user-pill-role {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #0d4d5d;
+}
+
+.user-pill-role.manajemen {
+  color: #0369a1;
+}
+
+.user-pill-role.coach {
+  color: #b45309;
+}
+
+.user-pill-role.customer {
+  color: #0f766e;
+}
+
+.chevron-arrow {
+  color: #64748b;
+  transition: transform 0.2s ease;
+}
+
+.chevron-arrow.open {
+  transform: rotate(180deg);
+}
+
+/* Dropdown Popover */
+.user-popover-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 260px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  box-shadow: 0 15px 35px -5px rgba(15, 23, 42, 0.15), 0 0 1px 1px rgba(15, 23, 42, 0.05);
+  z-index: 9999;
+  padding: 14px;
+  animation: popoverFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes popoverFadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.popover-profile-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 12px;
+}
+
+.popover-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0d4d5d 0%, #1a7185 100%);
+  color: #ffffff;
+  font-weight: 800;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.popover-meta {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.popover-fullname {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.popover-email {
+  font-size: 11.5px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.popover-role-tag {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 4px;
+  margin-top: 4px;
+  background: #f1f5f9;
+  color: #475569;
+}
+
+.popover-role-tag.manajemen {
+  background: #e0f2fe;
+  color: #0369a1;
+}
+
+.popover-role-tag.coach {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.popover-role-tag.customer {
+  background: #ccfbf1;
+  color: #0f766e;
+}
+
+.popover-divider {
+  height: 1px;
+  background: #f1f5f9;
+  margin: 8px 0;
+}
+
+.popover-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.popover-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
   border: none;
-  border-radius: var(--radius-md, 8px);
-  font-size: 12.5px;
-  font-weight: 700;
+  background: transparent;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
   cursor: pointer;
-  transition: all 0.2s ease;
+  text-align: left;
+  transition: all 0.15s ease;
 }
 
-.btn-primary-portal-nav:hover {
-  background: var(--color-primary-dark, #09343f);
+.popover-item:hover {
+  background: #f8fafc;
+  color: #0d4d5d;
 }
 
-.btn-logout-header {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
+.popover-item.primary {
+  color: #0d4d5d;
+  font-weight: 700;
+}
+
+.popover-item.primary:hover {
+  background: #f0fdfa;
+}
+
+.popover-item.danger {
+  color: #dc2626;
+}
+
+.popover-item.danger:hover {
   background: #fef2f2;
-  color: #b91c1c;
-  border: 1px solid #fecaca;
-  padding: 7px 12px;
-  border-radius: var(--radius-md, 8px);
-  font-size: 12.5px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.btn-logout-header:hover {
-  background: #dc2626;
-  color: #ffffff;
-  border-color: #dc2626;
 }
 
 @media (max-width: 960px) {

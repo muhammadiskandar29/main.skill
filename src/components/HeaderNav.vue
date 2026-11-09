@@ -59,7 +59,7 @@
       <!-- Right Action Area: Login / Register OR Logged In Profile -->
       <div class="header-actions">
         <!-- MODE 1: GUEST / PUBLIC VISITOR (Gerbang Login Resmi) -->
-        <template v-if="store.currentRole === 'public' && !store.currentUser">
+        <template v-if="!store.authToken || !store.currentUser">
           <button 
             @click="$emit('open-login')" 
             class="btn-header-login"
@@ -81,7 +81,7 @@
           </button>
         </template>
 
-        <!-- MODE 2: LOGGED IN USER BROWSING PUBLIC WEBSITE -->
+        <!-- MODE 2: AUTHENTICATED USER BROWSING PUBLIC WEBSITE -->
         <template v-else-if="store.currentRole === 'public'">
           <div class="user-logged-clean">
             <button 
@@ -207,7 +207,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { store, actions } from '../data/store.js';
 
-defineEmits(['open-register', 'open-login']);
+const emit = defineEmits(['open-register', 'open-login', 'logout']);
 
 const isUserMenuOpen = ref(false);
 
@@ -243,15 +243,16 @@ function viewPublicSite() {
 }
 
 function backToPortal() {
-  if (store.currentUser?.role) {
+  if (store.authToken && store.currentUser?.role) {
     store.currentRole = store.currentUser.role;
+  } else {
+    emit('open-login');
   }
 }
 
 function handleLogout() {
-  if (confirm('Apakah Anda yakin ingin keluar dari akun?')) {
-    actions.logout();
-  }
+  actions.logout();
+  emit('logout');
 }
 
 function getShortName(name) {

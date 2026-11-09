@@ -10,7 +10,11 @@
   <!-- MAIN APP (HOME / RBAC PORTAL) -->
   <div v-else class="app-container" :class="{ 'portal-mode': store.currentRole !== 'public' }">
     <!-- Master Header & Nav -->
-    <HeaderNav @open-register="handleOpenRegister" @open-login="navigateToLogin" />
+    <HeaderNav 
+      @open-register="handleOpenRegister" 
+      @open-login="navigateToLogin" 
+      @logout="handleLogout" 
+    />
 
     <!-- MAIN VIEW AREA -->
     <!-- VIEW A: PUBLIC COMPANY PROFILE -->
@@ -18,8 +22,8 @@
       <CompanyProfile @open-register="handleOpenRegister" />
     </main>
 
-    <!-- VIEW B: RBAC PORTAL (CUSTOMER / COACH / MANAJEMEN) -->
-    <div v-else class="portal-layout">
+    <!-- VIEW B: RBAC PORTAL (CUSTOMER / COACH / MANAJEMEN) - STRICT AUTH GUARD -->
+    <div v-else-if="store.authToken && store.currentUser" class="portal-layout">
       <!-- Dynamic RBAC Sidebar with Hierarchical Grouping for Management -->
       <aside class="portal-sidebar">
         <!-- Role Identifier Box -->
@@ -298,6 +302,11 @@ function detectRoute() {
 
 function syncRoute() {
   currentRoute.value = detectRoute();
+  // Strict Auth Guard: If in portal mode without valid JWT auth, force to login
+  if (store.currentRole !== 'public' && (!store.authToken || !store.currentUser)) {
+    store.currentRole = 'public';
+    navigateToLogin();
+  }
 }
 
 function navigateToLogin() {
@@ -370,10 +379,8 @@ function viewWebsite() {
 }
 
 function handleLogout() {
-  if (confirm('Apakah Anda yakin ingin keluar dari akun?')) {
-    actions.logout();
-    navigateToLogin();
-  }
+  actions.logout();
+  navigateToLogin();
 }
 
 const openGroups = ref({

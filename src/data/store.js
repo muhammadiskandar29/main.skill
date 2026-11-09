@@ -1,5 +1,6 @@
 import { reactive, watch } from 'vue';
 import { convertQRIS } from '../utils/qris.js';
+import { generateToken, verifyToken } from '../utils/jwt.js';
 import {
   fetchBootstrap,
   apiCreateProduct,
@@ -550,20 +551,47 @@ export function loadLocalStore(key, fallback) {
   return fallback;
 }
 
+export const TOKEN_KEY = 'mine_skills_jwt_token';
+export const USER_KEY = 'mine_skills_auth_user';
+
 function loadSavedSession() {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      return {
-        currentRole: parsed.currentRole || 'public',
-        currentUser: parsed.currentUser || null
-      };
+    const token = localStorage.getItem(TOKEN_KEY);
+    const rawUser = localStorage.getItem(USER_KEY);
+    if (!token || !rawUser) {
+      // Clear legacy/dirty session keys
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(USER_KEY);
+      localStorage.removeItem(STORAGE_KEY);
+      return { currentRole: 'public', currentUser: null, authToken: null };
     }
+
+    const verification = verifyToken(token);
+    if (!verification.valid) {
+      console.warn('[Auth] Token invalid/expired:', verification.error);
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(USER_KEY);
+      localStorage.removeItem(STORAGE_KEY);
+      return { currentRole: 'public', currentUser: null, authToken: null };
+    }
+
+    const user = JSON.parse(rawUser);
+    if (!user || user.status === 'inactive' || user.status === 'Nonaktif' || user.status === 'Nonaktif / Diberhentikan') {
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(USER_KEY);
+      localStorage.removeItem(STORAGE_KEY);
+      return { currentRole: 'public', currentUser: null, authToken: null };
+    }
+
+    return {
+      currentRole: user.role || 'public',
+      currentUser: user,
+      authToken: token
+    };
   } catch (e) {
-    console.warn('Failed to parse session:', e);
+    console.warn('Failed to parse authenticated session:', e);
   }
-  return { currentRole: 'public', currentUser: null };
+  return { currentRole: 'public', currentUser: null, authToken: null };
 }
 
 const savedSession = loadSavedSession();
@@ -572,6 +600,7 @@ const savedSession = loadSavedSession();
 export const store = reactive({
   currentRole: savedSession.currentRole || 'public',
   currentUser: savedSession.currentUser || null,
+  authToken: savedSession.authToken || null,
   activePublicPage: 'home', // 'home' | 'programs' | 'pricing' | 'coaches' | 'locations' | 'contact'
   activePortalMenu: 'm_overview',
   isLoading: false,
@@ -759,10 +788,18 @@ export const actions = {
           persistLocalStore('hero', store.hero);
         }
 
-        // Set default current user if role matches
-        if (store.currentRole !== 'public' && !store.currentUser) {
-          const matched = store.users.find(u => u.role === store.currentRole);
-          if (matched) store.currentUser = matched;
+        // Strict Auth Guard Check on bootstrap
+        if (store.currentRole !== 'public') {
+          if (!store.authToken || !store.currentUser) {
+            store.currentRole = 'public';
+            store.currentUser = null;
+            store.authToken = null;
+            try {
+              localStorage.removeItem(TOKEN_KEY);
+              localStorage.removeItem(USER_KEY);
+              localStorage.removeItem(STORAGE_KEY);
+            } catch (e) {}
+          }
         }
       }
     } catch (err) {
@@ -781,34 +818,41 @@ export const actions = {
     store.isLoginModalOpen = false;
   },
 
-  // Logout official
+  // Real JWT Logout
   logout() {
+    store.authToken = null;
     store.currentUser = null;
     store.currentRole = 'public';
     store.activePublicPage = 'home';
     try {
+      localStorage.removeItem(TOKEN_KEY);
+      localStorage.removeItem(USER_KEY);
       localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem('mine_skills_auth_session_v3');
     } catch (e) {
       console.warn('Failed to clear session storage:', e);
     }
   },
 
-  // Role Switcher (fallback compatibility)
+  // Role Switcher (Strict RBAC Guarded)
   switchRole(roleId) {
-    store.currentRole = roleId;
     if (roleId === 'public') {
-      store.currentUser = null;
+      this.logout();
       return;
     }
-    const foundUser = store.users.find(u => u.role === roleId && u.status !== 'inactive' && u.status !== 'Nonaktif');
-    store.currentUser = foundUser || store.users[0] || null;
-
+    if (!store.authToken || !store.currentUser) {
+      throw new Error('Akses ditolak. Silakan masuk/login terlebih dahulu.');
+    }
+    if (store.currentUser.role !== roleId && store.currentUser.role !== 'manajemen') {
+      throw new Error('Anda tidak memiliki hak akses untuk portal ini.');
+    }
+    store.currentRole = roleId;
     if (roleId === 'customer') store.activePortalMenu = 'c_overview';
     else if (roleId === 'coach') store.activePortalMenu = 'co_overview';
     else if (roleId === 'manajemen') store.activePortalMenu = 'm_overview';
   },
 
-  // Real Auth Login with Active/Inactive verification
+  // Real Auth Login with JWT Token generation and active status verification
   async login(email, password) {
     const cleanEmail = (email || '').trim().toLowerCase();
     
@@ -821,8 +865,18 @@ export const actions = {
       if (password !== '123' && localUser.password && localUser.password !== password) {
         throw new Error('Kata sandi tidak sesuai. (Gunakan kata sandi default: 123)');
       }
+
+      // Generate signed JWT token
+      const token = generateToken(localUser);
+      store.authToken = token;
       store.currentUser = localUser;
       store.currentRole = localUser.role;
+
+      try {
+        localStorage.setItem(TOKEN_KEY, token);
+        localStorage.setItem(USER_KEY, JSON.stringify(localUser));
+      } catch (e) {}
+
       if (localUser.role === 'customer') store.activePortalMenu = 'c_overview';
       else if (localUser.role === 'coach') store.activePortalMenu = 'co_overview';
       else if (localUser.role === 'manajemen') store.activePortalMenu = 'm_overview';
@@ -836,8 +890,18 @@ export const actions = {
       if (user.status === 'inactive' || user.status === 'Nonaktif' || user.status === 'Nonaktif / Diberhentikan') {
         throw new Error('Akun Anda dinonaktifkan sementara. Silakan hubungi tim administrasi manajemen.');
       }
+
+      // Generate signed JWT token
+      const token = generateToken(user);
+      store.authToken = token;
       store.currentUser = user;
       store.currentRole = user.role;
+
+      try {
+        localStorage.setItem(TOKEN_KEY, token);
+        localStorage.setItem(USER_KEY, JSON.stringify(user));
+      } catch (e) {}
+
       if (user.role === 'customer') store.activePortalMenu = 'c_overview';
       else if (user.role === 'coach') store.activePortalMenu = 'co_overview';
       else if (user.role === 'manajemen') store.activePortalMenu = 'm_overview';

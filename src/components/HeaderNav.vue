@@ -61,7 +61,7 @@
         <!-- MODE 1: GUEST / PUBLIC VISITOR (Gerbang Login Resmi) -->
         <template v-if="store.currentRole === 'public' && !store.currentUser">
           <button 
-            @click="actions.openLoginModal()" 
+            @click="$emit('open-login')" 
             class="btn-header-login"
             title="Masuk ke Portal Siswa, Coach, atau Manajemen"
           >
@@ -81,15 +81,13 @@
           </button>
         </template>
 
-        <!-- MODE 2: LOGGED IN USER (Sleek Profile & Quick Portal Access) -->
-        <template v-else>
-          <div class="logged-in-container">
-            <!-- Action Button: Portal or Website -->
+        <!-- MODE 2: LOGGED IN USER BROWSING PUBLIC WEBSITE -->
+        <template v-else-if="store.currentRole === 'public'">
+          <div class="user-logged-clean">
             <button 
-              v-if="store.currentRole === 'public'" 
               @click="backToPortal" 
               class="btn-portal-pill" 
-              title="Masuk ke Dashboard Portal Anda"
+              :title="'Masuk ke Dashboard ' + getUserRoleLabel()"
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <rect x="3" y="3" width="7" height="7"></rect>
@@ -97,13 +95,28 @@
                 <rect x="14" y="14" width="7" height="7"></rect>
                 <rect x="3" y="14" width="7" height="7"></rect>
               </svg>
-              <span>Dashboard {{ getUserRoleLabel() }}</span>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
+              <span>Dashboard {{ getUserRoleLabel() }} ➔</span>
             </button>
+
             <button 
-              v-else 
+              @click="handleLogout" 
+              class="btn-logout-clean" 
+              title="Keluar dari akun"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+              </svg>
+              <span>Keluar</span>
+            </button>
+          </div>
+        </template>
+
+        <!-- MODE 3: LOGGED IN USER INSIDE RBAC PORTAL -->
+        <template v-else>
+          <div class="logged-in-container">
+            <button 
               @click="viewPublicSite" 
               class="btn-website-pill" 
               title="Lihat Beranda Website Publik"
@@ -158,21 +171,6 @@
 
                   <div class="popover-actions">
                     <button 
-                      v-if="store.currentRole === 'public'" 
-                      @click="backToPortal(); isUserMenuOpen = false" 
-                      class="popover-item primary"
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="3" width="7" height="7"></rect>
-                        <rect x="14" y="3" width="7" height="7"></rect>
-                        <rect x="14" y="14" width="7" height="7"></rect>
-                        <rect x="3" y="14" width="7" height="7"></rect>
-                      </svg>
-                      <span>Masuk ke Dashboard Portal</span>
-                    </button>
-
-                    <button 
-                      v-else 
                       @click="viewPublicSite(); isUserMenuOpen = false" 
                       class="popover-item"
                     >
@@ -209,7 +207,7 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import { store, actions } from '../data/store.js';
 
-defineEmits(['open-register']);
+defineEmits(['open-register', 'open-login']);
 
 const isUserMenuOpen = ref(false);
 
@@ -381,6 +379,35 @@ function getUserRoleLabel() {
   padding: 9px 18px;
   font-size: 13.5px;
   font-weight: 700;
+}
+
+/* User Logged in Clean mode on Public Site */
+.user-logged-clean {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-logout-clean {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fff1f2;
+  color: #e11d48;
+  border: 1px solid #fecdd3;
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-logout-clean:hover {
+  background: #ffe4e6;
+  border-color: #fda4af;
+  color: #be123c;
+  transform: translateY(-1px);
 }
 
 /* Logged In Container */

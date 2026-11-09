@@ -1,7 +1,16 @@
 <template>
-  <div class="app-container" :class="{ 'portal-mode': store.currentRole !== 'public' }">
+  <!-- DEDICATED LOGIN GATEWAY (/login) -->
+  <LoginPage 
+    v-if="currentRoute === 'login'" 
+    @navigate-home="navigateToHome" 
+    @open-register="handleOpenRegister" 
+    @login-success="handleLoginSuccess" 
+  />
+
+  <!-- MAIN APP (HOME / RBAC PORTAL) -->
+  <div v-else class="app-container" :class="{ 'portal-mode': store.currentRole !== 'public' }">
     <!-- Master Header & Nav -->
-    <HeaderNav @open-register="handleOpenRegister" />
+    <HeaderNav @open-register="handleOpenRegister" @open-login="navigateToLogin" />
 
     <!-- MAIN VIEW AREA -->
     <!-- VIEW A: PUBLIC COMPANY PROFILE -->
@@ -262,12 +271,13 @@
 </template>
 
 <script setup>
-import { ref, computed, h } from 'vue';
+import { ref, computed, h, onMounted, onUnmounted } from 'vue';
 import { store, actions } from './data/store.js';
 import HeaderNav from './components/HeaderNav.vue';
 import CompanyProfile from './components/CompanyProfile.vue';
 import RegistrationModal from './components/RegistrationModal.vue';
 import LoginModal from './components/LoginModal.vue';
+import LoginPage from './components/LoginPage.vue';
 import PortalCustomer from './components/PortalCustomer.vue';
 import PortalCoach from './components/PortalCoach.vue';
 import PortalManajemen from './components/PortalManajemen.vue';
@@ -275,6 +285,77 @@ import PortalManajemen from './components/PortalManajemen.vue';
 const isRegisterOpen = ref(false);
 const selectedRegisterProductId = ref('');
 const selectedRegisterPackageId = ref('');
+const currentRoute = ref('home');
+
+function detectRoute() {
+  const path = window.location.pathname.toLowerCase();
+  const hash = window.location.hash.toLowerCase();
+  if (path.endsWith('/login') || path === '/login' || hash === '#/login' || hash.startsWith('#/login')) {
+    return 'login';
+  }
+  return 'home';
+}
+
+function syncRoute() {
+  currentRoute.value = detectRoute();
+}
+
+function navigateToLogin() {
+  currentRoute.value = 'login';
+  try {
+    const isVercelOrRoot = window.location.pathname === '/' || window.location.pathname === '/login';
+    if (isVercelOrRoot) {
+      window.history.pushState(null, '', '/login');
+    } else {
+      window.location.hash = '#/login';
+    }
+  } catch (e) {
+    window.location.hash = '#/login';
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function navigateToHome() {
+  currentRoute.value = 'home';
+  store.currentRole = 'public';
+  try {
+    const isVercelOrRoot = window.location.pathname === '/login';
+    if (isVercelOrRoot) {
+      window.history.pushState(null, '', '/');
+    } else if (window.location.hash.includes('login')) {
+      window.location.hash = '';
+    }
+  } catch (e) {
+    window.location.hash = '';
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function handleLoginSuccess(user) {
+  currentRoute.value = 'home';
+  store.currentRole = user.role;
+  try {
+    if (window.location.pathname === '/login') {
+      window.history.pushState(null, '', '/');
+    } else if (window.location.hash.includes('login')) {
+      window.location.hash = '';
+    }
+  } catch (e) {
+    window.location.hash = '';
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+onMounted(() => {
+  syncRoute();
+  window.addEventListener('popstate', syncRoute);
+  window.addEventListener('hashchange', syncRoute);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('popstate', syncRoute);
+  window.removeEventListener('hashchange', syncRoute);
+});
 
 function handleOpenRegister(productId = '', packageId = '') {
   selectedRegisterProductId.value = productId || (store.products[0]?.id || '');
@@ -291,6 +372,7 @@ function viewWebsite() {
 function handleLogout() {
   if (confirm('Apakah Anda yakin ingin keluar dari akun?')) {
     actions.logout();
+    navigateToLogin();
   }
 }
 

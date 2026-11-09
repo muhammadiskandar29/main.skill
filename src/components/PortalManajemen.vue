@@ -697,179 +697,350 @@
          SUB-MENU 6: PLOTTING JADWAL & SESI LATIHAN (m_schedules) - FULL DYNAMIC
          ========================================================================= -->
     <div v-else-if="activeMenu === 'm_schedules'" class="portal-tab-content">
-      <div class="page-top-bar">
+      <!-- Top Bar Header -->
+      <div class="page-top-bar sched-header-bar">
         <div>
-          <span class="badge-chip teal">Plotting & Presensi Interaktif</span>
+          <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+            <span class="badge-chip teal">Plotting & Presensi Interaktif</span>
+            <span class="badge-chip gold mini">{{ allSchedulesList.length }} Sesi Terjadwal</span>
+          </div>
           <h2 class="page-title">Jadwal & Sesi Latihan Seluruh Siswa</h2>
-          <p class="page-sub">Kelola plotting jadwal dinamis, alokasi instruktur, pelacakan presensi, evaluasi capaian, dan rescheduling fleksibel.</p>
+          <p class="page-sub">Kelola plotting sesi, alokasi instruktur, pelacakan presensi, evaluasi capaian, dan filter per siswa secara praktis.</p>
         </div>
-        <button @click="openCreateScheduleModal()" class="btn-primary">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <button @click="openCreateScheduleModal()" class="btn-primary btn-add-sched" title="Plotting Sesi Latihan Baru">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
             <line x1="12" y1="5" x2="12" y2="19"></line>
             <line x1="5" y1="12" x2="19" y2="12"></line>
           </svg>
-          <span>+ Plotting Sesi Latihan Baru</span>
+          <span>+ Plotting Sesi Baru</span>
         </button>
       </div>
 
-      <!-- Schedule KPI Overview Cards -->
-      <div class="sched-metrics-row">
-        <div class="sched-metric-box">
-          <span class="sched-metric-lbl">Total Sesi Terjadwal</span>
-          <strong class="sched-metric-val">{{ allSchedulesList.length }} Sesi</strong>
+      <!-- Interactive Quick Filter KPI Overview Cards -->
+      <div class="sched-metrics-grid">
+        <div 
+          class="sched-kpi-card" 
+          :class="{ active: !selectedStatusScheduleFilter }"
+          @click="selectedStatusScheduleFilter = ''"
+          title="Klik untuk tampilkan semua status sesi"
+        >
+          <div class="kpi-top">
+            <span class="kpi-label">Total Sesi Terjadwal</span>
+            <span class="kpi-icon">📅</span>
+          </div>
+          <strong class="kpi-value">{{ allSchedulesList.length }} Sesi</strong>
+          <span class="kpi-hint">Semua status pelaksanaan</span>
         </div>
-        <div class="sched-metric-box text-green">
-          <span class="sched-metric-lbl">Sesi Terlaksana (Hadir)</span>
-          <strong class="sched-metric-val">{{ countCompletedSchedules }} Sesi</strong>
+
+        <div 
+          class="sched-kpi-card green" 
+          :class="{ active: selectedStatusScheduleFilter === 'Selesai' }"
+          @click="quickFilterStatus('Selesai')"
+          title="Klik untuk filter sesi selesai / hadir"
+        >
+          <div class="kpi-top">
+            <span class="kpi-label">Sesi Selesai (Hadir)</span>
+            <span class="kpi-icon">✅</span>
+          </div>
+          <strong class="kpi-value text-green">{{ countCompletedSchedules }} Sesi</strong>
+          <span class="kpi-hint">Presensi & nilai terisi</span>
         </div>
-        <div class="sched-metric-box text-gold">
-          <span class="sched-metric-lbl">Menunggu Pelaksanaan</span>
-          <strong class="sched-metric-val">{{ countUpcomingSchedules }} Sesi</strong>
+
+        <div 
+          class="sched-kpi-card gold" 
+          :class="{ active: selectedStatusScheduleFilter === 'Terjadwal' }"
+          @click="quickFilterStatus('Terjadwal')"
+          title="Klik untuk filter sesi mendatang"
+        >
+          <div class="kpi-top">
+            <span class="kpi-label">Menunggu Pelaksanaan</span>
+            <span class="kpi-icon">⏳</span>
+          </div>
+          <strong class="kpi-value text-gold">{{ countUpcomingSchedules }} Sesi</strong>
+          <span class="kpi-hint">Jadwal sesi mendatang</span>
         </div>
-        <div class="sched-metric-box text-blue">
-          <span class="sched-metric-lbl">Izin / Reschedule</span>
-          <strong class="sched-metric-val">{{ countRescheduledSchedules }} Sesi</strong>
+
+        <div 
+          class="sched-kpi-card blue" 
+          :class="{ active: selectedStatusScheduleFilter === 'Reschedule' || selectedStatusScheduleFilter === 'Izin' }"
+          @click="quickFilterStatus('Reschedule')"
+          title="Klik untuk filter sesi izin / reschedule"
+        >
+          <div class="kpi-top">
+            <span class="kpi-label">Izin / Reschedule</span>
+            <span class="kpi-icon">🔄</span>
+          </div>
+          <strong class="kpi-value text-blue">{{ countRescheduledSchedules }} Sesi</strong>
+          <span class="kpi-hint">Penjadwalan ulang</span>
         </div>
       </div>
 
-      <!-- Multi-Filter & Search Bar -->
-      <div class="schedule-filter-controls card-humanist">
-        <div class="filter-group">
-          <label class="filter-lbl">Filter Program:</label>
-          <select v-model="selectedProgramScheduleFilter" class="form-select filter-select">
-            <option value="">Semua Program ({{ store.products.length }})</option>
-            <option v-for="p in store.products" :key="p.id" :value="p.name">{{ p.name }}</option>
-          </select>
+      <!-- Advanced Filter & Search Box -->
+      <div class="sched-filter-box card-humanist">
+        <!-- Row 1: Structured Dropdowns -->
+        <div class="filter-dropdowns-row">
+          <!-- 1. FILTER SISWA (DIPERMUDAH SESUAI REQUEST USER) -->
+          <div class="filter-col">
+            <label class="filter-label">
+              <span>👤 Filter Siswa:</span>
+            </label>
+            <select v-model="selectedStudentScheduleFilter" class="form-select filter-select student-select">
+              <option value="">Semua Siswa ({{ uniqueStudentsInSchedules.length }})</option>
+              <option v-for="stu in uniqueStudentsInSchedules" :key="stu.id" :value="stu.id">
+                👦 {{ stu.name }} (Wali: {{ stu.parentName }})
+              </option>
+            </select>
+          </div>
+
+          <!-- 2. FILTER PROGRAM -->
+          <div class="filter-col">
+            <label class="filter-label">
+              <span>🏆 Filter Program:</span>
+            </label>
+            <select v-model="selectedProgramScheduleFilter" class="form-select filter-select">
+              <option value="">Semua Program ({{ store.products.length }})</option>
+              <option v-for="p in store.products" :key="p.id" :value="p.name">{{ p.name }}</option>
+            </select>
+          </div>
+
+          <!-- 3. FILTER INSTRUKTUR -->
+          <div class="filter-col">
+            <label class="filter-label">
+              <span>🥋 Filter Instruktur:</span>
+            </label>
+            <select v-model="selectedCoachScheduleFilter" class="form-select filter-select">
+              <option value="">Semua Instruktur ({{ store.coaches.length }})</option>
+              <option v-for="c in store.coaches" :key="c.id" :value="c.name">{{ c.name }}</option>
+            </select>
+          </div>
+
+          <!-- 4. FILTER STATUS -->
+          <div class="filter-col">
+            <label class="filter-label">
+              <span>⚡ Status Sesi:</span>
+            </label>
+            <select v-model="selectedStatusScheduleFilter" class="form-select filter-select">
+              <option value="">Semua Status</option>
+              <option value="Terjadwal">🟡 Menunggu / Terjadwal</option>
+              <option value="Selesai">🟢 Hadir / Selesai</option>
+              <option value="Izin">🔵 Izin / Sakit</option>
+              <option value="Reschedule">🔴 Reschedule</option>
+            </select>
+          </div>
         </div>
 
-        <div class="filter-group">
-          <label class="filter-lbl">Filter Instruktur:</label>
-          <select v-model="selectedCoachScheduleFilter" class="form-select filter-select">
-            <option value="">Semua Instruktur ({{ store.coaches.length }})</option>
-            <option v-for="c in store.coaches" :key="c.id" :value="c.name">{{ c.name }}</option>
-          </select>
+        <!-- Row 2: Search Input & Reset Button -->
+        <div class="filter-search-action-row">
+          <div class="search-input-wrap">
+            <svg class="search-svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input 
+              v-model="scheduleSearchQuery" 
+              type="text" 
+              placeholder="Cari nama siswa, orang tua, lokasi kolam, instruktur, atau catatan evaluasi..." 
+              class="sched-search-input"
+            />
+            <button 
+              v-if="scheduleSearchQuery" 
+              @click="scheduleSearchQuery = ''" 
+              class="btn-clear-search" 
+              title="Hapus pencarian"
+            >✕</button>
+          </div>
+
+          <div class="filter-action-right">
+            <span class="filter-match-count">
+              <strong>{{ filteredSchedulesList.length }}</strong> dari {{ allSchedulesList.length }} sesi ditemukan
+            </span>
+            <button 
+              v-if="activeScheduleFilterCount > 0" 
+              @click="resetScheduleFilters" 
+              class="btn-reset-filters"
+              title="Reset semua filter ke tampilan awal"
+            >
+              <span>↺ Reset Filter ({{ activeScheduleFilterCount }})</span>
+            </button>
+          </div>
         </div>
 
-        <div class="filter-group">
-          <label class="filter-lbl">Status Pelaksanaan:</label>
-          <select v-model="selectedStatusScheduleFilter" class="form-select filter-select">
-            <option value="">Semua Status</option>
-            <option value="Terjadwal">Terjadwal</option>
-            <option value="Selesai">Hadir / Selesai</option>
-            <option value="Izin">Izin / Sakit</option>
-            <option value="Reschedule">Reschedule</option>
-          </select>
-        </div>
-
-        <div class="filter-group filter-search-wrap">
-          <label class="filter-lbl">Cari Siswa / Lokasi:</label>
-          <input 
-            v-model="scheduleSearchQuery" 
-            type="text" 
-            placeholder="Ketik nama siswa atau lokasi..." 
-            class="form-input filter-search-input"
-          />
+        <!-- Row 3: Active Filters Tags -->
+        <div v-if="activeScheduleFilterCount > 0" class="active-tags-strip">
+          <span class="active-tags-lbl">Filter Aktif:</span>
+          <span v-if="selectedStudentScheduleFilter" class="filter-chip">
+            👤 Siswa: {{ uniqueStudentsInSchedules.find(s => s.id === selectedStudentScheduleFilter)?.name || selectedStudentScheduleFilter }}
+            <button @click="selectedStudentScheduleFilter = ''">✕</button>
+          </span>
+          <span v-if="selectedProgramScheduleFilter" class="filter-chip">
+            🏆 Program: {{ selectedProgramScheduleFilter }}
+            <button @click="selectedProgramScheduleFilter = ''">✕</button>
+          </span>
+          <span v-if="selectedCoachScheduleFilter" class="filter-chip">
+            🥋 Coach: {{ selectedCoachScheduleFilter }}
+            <button @click="selectedCoachScheduleFilter = ''">✕</button>
+          </span>
+          <span v-if="selectedStatusScheduleFilter" class="filter-chip">
+            ⚡ Status: {{ selectedStatusScheduleFilter }}
+            <button @click="selectedStatusScheduleFilter = ''">✕</button>
+          </span>
+          <span v-if="scheduleSearchQuery" class="filter-chip">
+            🔍 "{{ scheduleSearchQuery }}"
+            <button @click="scheduleSearchQuery = ''">✕</button>
+          </span>
         </div>
       </div>
 
-      <!-- Dynamic Schedules Table -->
-      <div class="card-humanist table-wrap">
-        <table class="leads-table">
+      <!-- Dynamic Schedules Table (Neat, Organized & Spacious Layout) -->
+      <div class="card-humanist table-wrap sched-table-wrap">
+        <table class="leads-table sched-table-clean">
           <thead>
             <tr>
-              <th>Sesi & Waktu</th>
-              <th>Nama Siswa & Wali</th>
-              <th>Program & Lokasi</th>
-              <th>Instruktur Pengampu</th>
-              <th>Status</th>
-              <th>Evaluasi & Catatan</th>
-              <th class="text-right">Aksi Dinamis</th>
+              <th style="width: 14%;">Sesi & Waktu</th>
+              <th style="width: 20%;">Identitas Siswa & Kontak</th>
+              <th style="width: 20%;">Program & Fasilitas</th>
+              <th style="width: 14%;">Instruktur / Coach</th>
+              <th style="width: 12%;">Status Presensi</th>
+              <th style="width: 10%;">Evaluasi</th>
+              <th style="width: 10%;" class="text-right">Aksi</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="sch in filteredSchedulesList" :key="sch.id">
+            <tr v-for="sch in filteredSchedulesList" :key="sch.id" class="sched-row">
+              <!-- Kolom 1: Sesi & Waktu -->
               <td>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                  <span class="badge-chip teal">Sesi {{ sch.sessionNo }}</span>
-                  <strong>{{ sch.day }}</strong>
-                </div>
-                <div style="font-size: 12px; color: var(--text-muted); margin-top: 2px;">{{ sch.date }}</div>
-                <div class="font-mono text-xs font-bold" style="color: var(--color-primary); margin-top: 2px;">{{ sch.time }}</div>
-              </td>
-              <td>
-                <strong>{{ sch.studentName }}</strong>
-                <div class="sub-cell-txt">Wali: {{ sch.parentName }}</div>
-                <a v-if="sch.phone" :href="'https://wa.me/' + cleanPhone(sch.phone)" target="_blank" class="sub-cell-wa">
-                  {{ sch.phone }} ↗
-                </a>
-              </td>
-              <td>
-                <span class="badge-chip green">{{ sch.programName || 'Program' }}</span>
-                <div class="font-mono text-xs text-muted" style="margin-top: 4px;">{{ sch.location }}</div>
-              </td>
-              <td>
-                <strong>{{ sch.coachName }}</strong>
-                <div v-if="sch.isSubstitute" style="margin-top: 4px;">
-                  <span class="badge-chip gold mini" style="font-size: 10px; padding: 1px 6px;">🔄 Coach Pengganti</span>
-                  <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Utama: {{ sch.originalCoachName }}</div>
-                  <div v-if="sch.substituteReason" style="font-size: 10.5px; font-style: italic; color: var(--text-muted);">"{{ sch.substituteReason }}"</div>
+                <div class="sched-session-cell">
+                  <span class="session-number-pill">Sesi #{{ sch.sessionNo }}</span>
+                  <div class="session-day-date">
+                    <strong>{{ sch.day }}</strong>, {{ sch.date }}
+                  </div>
+                  <div class="session-time-pill">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span>{{ sch.time }}</span>
+                  </div>
                 </div>
               </td>
+
+              <!-- Kolom 2: Siswa & Wali Murid -->
+              <td>
+                <div class="sched-student-cell">
+                  <div class="student-name-row">
+                    <strong class="student-bold-name">{{ sch.studentName }}</strong>
+                    <span v-if="sch.studentNickname" class="nickname-mini-pill">{{ sch.studentNickname }}</span>
+                  </div>
+                  <div class="parent-muted-name">
+                    <span>Wali: {{ sch.parentName }}</span>
+                  </div>
+                  <div v-if="sch.phone" class="phone-wa-row">
+                    <a :href="'https://wa.me/' + cleanPhone(sch.phone)" target="_blank" class="sched-wa-link" title="Chat WhatsApp Wali">
+                      <span>💬 {{ sch.phone }}</span>
+                    </a>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Kolom 3: Program & Lokasi -->
+              <td>
+                <div class="sched-program-cell">
+                  <span class="program-clean-pill">{{ sch.programName || 'Skill Renang' }}</span>
+                  <div class="location-venue-text">
+                    <span class="loc-pin">📍</span>
+                    <span :title="sch.location">{{ sch.location }}</span>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Kolom 4: Instruktur / Coach -->
+              <td>
+                <div class="sched-coach-cell">
+                  <strong class="coach-bold-name">{{ sch.coachName }}</strong>
+                  <div v-if="sch.isSubstitute" class="substitute-tag-box">
+                    <span class="substitute-badge">🔄 Coach Pengganti</span>
+                    <span class="substitute-sub">Utama: {{ sch.originalCoachName }}</span>
+                  </div>
+                </div>
+              </td>
+
+              <!-- Kolom 5: Status Presensi -->
               <td>
                 <span 
-                  class="badge-chip" 
+                  class="sched-status-badge" 
                   :class="{
-                    'green': sch.status === 'Selesai' || sch.status === 'Hadir',
-                    'gold': sch.status === 'Terjadwal',
-                    'teal': sch.status === 'Izin' || sch.status === 'Izin/Sakit',
-                    'red': sch.status === 'Reschedule' || sch.status === 'Dibatalkan'
+                    'status-selesai': sch.status === 'Selesai' || sch.status === 'Hadir',
+                    'status-terjadwal': sch.status === 'Terjadwal',
+                    'status-izin': sch.status === 'Izin' || sch.status === 'Izin/Sakit',
+                    'status-reschedule': sch.status === 'Reschedule' || sch.status === 'Dibatalkan'
                   }"
                 >
-                  {{ sch.status }}
+                  <span class="status-dot"></span>
+                  <span class="status-text">{{ sch.status === 'Terjadwal' ? 'Mendatang' : sch.status }}</span>
                 </span>
               </td>
+
+              <!-- Kolom 6: Evaluasi & Catatan -->
               <td>
-                <div class="sched-notes-cell">
-                  <span v-if="sch.rating" class="rating-stars">{{ '★'.repeat(sch.rating) }}</span>
-                  <p class="sched-notes-text">{{ sch.notes || 'Belum ada catatan evaluasi' }}</p>
+                <div class="sched-eval-cell">
+                  <div v-if="sch.rating" class="eval-stars" title="Rating Penilaian Coach">
+                    {{ '★'.repeat(sch.rating) }}
+                  </div>
+                  <p class="eval-notes-snippet" :title="sch.notes">
+                    {{ sch.notes || 'Belum ada catatan evaluasi' }}
+                  </p>
                 </div>
               </td>
+
+              <!-- Kolom 7: Aksi Operasional -->
               <td class="text-right">
-                <div class="table-actions-inline">
+                <div class="sched-actions-stack">
                   <button 
                     @click="openAttendanceModal(sch)" 
-                    class="btn-primary-xs"
-                    title="Catat Presensi & Evaluasi Kemampuan"
+                    class="btn-sched-action primary"
+                    title="Catat Presensi & Evaluasi Kemampuan Siswa"
                   >
-                    Presensi & Nilai
+                    <span>Presensi & Nilai</span>
                   </button>
-                  <button 
-                    @click="openSubstituteCoachModal(sch)" 
-                    class="btn-warning-xs"
-                    title="Tugaskan Coach Pengganti Khusus Sesi Ini"
-                  >
-                    Ganti Coach
-                  </button>
-                  <button 
-                    @click="openRescheduleModal(sch)" 
-                    class="btn-secondary-xs"
-                    title="Ubah Tanggal, Waktu atau Lokasi"
-                  >
-                    Reschedule
-                  </button>
-                  <button 
-                    @click="handleDeleteSchedule(sch)" 
-                    class="btn-danger-xs"
-                    title="Hapus Sesi Latihan"
-                  >
-                    Hapus
-                  </button>
+
+                  <div class="sched-sub-actions">
+                    <button 
+                      @click="openSubstituteCoachModal(sch)" 
+                      class="btn-sched-mini gold"
+                      title="Tugaskan Coach Pengganti Khusus Sesi Ini"
+                    >
+                      Ganti Coach
+                    </button>
+                    <button 
+                      @click="openRescheduleModal(sch)" 
+                      class="btn-sched-mini gray"
+                      title="Ubah Tanggal, Waktu atau Lokasi Latihan"
+                    >
+                      Reschedule
+                    </button>
+                    <button 
+                      @click="handleDeleteSchedule(sch)" 
+                      class="btn-sched-mini red"
+                      title="Hapus Sesi Latihan"
+                    >
+                      ✕
+                    </button>
+                  </div>
                 </div>
               </td>
             </tr>
+
+            <!-- Empty State -->
             <tr v-if="filteredSchedulesList.length === 0">
-              <td colspan="7" class="text-center" style="padding: 40px; color: var(--text-muted);">
-                Tidak ada data sesi latihan yang sesuai dengan filter.
+              <td colspan="7" class="text-center sched-empty-cell">
+                <div class="empty-state-wrap">
+                  <span class="empty-icon">🔍</span>
+                  <h4>Tidak Ada Sesi Latihan yang Sesuai</h4>
+                  <p>Coba ubah kriteria filter siswa, program, status, atau kata kunci pencarian Anda.</p>
+                  <button @click="resetScheduleFilters" class="btn-secondary" style="margin-top: 10px;">
+                    Reset Semua Filter
+                  </button>
+                </div>
               </td>
             </tr>
           </tbody>
@@ -3903,10 +4074,68 @@ const showSchedulesModalFlag = ref(false);
 const activeStudentForSchedules = ref(null);
 
 // Filters for Schedules Table
+const selectedStudentScheduleFilter = ref('');
 const selectedCoachScheduleFilter = ref('');
 const selectedProgramScheduleFilter = ref('');
 const selectedStatusScheduleFilter = ref('');
 const scheduleSearchQuery = ref('');
+
+// Computed unique students list for dropdown filtering
+const uniqueStudentsInSchedules = computed(() => {
+  const map = new Map();
+  (store.students || []).forEach(stu => {
+    if (stu.id && stu.name) {
+      map.set(stu.id, {
+        id: stu.id,
+        name: stu.name,
+        nickname: stu.nickname,
+        parentName: stu.parentName,
+        phone: stu.phone,
+        program: stu.productName || stu.program || 'Skill Renang'
+      });
+    }
+  });
+  // Also collect from allSchedulesList if any
+  allSchedulesList.value.forEach(sch => {
+    if (sch.studentId && !map.has(sch.studentId) && sch.studentName) {
+      map.set(sch.studentId, {
+        id: sch.studentId,
+        name: sch.studentName,
+        nickname: '',
+        parentName: sch.parentName,
+        phone: sch.phone,
+        program: sch.programName
+      });
+    }
+  });
+  return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
+});
+
+const activeScheduleFilterCount = computed(() => {
+  let count = 0;
+  if (selectedStudentScheduleFilter.value) count++;
+  if (selectedProgramScheduleFilter.value) count++;
+  if (selectedCoachScheduleFilter.value) count++;
+  if (selectedStatusScheduleFilter.value) count++;
+  if (scheduleSearchQuery.value.trim()) count++;
+  return count;
+});
+
+function resetScheduleFilters() {
+  selectedStudentScheduleFilter.value = '';
+  selectedProgramScheduleFilter.value = '';
+  selectedCoachScheduleFilter.value = '';
+  selectedStatusScheduleFilter.value = '';
+  scheduleSearchQuery.value = '';
+}
+
+function quickFilterStatus(status) {
+  if (selectedStatusScheduleFilter.value === status) {
+    selectedStatusScheduleFilter.value = '';
+  } else {
+    selectedStatusScheduleFilter.value = status;
+  }
+}
 
 // Computed list of all schedules across all students
 const allSchedulesList = computed(() => {
@@ -3917,6 +4146,7 @@ const allSchedulesList = computed(() => {
         ...sch,
         studentId: stu.id,
         studentName: stu.name,
+        studentNickname: stu.nickname,
         studentAge: stu.age,
         parentName: stu.parentName,
         phone: stu.phone,
@@ -3941,6 +4171,12 @@ const countRescheduledSchedules = computed(() => {
 
 const filteredSchedulesList = computed(() => {
   let list = allSchedulesList.value;
+  if (selectedStudentScheduleFilter.value) {
+    list = list.filter(s => 
+      s.studentId === selectedStudentScheduleFilter.value || 
+      s.studentName === selectedStudentScheduleFilter.value
+    );
+  }
   if (selectedCoachScheduleFilter.value) {
     list = list.filter(s => s.coachName === selectedCoachScheduleFilter.value);
   }
@@ -3961,7 +4197,8 @@ const filteredSchedulesList = computed(() => {
       s.parentName?.toLowerCase().includes(q) ||
       s.phone?.includes(q) ||
       s.location?.toLowerCase().includes(q) ||
-      s.programName?.toLowerCase().includes(q)
+      s.programName?.toLowerCase().includes(q) ||
+      s.coachName?.toLowerCase().includes(q)
     );
   }
   return list;
@@ -5332,157 +5569,649 @@ onMounted(() => {
 
 .required { color: #dc2626; }
 
-/* Student Schedule Dynamic Overview & Progress */
-.sched-metrics-row {
+/* =========================================================================
+   SCHEDULES & SESSIONS ENHANCED LAYOUT & FILTERING STYLES
+   ========================================================================= */
+.sched-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.btn-add-sched {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+/* KPI Overview Cards Grid */
+.sched-metrics-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  gap: 14px;
   margin-bottom: 20px;
 }
 
-.sched-metric-box {
-  background-color: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 16px;
-  box-shadow: var(--shadow-sm);
+.sched-kpi-card {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  user-select: none;
+}
+
+.sched-kpi-card:hover {
+  transform: translateY(-2px);
+  border-color: #0d4d5d;
+  box-shadow: 0 4px 14px rgba(13, 77, 93, 0.12);
+}
+
+.sched-kpi-card.active {
+  border-color: #0d4d5d;
+  background: #f8fafc;
+  box-shadow: 0 0 0 2px rgba(13, 77, 93, 0.25);
+}
+
+.sched-kpi-card.green.active {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.25);
+}
+
+.sched-kpi-card.gold.active {
+  border-color: #d97706;
+  box-shadow: 0 0 0 2px rgba(217, 119, 6, 0.25);
+}
+
+.sched-kpi-card.blue.active {
+  border-color: #0284c7;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.25);
+}
+
+.kpi-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.kpi-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.kpi-icon {
+  font-size: 15px;
+}
+
+.kpi-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: #09343f;
+  line-height: 1.15;
+}
+
+.kpi-value.text-green { color: #16a34a; }
+.kpi-value.text-gold { color: #d97706; }
+.kpi-value.text-blue { color: #0284c7; }
+
+.kpi-hint {
+  font-size: 11px;
+  color: #94a3b8;
+}
+
+/* Filter Box */
+.sched-filter-box {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+}
+
+.filter-dropdowns-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.filter-col {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.filter-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #334155;
+}
+
+.filter-select {
+  padding: 8px 12px;
+  font-size: 13px;
+  border-radius: 8px;
+  border: 1.5px solid #cbd5e1;
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
+.filter-select:focus {
+  border-color: #0d4d5d;
+  box-shadow: 0 0 0 3px rgba(13, 77, 93, 0.1);
+}
+
+.filter-search-action-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+  flex-wrap: wrap;
+}
+
+.search-input-wrap {
+  flex: 1;
+  min-width: 280px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-svg {
+  position: absolute;
+  left: 12px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.sched-search-input {
+  width: 100%;
+  padding: 8px 34px 8px 36px;
+  font-size: 13px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.sched-search-input:focus {
+  border-color: #0d4d5d;
+  box-shadow: 0 0 0 3px rgba(13, 77, 93, 0.1);
+}
+
+.btn-clear-search {
+  position: absolute;
+  right: 10px;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 3px;
+}
+
+.filter-action-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.filter-match-count {
+  font-size: 12.5px;
+  color: #64748b;
+}
+
+.filter-match-count strong {
+  color: #0d4d5d;
+}
+
+.btn-reset-filters {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-reset-filters:hover {
+  background: #fee2e2;
+  border-color: #ef4444;
+}
+
+/* Active Tags */
+.active-tags-strip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px dashed #e2e8f0;
+}
+
+.active-tags-lbl {
+  font-size: 11px;
+  font-weight: 700;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #1e293b;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+.filter-chip button {
+  background: none;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  font-size: 11px;
+  padding: 0;
+  line-height: 1;
+}
+
+.filter-chip button:hover {
+  color: #dc2626;
+}
+
+/* Clean Table Styles */
+.sched-table-clean {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.sched-table-clean th {
+  background: #f8fafc;
+  color: #475569;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 12px 14px;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.sched-row td {
+  padding: 14px 14px;
+  vertical-align: middle;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.sched-row:hover {
+  background-color: #f8fafc;
+}
+
+/* Column Cell Components */
+.sched-session-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.session-number-pill {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(13, 77, 93, 0.1);
+  color: #0d4d5d;
+  width: fit-content;
+}
+
+.session-day-date {
+  font-size: 12.5px;
+  color: #1e293b;
+}
+
+.session-time-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  color: #0d4d5d;
+  font-weight: 700;
+  font-family: var(--font-mono, monospace);
+  background: #f0fdf4;
+  padding: 1px 6px;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+/* Student Cell */
+.sched-student-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.student-name-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.student-bold-name {
+  font-size: 13.5px;
+  color: #0f172a;
+}
+
+.nickname-mini-pill {
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.parent-muted-name {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.phone-wa-row {
+  margin-top: 2px;
+}
+
+.sched-wa-link {
+  font-size: 11px;
+  font-weight: 700;
+  color: #16a34a;
+  text-decoration: none;
+  font-family: var(--font-mono, monospace);
+}
+
+.sched-wa-link:hover {
+  text-decoration: underline;
+}
+
+/* Program Cell */
+.sched-program-cell {
   display: flex;
   flex-direction: column;
   gap: 4px;
 }
 
-.sched-metric-lbl {
-  font-size: 11.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  color: var(--text-subtle);
-  letter-spacing: 0.03em;
-}
-
-.sched-metric-val {
-  font-size: 22px;
-  font-weight: 800;
-  color: var(--color-primary-dark);
-}
-
-.sched-metric-box.text-green .sched-metric-val { color: #16a34a; }
-.sched-metric-box.text-gold .sched-metric-val { color: #d97706; }
-.sched-metric-box.text-blue .sched-metric-val { color: #0284c7; }
-
-/* Filter Controls Bar */
-.schedule-filter-controls {
-  display: flex;
-  gap: 16px;
-  padding: 16px 20px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-  align-items: flex-end;
-}
-
-.filter-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  flex: 1;
-  min-width: 180px;
-}
-
-.filter-search-wrap {
-  flex: 1.5;
-  min-width: 220px;
-}
-
-.filter-search-input {
-  padding: 8px 12px;
-  font-size: 13px;
-}
-
-.sub-cell-wa {
+.program-clean-pill {
   display: inline-block;
   font-size: 11px;
-  color: #16a34a;
   font-weight: 700;
-  text-decoration: none;
-  margin-top: 2px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: #eff6ff;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+  width: fit-content;
+  white-space: nowrap;
 }
 
-.sub-cell-wa:hover {
-  text-decoration: underline;
+.location-venue-text {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  font-size: 11.5px;
+  color: #64748b;
+  line-height: 1.35;
 }
 
-.sched-notes-cell {
-  max-width: 220px;
+.loc-pin {
+  font-size: 12px;
+  flex-shrink: 0;
 }
 
-.rating-stars {
-  color: #e5a024;
-  font-size: 11px;
-  display: block;
+/* Coach Cell */
+.sched-coach-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.coach-bold-name {
+  font-size: 13px;
+  color: #1e293b;
+}
+
+.substitute-tag-box {
+  margin-top: 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.substitute-badge {
+  font-size: 10px;
+  font-weight: 700;
+  background: #fef3c7;
+  color: #b45309;
+  padding: 1px 6px;
+  border-radius: 4px;
+  width: fit-content;
+}
+
+.substitute-sub {
+  font-size: 10.5px;
+  color: #94a3b8;
+}
+
+/* Status Badge */
+.sched-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.sched-status-badge.status-selesai {
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+}
+.sched-status-badge.status-selesai .status-dot { background: #16a34a; }
+
+.sched-status-badge.status-terjadwal {
+  background: #fefce8;
+  color: #854d0e;
+  border: 1px solid #fef08a;
+}
+.sched-status-badge.status-terjadwal .status-dot { background: #eab308; }
+
+.sched-status-badge.status-izin {
+  background: #f0f9ff;
+  color: #075985;
+  border: 1px solid #bae6fd;
+}
+.sched-status-badge.status-izin .status-dot { background: #0284c7; }
+
+.sched-status-badge.status-reschedule {
+  background: #fef2f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+.sched-status-badge.status-reschedule .status-dot { background: #ef4444; }
+
+/* Eval Cell */
+.sched-eval-cell {
+  max-width: 160px;
+}
+
+.eval-stars {
+  color: #eab308;
+  font-size: 12px;
+  line-height: 1;
   margin-bottom: 2px;
 }
 
-.sched-notes-text {
-  font-size: 12px;
-  color: var(--text-muted);
+.eval-notes-snippet {
+  font-size: 11px;
+  color: #64748b;
   line-height: 1.35;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Actions Stack */
+.sched-actions-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  align-items: flex-end;
+}
+
+.btn-sched-action.primary {
+  background: #0d4d5d;
+  color: #ffffff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.btn-sched-action.primary:hover {
+  background: #09343f;
+  transform: translateY(-1px);
+}
+
+.sched-sub-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.btn-sched-mini {
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.btn-sched-mini.gold {
+  background: #fffbeb;
+  color: #b45309;
+  border-color: #fde68a;
+}
+.btn-sched-mini.gold:hover {
+  background: #fef3c7;
+  border-color: #f59e0b;
+}
+
+.btn-sched-mini.gray {
+  background: #f8fafc;
+  color: #475569;
+  border-color: #cbd5e1;
+}
+.btn-sched-mini.gray:hover {
+  background: #e2e8f0;
+}
+
+.btn-sched-mini.red {
+  background: #fef2f2;
+  color: #dc2626;
+  border-color: #fecaca;
+  padding: 3px 6px;
+}
+.btn-sched-mini.red:hover {
+  background: #fee2e2;
+  border-color: #ef4444;
+}
+
+/* Empty Cell */
+.sched-empty-cell {
+  padding: 48px 24px;
+}
+
+.empty-state-wrap .empty-icon {
+  font-size: 32px;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.empty-state-wrap h4 {
+  font-size: 16px;
+  color: #1e293b;
+  margin: 0 0 4px 0;
+}
+
+.empty-state-wrap p {
+  font-size: 13px;
+  color: #64748b;
   margin: 0;
 }
 
-.table-actions-inline {
-  display: flex;
-  gap: 6px;
-  justify-content: flex-end;
-  flex-wrap: wrap;
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .sched-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .filter-dropdowns-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
-.btn-primary-xs {
-  background-color: var(--color-primary);
-  color: #ffffff;
-  border: none;
-  padding: 5px 10px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.btn-primary-xs:hover {
-  background-color: var(--color-primary-dark);
-}
-
-.btn-secondary-xs {
-  background-color: var(--bg-subtle);
-  color: var(--text-main);
-  border: 1px solid var(--border-subtle);
-  padding: 5px 10px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.btn-secondary-xs:hover {
-  background-color: var(--color-primary-soft);
-  color: var(--color-primary);
-}
-
-.btn-danger-xs {
-  background-color: #fef2f2;
-  color: #dc2626;
-  border: 1px solid #fecaca;
-  padding: 5px 10px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all var(--transition-fast);
-}
-
-.btn-danger-xs:hover {
-  background-color: #dc2626;
-  color: #ffffff;
+@media (max-width: 640px) {
+  .sched-metrics-grid {
+    grid-template-columns: 1fr;
+  }
+  .filter-dropdowns-row {
+    grid-template-columns: 1fr;
+  }
+  .filter-search-action-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 .btn-success-xs {

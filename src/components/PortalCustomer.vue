@@ -54,10 +54,10 @@
         <div class="quest-roadmap-header">
           <div>
             <div class="flex items-center gap-2">
-              <span class="badge-chip gold">🗺️ Peta Petualangan Level</span>
+              <span class="badge-chip gold">Alur Kurikulum & Capaian Tingkat</span>
               <span class="quest-track-sub-badge">Kurikulum {{ activeProduct?.name || 'Renang' }}</span>
             </div>
-            <h3 class="quest-roadmap-title">Peta Perjalanan Skill Ananda: {{ studentData.name }}</h3>
+            <h3 class="quest-roadmap-title">Peta Capaian Kompetensi Siswa: {{ studentData.name }}</h3>
             <p class="quest-roadmap-desc">
               Peta milestone bertahap. Klik stasiun level untuk memeriksa fokus teknik dan tantangan kelulusan (*Challenge Milestone*).
             </p>
@@ -88,7 +88,7 @@
               <!-- Floating Avatar Pin for Current Level -->
               <div v-if="currentStudentLevel === lvl.levelNumber" class="kenzo-avatar-pin">
                 <div class="pin-speech-bubble">
-                  <span>{{ studentData.name.split(' ')[0] }} ada di sini! 🏊‍♂️</span>
+                  <span>Level Aktif Siswa</span>
                 </div>
                 <div class="pin-avatar-circle">
                   <img :src="studentData.avatar || 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=160'" alt="Avatar" class="pin-img" />
@@ -98,9 +98,14 @@
 
               <!-- Node Checkpoint Circle -->
               <div class="node-checkpoint-circle">
-                <span v-if="currentStudentLevel > lvl.levelNumber" class="node-icon-check">🏆</span>
-                <span v-else-if="currentStudentLevel === lvl.levelNumber" class="node-icon-active">⭐</span>
-                <span v-else class="node-icon-lock">🔒</span>
+                <svg v-if="currentStudentLevel > lvl.levelNumber" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span v-else-if="currentStudentLevel === lvl.levelNumber" style="display: inline-block; width: 10px; height: 10px; border-radius: 50%; background: #ffffff;"></span>
+                <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
               </div>
 
               <!-- Node Card Detail -->
@@ -115,16 +120,16 @@
                 <strong class="node-title">{{ lvl.title }}</strong>
                 
                 <div class="node-challenge-pill" v-if="lvl.challenge">
-                  <span class="c-icon">🎯</span>
+                  <span class="badge-chip gold mini" style="font-size: 10px;">Target</span>
                   <span class="c-text">{{ lvl.challenge }}</span>
                 </div>
 
                 <div class="node-status-foot">
                   <span v-if="currentStudentLevel > lvl.levelNumber" class="text-green font-bold">
-                    ✓ Lulus Challenge
+                    ✓ Lulus Standar
                   </span>
                   <span v-else-if="currentStudentLevel === lvl.levelNumber" class="text-gold font-bold">
-                    📍 Sedang Ditempuh (75%)
+                    Sedang Ditempuh (75%)
                   </span>
                   <span v-else class="text-muted">
                     Belum Terbuka
@@ -143,7 +148,7 @@
         <div class="radar-card-header">
           <div>
             <div class="flex items-center gap-2">
-              <span class="badge-chip teal">🕸️ Analitik Evaluasi 5 Pilar</span>
+              <span class="badge-chip teal">Evaluasi 5 Pilar Kompetensi</span>
               <span class="badge-chip green">Pertumbuhan +{{ overallGrowthPct }}% Sejak Sesi 1</span>
             </div>
             <h3 class="radar-card-title">Radar Spider-Web Kemampuan Ananda</h3>
@@ -236,7 +241,7 @@
                     dominant-baseline="central"
                     class="radar-vertex-label"
                   >
-                    {{ lbl.pillar.icon }} {{ lbl.pillar.label }}
+                    {{ lbl.pillar.label }}
                   </text>
                 </g>
               </svg>
@@ -263,7 +268,7 @@
                 <div class="kpi-val-row">
                   <strong class="kpi-num">{{ overallAverageScore }}</strong>
                   <span class="kpi-denom">/ 100</span>
-                  <span class="kpi-grade-badge">Predikat: Mahir & Mandiri 🌟</span>
+                  <span class="kpi-grade-badge">Predikat: Mahir & Mandiri</span>
                 </div>
               </div>
               <div class="kpi-growth-box">
@@ -592,9 +597,9 @@
       <!-- Banner Kuota Sesi Selesai / Perlu Perpanjangan -->
       <div v-if="studentData.completedSessions >= studentData.packageTotalSessions" class="renewal-alert-banner" style="background: linear-gradient(135deg, #fef3c7, #fef9c3); border: 1.5px solid #fde047; border-radius: 12px; padding: 16px 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
         <div>
-          <span class="badge-chip gold" style="font-size: 11px; margin-bottom: 4px;">Paket Sesi Tuntas ({{ studentData.completedSessions }}/{{ studentData.packageTotalSessions }} Pertemuan)</span>
-          <h4 style="font-size: 16px; font-weight: 800; color: #854d0e; margin: 4px 0 2px;">Ananda telah menyelesaikan paket latihan sebelumnya! 🎉</h4>
-          <p style="font-size: 13px; color: #713f12; margin: 0;">Tagihan perpanjangan paket baru telah disiapkan oleh admin. Silakan bayar tagihan di bawah agar sesi latihan lanjutan dapat segera dimulai.</p>
+          <span class="badge-chip gold" style="font-size: 11px; margin-bottom: 4px;">Paket Sesi Selesai ({{ studentData.completedSessions }}/{{ studentData.packageTotalSessions }} Pertemuan)</span>
+          <h4 style="font-size: 16px; font-weight: 800; color: #854d0e; margin: 4px 0 2px;">Siswa telah menyelesaikan seluruh sesi pada paket sebelumnya</h4>
+          <p style="font-size: 13px; color: #713f12; margin: 0;">Tagihan perpanjangan paket lanjutan telah diterbitkan. Silakan melakukan pembayaran agar sesi latihan berikutnya dapat segera dijadwalkan.</p>
         </div>
       </div>
 
@@ -661,7 +666,7 @@
       <div class="bank-transfer-option card-humanist" style="margin-top: 20px;">
         <div style="margin-bottom: 14px;">
           <h4 style="font-size: 15px; font-weight: 800; color: var(--color-primary-dark); margin-bottom: 4px;">
-            🏦 Alternatif Pembayaran: Transfer Rekening Resmi
+            Alternatif Pembayaran: Transfer Rekening Bank Resmi
           </h4>
           <p style="font-size: 13px; color: var(--text-muted);">
             Bila tidak menggunakan QRIS, Ayah/Bunda dapat mentransfer biaya paket kursus ke salah satu rekening resmi yayasan berikut:
@@ -711,7 +716,7 @@
             <!-- Breakdown Box -->
             <div style="background: #f8fafc; border: 1.5px solid #0284c7; padding: 14px; border-radius: 10px; margin-bottom: 14px;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 6px;">
-                <span style="font-size: 12px; font-weight: 700; color: #0284c7;">⚡ AUTO-VERIFIKASI MUTASI AKTIF</span>
+                <span style="font-size: 12px; font-weight: 700; color: #0284c7;">VERIFIKASI MUTASI OTOMATIS</span>
                 <span class="badge-chip gold" style="font-size: 10px;">Tanpa Kirim Bukti</span>
               </div>
               <div v-if="activePayingTrx && activePayingTrx.uniqueCode" style="font-size: 12.5px; color: #475569; display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px;">
@@ -734,9 +739,13 @@
                 type="button" 
                 @click="copyBankAcc(qrisPayAmount, 'Nominal')"
                 class="btn-secondary" 
-                style="width: 100%; margin-top: 8px; padding: 6px 10px; font-size: 11.5px; font-weight: 700;"
+                style="width: 100%; margin-top: 8px; padding: 7px 10px; font-size: 11.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px;"
               >
-                📋 Salin Nominal Tepat (Rp {{ qrisPayAmount.toLocaleString('id-ID') }})
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                <span>Salin Nominal Tepat (Rp {{ qrisPayAmount.toLocaleString('id-ID') }})</span>
               </button>
             </div>
 
@@ -765,14 +774,21 @@
         <div class="modal-body">
           <div class="quest-modal-hero">
             <div class="quest-badge-big">
-              <span v-if="currentStudentLevel > selectedQuestLevel.levelNumber">🏆</span>
-              <span v-else-if="currentStudentLevel === selectedQuestLevel.levelNumber">⭐</span>
-              <span v-else>🔒</span>
+              <svg v-if="currentStudentLevel > selectedQuestLevel.levelNumber" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2.5">
+                <polyline points="20 6 9 17 4 12"></polyline>
+              </svg>
+              <svg v-else-if="currentStudentLevel === selectedQuestLevel.levelNumber" width="28" height="28" viewBox="0 0 24 24" fill="currentColor" stroke="none" color="#d97706">
+                <circle cx="12" cy="12" r="8"></circle>
+              </svg>
+              <svg v-else width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
             </div>
             <div class="quest-hero-meta">
               <h4 class="quest-hero-title">{{ selectedQuestLevel.title }}</h4>
               <span class="badge-chip" :class="currentStudentLevel > selectedQuestLevel.levelNumber ? 'green' : (currentStudentLevel === selectedQuestLevel.levelNumber ? 'gold' : 'teal')">
-                {{ currentStudentLevel > selectedQuestLevel.levelNumber ? '✓ Lulus & Memperoleh Sertifikat' : (currentStudentLevel === selectedQuestLevel.levelNumber ? 'Sedang Ditempuh (Sesi Aktif)' : 'Belum Terbuka (Level Berikutnya)') }}
+                {{ currentStudentLevel > selectedQuestLevel.levelNumber ? '✓ Lulus Standar Kompetensi' : (currentStudentLevel === selectedQuestLevel.levelNumber ? 'Sedang Ditempuh (Sesi Aktif)' : 'Belum Terbuka (Tingkat Lanjutan)') }}
               </span>
             </div>
           </div>
@@ -784,9 +800,8 @@
             </div>
 
             <div class="q-detail-block">
-              <span class="q-detail-label">TANTANGAN KELULUSAN (CHALLENGE):</span>
+              <span class="q-detail-label">STANDAR KELULUSAN (TARGET CAPAIAN):</span>
               <div class="challenge-highlight-box">
-                <span class="challenge-icon">🎯</span>
                 <span class="challenge-text">{{ selectedQuestLevel.challenge }}</span>
               </div>
             </div>
@@ -820,7 +835,7 @@
           <!-- Data Siswa -->
           <div style="margin-bottom: 16px;">
             <div style="font-size: 13px; font-weight: 800; color: var(--color-primary-dark); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-              <span>👦</span> Data Ananda (Siswa)
+              Data Siswa (Peserta Kursus)
             </div>
             <div class="form-grid">
               <div class="form-group">
@@ -847,7 +862,7 @@
           <!-- Data Orang Tua -->
           <div style="margin-bottom: 16px; border-top: 1px solid #e2e8f0; padding-top: 14px;">
             <div style="font-size: 13px; font-weight: 800; color: var(--color-primary-dark); margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
-              <span>👨‍👩‍👧</span> Data Orang Tua / Wali
+              Data Orang Tua / Wali Murid
             </div>
             <div class="form-grid">
               <div class="form-group">
@@ -943,7 +958,7 @@ async function handleSaveCustProfile() {
   try {
     await actions.updateStudent(studentData.value.id, custProfileForm.value);
     showEditCustProfileModal.value = false;
-    alert('✅ Profil ananda & kontak wali murid berhasil diperbarui secara dinamis!');
+    alert('Profil siswa dan kontak wali murid berhasil diperbarui.');
   } catch (err) {
     alert(err.message || 'Gagal memperbarui profil');
   } finally {
@@ -1064,11 +1079,11 @@ const isQuestModalOpen = ref(false);
 
 const radarPillars = computed(() => {
   return studentData.value.radarSkills?.pillars || [
-    { key: 'waterConfidence', label: 'Keberanian Air', icon: '🌊', desc: 'Adaptasi dan ketenangan di dalam air tanpa panik' },
-    { key: 'breathControl', label: 'Ketahanan Nafas', icon: '🫁', desc: 'Pengambilan nafas ritmis dan ketahanan paru-paru' },
-    { key: 'strokeTechnique', label: 'Teknik Gerak', icon: '🏊‍♂️', desc: 'Ayunan tangan dan kekuatan dorongan kaki' },
-    { key: 'bodyBalance', label: 'Keseimbangan', icon: '⚖️', desc: 'Posisi tubuh mendatar sejajar permukaan air' },
-    { key: 'disciplineFocus', label: 'Fokus & Mental', icon: '🎯', desc: 'Konsentrasi mendengarkan instruksi coach di kolam' }
+    { key: 'waterConfidence', label: 'Keberanian Air', icon: '', desc: 'Adaptasi dan ketenangan di dalam air tanpa panik' },
+    { key: 'breathControl', label: 'Ketahanan Nafas', icon: '', desc: 'Pengambilan nafas ritmis dan ketahanan paru-paru' },
+    { key: 'strokeTechnique', label: 'Teknik Gerak', icon: '', desc: 'Ayunan tangan dan kekuatan dorongan kaki' },
+    { key: 'bodyBalance', label: 'Keseimbangan', icon: '', desc: 'Posisi tubuh mendatar sejajar permukaan air' },
+    { key: 'disciplineFocus', label: 'Fokus & Mental', icon: '', desc: 'Konsentrasi mendengarkan instruksi coach di kolam' }
   ];
 });
 

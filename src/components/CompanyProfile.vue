@@ -626,8 +626,9 @@
 
               <div class="loc-amenities-box">
                 <strong>Fasilitas & Sarana Pendukung:</strong>
-                <p v-if="loc.facilities" style="font-size: 13.5px; color: var(--color-primary-dark); font-weight: 600; margin: 4px 0 8px 0;">
-                  🏢 {{ loc.facilities }}
+                <p v-if="loc.facilities" style="display: flex; align-items: center; gap: 6px; font-size: 13.5px; color: var(--color-primary-dark); font-weight: 600; margin: 4px 0 8px 0;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 7v14M21 7v14M9 3h6v4H9zM9 11h2M13 11h2M9 15h2M13 15h2"></path></svg>
+                  <span>{{ loc.facilities }}</span>
                 </p>
                 <ul class="amenities-list">
                   <li>✓ Kolam renang dengan zonasi kedalaman bertahap (aman anak)</li>

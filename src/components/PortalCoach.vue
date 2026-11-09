@@ -348,7 +348,7 @@
             <div>
               <span class="badge-chip teal">Instruktur Aktif</span>
               <h3 class="att-coach-name">{{ currentCoach.name }}</h3>
-              <p class="att-venue-target">📍 Target: {{ selectedLocation?.name }}</p>
+              <p class="att-venue-target">Lokasi Target: {{ selectedLocation?.name }}</p>
             </div>
           </div>
 
@@ -364,7 +364,7 @@
         <div class="venue-select-card card-humanist">
           <div class="venue-select-row">
             <div class="venue-select-input-col">
-              <label class="form-label font-bold">📍 Pilih Fasilitas / Lokasi Mengajar Hari Ini <span class="required">*</span></label>
+              <label class="form-label font-bold">Pilih Fasilitas & Lokasi Latihan Hari Ini <span class="required">*</span></label>
               <select v-model="selectedLocationId" @change="onLocationChange" class="form-select venue-select-input" required>
                 <option v-for="loc in store.locations" :key="loc.id" :value="loc.id">
                   {{ loc.name }} ({{ loc.area }}) — Radius Geofence: {{ loc.radiusMeters || 250 }}m
@@ -373,7 +373,7 @@
             </div>
           </div>
           <div class="venue-meta-strip" v-if="selectedLocation">
-            <span class="venue-addr-text">🏢 {{ selectedLocation.address }}</span>
+            <span class="venue-addr-text">{{ selectedLocation.address }}</span>
             <span class="venue-coord-tag font-mono">Patokan: {{ selectedLocation.latitude }}, {{ selectedLocation.longitude }} (Radius: {{ selectedLocation.radiusMeters || 250 }}m)</span>
           </div>
         </div>
@@ -403,7 +403,7 @@
                 <line x1="12" y1="6" x2="12" y2="2"></line>
                 <line x1="12" y1="22" x2="12" y2="18"></line>
               </svg>
-              <span>{{ isLocating ? 'Mendeteksi Koordinat GPS...' : '📍 Nyalakan GPS & Ambil Titik Lokasi' }}</span>
+              <span>{{ isLocating ? 'Mendeteksi Koordinat GPS...' : 'Nyalakan GPS & Validasi Titik Lokasi' }}</span>
             </button>
 
             <!-- Quick fallback for desktop testing -->
@@ -431,7 +431,8 @@
               </strong>
             </div>
             <button @click="requestLocation" class="btn-secondary btn-sm" title="Perbarui titik koordinat">
-              🔄 Refresh GPS
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle; margin-right:4px;"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+              <span>Perbarui Titik GPS</span>
             </button>
           </div>
 
@@ -518,7 +519,7 @@
               <div class="att-hist-details">
                 <span class="badge-chip green">{{ att.status }}</span>
                 <strong class="att-session-title">{{ att.sessionType }}</strong>
-                <p class="att-loc-info">📍 {{ att.locationName }} (Radius: {{ att.distanceFromVenue }}m)</p>
+                <p class="att-loc-info">{{ att.locationName }} (Radius: {{ att.distanceFromVenue }}m)</p>
                 <span class="att-note-txt">{{ att.notes }}</span>
               </div>
             </div>
@@ -592,13 +593,13 @@
           <!-- Asesmen & Keselamatan Siswa (Intake Assessment) -->
           <div v-if="stu.waterConfidence || stu.medicalCondition" class="binaan-intake-strip">
             <div class="intake-pill">
-              <span>🌊 Status Air: <strong>{{ stu.waterConfidence || 'Pemula' }}</strong> (Takut: {{ stu.waterFear || 'Tidak' }})</span>
+              <span>Adaptasi Air: <strong>{{ stu.waterConfidence || 'Pemula' }}</strong> (Riwayat Takut: {{ stu.waterFear || 'Tidak' }})</span>
             </div>
             <div v-if="stu.medicalCondition && stu.medicalCondition !== 'Tidak ada'" class="intake-pill warning">
-              <span>⚠️ Catatan Medis: <strong>{{ stu.medicalCondition }}</strong></span>
+              <span>Kondisi Medis: <strong>{{ stu.medicalCondition }}</strong></span>
             </div>
             <div v-if="stu.coachNotes" class="intake-pill notes">
-              <span>📝 Catatan Wali: <em>"{{ stu.coachNotes }}"</em></span>
+              <span>Catatan Khusus: <em>"{{ stu.coachNotes }}"</em></span>
             </div>
           </div>
 

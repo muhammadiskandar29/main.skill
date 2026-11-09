@@ -285,26 +285,26 @@ Wali dari Ananda *${trx.studentName || 'Siswa'}*
 
 Alhamdulillah, pembayaran tagihan program bimbingan ananda telah *BERHASIL DIVERIFIKASI (LUNAS)* oleh Tim Keuangan ${brandName}.
 
-📄 *Rincian Tanda Terima Resmi:*
-• *No. Invoice:* ${trx.id}
-• *Program:* ${trx.productName || 'Skill Academy'}
-• *Paket Bimbingan:* ${trx.packageName || 'Small Group (4 Sesi)'}
-• *Nominal Dibayar:* *${amountStr}*
-• *Metode Bayar:* ${trx.paymentMethodName || 'QRIS Dinamis ASPI'}
-• *Status Verifikasi:* ✅ *LUNAS (VERIFIED)*
-• *Waktu Verifikasi:* ${paidTime}
+[RINCIAN TANDA TERIMA RESMI]
+• No. Invoice: ${trx.id}
+• Program: ${trx.productName || 'Skill Academy'}
+• Paket Bimbingan: ${trx.packageName || 'Small Group (4 Sesi)'}
+• Nominal Dibayar: *${amountStr}*
+• Metode Bayar: ${trx.paymentMethodName || 'QRIS Dinamis ASPI'}
+• Status Verifikasi: *LUNAS (TERVERIFIKASI SISTEM)*
+• Waktu Verifikasi: ${paidTime}
 
-🎯 *Langkah Selanjutnya:*
-Jadwal bimbingan, presensi harian, dan raport evaluasi berkala ananda dapat dipantau langsung melalui Portal Siswa:
-👉 https://main-skill.vercel.app/login
-*(Gunakan email Bapak/Ibu terdaftar untuk masuk)*
+[INFORMASI AKSES PORTAL SISWA]
+Jadwal bimbingan, presensi harian, serta raport evaluasi berkala siswa dapat dipantau langsung melalui Portal Siswa:
+Tautan Portal: https://main-skill.vercel.app/login
+(Silakan masuk menggunakan email terdaftar)
 
-File Invoice resmi ber-cap LUNAS telah diterbitkan oleh sistem manajemen. Terima kasih atas kepercayaan Bapak/Ibu mendampingi tumbuh kembang ananda bersama ${brandName}.
+File Invoice resmi ber-cap LUNAS telah diterbitkan oleh sistem manajemen. Terima kasih atas kepercayaan Bapak/Ibu mendampingi perkembangan ananda bersama ${brandName}.
 
-Salam hangat,
-*Tim Administrasi & Keuangan ${brandName}*
-📞 Call Center: ${brand.callCenter || '0852-8627-4726'}
-🌐 https://main-skill.vercel.app/`;
+Hormat kami,
+*Manajemen Administrasi & Keuangan ${brandName}*
+Layanan Pelanggan: ${brand.callCenter || '0852-8627-4726'}
+Situs Resmi: https://main-skill.vercel.app/`;
 
   return `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`;
 }

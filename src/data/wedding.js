@@ -17,7 +17,7 @@ export const weddingData = {
     parents: "Putri dari Bpk. Tatang Iskandar & Ibu Ida Siti Mariah",
     instagram: "ria",
     instagramUrl: "https://instagram.com",
-    dummyAvatar: "👰🏻‍♀️"
+    dummyAvatar: ""
   },
 
   groom: {
@@ -27,7 +27,7 @@ export const weddingData = {
     parents: "Putra dari Bpk. Rodji & Ibu Muntakoh",
     instagram: "iskandar",
     instagramUrl: "https://instagram.com",
-    dummyAvatar: "🤵🏻‍♂️"
+    dummyAvatar: ""
   },
 
   loveStory: [

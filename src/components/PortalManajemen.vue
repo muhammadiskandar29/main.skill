@@ -247,7 +247,7 @@
 
             <!-- Mapped Locations Badges -->
             <div class="prod-locations-strip">
-              <span class="lbl-coaches">📍 Lokasi Latihan:</span>
+              <span class="lbl-coaches">Lokasi Latihan:</span>
               <div v-if="getLocationsForProduct(prod.id).length > 0" class="loc-tag-list">
                 <span v-for="l in getLocationsForProduct(prod.id)" :key="l.id" class="loc-tag">
                   {{ l.name }}
@@ -352,7 +352,12 @@
         <div v-for="loc in store.locations" :key="loc.id" class="location-crud-card card-humanist">
           <div class="loc-card-header-bar">
             <div class="flex items-center gap-2">
-              <span class="loc-pin-icon">📍</span>
+              <span class="loc-pin-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                  <circle cx="12" cy="10" r="3"></circle>
+                </svg>
+              </span>
               <div>
                 <h3 class="loc-title">{{ loc.name }}</h3>
                 <span class="badge-chip teal">{{ loc.area }}</span>
@@ -513,7 +518,7 @@
             <div class="c-title-area">
               <h3 class="c-name">{{ c.name }}</h3>
               <span :class="['badge-chip', c.status === 'inactive' ? 'gray' : 'green']">
-                {{ c.status === 'inactive' ? '⚪ Nonaktif / Berhenti' : '🟢 Akun Login Aktif (123)' }}
+                {{ c.status === 'inactive' ? 'Nonaktif' : 'Akun Login Aktif' }}
               </span>
             </div>
           </div>
@@ -590,8 +595,8 @@
         <div style="display: flex; align-items: center; gap: 10px;">
           <select v-model="studentStatusFilter" class="form-select filter-select" style="min-width: 150px; font-size: 13px;">
             <option value="all">Semua Siswa</option>
-            <option value="active">🟢 Siswa Aktif</option>
-            <option value="inactive">⚪ Nonaktif / Berhenti</option>
+            <option value="active">Siswa Aktif</option>
+            <option value="inactive">Nonaktif / Berhenti</option>
           </select>
           <div class="filter-count">
             <span>{{ filteredStudents.length }} dari {{ store.students.length }} siswa</span>
@@ -620,16 +625,18 @@
                     <strong>{{ stu.name }}</strong>
                     <span v-if="stu.nickname" class="badge-chip gold mini" style="font-size: 10px; padding: 1px 6px;">{{ stu.nickname }}</span>
                     <span :class="['badge-chip', stu.status === 'inactive' ? 'gray' : 'green', 'mini']" style="font-size: 10px; padding: 1px 6px;">
-                      {{ stu.status === 'inactive' ? '⚪ Nonaktif' : '🟢 Aktif' }}
+                      {{ stu.status === 'inactive' ? 'Nonaktif' : 'Aktif' }}
                     </span>
                   </div>
                   <span class="sub-cell-txt">{{ stu.age }} Tahun • Bergabung: {{ stu.joinedDate }}</span>
-                  <div v-if="stu.location" class="sub-cell-txt" style="margin-top: 2px; color: var(--color-primary);">
-                    📍 {{ stu.location }} <span v-if="stu.preferredDay">• {{ stu.preferredDay }} ({{ stu.preferredTime }})</span>
+                  <div v-if="stu.location" class="sub-cell-txt" style="margin-top: 2px; color: var(--color-primary); display: flex; align-items: center; gap: 4px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    <span>{{ stu.location }}</span>
+                    <span v-if="stu.preferredDay">• {{ stu.preferredDay }} ({{ stu.preferredTime }})</span>
                   </div>
                   <div v-if="stu.waterConfidence || (stu.medicalCondition && stu.medicalCondition !== 'Tidak ada')" style="margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px;">
-                    <span v-if="stu.waterConfidence" class="badge-chip teal" style="font-size: 10px; padding: 2px 6px;" :title="'Kemampuan awal: ' + stu.waterConfidence">🌊 {{ stu.waterConfidence }}</span>
-                    <span v-if="stu.medicalCondition && stu.medicalCondition !== 'Tidak ada'" class="badge-chip gold" style="font-size: 10px; padding: 2px 6px;" :title="'Catatan medis: ' + stu.medicalCondition">⚠️ {{ stu.medicalCondition }}</span>
+                    <span v-if="stu.waterConfidence" class="badge-chip teal" style="font-size: 10px; padding: 2px 6px;" :title="'Kemampuan awal: ' + stu.waterConfidence">Adaptasi: {{ stu.waterConfidence }}</span>
+                    <span v-if="stu.medicalCondition && stu.medicalCondition !== 'Tidak ada'" class="badge-chip gold" style="font-size: 10px; padding: 2px 6px;" :title="'Catatan medis: ' + stu.medicalCondition">Medis: {{ stu.medicalCondition }}</span>
                   </div>
                 </div>
               </td>
@@ -664,8 +671,9 @@
               </td>
               <td class="text-right">
                 <div class="table-actions-cluster">
-                  <button @click="openRenewModal(stu)" class="btn-success-xs" title="Perpanjang 4 Sesi & Terbitkan Tagihan Baru">
-                    🔄 Perpanjang
+                  <button @click="openRenewModal(stu)" class="btn-success-xs" title="Perpanjang 4 Sesi & Terbitkan Tagihan Baru" style="display: inline-flex; align-items: center; gap: 4px;">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                    <span>Perpanjang</span>
                   </button>
                   <button @click="openAssignCoachModal(stu)" class="btn-primary-xs" title="Tugaskan / Ganti Pelatih">
                     Ganti Pelatih
@@ -726,7 +734,14 @@
         >
           <div class="kpi-top">
             <span class="kpi-label">Total Sesi Terjadwal</span>
-            <span class="kpi-icon">📅</span>
+            <span class="kpi-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+            </span>
           </div>
           <strong class="kpi-value">{{ allSchedulesList.length }} Sesi</strong>
           <span class="kpi-hint">Semua status pelaksanaan</span>
@@ -740,7 +755,12 @@
         >
           <div class="kpi-top">
             <span class="kpi-label">Sesi Selesai (Hadir)</span>
-            <span class="kpi-icon">✅</span>
+            <span class="kpi-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            </span>
           </div>
           <strong class="kpi-value text-green">{{ countCompletedSchedules }} Sesi</strong>
           <span class="kpi-hint">Presensi & nilai terisi</span>
@@ -754,7 +774,12 @@
         >
           <div class="kpi-top">
             <span class="kpi-label">Menunggu Pelaksanaan</span>
-            <span class="kpi-icon">⏳</span>
+            <span class="kpi-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </span>
           </div>
           <strong class="kpi-value text-gold">{{ countUpcomingSchedules }} Sesi</strong>
           <span class="kpi-hint">Jadwal sesi mendatang</span>
@@ -768,7 +793,13 @@
         >
           <div class="kpi-top">
             <span class="kpi-label">Izin / Reschedule</span>
-            <span class="kpi-icon">🔄</span>
+            <span class="kpi-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <polyline points="1 20 1 14 7 14"></polyline>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              </svg>
+            </span>
           </div>
           <strong class="kpi-value text-blue">{{ countRescheduledSchedules }} Sesi</strong>
           <span class="kpi-hint">Penjadwalan ulang</span>
@@ -779,15 +810,15 @@
       <div class="sched-filter-box card-humanist">
         <!-- Row 1: Structured Dropdowns -->
         <div class="filter-dropdowns-row">
-          <!-- 1. FILTER SISWA (DIPERMUDAH SESUAI REQUEST USER) -->
+          <!-- 1. FILTER SISWA -->
           <div class="filter-col">
             <label class="filter-label">
-              <span>👤 Filter Siswa:</span>
+              <span>Siswa Binaan:</span>
             </label>
             <select v-model="selectedStudentScheduleFilter" class="form-select filter-select student-select">
               <option value="">Semua Siswa ({{ uniqueStudentsInSchedules.length }})</option>
               <option v-for="stu in uniqueStudentsInSchedules" :key="stu.id" :value="stu.id">
-                👦 {{ stu.name }} (Wali: {{ stu.parentName }})
+                {{ stu.name }} (Wali: {{ stu.parentName }})
               </option>
             </select>
           </div>
@@ -795,7 +826,7 @@
           <!-- 2. FILTER PROGRAM -->
           <div class="filter-col">
             <label class="filter-label">
-              <span>🏆 Filter Program:</span>
+              <span>Program Skill:</span>
             </label>
             <select v-model="selectedProgramScheduleFilter" class="form-select filter-select">
               <option value="">Semua Program ({{ store.products.length }})</option>
@@ -806,7 +837,7 @@
           <!-- 3. FILTER INSTRUKTUR -->
           <div class="filter-col">
             <label class="filter-label">
-              <span>🥋 Filter Instruktur:</span>
+              <span>Instruktur Pelatih:</span>
             </label>
             <select v-model="selectedCoachScheduleFilter" class="form-select filter-select">
               <option value="">Semua Instruktur ({{ store.coaches.length }})</option>
@@ -817,14 +848,14 @@
           <!-- 4. FILTER STATUS -->
           <div class="filter-col">
             <label class="filter-label">
-              <span>⚡ Status Sesi:</span>
+              <span>Status Sesi:</span>
             </label>
             <select v-model="selectedStatusScheduleFilter" class="form-select filter-select">
               <option value="">Semua Status</option>
-              <option value="Terjadwal">🟡 Menunggu / Terjadwal</option>
-              <option value="Selesai">🟢 Hadir / Selesai</option>
-              <option value="Izin">🔵 Izin / Sakit</option>
-              <option value="Reschedule">🔴 Reschedule</option>
+              <option value="Terjadwal">Menunggu / Terjadwal</option>
+              <option value="Selesai">Hadir / Selesai</option>
+              <option value="Izin">Izin / Sakit</option>
+              <option value="Reschedule">Reschedule</option>
             </select>
           </div>
         </div>
@@ -869,23 +900,23 @@
         <div v-if="activeScheduleFilterCount > 0" class="active-tags-strip">
           <span class="active-tags-lbl">Filter Aktif:</span>
           <span v-if="selectedStudentScheduleFilter" class="filter-chip">
-            👤 Siswa: {{ uniqueStudentsInSchedules.find(s => s.id === selectedStudentScheduleFilter)?.name || selectedStudentScheduleFilter }}
+            Siswa: {{ uniqueStudentsInSchedules.find(s => s.id === selectedStudentScheduleFilter)?.name || selectedStudentScheduleFilter }}
             <button @click="selectedStudentScheduleFilter = ''">✕</button>
           </span>
           <span v-if="selectedProgramScheduleFilter" class="filter-chip">
-            🏆 Program: {{ selectedProgramScheduleFilter }}
+            Program: {{ selectedProgramScheduleFilter }}
             <button @click="selectedProgramScheduleFilter = ''">✕</button>
           </span>
           <span v-if="selectedCoachScheduleFilter" class="filter-chip">
-            🥋 Coach: {{ selectedCoachScheduleFilter }}
+            Instruktur: {{ selectedCoachScheduleFilter }}
             <button @click="selectedCoachScheduleFilter = ''">✕</button>
           </span>
           <span v-if="selectedStatusScheduleFilter" class="filter-chip">
-            ⚡ Status: {{ selectedStatusScheduleFilter }}
+            Status: {{ selectedStatusScheduleFilter }}
             <button @click="selectedStatusScheduleFilter = ''">✕</button>
           </span>
           <span v-if="scheduleSearchQuery" class="filter-chip">
-            🔍 "{{ scheduleSearchQuery }}"
+            Pencarian: "{{ scheduleSearchQuery }}"
             <button @click="scheduleSearchQuery = ''">✕</button>
           </span>
         </div>
@@ -936,7 +967,8 @@
                   </div>
                   <div v-if="sch.phone" class="phone-wa-row">
                     <a :href="'https://wa.me/' + cleanPhone(sch.phone)" target="_blank" class="sched-wa-link" title="Chat WhatsApp Wali">
-                      <span>💬 {{ sch.phone }}</span>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle; margin-right:3px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                      <span>{{ sch.phone }}</span>
                     </a>
                   </div>
                 </div>
@@ -947,7 +979,9 @@
                 <div class="sched-program-cell">
                   <span class="program-clean-pill">{{ sch.programName || 'Skill Renang' }}</span>
                   <div class="location-venue-text">
-                    <span class="loc-pin">📍</span>
+                    <span class="loc-pin">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle; margin-right:3px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    </span>
                     <span :title="sch.location">{{ sch.location }}</span>
                   </div>
                 </div>
@@ -958,7 +992,7 @@
                 <div class="sched-coach-cell">
                   <strong class="coach-bold-name">{{ sch.coachName }}</strong>
                   <div v-if="sch.isSubstitute" class="substitute-tag-box">
-                    <span class="substitute-badge">🔄 Coach Pengganti</span>
+                    <span class="substitute-badge">Instruktur Pengganti</span>
                     <span class="substitute-sub">Utama: {{ sch.originalCoachName }}</span>
                   </div>
                 </div>
@@ -1034,7 +1068,12 @@
             <tr v-if="filteredSchedulesList.length === 0">
               <td colspan="7" class="text-center sched-empty-cell">
                 <div class="empty-state-wrap">
-                  <span class="empty-icon">🔍</span>
+                  <span class="empty-icon">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                      <circle cx="11" cy="11" r="8"></circle>
+                      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                  </span>
                   <h4>Tidak Ada Sesi Latihan yang Sesuai</h4>
                   <p>Coba ubah kriteria filter siswa, program, status, atau kata kunci pencarian Anda.</p>
                   <button @click="resetScheduleFilters" class="btn-secondary" style="margin-top: 10px;">
@@ -1059,7 +1098,7 @@
           <p class="page-sub">Pemantauan presensi pelatih secara real-time berdasarkan titik koordinat GPS dan validasi radius lokasi Kolam Graha Kresna Pratama.</p>
         </div>
         <div class="top-date-badge">
-          <span>📍 Target: Kolam Graha Kresna Pratama (Maks. 250m)</span>
+          <span>Target Lokasi: Kolam Graha Kresna Pratama (Maks. 250m)</span>
         </div>
       </div>
 
@@ -1233,7 +1272,7 @@
                     <strong class="att-date-str">{{ att.date || 'Hari Ini' }}</strong>
                     <span class="att-clock-str font-mono">{{ att.time }}</span>
                     <span class="badge-chip teal att-session-pill">{{ att.sessionType }}</span>
-                    <span class="badge-chip gold att-session-pill" style="margin-top: 3px;">📍 {{ att.locationName || 'Kolam Graha Kresna' }}</span>
+                    <span class="badge-chip gold att-session-pill" style="margin-top: 3px;">{{ att.locationName || 'Kolam Graha Kresna' }}</span>
                   </div>
                 </td>
 
@@ -1250,7 +1289,7 @@
                       class="dist-badge"
                       :class="(att.distanceFromVenue || 0) <= 250 ? 'dist-valid' : 'dist-warning'"
                     >
-                      📍 {{ att.distanceFromVenue }} Meter
+                      {{ att.distanceFromVenue }} Meter
                     </span>
                     <span class="dist-status-lbl">
                       {{ (att.distanceFromVenue || 0) <= 250 ? 'Di Dalam Radius' : 'Di Luar Radius' }}
@@ -1268,7 +1307,7 @@
                       loading="lazy"
                     ></iframe>
                     <div class="thumb-overlay">
-                      <span>Perbesar Peta 🔍</span>
+                      <span>Perbesar Peta</span>
                     </div>
                   </div>
                 </td>
@@ -1279,7 +1318,7 @@
                       class="badge-chip"
                       :class="att.isVerified ? 'green' : 'gold'"
                     >
-                      {{ att.isVerified ? '✓ Terverifikasi' : '⏳ Menunggu Verifikasi' }}
+                      {{ att.isVerified ? 'Terverifikasi' : 'Menunggu Verifikasi' }}
                     </span>
                     <span v-if="att.verifiedAt" class="verif-time font-mono">Pada {{ att.verifiedAt }}</span>
                   </div>
@@ -1293,14 +1332,14 @@
                       class="btn-primary btn-sm"
                       title="Verifikasi keabsahan presensi ini"
                     >
-                      ✓ Verifikasi
+                      Verifikasi
                     </button>
                     <button 
                       @click="openAttendanceMapModal(att)" 
                       class="btn-secondary btn-sm"
                       title="Lihat peta titik koordinat lengkap"
                     >
-                      📍 Buka Peta
+                      Buka Peta
                     </button>
                     <a 
                       :href="`https://www.google.com/maps?q=${att.latitude},${att.longitude}`" 
@@ -1368,7 +1407,7 @@
                   <span class="pin-dot-anim"></span>
                   <strong>{{ selectedAttendanceForMap.coachName }}</strong>
                 </div>
-                <p>📍 Posisi saat Check-in: {{ selectedAttendanceForMap.locationName }}</p>
+                <p>Posisi saat Check-in: {{ selectedAttendanceForMap.locationName }}</p>
                 <div class="pin-actions">
                   <a 
                     :href="`https://www.google.com/maps?q=${selectedAttendanceForMap.latitude},${selectedAttendanceForMap.longitude}`" 
@@ -1388,7 +1427,7 @@
               @click="handleVerifyAttendance(selectedAttendanceForMap.id)" 
               class="btn-primary"
             >
-              ✓ Verifikasi Kehadiran Ini
+              Verifikasi Kehadiran Ini
             </button>
             <button class="btn-secondary" @click="closeAttendanceMapModal">
               Tutup
@@ -1438,7 +1477,7 @@
           :class="{ active: paymentSubTab === 'webhook_simulator' }"
           @click="paymentSubTab = 'webhook_simulator'"
         >
-          ⚡ Webhook & Auto-Mutasi Bank
+          Webhook & Auto-Mutasi Bank
         </button>
       </div>
 
@@ -1447,8 +1486,8 @@
         <!-- Banner Otomasi Mutasi Bank -->
         <div style="background: linear-gradient(135deg, #0f172a 0%, #0d4d5d 100%); color: white; padding: 16px 20px; border-radius: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 14px rgba(13, 77, 93, 0.2);">
           <div style="display: flex; align-items: center; gap: 14px;">
-            <div style="width: 42px; height: 42px; border-radius: 10px; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; font-size: 22px;">
-              ⚡
+            <div style="width: 42px; height: 42px; border-radius: 10px; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
             </div>
             <div>
               <div style="font-weight: 800; font-size: 14.5px; display: flex; align-items: center; gap: 8px;">
@@ -1466,7 +1505,7 @@
             class="btn-gold" 
             style="padding: 8px 14px; font-size: 12px; white-space: nowrap; font-weight: 700;"
           >
-            ⚡ Test Simulasi Mutasi
+            Uji Simulasi Mutasi
           </button>
         </div>
 
@@ -1521,11 +1560,11 @@
                       style="padding: 5px 8px; font-size: 11px; font-weight: 700; white-space: nowrap;"
                       title="Simulasikan Uang Masuk Mutasi Bank untuk Invoice Ini"
                     >
-                      ⚡ Test Mutasi
+                      Uji Mutasi
                     </button>
                   </div>
                   <div v-else class="paid-action-buttons">
-                    <span class="status-lunas-badge" style="font-size: 11.5px;">✓ Lunas</span>
+                    <span class="status-lunas-badge" style="font-size: 11.5px;">Lunas</span>
                   <button 
                     @click="downloadInvoice(trx)" 
                     class="btn-invoice-action pdf" 
@@ -1592,7 +1631,7 @@
           <div v-if="isEditingQrisMaster" style="margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--border-subtle);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
               <h4 style="font-size: 15px; font-weight: 800; color: var(--color-primary-dark); margin: 0;">
-                ⚙️ Pengaturan Master QRIS (Upload Gambar & Data Merchant)
+                Konfigurasi Master QRIS (Dokumen & Data Merchant)
               </h4>
               <span class="badge-chip gold">Deteksi Otomatis Barcode</span>
             </div>
@@ -1600,7 +1639,7 @@
             <!-- Upload QRIS Image Dynamic Area -->
             <div class="form-group" style="margin-bottom: 18px;">
               <label class="form-label" style="font-weight: 700; color: var(--color-primary-dark);">
-                📷 Upload Gambar / Dokumen QRIS Resmi Yayasan *
+                Unggah Dokumen / Gambar QRIS Resmi Lembaga *
               </label>
               <div class="upload-field-box" style="background: #f8fafc; border: 2px dashed #94a3b8; border-radius: 12px; padding: 18px;">
                 <input 
@@ -1634,7 +1673,7 @@
                   <div v-if="qrisMasterForm.qrisImageUrl" style="display: flex; align-items: center; gap: 12px; background: #ffffff; padding: 8px 12px; border-radius: 8px; border: 1px solid #cbd5e1;">
                     <img :src="qrisMasterForm.qrisImageUrl" alt="Master QRIS" style="width: 52px; height: 52px; object-fit: contain; border-radius: 4px;" />
                     <div>
-                      <div class="text-green" style="font-size: 12px; font-weight: 700;">✓ Gambar Berhasil Terpasang</div>
+                      <div class="text-green" style="font-size: 12px; font-weight: 700;">Gambar Berhasil Terpasang</div>
                       <span style="font-size: 11px; color: var(--text-subtle);">Master QRIS Aktif</span>
                     </div>
                   </div>
@@ -1665,7 +1704,7 @@
 
             <!-- Auto Tag Integration Notice (Replaces the raw string payload requirement) -->
             <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
-              <span style="font-size: 22px;">🛡️</span>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
               <div>
                 <strong style="font-size: 13px; color: #166534; display: block;">Integrasi Standar ASPI & EMVCo Dinamis Otomatis</strong>
                 <p style="font-size: 12px; color: #15803d; margin: 0; line-height: 1.4;">
@@ -1694,7 +1733,7 @@
             <div style="display: flex; justify-content: flex-end; gap: 10px;">
               <button type="button" @click="cancelEditQrisMaster" class="btn-secondary">Batal</button>
               <button type="button" @click="saveQrisMaster" class="btn-primary">
-                💾 Simpan Konfigurasi Master QRIS
+                Simpan Konfigurasi Master QRIS
               </button>
             </div>
           </div>
@@ -1807,10 +1846,10 @@
             <!-- Card Actions -->
             <div class="bank-card-actions">
               <button @click="openEditBankModal(bank)" class="btn-secondary btn-xs" title="Edit Rekening">
-                ✏️ Edit
+                Edit
               </button>
               <button @click="confirmDeleteBank(bank)" class="btn-danger-xs" title="Hapus Rekening">
-                🗑️ Hapus
+                Hapus
               </button>
             </div>
           </div>
@@ -1824,7 +1863,7 @@
             <div>
               <span class="badge-chip green">Otomasi Mutasi Perbankan (Bank Reconciliation)</span>
               <h3 style="font-size: 20px; font-weight: 800; color: var(--color-primary-dark); margin: 6px 0 4px;">
-                ⚡ Integrasi Webhook Mutasi Bank & Simulator Uang Masuk
+                Integrasi Webhook Mutasi Bank & Simulator Transaksi
               </h3>
               <p style="font-size: 13px; color: var(--text-muted); margin: 0; max-width: 800px; line-height: 1.5;">
                 Sistem ini menerima sinyal uang masuk dari aggregator mutasi (seperti <strong>Moota, Cekmutasi, Tripay</strong>, atau scraper bank BCA/Mandiri/BRI/BNI). Saat mutasi masuk dengan nominal cocok (harga paket + 3 digit kode unik), sistem secara robotik langsung memverifikasi status <strong>LUNAS</strong>, membuat <strong>PDF Invoice Resmi ber-cap LUNAS</strong>, dan mengirimkannya ke <strong>WhatsApp Wali Murid</strong>.
@@ -1844,7 +1883,7 @@
           <!-- Left: Webhook URL & Specs -->
           <div class="card-humanist" style="padding: 20px;">
             <h4 style="margin: 0 0 12px; font-size: 15px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 8px;">
-              <span>🌐 Webhook Endpoint URL</span>
+              <span>Webhook Endpoint URL</span>
             </h4>
             <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; margin-bottom: 14px;">
               <div style="font-size: 11px; color: #64748b; margin-bottom: 4px; font-weight: 700;">URL Tujuan Webhook Mutasi:</div>
@@ -1867,7 +1906,7 @@
           <div class="card-humanist" style="padding: 20px; border: 2px solid #0284c7;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
               <h4 style="margin: 0; font-size: 15px; font-weight: 800; color: #0369a1; display: flex; align-items: center; gap: 8px;">
-                <span>⚡ Simulator Uang Masuk Mutasi Bank</span>
+                <span>Simulator Transaksi Mutasi Bank</span>
               </h4>
               <span class="badge-chip gold" style="font-size: 10px;">Test Pipeline End-to-End</span>
             </div>
@@ -1913,8 +1952,8 @@
               class="btn-gold full-width" 
               style="padding: 11px; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px;"
             >
-              <span v-if="isSimulatingMutation">⏳ Memproses & Mengirim WA Background...</span>
-              <span v-else>⚡ Jalankan Simulasi Uang Masuk Bank & Auto-Kirim WA</span>
+              <span v-if="isSimulatingMutation">Memproses & Mengirim WA Background...</span>
+              <span v-else>Jalankan Simulasi Uang Masuk Bank & Auto-Kirim WA</span>
             </button>
 
             <!-- Live Simulation Result Log Box -->
@@ -2031,7 +2070,7 @@
           <!-- FAQ Form -->
           <form @submit.prevent="handleSaveFaq" class="faq-form-box" style="background: var(--bg-surface); padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 20px;">
             <h4 style="font-size: 13px; font-weight: 700; margin: 0 0 12px 0; color: var(--color-primary);">
-              {{ isEditFaq ? '✏️ Edit Pertanyaan FAQ' : '➕ Tambah Pertanyaan FAQ Baru' }}
+              {{ isEditFaq ? 'Edit Pertanyaan FAQ' : 'Tambah Pertanyaan FAQ Baru' }}
             </h4>
             <div class="form-group">
               <label class="form-label">Kategori FAQ</label>
@@ -2123,7 +2162,7 @@
               <td>
                 <div style="display: flex; align-items: center; gap: 8px;">
                   <span :class="['badge-chip', u.status === 'inactive' ? 'gray' : 'green']">
-                    {{ u.status === 'inactive' ? '⚪ Nonaktif' : '🟢 Aktif' }}
+                    {{ u.status === 'inactive' ? 'Nonaktif' : 'Aktif' }}
                   </span>
                   <button 
                     v-if="u.id !== store.currentUser.id" 
@@ -2327,7 +2366,7 @@
 
           <div class="form-group">
             <button type="button" @click="getCurrentLocationCoords" class="btn-secondary btn-sm full-width">
-              <span>📍 Ambil Titik Koordinat GPS Saat Ini</span>
+              <span>Ambil Titik Koordinat GPS Saat Ini</span>
             </button>
           </div>
 
@@ -2514,9 +2553,9 @@
           <!-- SECTION 1: DATA SISWA / ANAK -->
           <div style="margin-bottom: 20px;">
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; border-bottom: 1.5px solid #e2e8f0; padding-bottom: 6px;">
-              <span style="font-size: 16px;">👦</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
               <strong style="font-size: 14px; color: var(--color-primary-dark); text-transform: uppercase; letter-spacing: 0.03em;">
-                1. Data Identitas Siswa (Ananda)
+                1. Data Identitas Siswa
               </strong>
             </div>
 
@@ -2539,8 +2578,8 @@
               <div class="form-group">
                 <label class="form-label">Status Keaktifan Siswa</label>
                 <select v-model="studentForm.status" class="form-select">
-                  <option value="Aktif / Enrolled">🟢 Aktif / Enrolled</option>
-                  <option value="inactive">⚪ Nonaktif / Berhenti</option>
+                  <option value="Aktif / Enrolled">Aktif / Enrolled</option>
+                  <option value="inactive">Nonaktif / Berhenti</option>
                 </select>
               </div>
             </div>
@@ -2565,7 +2604,7 @@
           <!-- SECTION 2: DATA ORANG TUA / WALI MURID -->
           <div style="margin-bottom: 20px;">
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; border-bottom: 1.5px solid #e2e8f0; padding-bottom: 6px;">
-              <span style="font-size: 16px;">👨‍👩‍👧</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
               <strong style="font-size: 14px; color: var(--color-primary-dark); text-transform: uppercase; letter-spacing: 0.03em;">
                 2. Data Orang Tua / Wali Murid
               </strong>
@@ -2594,10 +2633,10 @@
                 <label class="form-label">Lokasi Cabang / Fasilitas Latihan</label>
                 <select v-model="studentForm.location" class="form-select">
                   <option v-for="loc in (store.locations || [])" :key="loc.id" :value="loc.name">
-                    📍 {{ loc.name }} ({{ loc.city || 'Jabodetabek' }})
+                    {{ loc.name }} ({{ loc.city || 'Jabodetabek' }})
                   </option>
-                  <option value="Kolam Graha Kresna Pratama Jatiwaringin">📍 Kolam Graha Kresna Pratama Jatiwaringin</option>
-                  <option value="Studio Tari Cempaka Putih">📍 Studio Tari Cempaka Putih</option>
+                  <option value="Kolam Graha Kresna Pratama Jatiwaringin">Kolam Graha Kresna Pratama Jatiwaringin</option>
+                  <option value="Studio Tari Cempaka Putih">Studio Tari Cempaka Putih</option>
                 </select>
               </div>
             </div>
@@ -2606,7 +2645,7 @@
           <!-- SECTION 3: PROGRAM, PAKET & JADWAL -->
           <div style="margin-bottom: 16px;">
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px; border-bottom: 1.5px solid #e2e8f0; padding-bottom: 6px;">
-              <span style="font-size: 16px;">🏊</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"></path><path d="M2 12h20"></path></svg>
               <strong style="font-size: 14px; color: var(--color-primary-dark); text-transform: uppercase; letter-spacing: 0.03em;">
                 3. Program Kursus & Pendampingan Pelatih
               </strong>
@@ -3139,7 +3178,9 @@
 
         <div v-if="renewSuccessResult" class="modal-body">
           <div class="alert-success-box" style="padding: 16px; border-radius: 12px; background: rgba(34, 197, 94, 0.12); border: 1px solid rgba(34, 197, 94, 0.3); text-align: center; margin-bottom: 16px;">
-            <div style="font-size: 28px; margin-bottom: 8px;">🎉</div>
+            <div style="display: flex; justify-content: center; margin-bottom: 8px;">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </div>
             <h4 style="margin: 0 0 6px 0; color: var(--color-success); font-size: 16px;">Perpanjangan Berhasil Dibuat!</h4>
             <p style="font-size: 13px; color: var(--text-muted); margin: 0;">
               Tagihan baru <strong>{{ renewSuccessResult.transaction?.invoiceNumber }}</strong> telah diterbitkan dan 4 sesi lanjutan (Sesi {{ (activeStudentForRenew?.memberSchedules || []).length - 3 }} - {{ (activeStudentForRenew?.memberSchedules || []).length }}) telah dimasukkan ke jadwal siswa.
@@ -3246,7 +3287,7 @@
           </div>
 
           <div class="alert-info-box" style="padding: 12px; border-radius: 8px; background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.2); font-size: 12px; color: var(--text-muted); margin-top: 10px;">
-            💡 <strong>Otomatisasi Sistem:</strong> Menekan konfirmasi perpanjangan akan secara otomatis:
+            <strong>Otomatisasi Sistem:</strong> Menekan konfirmasi perpanjangan akan secara otomatis:
             <ul style="margin: 4px 0 0 16px; padding: 0;">
               <li>Menerbitkan invoice QRIS dynamic & transfer baru di menu Billing wali murid.</li>
               <li>Menambahkan 4 sesi latihan baru secara berurutan.</li>
@@ -3312,7 +3353,7 @@
           </div>
 
           <div class="alert-info-box" style="padding: 10px 12px; border-radius: 8px; background: rgba(245, 158, 11, 0.08); border: 1px solid rgba(245, 158, 11, 0.2); font-size: 12px; color: var(--text-muted);">
-            ℹ️ Penggantian ini hanya berlaku khusus untuk Sesi {{ activeScheduleForSubstitute?.sessionNo }}. Sesi lainnya tetap didampingi oleh coach utama.
+            Catatan: Penggantian ini hanya berlaku khusus untuk Sesi {{ activeScheduleForSubstitute?.sessionNo }}. Sesi lainnya tetap didampingi oleh coach utama.
           </div>
 
           <div class="modal-footer" style="margin-top: 16px;">
@@ -4031,10 +4072,10 @@ async function handleSubmitStudent() {
   try {
     if (isEditStudent.value && editingStudentId.value) {
       await actions.updateStudent(editingStudentId.value, studentForm.value);
-      showNotice(`✅ Data siswa "${studentForm.value.name}" & Wali Murid "${studentForm.value.parentName}" berhasil diperbarui secara dinamis!`);
+      showNotice(`Data siswa "${studentForm.value.name}" & Wali Murid "${studentForm.value.parentName}" berhasil diperbarui.`);
     } else {
       await actions.addStudent(studentForm.value);
-      showNotice(`✅ Siswa baru "${studentForm.value.name}" berhasil didaftarkan dan jadwal sesi otomatis diterbitkan!`);
+      showNotice(`Siswa baru "${studentForm.value.name}" berhasil didaftarkan dan jadwal sesi resmi otomatis diterbitkan.`);
     }
     showStudentModal.value = false;
   } catch (err) {
@@ -4829,7 +4870,7 @@ async function handleVerifyPayment(invoiceId) {
       if (trx.phone) {
         try {
           await actions.sendWhatsAppInvoiceBackground(trx, pdfDataUri);
-          showNotice(`✅ Invoice ${invoiceId} DIVERIFIKASI LUNAS! File PDF resmi ber-cap LUNAS otomatis terkirim dari sistem ke WhatsApp ${trx.parentName || 'Wali Murid'} (${trx.phone}).`);
+          showNotice(`Invoice ${invoiceId} diverifikasi Lunas. File PDF resmi ber-cap LUNAS otomatis terkirim dari sistem ke WhatsApp ${trx.parentName || 'Wali Murid'} (${trx.phone}).`);
         } catch (waErr) {
           console.warn('[WA Background Dispatch Warning]:', waErr);
           showNotice(`Invoice ${invoiceId} diverifikasi LUNAS & PDF tersimpan. Pengiriman WA latar belakang sedang diproses.`);
@@ -4849,7 +4890,7 @@ function downloadInvoice(trx) {
   try {
     const doc = generateInvoicePdf(trx, store.brand);
     doc.save(`Invoice_${trx.id}_LUNAS.pdf`);
-    showNotice(`Invoice resmi ${trx.id} ber-cap LUNAS berhasil diunduh!`);
+    showNotice(`Invoice resmi ${trx.id} ber-cap LUNAS berhasil diunduh.`);
   } catch (err) {
     alert('Gagal mengunduh invoice PDF: ' + err.message);
   }
@@ -4865,7 +4906,7 @@ async function sendInvoiceWa(trx) {
     const doc = generateInvoicePdf(trx, store.brand);
     const pdfDataUri = doc.output('datauristring');
     await actions.sendWhatsAppInvoiceBackground(trx, pdfDataUri);
-    showNotice(`✅ Invoice PDF resmi ber-cap LUNAS berhasil terkirim dari sistem ke nomor WhatsApp ${trx.parentName} (${trx.phone})!`);
+    showNotice(`Invoice PDF resmi ber-cap LUNAS berhasil terkirim ke nomor WhatsApp ${trx.parentName} (${trx.phone}).`);
   } catch (err) {
     // If background fails, offer fallback to manual click-to-chat
     if (confirm(`Pengiriman otomatis di background mengalami kendala (${err.message}). Apakah Anda ingin membuka WhatsApp Web secara manual?`)) {
@@ -4903,7 +4944,7 @@ async function handleSimulateMutation(invoiceId = null) {
     );
     mutationSimResult.value = res;
     if (res.matched) {
-      showNotice(`⚡ SUKSES: Mutasi Rp ${amountToSim.toLocaleString('id-ID')} otomatis DIVERIFIKASI LUNAS! Invoice PDF resmi ber-cap LUNAS dibuat di server & dikirim ke WhatsApp.`);
+      showNotice(`Sistem Berhasil: Mutasi Rp ${amountToSim.toLocaleString('id-ID')} otomatis diverifikasi Lunas. Invoice PDF resmi ber-cap LUNAS dibuat dan dikirim ke WhatsApp.`);
     } else {
       showNotice(res.message || 'Simulasi diproses tapi tidak ada transaksi cocok.');
     }

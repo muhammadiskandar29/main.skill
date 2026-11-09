@@ -259,11 +259,11 @@ const initialStudents = [
         disciplineFocus: 85
       },
       pillars: [
-        { key: 'waterConfidence', label: 'Keberanian Air (Water Confidence)', icon: '🌊', desc: 'Adaptasi dan ketenangan di dalam air tanpa panik' },
-        { key: 'breathControl', label: 'Ketahanan Nafas (Breath Control)', icon: '🫁', desc: 'Pengambilan nafas ritmis dan ketahanan paru-paru' },
-        { key: 'strokeTechnique', label: 'Teknik Gerak (Propulsion)', icon: '🏊‍♂️', desc: 'Ayunan tangan dan kekuatan dorongan kaki' },
-        { key: 'bodyBalance', label: 'Keseimbangan (Streamline)', icon: '⚖️', desc: 'Posisi tubuh mendatar sejajar permukaan air' },
-        { key: 'disciplineFocus', label: 'Fokus & Mental (Discipline)', icon: '🎯', desc: 'Konsentrasi mendengarkan instruksi coach di kolam' }
+        { key: 'waterConfidence', label: 'Keberanian Air (Water Confidence)', icon: '', desc: 'Adaptasi dan ketenangan di dalam air tanpa panik' },
+        { key: 'breathControl', label: 'Ketahanan Nafas (Breath Control)', icon: '', desc: 'Pengambilan nafas ritmis dan ketahanan paru-paru' },
+        { key: 'strokeTechnique', label: 'Teknik Gerak (Propulsion)', icon: '', desc: 'Ayunan tangan dan kekuatan dorongan kaki' },
+        { key: 'bodyBalance', label: 'Keseimbangan (Streamline)', icon: '', desc: 'Posisi tubuh mendatar sejajar permukaan air' },
+        { key: 'disciplineFocus', label: 'Fokus & Mental (Discipline)', icon: '', desc: 'Konsentrasi mendengarkan instruksi coach di kolam' }
       ]
     }
   }
@@ -2033,11 +2033,11 @@ export const actions = {
     let message = '';
 
     if (template === 'welcome') {
-      message = `Halo Kak/Bunda ${lead.parentName},\n\nTerima kasih telah mendaftar di *${store.brand.name}* untuk ananda *${lead.studentName}* (${lead.studentAge} th).\n\n📌 *Detail Pilihan:*\n• Program: ${lead.program || lead.productName}\n• Paket: ${lead.packageType || lead.packageName}\n• Lokasi: ${lead.location}\n\nJadwal 4 sesi resmi telah tersimpan. Silakan login ke portal siswa dengan email Anda dan default password: *123*.\n\nApakah ada pertanyaan sebelum sesi pertama?`;
+      message = `Yth. Bapak/Ibu ${lead.parentName},\n\nTerima kasih telah mendaftar di *${store.brand.name}* untuk ananda *${lead.studentName}* (${lead.studentAge} tahun).\n\n[RINCIAN PENDAFTARAN]\n• Program: ${lead.program || lead.productName}\n• Paket: ${lead.packageType || lead.packageName}\n• Lokasi: ${lead.location}\n\nJadwal 4 sesi resmi telah tersimpan di sistem. Silakan masuk ke portal siswa menggunakan email terdaftar dan kata sandi default: *123*.\n\nInformasi lebih lanjut dapat menghubungi tim administrasi kami.`;
     } else if (template === 'invoice') {
-      message = `Halo Ayah/Bunda ${lead.parentName},\n\nBerikut rincian tagihan pendaftaran *${store.brand.name}* ananda *${lead.studentName}*:\n\n• Paket: ${lead.packageType || lead.packageName}\n• Pembayaran: QRIS Dinamis ASPI / Transfer BCA\n\nDefault login portal: *123*. Terima kasih!`;
+      message = `Yth. Bapak/Ibu ${lead.parentName},\n\nBerikut rincian tagihan pendaftaran *${store.brand.name}* ananda *${lead.studentName}*:\n\n• Paket: ${lead.packageType || lead.packageName}\n• Metode Bayar: QRIS Dinamis ASPI / Transfer Bank\n\nKata sandi default login portal: *123*. Terima kasih.`;
     } else if (template === 'renewal') {
-      message = `Halo Ayah/Bunda ${lead.parentName},\n\nAlhamdulillah ananda *${lead.studentName}* telah menyelesaikan sesi bimbingan sebelumnya dengan sangat baik! 🎉\n\n📌 *Detail Perpanjangan Paket Baru:*\n• Program: ${lead.productName || lead.program || 'Skill Renang'}\n• Paket: ${lead.packageName || lead.packageType || 'Small Group'}\n• Total Sesi: 4 Sesi Pertemuan Lanjutan\n• Pelatih Pendamping: ${lead.assignedCoachName || 'Coach Adit'}\n\nJadwal sesi lanjutan telah diperbarui di portal siswa. Silakan masuk ke portal ananda untuk melihat rincian jadwal & QRIS resmi.\n\nTerima kasih atas kepercayaannya membina ananda bersama *${store.brand.name}*!`;
+      message = `Yth. Bapak/Ibu ${lead.parentName},\n\nSiswa ananda *${lead.studentName}* telah menyelesaikan seluruh sesi bimbingan pada paket sebelumnya dengan pencapaian yang baik.\n\n[DETAIL PERPANJANGAN PAKET]\n• Program: ${lead.productName || lead.program || 'Skill Renang'}\n• Paket: ${lead.packageName || lead.packageType || 'Small Group'}\n• Total Sesi: 4 Sesi Pertemuan Lanjutan\n• Pelatih Pendamping: ${lead.assignedCoachName || 'Coach Adit'}\n\nJadwal sesi lanjutan telah diperbarui di sistem. Silakan masuk ke portal siswa untuk melihat rincian jadwal dan QRIS resmi.\n\nTerima kasih atas kepercayaan Bapak/Ibu bersama *${store.brand.name}*.`;
     }
 
     return `https://web.whatsapp.com/send?phone=${targetPhone}&text=${encodeURIComponent(message)}`;

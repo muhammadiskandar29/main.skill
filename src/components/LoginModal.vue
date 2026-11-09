@@ -95,25 +95,40 @@
             type="button" 
             class="quick-chip chip-cust" 
             @click="fillQuick('sarah.ramadhani@gmail.com', '123')"
-            title="Masuk sebagai Orang Tua Siswa"
+            title="Akses Uji Coba Wali Murid"
+            style="display: inline-flex; align-items: center; gap: 6px;"
           >
-            <span>👨‍👩‍👧 Wali Murid (Bunda Sarah)</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+            </svg>
+            <span>Wali Murid (Bunda Sarah)</span>
           </button>
           <button 
             type="button" 
             class="quick-chip chip-coach" 
             @click="fillQuick('adit.coach@mine.skills.id', '123')"
-            title="Masuk sebagai Pelatih Renang"
+            title="Akses Uji Coba Instruktur"
+            style="display: inline-flex; align-items: center; gap: 6px;"
           >
-            <span>🥋 Coach (Coach Adit)</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <polyline points="16 11 18 13 22 9"></polyline>
+            </svg>
+            <span>Instruktur (Coach Adit)</span>
           </button>
           <button 
             type="button" 
             class="quick-chip chip-admin" 
             @click="fillQuick('admin@mine.skills.id', '123')"
-            title="Masuk sebagai Manajemen Administrator"
+            title="Akses Uji Coba Administrator"
+            style="display: inline-flex; align-items: center; gap: 6px;"
           >
-            <span>⚙️ Manajemen (Admin)</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            </svg>
+            <span>Administrator (Manajemen)</span>
           </button>
         </div>
       </div>

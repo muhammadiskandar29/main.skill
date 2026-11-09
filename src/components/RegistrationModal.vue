@@ -75,12 +75,11 @@
                   @click="selectProduct(prod.id)"
                 >
                   <div class="pill-card-top">
-                    <span class="pill-emoji">{{ getProductIcon(prod) }}</span>
-                    <span v-if="formData.productId === prod.id" class="badge-chip teal mini">Dipilih ✓</span>
+                    <span class="badge-chip teal mini">{{ prod.category || 'Akademi' }}</span>
+                    <span v-if="formData.productId === prod.id" class="badge-chip gold mini">Terpilih</span>
                   </div>
                   <strong class="pill-name">{{ prod.name }}</strong>
-                  <span class="pill-cat">{{ prod.category }}</span>
-                  <span class="pill-target">🎯 {{ prod.targetAge }}</span>
+                  <span class="pill-target">Usia {{ prod.targetAge }}</span>
                 </button>
               </div>
             </div>
@@ -135,7 +134,7 @@
                       :class="{ active: formData.gender === 'Laki-laki' }"
                       @click="formData.gender = 'Laki-laki'"
                     >
-                      👦 Laki-laki
+                      Laki-laki
                     </button>
                     <button 
                       type="button" 
@@ -143,7 +142,7 @@
                       :class="{ active: formData.gender === 'Perempuan' }"
                       @click="formData.gender = 'Perempuan'"
                     >
-                      👧 Perempuan
+                      Perempuan
                     </button>
                   </div>
                 </div>
@@ -392,12 +391,11 @@
                   @click="selectProduct(prod.id)"
                 >
                   <div class="prod-choice-top">
-                    <div class="prod-choice-icon-wrap">{{ getProductIcon(prod) }}</div>
+                    <span class="badge-chip teal mini">{{ prod.category || 'Program' }}</span>
                     <div class="prod-radio-indicator"></div>
                   </div>
                   <h4 class="prod-choice-name">{{ prod.name }}</h4>
-                  <span class="prod-choice-category">{{ prod.category }}</span>
-                  <span class="prod-choice-age">🎯 {{ prod.targetAge }}</span>
+                  <span class="prod-choice-age">Sasaran Usia: {{ prod.targetAge }}</span>
                 </div>
               </div>
             </div>
@@ -424,9 +422,9 @@
                   </div>
                   <h4 class="pkg-choice-name">{{ pkg.name }}</h4>
                   <div class="pkg-choice-specs">
-                    <span>👥 {{ pkg.ratio }}</span>
-                    <span>⏱️ {{ pkg.duration }}</span>
-                    <span>📅 {{ pkg.meetings }}</span>
+                    <span>Rasio: {{ pkg.ratio }}</span>
+                    <span>Durasi: {{ pkg.duration }}</span>
+                    <span>Pertemuan: {{ pkg.meetings }}</span>
                   </div>
                   <p class="pkg-choice-desc">{{ pkg.description || 'Program pembinaan skill bertahap dengan pengawasan intensif' }}</p>
                 </div>
@@ -454,7 +452,7 @@
                     <div class="venue-choice-info">
                       <strong class="venue-choice-title">{{ loc.name }}</strong>
                       <span class="venue-choice-sub">{{ loc.area }} • {{ loc.address }}</span>
-                      <span class="venue-choice-facilities">📍 {{ loc.facilities }}</span>
+                      <span class="venue-choice-facilities">{{ loc.facilities }}</span>
                     </div>
                   </div>
                 </div>
@@ -541,7 +539,7 @@
                 <span class="price-banner-sub">
                   {{ currentSelectedProduct?.name }} • {{ currentSelectedPackage?.name }} • {{ currentSelectedPackage?.meetings || '4x pertemuan' }} • {{ currentSelectedPackage?.duration || '90 menit/sesi' }}
                 </span>
-                <span class="price-venue-tag">📍 {{ formData.location }} • {{ formData.preferredDay }} ({{ formData.preferredTime }})</span>
+                <span class="price-venue-tag">{{ formData.location }} • {{ formData.preferredDay }} ({{ formData.preferredTime }})</span>
               </div>
               <div class="price-banner-right">
                 <div class="badge-chip gold">QRIS Dinamis ASPI</div>
@@ -698,30 +696,32 @@
         <div class="card-humanist" style="background: #f8fafc; border: 1.5px solid #0284c7; padding: 18px; border-radius: 12px; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08);">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 10px;">
             <div style="display: flex; align-items: center; gap: 8px;">
-              <span style="font-size: 16px;">⚡</span>
-              <span style="font-size: 13.5px; font-weight: 800; color: #0369a1; text-transform: uppercase; letter-spacing: 0.5px;">
-                Sistem Verifikasi Mutasi Otomatis (Auto-Detect)
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2.5">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+              <span style="font-size: 13px; font-weight: 800; color: #0369a1; text-transform: uppercase; letter-spacing: 0.5px;">
+                Verifikasi Otomatis Perbankan (Automated Reconciliation)
               </span>
             </div>
-            <span class="badge-chip gold" style="font-size: 11px;">100% Robotik • Tanpa Kirim Struk</span>
+            <span class="badge-chip gold" style="font-size: 11px;">Otomasi Real-Time</span>
           </div>
 
           <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13.5px; color: #334155;">
             <div style="display: flex; justify-content: space-between;">
-              <span style="color: #64748b;">Biaya Paket Pelatihan (4 Sesi):</span>
+              <span style="color: #64748b;">Biaya Paket Pelatihan:</span>
               <strong class="font-mono">Rp {{ (registrationResult.transaction.baseAmount || registrationResult.amount).toLocaleString('id-ID') }}</strong>
             </div>
             <div style="display: flex; justify-content: space-between; color: #b45309; background: #fef3c7; padding: 6px 10px; border-radius: 8px; border: 1px solid #fde68a;">
               <div style="display: flex; flex-direction: column;">
-                <span style="font-weight: 700;">Kode Unik Otomasi (3 Digit):</span>
-                <span style="font-size: 11px; color: #92400e;">Kunci pencocokan mutasi bank & QRIS secara otomatis</span>
+                <span style="font-weight: 700;">Kode Unik Transaksi (3 Digit):</span>
+                <span style="font-size: 11px; color: #92400e;">Identifikator unik verifikasi perbankan & QRIS otomatis</span>
               </div>
               <strong class="font-mono" style="font-size: 15px; font-weight: 800;">+ Rp {{ (registrationResult.transaction.uniqueCode || 0).toLocaleString('id-ID') }}</strong>
             </div>
             <div style="border-top: 1px solid #e2e8f0; margin-top: 4px; padding-top: 8px; display: flex; justify-content: space-between; align-items: center;">
               <div>
                 <span style="font-weight: 800; color: #0f172a; font-size: 14.5px;">Total Wajib Ditransfer:</span>
-                <div style="font-size: 11.5px; color: #dc2626; font-weight: 600;">*Nominal harus sama persis hingga 3 digit terakhir</div>
+                <div style="font-size: 11.5px; color: #dc2626; font-weight: 600;">*Nominal wajib tepat hingga 3 digit terakhir</div>
               </div>
               <div style="text-align: right;">
                 <div style="font-size: 22px; font-weight: 900; color: #0284c7;" class="font-mono">
@@ -738,7 +738,11 @@
               class="btn-primary" 
               style="flex: 1; padding: 10px 14px; font-size: 12.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; background: #0284c7;"
             >
-              📋 Salin Nominal Tepat (Rp {{ (registrationResult.transaction.amount || registrationResult.amount).toLocaleString('id-ID') }})
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+              </svg>
+              <span>Salin Nominal Tepat (Rp {{ (registrationResult.transaction.amount || registrationResult.amount).toLocaleString('id-ID') }})</span>
             </button>
           </div>
           <div v-if="copiedNotice" style="margin-top: 8px; font-size: 12px; color: #16a34a; font-weight: 700; text-align: center;">
@@ -797,7 +801,7 @@
         <!-- Success Actions -->
         <div class="success-actions" style="margin-top: 20px;">
           <div style="padding: 12px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; font-size: 12px; color: #065f46; margin-bottom: 12px; line-height: 1.45;">
-            🤖 <strong>Otomasi Mutasi:</strong> Begitu dana masuk ke rekening/QRIS kami, status invoice otomatis berubah menjadi <strong>LUNAS</strong> dan sistem robot langsung mengirimkan <strong>File PDF Invoice Resmi ber-cap LUNAS</strong> ke nomor WhatsApp Anda tanpa perlu upload bukti!
+            <strong>Validasi Otomatis:</strong> Saat pembayaran berhasil diterima oleh sistem perbankan kami, invoice otomatis tervalidasi <strong>LUNAS</strong> dan dokumen Faktur PDF Resmi langsung diterbitkan ke nomor WhatsApp Anda tanpa memerlukan bukti transfer manual.
           </div>
 
           <button @click="goToCustomerPortal" class="btn-primary full-width">
@@ -957,18 +961,7 @@ const availableLocations = computed(() => {
 });
 
 function getProductIcon(prod) {
-  if (!prod) return '⭐';
-  const name = (prod.name || '').toLowerCase();
-  const slug = (prod.slug || '').toLowerCase();
-  if (slug.includes('swim') || name.includes('renang')) return '🏊';
-  if (slug.includes('dance') || name.includes('tari')) return '💃';
-  if (slug.includes('driv') || name.includes('mengemudi') || name.includes('mobil')) return '🚗';
-  if (slug.includes('code') || name.includes('coding') || name.includes('robot')) return '💻';
-  if (slug.includes('music') || name.includes('musik')) return '🎵';
-  if (slug.includes('art') || name.includes('gambar') || name.includes('lukis')) return '🎨';
-  if (slug.includes('badminton') || name.includes('bulutangkis')) return '🏸';
-  if (slug.includes('futsal') || name.includes('bola')) return '⚽';
-  return '⭐';
+  return '';
 }
 
 function selectProduct(prodId) {
@@ -1129,7 +1122,7 @@ function copyText(text, label = 'Nominal') {
 function getWaConfirmationUrl() {
   if (!registrationResult.value) return '#';
   const cleanPhone = actions.cleanWaNumber(store.brand.callCenter);
-  const msg = `Halo Admin ${store.brand.name},\nSaya (${formData.value.parentName}) baru saja menyelesaikan formulir pendaftaran untuk ananda *${formData.value.studentName}* (${formData.value.studentAge} th).\n\n📌 *Detail Pendaftaran:*\n• No. Invoice: ${registrationResult.value.transaction.id}\n• Paket: ${registrationResult.value.transaction.packageName}\n• Lokasi: ${formData.value.location}\n• Jadwal: ${formData.value.preferredDay} (${formData.value.preferredTime})\n• Total Biaya: ${registrationResult.value.transaction.formattedAmount}\n• Email Portal: ${registrationResult.value.user.email} (Password: 123)\n\nMohon diverifikasi pembayarannya ya admin. Terima kasih!`;
+  const msg = `Halo Admin ${store.brand.name},\nSaya (${formData.value.parentName}) telah menyelesaikan pendaftaran siswa untuk ananda *${formData.value.studentName}* (${formData.value.studentAge} th).\n\n[ RINCIAN PENDAFTARAN ]\n• No. Invoice: ${registrationResult.value.transaction.id}\n• Paket: ${registrationResult.value.transaction.packageName}\n• Lokasi: ${formData.value.location}\n• Jadwal: ${formData.value.preferredDay} (${formData.value.preferredTime})\n• Total Tagihan: ${registrationResult.value.transaction.formattedAmount}\n• Akun Portal: ${registrationResult.value.user.email} (Kata Sandi: 123)\n\nTerima kasih.`;
   return `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(msg)}`;
 }
 </script>

@@ -12,37 +12,37 @@
     <div class="running-ticker-bar">
       <div class="ticker-badge">
         <span class="ticker-pulse"></span>
-        <span class="ticker-badge-text">📢 INFO TERKINI</span>
+        <span class="ticker-badge-text">PENGUMUMAN RESMI</span>
       </div>
       <div class="ticker-track-wrap">
         <div class="ticker-track">
           <div class="ticker-group">
-            <span class="ticker-item"><span class="t-icon">🏊‍♂️</span> <strong>Akademi Renang:</strong> Pendaftaran Semester Baru Dibuka! Rasio Privat 1 Coach : 3 Siswa</span>
+            <span class="ticker-item"><strong class="ticker-tag">[ Akademi Renang ]</strong> Pembukaan Pendaftaran Semester Baru — Rasio Eksklusif 1 Instruktur : 3 Siswa</span>
             <span class="ticker-sep">•</span>
-            <span class="ticker-item"><span class="t-icon">🎁</span> <strong>Promo Early Bird:</strong> Potongan Biaya Kursus s.d 20% untuk Pendaftaran Bulan Ini</span>
+            <span class="ticker-item"><strong class="ticker-tag">[ Registrasi Awal ]</strong> Potongan Biaya Program untuk Pendaftaran Periode Berjalan</span>
             <span class="ticker-sep">•</span>
-            <span class="ticker-item"><span class="t-icon">💃</span> <strong>Kelas Seni Tari:</strong> Eksplorasi Gerak Tari Tradisional & Modern Kontemporer</span>
+            <span class="ticker-item"><strong class="ticker-tag">[ Seni Tari & Gerak ]</strong> Kurikulum Olah Tubuh, Keluwesan, dan Koreografi Terstruktur</span>
             <span class="ticker-sep">•</span>
-            <span class="ticker-item"><span class="t-icon">📊</span> <strong>Raport Digital:</strong> Monitoring Kemampuan Siswa & Presensi Geofencing Real-Time</span>
+            <span class="ticker-item"><strong class="ticker-tag">[ Evaluasi Digital ]</strong> Pemantauan Kemampuan Siswa & Validasi Presensi Geofencing Instruktur Real-Time</span>
             <span class="ticker-sep">•</span>
-            <span class="ticker-item"><span class="t-icon">⭐</span> <strong>Rating 4.9/5:</strong> Dipercaya lebih dari 1,200+ Wali Murid di 15+ Cabang</span>
+            <span class="ticker-item"><strong class="ticker-tag">[ Akreditasi Mutu ]</strong> Indeks Kepuasan 99.4% Dipercaya Lebih dari 1.200 Wali Murid</span>
             <span class="ticker-sep">•</span>
-            <span class="ticker-item"><span class="t-icon">💬</span> <strong>CS & Konsultasi:</strong> WhatsApp Resmi 0812-9900-8800</span>
+            <span class="ticker-item"><strong class="ticker-tag">[ Layanan Informasi ]</strong> Layanan Konsultasi Akademik WhatsApp: 0852-8627-4726</span>
             <span class="ticker-sep">•</span>
           </div>
           <!-- Duplicate for seamless loop -->
           <div class="ticker-group" aria-hidden="true">
-            <span class="ticker-item"><span class="t-icon">🏊‍♂️</span> <strong>Akademi Renang:</strong> Pendaftaran Semester Baru Dibuka! Rasio Privat 1 Coach : 3 Siswa</span>
+            <span class="ticker-item"><strong class="ticker-tag">[ Akademi Renang ]</strong> Pembukaan Pendaftaran Semester Baru — Rasio Eksklusif 1 Instruktur : 3 Siswa</span>
             <span class="ticker-sep">•</span>
-            <span class="ticker-item"><span class="t-icon">🎁</span> <strong>Promo Early Bird:</strong> Potongan Biaya Kursus s.d 20% untuk Pendaftaran Bulan Ini</span>
+            <span class="ticker-item"><strong class="ticker-tag">[ Registrasi Awal ]</strong> Potongan Biaya Program untuk Pendaftaran Periode Berjalan</span>
             <span class="ticker-sep">•</span>
-            <span class="ticker-item"><span class="t-icon">💃</span> <strong>Kelas Seni Tari:</strong> Eksplorasi Gerak Tari Tradisional & Modern Kontemporer</span>
+            <span class="ticker-item"><strong class="ticker-tag">[ Seni Tari & Gerak ]</strong> Kurikulum Olah Tubuh, Keluwesan, dan Koreografi Terstruktur</span>
             <span class="ticker-sep">•</span>
-            <span class="ticker-item"><span class="t-icon">📊</span> <strong>Raport Digital:</strong> Monitoring Kemampuan Siswa & Presensi Geofencing Real-Time</span>
+            <span class="ticker-item"><strong class="ticker-tag">[ Evaluasi Digital ]</strong> Pemantauan Kemampuan Siswa & Validasi Presensi Geofencing Instruktur Real-Time</span>
             <span class="ticker-sep">•</span>
-            <span class="ticker-item"><span class="t-icon">⭐</span> <strong>Rating 4.9/5:</strong> Dipercaya lebih dari 1,200+ Wali Murid di 15+ Cabang</span>
+            <span class="ticker-item"><strong class="ticker-tag">[ Akreditasi Mutu ]</strong> Indeks Kepuasan 99.4% Dipercaya Lebih dari 1.200 Wali Murid</span>
             <span class="ticker-sep">•</span>
-            <span class="ticker-item"><span class="t-icon">💬</span> <strong>CS & Konsultasi:</strong> WhatsApp Resmi 0812-9900-8800</span>
+            <span class="ticker-item"><strong class="ticker-tag">[ Layanan Informasi ]</strong> Layanan Konsultasi Akademik WhatsApp: 0852-8627-4726</span>
             <span class="ticker-sep">•</span>
           </div>
         </div>
@@ -111,7 +111,22 @@
 
               <div class="slider-body">
                 <div class="slider-icon-box">
-                  <span class="big-icon">{{ activeSlide.icon }}</span>
+                  <svg v-if="activeSlide.type === 'swimming'" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M2 20c1.25-.5 2.5-.5 3.75 0 1.25.5 2.5.5 3.75 0 1.25-.5 2.5-.5 3.75 0 1.25.5 2.5.5 3.75 0 1.25-.5 2.5-.5 3.75 0 1.25.5 2.5.5 3.75 0"></path>
+                    <path d="M2 16c1.25-.5 2.5-.5 3.75 0 1.25.5 2.5.5 3.75 0 1.25-.5 2.5-.5 3.75 0 1.25.5 2.5.5 3.75 0 1.25-.5 2.5-.5 3.75 0 1.25.5 2.5.5 3.75 0"></path>
+                    <circle cx="16" cy="7" r="2.5"></circle>
+                    <path d="M9 13l3.5-3.5L16 11l3-2"></path>
+                  </svg>
+                  <svg v-else-if="activeSlide.type === 'dance'" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"></path>
+                    <path d="M9 10l-3 4 3 2-2 6"></path>
+                    <path d="M15 10l3 4-3 2 2 6"></path>
+                  </svg>
+                  <svg v-else width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="20" x2="18" y2="10"></line>
+                    <line x1="12" y1="20" x2="12" y2="4"></line>
+                    <line x1="6" y1="20" x2="6" y2="14"></line>
+                  </svg>
                 </div>
                 <div class="slider-text">
                   <h3 class="slide-headline">{{ activeSlide.title }}</h3>
@@ -135,26 +150,30 @@
               <div class="metric-divider"></div>
               <div class="metric-box">
                 <span class="metric-val">40+</span>
-                <span class="metric-lbl">Pelatih Resmi</span>
+                <span class="metric-lbl">Instruktur Resmi</span>
               </div>
               <div class="metric-divider"></div>
               <div class="metric-box">
                 <span class="metric-val">15+</span>
-                <span class="metric-lbl">Titik Lokasi</span>
+                <span class="metric-lbl">Fasilitas Lokasi</span>
               </div>
               <div class="metric-divider"></div>
               <div class="metric-box">
                 <span class="metric-val">99.4%</span>
-                <span class="metric-lbl">Kepuasan Wali</span>
+                <span class="metric-lbl">Indeks Kepuasan</span>
               </div>
             </div>
 
             <!-- MINI TESTIMONIAL CHIP -->
             <div class="mini-testimonial">
-              <div class="parent-avatar">👩‍👧</div>
+              <div class="parent-avatar font-bold" style="background: var(--color-primary-soft); color: var(--color-primary); font-size: 13px;">SR</div>
               <div class="testimonial-body">
-                <div class="stars">★★★★★</div>
-                <p class="quote">"Raport digital & presensi geofencing coach bikin jadwal renang anak saya terpantau sangat rapi!"</p>
+                <div class="stars" style="display: flex; gap: 3px; color: #f59e0b;">
+                  <svg v-for="s in 5" :key="s" width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                  </svg>
+                </div>
+                <p class="quote">"Raport digital & presensi tervalidasi pelatih membuat jadwal latihan anak terpantau secara teratur dan transparan."</p>
                 <span class="author">— Bunda Sarah, Wali Murid Kenzo</span>
               </div>
             </div>
@@ -167,11 +186,14 @@
             <!-- Card Header -->
             <div class="card-head">
               <div class="security-chip">
-                <span class="lock-icon">🔒</span>
-                <span>JWT Secure 256-Bit Auth</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                <span>Autentikasi Aman Terenkripsi</span>
               </div>
               <h2 class="card-title">Masuk ke Portal</h2>
-              <p class="card-desc">Pilih peran akun Anda untuk diarahkan ke dashboard kerja.</p>
+              <p class="card-desc">Pilih otorisasi akun Anda untuk mengakses dashboard sistem.</p>
             </div>
 
             <!-- INTERACTIVE ROLE SWITCHER -->
@@ -182,7 +204,12 @@
                 :class="{ active: activeRoleTab === 'customer' }"
                 @click="selectRoleTab('customer')"
               >
-                <span class="btn-emoji">👨‍👩‍👧</span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
                 <span class="btn-text">Wali Murid</span>
               </button>
               <button 
@@ -191,8 +218,12 @@
                 :class="{ active: activeRoleTab === 'coach' }"
                 @click="selectRoleTab('coach')"
               >
-                <span class="btn-emoji">🥋</span>
-                <span class="btn-text">Pelatih (Coach)</span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <polyline points="16 11 18 13 22 9"></polyline>
+                </svg>
+                <span class="btn-text">Pelatih / Instruktur</span>
               </button>
               <button 
                 type="button" 
@@ -200,7 +231,9 @@
                 :class="{ active: activeRoleTab === 'manajemen' }"
                 @click="selectRoleTab('manajemen')"
               >
-                <span class="btn-emoji">⚙️</span>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
                 <span class="btn-text">Manajemen</span>
               </button>
             </div>
@@ -309,9 +342,14 @@
                   class="demo-pill" 
                   :class="{ active: activeRoleTab === 'customer' }"
                   @click="selectRoleTab('customer')"
-                  title="Masuk sebagai Wali Murid (Bunda Sarah)"
+                  title="Akses Demo Akun Wali Murid"
                 >
-                  <span class="pill-ico">👨‍👩‍👧</span>
+                  <span class="pill-ico">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="9" cy="7" r="4"></circle>
+                    </svg>
+                  </span>
                   <div class="pill-meta">
                     <strong>Bunda Sarah</strong>
                     <small>Wali Murid</small>
@@ -323,12 +361,18 @@
                   class="demo-pill" 
                   :class="{ active: activeRoleTab === 'coach' }"
                   @click="selectRoleTab('coach')"
-                  title="Masuk sebagai Coach Adit"
+                  title="Akses Demo Akun Instruktur"
                 >
-                  <span class="pill-ico">🥋</span>
+                  <span class="pill-ico">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="9" cy="7" r="4"></circle>
+                      <polyline points="16 11 18 13 22 9"></polyline>
+                    </svg>
+                  </span>
                   <div class="pill-meta">
                     <strong>Coach Adit</strong>
-                    <small>Pelatih Renang</small>
+                    <small>Instruktur</small>
                   </div>
                 </button>
 
@@ -337,9 +381,13 @@
                   class="demo-pill" 
                   :class="{ active: activeRoleTab === 'manajemen' }"
                   @click="selectRoleTab('manajemen')"
-                  title="Masuk sebagai Admin Pusat"
+                  title="Akses Demo Akun Administrator"
                 >
-                  <span class="pill-ico">⚙️</span>
+                  <span class="pill-ico">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                  </span>
                   <div class="pill-meta">
                     <strong>Admin Pusat</strong>
                     <small>Manajemen</small>
@@ -352,8 +400,11 @@
             <div class="card-foot">
               <p>
                 Belum mendaftar kursus? 
-                <a href="javascript:void(0)" @click="$emit('open-register')" class="register-link">
-                  Daftar Siswa Baru Sekarang ➔
+                <a href="javascript:void(0)" @click="$emit('open-register')" class="register-link" style="display: inline-flex; align-items: center; gap: 5px;">
+                  <span>Daftar Siswa Baru Sekarang</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
                 </a>
               </p>
             </div>
@@ -392,24 +443,24 @@ const currentSlideIdx = ref(0);
 const slides = [
   {
     category: 'AKADEMI RENANG',
-    icon: '🏊‍♂️',
-    title: 'Kurikulum Bertingkat Level 1 - 4 & Privat Rasio',
+    type: 'swimming',
+    title: 'Kurikulum Bertingkat Level 1 - 4 & Rasio Terbatas',
     desc: 'Metode pengajaran aman & terukur dengan instruktur bersertifikasi PRSI / Swimming Instructor Indonesia.',
-    highlight: 'Rasio Eksklusif 1 Pelatih Maksimal 3 Siswa'
+    highlight: 'Rasio Eksklusif 1 Instruktur Maksimal 3 Siswa'
   },
   {
     category: 'SENI TARI & GERAK',
-    icon: '💃',
-    title: 'Pengembangan Motorik, Postur, & Ekspresi Pentas',
+    type: 'dance',
+    title: 'Pengembangan Motorik, Postur Tubuh, & Eksplorasi Gerak',
     desc: 'Kelas tari anak mulai usia dini untuk melatih keluwesan, disiplin ritme, dan kepercayaan diri di atas panggung.',
     highlight: 'Pentas Seni Tahunan & Uji Sertifikasi Gerak'
   },
   {
-    category: 'RAPORT DIGITAL & ABSENSI',
-    icon: '📊',
-    title: 'Pantau Perkembangan Anak Secara Transparan',
-    desc: 'Setiap latihan tervalidasi dengan presensi GPS pelatih dan e-raport digital berkala yang bisa diunduh kapan saja.',
-    highlight: 'Invoice Otomatis Cap LUNAS & E-Raport PDF'
+    category: 'EVALUASI DIGITAL & PRESENSI',
+    type: 'analytics',
+    title: 'Pemantauan Perkembangan Siswa Secara Berkala',
+    desc: 'Setiap latihan tervalidasi dengan presensi GPS pelatih dan laporan evaluasi digital berkala yang dapat diunduh resmi.',
+    highlight: 'Faktur Resmi Berstempel LUNAS & E-Raport PDF'
   }
 ];
 

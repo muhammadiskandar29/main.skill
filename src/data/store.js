@@ -21,6 +21,7 @@ import {
   apiRegisterCustomer,
   apiVerifyPayment,
   apiSendWhatsAppInvoice,
+  apiSimulateBankMutation,
   apiLogin,
   uploadImage,
   apiGetCoachAttendances,
@@ -1259,11 +1260,11 @@ export const actions = {
 
     const transaction = (store.transactions || []).find(t => t.studentId === student.id) || (store.transactions || [])[0];
 
-    const pkgPrice = transaction?.amount || 400000;
+    const totalAmount = transaction?.totalAmount || transaction?.amount || 400142;
     let dynamicQris = store.paymentConfig?.rawQrisStatic || '';
     try {
       if (store.paymentConfig?.rawQrisStatic) {
-        dynamicQris = convertQRIS(store.paymentConfig.rawQrisStatic, { amount: pkgPrice });
+        dynamicQris = convertQRIS(store.paymentConfig.rawQrisStatic, { amount: totalAmount });
         if (typeof dynamicQris !== 'string') {
           dynamicQris = dynamicQris?.qris || store.paymentConfig.rawQrisStatic;
         }
@@ -1286,7 +1287,9 @@ export const actions = {
       transaction,
       schedules: student.memberSchedules,
       qrisString: dynamicQris,
-      amount: pkgPrice
+      amount: totalAmount,
+      baseAmount: transaction?.baseAmount || totalAmount,
+      uniqueCode: transaction?.uniqueCode || 0
     };
   },
 
@@ -1400,9 +1403,12 @@ export const actions = {
       }
     }
 
-    // Auto-create invoice
+    // Auto-create invoice with 3-Digit Unique Code for Bank Mutation Automation
     const now = new Date();
     const pkgPrice = pkg?.price || 400000;
+    const uniqueCode = Math.floor(Math.random() * 899) + 101;
+    const baseAmount = pkgPrice;
+    const totalAmount = baseAmount + uniqueCode;
     const invId = `INV-MS-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 900) + 100)}`;
     const invoice = {
       id: invId,
@@ -1414,10 +1420,13 @@ export const actions = {
       productName: newStudent.productName,
       packageId: newStudent.packageId,
       packageName: `${newStudent.productName} - ${newStudent.packageName}`,
-      amount: pkgPrice,
-      formattedAmount: `Rp ${pkgPrice.toLocaleString('id-ID')}`,
+      baseAmount: baseAmount,
+      uniqueCode: uniqueCode,
+      totalAmount: totalAmount,
+      amount: totalAmount,
+      formattedAmount: `Rp ${totalAmount.toLocaleString('id-ID')}`,
       paymentMethod: 'qris',
-      paymentMethodName: 'QRIS Dinamis ASPI',
+      paymentMethodName: 'QRIS Dinamis ASPI & Auto-Mutasi',
       status: 'Menunggu Pembayaran',
       paidAt: '-',
       created_at: now.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
@@ -1666,10 +1675,13 @@ export const actions = {
     const now = new Date();
     const invoiceId = `INV-MS-${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 900) + 100)}`;
 
-    // 1. Generate QRIS Dinamis ASPI
+    // 1. Generate 3-Digit Unique Code & QRIS Dinamis ASPI
+    const uniqueCode = Math.floor(Math.random() * 899) + 101;
+    const baseAmount = price;
+    const totalAmount = baseAmount + uniqueCode;
     let qrisStr = '';
     try {
-      const resQris = convertQRIS(store.paymentConfig.rawQrisStatic, { amount: price });
+      const resQris = convertQRIS(store.paymentConfig.rawQrisStatic, { amount: totalAmount });
       qrisStr = typeof resQris === 'string' ? resQris : (resQris?.qris || store.paymentConfig.rawQrisStatic);
     } catch (e) {
       qrisStr = store.paymentConfig.rawQrisStatic;
@@ -1686,10 +1698,13 @@ export const actions = {
       productName: student.productName || 'Skill Renang',
       packageId: pkg?.id,
       packageName: `Perpanjangan Paket ${pkg?.name || 'Bimbingan'} (${sessionsCount} Sesi)`,
-      amount: price,
-      formattedAmount: `Rp ${price.toLocaleString('id-ID')}`,
+      baseAmount: baseAmount,
+      uniqueCode: uniqueCode,
+      totalAmount: totalAmount,
+      amount: totalAmount,
+      formattedAmount: `Rp ${totalAmount.toLocaleString('id-ID')}`,
       paymentMethod: 'qris',
-      paymentMethodName: 'QRIS Dinamis ASPI',
+      paymentMethodName: 'QRIS Dinamis ASPI & Auto-Mutasi',
       qrisString: qrisStr,
       status: 'Menunggu Pembayaran',
       paidAt: '-',
@@ -1883,12 +1898,34 @@ export const actions = {
       parentName: trx.parentName,
       invoiceId: trx.id,
       packageName: trx.packageName,
-      amount: trx.amount,
+      amount: trx.totalAmount || trx.amount,
       paidAt: trx.paidAt || new Date().toLocaleString('id-ID'),
       pdfBase64: pdfBase64,
       pdfFilename: `Invoice_${trx.id}_LUNAS.pdf`
     };
     return await apiSendWhatsAppInvoice(payload);
+  },
+
+  // Bank Mutation Webhook Simulator
+  async simulateBankMutation(amount, invoiceId = null, bank = 'BCA', senderName = 'Wali Murid') {
+    const res = await apiSimulateBankMutation({
+      amount,
+      invoiceId,
+      bank,
+      senderName,
+      description: 'Simulasi webhook uang masuk transfer bank'
+    });
+
+    if (res && res.matched && res.transaction) {
+      const idx = (store.transactions || []).findIndex(t => t.id === res.transaction.id);
+      if (idx > -1) {
+        store.transactions[idx] = { ...store.transactions[idx], ...res.transaction };
+      } else {
+        store.transactions.unshift(res.transaction);
+      }
+      persistLocalStore('transactions', store.transactions);
+    }
+    return res;
   },
 
   // Session Evaluation Report (Coach Role)

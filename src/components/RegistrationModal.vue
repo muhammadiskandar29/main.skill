@@ -694,11 +694,63 @@
           <span class="acc-hint">Gunakan email & password di atas untuk login ke Portal Customer kapan saja dan melihat 4 jadwal sesi resmi.</span>
         </div>
 
+        <!-- Itemized Breakdown & 3-Digit Unique Code Box -->
+        <div class="card-humanist" style="background: #f8fafc; border: 1.5px solid #0284c7; padding: 18px; border-radius: 12px; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 10px;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 16px;">⚡</span>
+              <span style="font-size: 13.5px; font-weight: 800; color: #0369a1; text-transform: uppercase; letter-spacing: 0.5px;">
+                Sistem Verifikasi Mutasi Otomatis (Auto-Detect)
+              </span>
+            </div>
+            <span class="badge-chip gold" style="font-size: 11px;">100% Robotik • Tanpa Kirim Struk</span>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13.5px; color: #334155;">
+            <div style="display: flex; justify-content: space-between;">
+              <span style="color: #64748b;">Biaya Paket Pelatihan (4 Sesi):</span>
+              <strong class="font-mono">Rp {{ (registrationResult.transaction.baseAmount || registrationResult.amount).toLocaleString('id-ID') }}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; color: #b45309; background: #fef3c7; padding: 6px 10px; border-radius: 8px; border: 1px solid #fde68a;">
+              <div style="display: flex; flex-direction: column;">
+                <span style="font-weight: 700;">Kode Unik Otomasi (3 Digit):</span>
+                <span style="font-size: 11px; color: #92400e;">Kunci pencocokan mutasi bank & QRIS secara otomatis</span>
+              </div>
+              <strong class="font-mono" style="font-size: 15px; font-weight: 800;">+ Rp {{ (registrationResult.transaction.uniqueCode || 0).toLocaleString('id-ID') }}</strong>
+            </div>
+            <div style="border-top: 1px solid #e2e8f0; margin-top: 4px; padding-top: 8px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <span style="font-weight: 800; color: #0f172a; font-size: 14.5px;">Total Wajib Ditransfer:</span>
+                <div style="font-size: 11.5px; color: #dc2626; font-weight: 600;">*Nominal harus sama persis hingga 3 digit terakhir</div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 22px; font-weight: 900; color: #0284c7;" class="font-mono">
+                  Rp {{ (registrationResult.transaction.amount || registrationResult.amount).toLocaleString('id-ID') }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: 12px; display: flex; gap: 8px;">
+            <button 
+              type="button" 
+              @click="copyText(registrationResult.transaction.amount || registrationResult.amount, 'Nominal Total')"
+              class="btn-primary" 
+              style="flex: 1; padding: 10px 14px; font-size: 12.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; background: #0284c7;"
+            >
+              📋 Salin Nominal Tepat (Rp {{ (registrationResult.transaction.amount || registrationResult.amount).toLocaleString('id-ID') }})
+            </button>
+          </div>
+          <div v-if="copiedNotice" style="margin-top: 8px; font-size: 12px; color: #16a34a; font-weight: 700; text-align: center;">
+            ✓ {{ copiedNotice }}
+          </div>
+        </div>
+
         <!-- Dynamic QRIS Display Box -->
         <div class="qris-display-card card-humanist">
           <div class="qris-card-header">
             <div>
-              <span class="badge-chip gold">QRIS Dinamis ASPI Resmi</span>
+              <span class="badge-chip gold">QRIS Dinamis ASPI Resmi (Terkunci Otomatis)</span>
               <h4 class="qris-merchant-title">{{ store.paymentConfig.merchantName }}</h4>
             </div>
             <span class="invoice-tag">No: {{ registrationResult.transaction.id }}</span>
@@ -710,25 +762,46 @@
           </div>
 
           <div class="qris-amount-row">
-            <span class="amount-lbl">Total Pembayaran:</span>
+            <span class="amount-lbl">Nominal QRIS Terkunci:</span>
             <strong class="amount-val">{{ registrationResult.transaction.formattedAmount }}</strong>
           </div>
           <p class="qris-instruction">
-            Buka aplikasi Mobile Banking (BCA, Mandiri, BRI, BNI) atau e-Wallet (GoPay, OVO, Dana, ShopeePay), lalu scan barcode di atas.
+            Buka aplikasi Mobile Banking (BCA, Mandiri, BRI, BNI) atau e-Wallet (GoPay, OVO, Dana, ShopeePay), lalu scan barcode di atas. Layar HP Anda akan <strong>langsung terkunci di angka {{ registrationResult.transaction.formattedAmount }}</strong>.
           </p>
         </div>
 
+        <!-- Opsi Transfer Rekening Bank Resmi -->
+        <div v-if="store.paymentConfig.bankAccounts && store.paymentConfig.bankAccounts.length > 0" class="bank-accounts-info-box" style="margin-top: 18px; padding: 16px; background: #ffffff; border: 1px solid var(--border-subtle); border-radius: 12px;">
+          <div style="font-weight: 700; font-size: 13.5px; color: #0f172a; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+            <span>Atau Transfer Melalui Rekening Bank Yayasan:</span>
+            <span style="font-size: 11px; color: #64748b;">(Transfer nominal tepat)</span>
+          </div>
+          <div class="bank-chips-row" style="display: flex; flex-direction: column; gap: 8px;">
+            <div v-for="b in store.paymentConfig.bankAccounts" :key="b.id" class="bank-chip-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+              <div>
+                <strong style="color: #0f172a;">{{ b.bankName }}</strong>: <span class="font-mono" style="font-size: 14px; font-weight: 700; color: #0284c7;">{{ b.accountNumber }}</span>
+                <div style="font-size: 11px; color: #64748b;">a.n {{ b.accountHolder }}</div>
+              </div>
+              <button 
+                type="button" 
+                @click="copyText(b.accountNumber, `No. Rekening ${b.bankName}`)"
+                class="btn-secondary" 
+                style="padding: 5px 10px; font-size: 11.5px;"
+              >
+                Salin Rekening
+              </button>
+            </div>
+          </div>
+        </div>
+
         <!-- Success Actions -->
-        <div class="success-actions">
-          <a :href="getWaConfirmationUrl()" target="_blank" class="btn-wa full-width">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.582 2.128 2.182-.573c.978.58 1.911.928 3.145.929 3.178 0 5.767-2.587 5.768-5.766.001-3.187-2.575-5.77-5.764-5.771zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.662.591 1.221.774 1.394.86s.275.072.376-.043c.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564.289.13.332.202c.045.072.045.419-.1.824z"/>
-            </svg>
-            <span>Kirim Bukti Pembayaran ke WhatsApp Admin</span>
-          </a>
+        <div class="success-actions" style="margin-top: 20px;">
+          <div style="padding: 12px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; font-size: 12px; color: #065f46; margin-bottom: 12px; line-height: 1.45;">
+            🤖 <strong>Otomasi Mutasi:</strong> Begitu dana masuk ke rekening/QRIS kami, status invoice otomatis berubah menjadi <strong>LUNAS</strong> dan sistem robot langsung mengirimkan <strong>File PDF Invoice Resmi ber-cap LUNAS</strong> ke nomor WhatsApp Anda tanpa perlu upload bukti!
+          </div>
 
           <button @click="goToCustomerPortal" class="btn-primary full-width">
-            Buka Portal Siswa (Lihat Jadwal & Progress)
+            Buka Portal Siswa (Lihat 4 Jadwal Sesi & Progress)
           </button>
 
           <button @click="$emit('close')" class="btn-secondary full-width">
@@ -1040,6 +1113,17 @@ function goToCustomerPortal() {
   }
   actions.switchRole('customer');
   store.activePortalMenu = 'c_schedule';
+}
+
+const copiedNotice = ref('');
+function copyText(text, label = 'Nominal') {
+  if (navigator?.clipboard?.writeText) {
+    navigator.clipboard.writeText(String(text));
+  }
+  copiedNotice.value = `${label} berhasil disalin!`;
+  setTimeout(() => {
+    copiedNotice.value = '';
+  }, 2500);
 }
 
 function getWaConfirmationUrl() {

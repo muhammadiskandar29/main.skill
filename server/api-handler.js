@@ -24,6 +24,7 @@ import {
   deleteStudentSchedule,
   getAllTransactions,
   verifyTransaction,
+  processBankMutationAutoVerify,
   registerCustomerFlow,
   saveUploadedImage,
   loginUser,
@@ -304,6 +305,54 @@ export async function handleApiRequest(req, res) {
       const body = await parseJsonBody(req);
       const result = await sendWhatsAppInvoiceBackground(body);
       return sendJson(res, 200, result);
+    }
+
+    // 8c. AUTOMATED BANK MUTATION WEBHOOK (Moota, Cekmutasi, Tripay, Custom Bank Scraper)
+    if (pathname === '/api/webhook/mutasi' && method === 'POST') {
+      const body = await parseJsonBody(req);
+      const mutations = Array.isArray(body) ? body : (Array.isArray(body.mutations) ? body.mutations : [body]);
+      const results = [];
+
+      for (const item of mutations) {
+        const type = String(item.type || item.mutation_type || 'CR').toUpperCase();
+        if (type !== 'CR' && type !== 'CREDIT' && type !== 'MASUK') {
+          continue;
+        }
+
+        const rawAmount = item.amount || item.nominal || item.total || 0;
+        const cleanAmount = typeof rawAmount === 'string' ? parseInt(rawAmount.replace(/[^0-9]/g, ''), 10) : parseInt(rawAmount, 10);
+
+        if (cleanAmount > 0) {
+          const autoRes = await processBankMutationAutoVerify({
+            amount: cleanAmount,
+            bank: item.bank || item.bank_type || item.account_type || 'Bank',
+            senderName: item.sender || item.sender_name || item.description || '',
+            description: item.description || item.note || '',
+            invoiceId: item.invoice_id || item.invoiceId || null
+          });
+          results.push(autoRes);
+        }
+      }
+
+      return sendJson(res, 200, {
+        success: true,
+        message: `Diproses ${results.length} mutasi kredit perbankan.`,
+        data: results
+      });
+    }
+
+    // 8d. SIMULATOR WEBHOOK MUTASI (For Admin & Testing in CMS)
+    if (pathname === '/api/webhook/simulate-test' && method === 'POST') {
+      const body = await parseJsonBody(req);
+      const { amount, invoiceId, bank, senderName, description } = body;
+      const resData = await processBankMutationAutoVerify({
+        amount,
+        invoiceId,
+        bank: bank || 'BCA (Simulasi)',
+        senderName: senderName || 'Bapak/Ibu Wali Murid',
+        description: description || 'Pembayaran Kursus mine.skills'
+      });
+      return sendJson(res, 200, resData);
     }
 
     // 9. AUTH

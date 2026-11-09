@@ -4,6 +4,8 @@ import { fileURLToPath } from 'node:url';
 import { neon } from '@neondatabase/serverless';
 import dotenv from 'dotenv';
 import { convertQRIS } from '../src/utils/qris.js';
+import { generateServerInvoicePdf } from './invoice-pdf-server.js';
+import { sendWhatsAppInvoiceBackground } from './whatsapp-service.js';
 
 dotenv.config();
 
@@ -769,10 +771,14 @@ export async function registerCustomerFlow({
     studentSchedules.push(sch);
   }
 
-  // 4. Dynamic QRIS
+  // 4. Unique 3-Digit Code (Kunci Otomasi Mutasi) & Dynamic QRIS
+  const uniqueCode = Math.floor(Math.random() * 899) + 101;
+  const baseAmount = packagePrice;
+  const totalAmount = baseAmount + uniqueCode;
+
   let dynamicQrisString = '';
   try {
-    const resQris = convertQRIS(DEFAULT_RAW_QRIS, { amount: packagePrice });
+    const resQris = convertQRIS(DEFAULT_RAW_QRIS, { amount: totalAmount });
     dynamicQrisString = typeof resQris === 'string' ? resQris : (resQris?.qris || DEFAULT_RAW_QRIS);
   } catch (err) {
     dynamicQrisString = DEFAULT_RAW_QRIS;
@@ -790,14 +796,17 @@ export async function registerCustomerFlow({
     productName: product?.name || 'Skill Renang',
     packageId: pkg?.id || 'pkg_auto',
     packageName: `${product?.name} - ${pkg?.name}`,
-    amount: packagePrice,
-    formattedAmount: `Rp ${packagePrice.toLocaleString('id-ID')}`,
+    baseAmount: baseAmount,
+    uniqueCode: uniqueCode,
+    totalAmount: totalAmount,
+    amount: totalAmount,
+    formattedAmount: `Rp ${totalAmount.toLocaleString('id-ID')}`,
     paymentMethod: 'qris',
-    paymentMethodName: 'QRIS Dinamis ASPI',
+    paymentMethodName: 'QRIS Dinamis ASPI & Auto-Mutasi',
     qrisString: dynamicQrisString,
     status: 'Menunggu Pembayaran',
     paidAt: '-',
-    notes: 'Pendaftaran online mandiri dengan QRIS otomatis',
+    notes: 'Pendaftaran online mandiri dengan QRIS otomatis & 3-digit kode unik verifikasi',
     created_at: now.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
   };
   await upsertRecord('transactions', invoiceId, newTransaction);
@@ -808,7 +817,9 @@ export async function registerCustomerFlow({
     transaction: newTransaction,
     schedules: studentSchedules,
     qrisString: dynamicQrisString,
-    amount: packagePrice
+    amount: totalAmount,
+    baseAmount: baseAmount,
+    uniqueCode: uniqueCode
   };
 }
 
@@ -837,6 +848,86 @@ export async function verifyTransaction(invoiceId) {
   trx.paidAt = new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
   await upsertRecord('transactions', invoiceId, trx);
   return trx;
+}
+
+// -------------------------------------------------------------
+// Auto-Mutasi Webhook Reconciler & Background Dispatcher
+// -------------------------------------------------------------
+export async function processBankMutationAutoVerify({ amount, bank, senderName, description, invoiceId }) {
+  let trx = null;
+  const numAmount = parseInt(amount, 10);
+
+  if (invoiceId) {
+    trx = await getById('transactions', invoiceId);
+  }
+
+  if (!trx && numAmount > 0) {
+    const allTransactions = await getAllTransactions();
+    // Match pending transactions where totalAmount or amount or (baseAmount + uniqueCode) matches numAmount
+    trx = allTransactions.find(t => {
+      if (t.status !== 'Menunggu Pembayaran') return false;
+      const tTotal = parseInt(t.totalAmount || t.amount, 10);
+      return tTotal === numAmount;
+    });
+  }
+
+  if (!trx) {
+    return {
+      success: false,
+      matched: false,
+      message: `Tidak ditemukan transaksi berstatus 'Menunggu Pembayaran' dengan nominal Rp ${(numAmount || 0).toLocaleString('id-ID')}`
+    };
+  }
+
+  // 1. Auto-verify transaction
+  const now = new Date();
+  trx.status = 'Lunas (Verified)';
+  trx.paidAt = now.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
+  trx.paymentMethodName = bank ? `Auto-Mutasi Bank ${bank}` : (trx.paymentMethodName || 'Auto-Mutasi Bank / QRIS');
+  trx.verifiedBy = 'Auto-Audit Webhook Mutasi Perbankan (Robot)';
+  if (senderName) trx.senderName = senderName;
+  if (description) trx.mutationDesc = description;
+
+  await upsertRecord('transactions', trx.id, trx);
+
+  // 2. Auto-generate official PDF with red "LUNAS" stamp on server
+  let pdfBase64 = null;
+  try {
+    const brand = await getBrandConfig();
+    const doc = generateServerInvoicePdf(trx, brand);
+    pdfBase64 = doc.output('datauristring');
+  } catch (pdfErr) {
+    console.warn('[Auto-Mutasi] Server PDF generation warning:', pdfErr.message);
+  }
+
+  // 3. Auto-dispatch official invoice to WhatsApp with attached PDF
+  let waResult = null;
+  if (trx.phone) {
+    try {
+      waResult = await sendWhatsAppInvoiceBackground({
+        targetPhone: trx.phone,
+        studentName: trx.studentName,
+        parentName: trx.parentName,
+        invoiceId: trx.id,
+        packageName: trx.packageName,
+        amount: trx.totalAmount || trx.amount,
+        paidAt: trx.paidAt,
+        pdfBase64: pdfBase64,
+        pdfFilename: `Invoice_${trx.id}_LUNAS.pdf`
+      });
+    } catch (waErr) {
+      console.warn('[Auto-Mutasi] WA auto-dispatch warning:', waErr.message);
+    }
+  }
+
+  return {
+    success: true,
+    matched: true,
+    transaction: trx,
+    pdfGenerated: !!pdfBase64,
+    whatsappDispatched: waResult?.success ?? false,
+    message: `Mutasi berhasil dicocokkan! Invoice ${trx.id} resmi DIVERIFIKASI LUNAS dan PDF otomatis dikirim ke nomor WhatsApp ${trx.phone}.`
+  };
 }
 
 // -------------------------------------------------------------

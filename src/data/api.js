@@ -245,6 +245,18 @@ export async function apiSendWhatsAppInvoice(payload) {
   }
 }
 
+// Bank Mutation Webhook Simulator (Test Auto-Verification Pipeline)
+export async function apiSimulateBankMutation(payload) {
+  const res = await fetch(`${API_BASE}/webhook/simulate-test`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const json = await res.json();
+  if (!res.ok) throw new Error(json.message || 'Gagal simulasi mutasi bank');
+  return json;
+}
+
 // Auth Login
 export async function apiLogin(email, password) {
   const res = await fetch(`${API_BASE}/auth/login`, {

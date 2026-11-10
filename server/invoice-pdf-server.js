@@ -33,36 +33,36 @@ export function generateServerInvoicePdf(trx, brand = {}) {
   doc.setFillColor(13, 77, 93); // Dark Teal
   doc.rect(margin, 16, contentWidth, 2.5, 'F');
 
-  // Insert Logo Image if available
+  // Insert Official Logo Image (Logo sudah memuat ikon + tulisan mine.skills)
   let textStartX = margin;
   try {
     if (MINE_SKILLS_LOGO_BASE64) {
-      doc.addImage(MINE_SKILLS_LOGO_BASE64, 'PNG', margin, 21, 14, 14);
-      textStartX = margin + 18;
+      doc.addImage(MINE_SKILLS_LOGO_BASE64, 'PNG', margin, 20, 32, 21.3);
+      textStartX = margin + 35;
     }
   } catch (e) {
     textStartX = margin;
   }
 
-  // Brand Name
+  // Subtitle & Official Slogan (Teks mine.skills duplikat dihapus karena sudah ada di logo)
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(20);
+  doc.setFontSize(8.5);
   doc.setTextColor(13, 77, 93);
-  doc.text(brandName, textStartX, 27);
-
-  // Subtitle
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8);
-  doc.setTextColor(100, 116, 139);
-  doc.text('Platform Peningkatan Skill Terpadu & Terstruktur (Akademi Resmi)', textStartX, 31.5);
+  doc.text('Platform Peningkatan Skill Terpadu & Terstruktur (Akademi Resmi)', textStartX, 26);
 
   // Address & Contacts (Wrapped cleanly so it never overlaps right pill)
-  const maxHeaderLeftWidth = contentWidth - 68;
+  const maxHeaderLeftWidth = contentWidth - 95;
   const contactLine = `${brandAddress} • WA: ${brandPhone}`;
   const splitAddress = doc.splitTextToSize(contactLine, maxHeaderLeftWidth);
-  doc.text(splitAddress[0] || brandAddress, textStartX, 35.5);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.8);
+  doc.setTextColor(100, 116, 139);
+  doc.text(splitAddress[0] || brandAddress, textStartX, 31);
   if (splitAddress.length > 1) {
-    doc.text(splitAddress[1], textStartX, 39.5);
+    doc.text(splitAddress[1], textStartX, 35);
+  }
+  if (splitAddress.length > 2) {
+    doc.text(splitAddress[2], textStartX, 39);
   }
 
   // Document Title Pill

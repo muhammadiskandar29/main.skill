@@ -585,12 +585,12 @@
           <h2 class="page-title">Status Paket & Riwayat Pembayaran</h2>
           <p class="page-sub">Informasi invoice dan perpanjangan paket sesi ananda.</p>
         </div>
-        <button @click="openQrisModal(500000, 'Perpanjangan Paket 4x Sesi')" class="btn-primary">
+        <button @click="openPaymentModal(500000, 'Perpanjangan Paket 4x Sesi')" class="btn-primary">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="2" y="4" width="20" height="16" rx="2"></rect>
             <line x1="2" y1="10" x2="22" y2="10"></line>
           </svg>
-          <span>Bayar Paket / Tagihan via QRIS</span>
+          <span>Bayar Tagihan Paket</span>
         </button>
       </div>
 
@@ -640,12 +640,12 @@
 
           <!-- Tombol Bayar jika status Menunggu Pembayaran -->
           <div v-if="!trx.status.includes('Lunas')" style="margin-top: 14px; padding-top: 12px; border-top: 1px dashed #cbd5e1; display: flex; justify-content: flex-end;">
-            <button @click="openQrisModal(trx.amount, trx.packageName, trx)" class="btn-primary" style="padding: 9px 18px; font-size: 13px;">
+            <button @click="openPaymentModal(trx.amount, trx.packageName, trx)" class="btn-primary" style="padding: 9px 18px; font-size: 13px;">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="2" y="4" width="20" height="16" rx="2"></rect>
                 <line x1="2" y1="10" x2="22" y2="10"></line>
               </svg>
-              <span>Bayar Tagihan Ini via QRIS ({{ trx.formattedAmount || ('Rp ' + Number(trx.amount || 0).toLocaleString('id-ID')) }})</span>
+              <span>Bayar Tagihan Ini ({{ trx.formattedAmount || ('Rp ' + Number(trx.amount || 0).toLocaleString('id-ID')) }})</span>
             </button>
           </div>
 
@@ -699,60 +699,210 @@
         </div>
       </div>
 
-      <!-- QRIS Checkout Modal for Customer -->
-      <div v-if="showCustomerQris" class="modal-backdrop" @click.self="showCustomerQris = false">
-        <div class="modal-dialog" style="max-width: 440px; text-align: center;">
+      <!-- PAYMENT METHOD MODAL (QRIS & TRANSFER BANK DENGAN DROPDOWN OPSI) -->
+      <div v-if="showPaymentModal" class="modal-backdrop" @click.self="showPaymentModal = false">
+        <div class="modal-dialog" style="max-width: 480px;">
           <div class="modal-header">
-            <h3 class="modal-title">Pembayaran QRIS mine.skills</h3>
-            <button class="btn-close" @click="showCustomerQris = false">✕</button>
+            <div>
+              <span class="badge-chip gold">Metode Pembayaran Resmi</span>
+              <h3 class="modal-title" style="margin-top: 4px;">Pilih Cara Pembayaran</h3>
+            </div>
+            <button class="btn-close" @click="showPaymentModal = false">✕</button>
           </div>
-          <div class="modal-body" style="padding: 24px;">
-            <div style="font-weight: 800; font-size: 24px; color: #dc2626; margin-bottom: 2px;">QRIS</div>
-            <div style="font-size: 11px; color: var(--text-subtle); margin-bottom: 14px;">ASPI / BANK INDONESIA (DINAMIS)</div>
-            <div style="display: flex; justify-content: center; margin-bottom: 14px;">
-              <img v-if="custQrisDataUrl" :src="custQrisDataUrl" alt="QRIS" style="width: 210px; height: 210px; border-radius: 8px; border: 1px solid #e2e8f0;" />
+
+          <div class="modal-body" style="padding: 20px;">
+            <!-- Info Tagihan Ringkas -->
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 16px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <span style="font-size: 11.5px; color: #64748b; display: block;">Total Tagihan:</span>
+                <strong style="font-size: 18px; color: #0284c7;" class="font-mono">Rp {{ Number(qrisPayAmount || 0).toLocaleString('id-ID') }}</strong>
+              </div>
+              <span class="badge-chip teal">{{ activePayingTrx?.id || 'Tagihan Kursus' }}</span>
             </div>
 
-            <!-- Breakdown Box -->
-            <div style="background: #f8fafc; border: 1.5px solid #0284c7; padding: 14px; border-radius: 10px; margin-bottom: 14px;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 6px;">
-                <span style="font-size: 12px; font-weight: 700; color: #0284c7;">VERIFIKASI MUTASI OTOMATIS</span>
-                <span class="badge-chip gold" style="font-size: 10px;">Tanpa Kirim Bukti</span>
-              </div>
-              <div v-if="activePayingTrx && activePayingTrx.uniqueCode" style="font-size: 12.5px; color: #475569; display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px;">
-                <div style="display: flex; justify-content: space-between;">
-                  <span>Biaya Paket:</span>
-                  <span class="font-mono">Rp {{ (activePayingTrx.baseAmount || (qrisPayAmount - activePayingTrx.uniqueCode)).toLocaleString('id-ID') }}</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; color: #b45309; font-weight: 600;">
-                  <span>Kode Unik Verifikasi:</span>
-                  <span class="font-mono">+ Rp {{ activePayingTrx.uniqueCode.toLocaleString('id-ID') }}</span>
-                </div>
-              </div>
-              <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #cbd5e1; padding-top: 6px;">
-                <span style="font-size: 12.5px; font-weight: 700; color: #0f172a;">Total Terkunci:</span>
-                <div style="font-size: 20px; font-weight: 900; color: #0284c7;" class="font-mono">
-                  Rp {{ qrisPayAmount.toLocaleString('id-ID') }}
-                </div>
-              </div>
+            <!-- Tab / Pilihan Metode Pembayaran Utama (QRIS vs Transfer Bank) -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 18px;">
               <button 
                 type="button" 
-                @click="copyBankAcc(qrisPayAmount, 'Nominal')"
-                class="btn-secondary" 
-                style="width: 100%; margin-top: 8px; padding: 7px 10px; font-size: 11.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 6px;"
+                @click="selectedPayMethod = 'qris'" 
+                :class="selectedPayMethod === 'qris' ? 'btn-primary' : 'btn-secondary'"
+                style="padding: 12px 10px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 4px; border-radius: 10px;"
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                </svg>
-                <span>Salin Nominal Tepat (Rp {{ qrisPayAmount.toLocaleString('id-ID') }})</span>
+                <span style="font-size: 15px;">📱 QRIS Dinamis</span>
+                <span style="font-size: 10.5px; opacity: 0.85; font-weight: 500;">BCA, GoPay, Mandiri, ShopeePay</span>
+              </button>
+              <button 
+                type="button" 
+                @click="selectedPayMethod = 'transfer'" 
+                :class="selectedPayMethod === 'transfer' ? 'btn-primary' : 'btn-secondary'"
+                style="padding: 12px 10px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 4px; border-radius: 10px;"
+              >
+                <span style="font-size: 15px;">🏦 Transfer Bank</span>
+                <span style="font-size: 10.5px; opacity: 0.85; font-weight: 500;">BCA, Mandiri, BRI, BNI</span>
               </button>
             </div>
 
-            <p style="font-size: 11.5px; color: var(--text-muted); line-height: 1.45; margin-bottom: 12px;">
-              Buka aplikasi BCA Mobile, GoPay, OVO, Dana, ShopeePay, atau m-Banking Anda, lalu scan QR Code di atas. Layar HP langsung terkunci di nominal Rp {{ qrisPayAmount.toLocaleString('id-ID') }}. Begitu mutasi masuk, sistem robot kami langsung mengubah status menjadi <strong>LUNAS</strong> dan mengirim file PDF Invoice Resmi ke WhatsApp Anda!
+            <!-- ==============================================
+                 OPSI A: QRIS DINAMIS DENGAN KARTU ORNAMEN RESMI
+                 ============================================== -->
+            <div v-if="selectedPayMethod === 'qris'" class="qris-payment-panel">
+              <!-- Dropdown Opsi QRIS -->
+              <div class="form-group" style="margin-bottom: 14px;">
+                <label class="form-label" style="font-weight: 700; font-size: 12.5px;">Pilihan Tampilan / Format QRIS:</label>
+                <select v-model="qrisDisplayFormat" class="form-select" style="font-size: 13px;">
+                  <option value="card">Kartu Standar mine.skills (Siap Download PNG)</option>
+                  <option value="qr_only">QR Code Saja (Langsung Scan di Layar)</option>
+                </select>
+              </div>
+
+              <!-- Kartu Ornamen QRIS Resmi (Siap didownload jadi PNG) -->
+              <div 
+                ref="qrisCardDownloadRef"
+                id="qrisCardPoster"
+                style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff; border-radius: 16px; padding: 20px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.25); position: relative; overflow: hidden; margin-bottom: 14px; text-align: center; border: 1px solid rgba(255,255,255,0.1);"
+              >
+                <!-- Ornamen Lingkaran Aksen Brand -->
+                <div style="position: absolute; top: -30px; right: -30px; width: 110px; height: 110px; border-radius: 50%; background: radial-gradient(circle, rgba(2,132,199,0.35) 0%, rgba(2,132,199,0) 70%); pointer-events: none;"></div>
+                <div style="position: absolute; bottom: -30px; left: -30px; width: 110px; height: 110px; border-radius: 50%; background: radial-gradient(circle, rgba(245,158,11,0.25) 0%, rgba(245,158,11,0) 70%); pointer-events: none;"></div>
+
+                <!-- Header Kartu: Logo & ASPI Badge -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 10px;">
+                  <div style="text-align: left;">
+                    <div style="font-size: 15px; font-weight: 900; letter-spacing: 0.05em; color: #38bdf8;">MINE.SKILLS</div>
+                    <span style="font-size: 10px; color: #94a3b8; text-transform: uppercase;">Official Payment Partner</span>
+                  </div>
+                  <div style="background: #dc2626; color: #ffffff; font-weight: 900; font-size: 14px; padding: 3px 10px; border-radius: 6px; letter-spacing: 0.08em;">
+                    QRIS
+                  </div>
+                </div>
+
+                <!-- QR Image Holder -->
+                <div style="background: #ffffff; padding: 12px; border-radius: 12px; display: inline-block; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+                  <img v-if="custQrisDataUrl" :src="custQrisDataUrl" alt="QRIS Dinamis" style="width: 200px; height: 200px; display: block; border-radius: 4px;" />
+                  <div v-else style="width: 200px; height: 200px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 12px;">Menyiapkan QRIS...</div>
+                </div>
+
+                <!-- Nominal Terkunci -->
+                <div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 8px 12px; margin-bottom: 8px;">
+                  <span style="font-size: 11px; color: #94a3b8; display: block;">Nominal Terkunci Otomatis:</span>
+                  <div style="font-size: 21px; font-weight: 900; color: #38bdf8;" class="font-mono">
+                    Rp {{ Number(qrisPayAmount || 0).toLocaleString('id-ID') }}
+                  </div>
+                </div>
+
+                <!-- Footer Ornamen: Nama Merchant & Info ASPI -->
+                <div style="font-size: 10.5px; color: #94a3b8; line-height: 1.4;">
+                  NMID: {{ store.paymentConfig?.nmid || 'ID1020038847291' }} • {{ store.paymentConfig?.merchantName || 'MINE.SKILLS INDONESIA' }}
+                  <div style="color: #64748b; font-size: 9.5px; margin-top: 2px;">Terverifikasi Otomatis oleh Sistem Perbankan ASPI</div>
+                </div>
+              </div>
+
+              <!-- Tombol Aksi QRIS -->
+              <div style="display: flex; gap: 8px;">
+                <button 
+                  type="button" 
+                  @click="downloadQrisImage" 
+                  class="btn-primary" 
+                  style="flex: 1; padding: 9px; font-size: 12.5px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;"
+                  :disabled="isDownloadingQris"
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="7 10 12 15 17 10"></polyline>
+                    <line x1="12" y1="15" x2="12" y2="3"></line>
+                  </svg>
+                  <span>{{ isDownloadingQris ? 'Menyimpan...' : 'Download Gambar QRIS (PNG)' }}</span>
+                </button>
+                <button 
+                  type="button" 
+                  @click="copyBankAcc(qrisPayAmount, 'Nominal QRIS')" 
+                  class="btn-secondary" 
+                  style="padding: 9px 12px; font-size: 12px;"
+                  title="Salin Angka Tagihan"
+                >
+                  {{ copiedBankId === qrisPayAmount ? '✓ Disalin' : 'Salin Nominal' }}
+                </button>
+              </div>
+            </div>
+
+            <!-- ==============================================
+                 OPSI B: TRANSFER BANK DENGAN DROPDOWN PILIHAN
+                 ============================================== -->
+            <div v-else class="transfer-payment-panel">
+              <!-- Dropdown Pilih Bank -->
+              <div class="form-group" style="margin-bottom: 14px;">
+                <label class="form-label" style="font-weight: 700; font-size: 12.5px;">Pilih Rekening Bank Tujuan:</label>
+                <select v-model="selectedBankId" class="form-select" style="font-size: 13px;">
+                  <option 
+                    v-for="b in (store.paymentConfig?.bankAccounts || [])" 
+                    :key="b.id" 
+                    :value="b.id"
+                  >
+                    {{ b.bankName }} — {{ b.accountNumber }} (a.n {{ b.accountHolder }})
+                  </option>
+                </select>
+              </div>
+
+              <!-- Kartu Detail Rekening yang Dipilih -->
+              <div 
+                v-if="selectedBankDetail" 
+                style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 12px; padding: 16px; margin-bottom: 14px;"
+              >
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                  <strong style="font-size: 15px; color: #166534;">{{ selectedBankDetail.bankName }}</strong>
+                  <span class="badge-chip teal">{{ selectedBankDetail.badge || 'Resmi Yayasan' }}</span>
+                </div>
+
+                <div style="background: #ffffff; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <span style="font-size: 11px; color: #64748b; display: block;">Nomor Rekening:</span>
+                    <span class="font-mono" style="font-size: 18px; font-weight: 900; color: #0284c7; letter-spacing: 0.05em;">
+                      {{ selectedBankDetail.accountNumber }}
+                    </span>
+                  </div>
+                  <button 
+                    type="button" 
+                    @click="copyBankAcc(selectedBankDetail.accountNumber, selectedBankDetail.bankName)" 
+                    class="btn-secondary" 
+                    style="padding: 5px 12px; font-size: 11.5px; font-weight: 700;"
+                  >
+                    {{ copiedBankId === selectedBankDetail.accountNumber ? '✓ Disalin' : 'Salin Rekening' }}
+                  </button>
+                </div>
+
+                <div style="font-size: 12px; color: #166534; margin-bottom: 6px;">
+                  Atas Nama: <strong>{{ selectedBankDetail.accountHolder }}</strong>
+                </div>
+
+                <div style="background: #ecfdf5; border-radius: 6px; padding: 8px 10px; font-size: 11.5px; color: #065f46; line-height: 1.45;">
+                  <strong>Penting:</strong> Pastikan mentransfer tepat sejumlah <strong>Rp {{ Number(qrisPayAmount || 0).toLocaleString('id-ID') }}</strong> (termasuk 3 digit kode unik) agar pembayaran otomatis terverifikasi LUNAS oleh sistem.
+                </div>
+              </div>
+
+              <!-- Tombol Salin Seluruh Instruksi Transfer -->
+              <div style="display: flex; gap: 8px;">
+                <button 
+                  type="button" 
+                  @click="copyFullTransferInstruction" 
+                  class="btn-primary" 
+                  style="flex: 1; padding: 10px; font-size: 12.5px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;"
+                >
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                  </svg>
+                  <span>{{ copyInstructionStatus || 'Salin Info Transfer & Nominal' }}</span>
+                </button>
+              </div>
+            </div>
+
+            <p style="font-size: 11px; color: var(--text-muted); line-height: 1.45; margin: 16px 0 0; text-align: center;">
+              Setelah transfer / scan QRIS berhasil, sistem otomatis mendeteksi mutasi dalam 1 menit dan mengubah invoice menjadi <strong>LUNAS</strong>.
             </p>
-            <button @click="showCustomerQris = false" class="btn-primary" style="width: 100%;">
+          </div>
+
+          <div class="modal-footer" style="padding: 12px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0;">
+            <button @click="showPaymentModal = false" class="btn-secondary" style="width: 100%;">
               Tutup Jendela Pembayaran
             </button>
           </div>
@@ -899,6 +1049,7 @@
 import { ref, computed } from 'vue';
 import { store, actions } from '../data/store.js';
 import QRCode from 'qrcode';
+import html2canvas from 'html2canvas';
 import { convertStaticQrisToDynamic } from '../utils/qris.js';
 import { generateInvoicePdf } from '../utils/invoicePdf.js';
 
@@ -921,6 +1072,13 @@ function downloadCustomerInvoice(trx) {
 }
 
 const showCustomerQris = ref(false);
+const showPaymentModal = ref(false);
+const selectedPayMethod = ref('qris'); // 'qris' | 'transfer'
+const qrisDisplayFormat = ref('card'); // 'card' | 'qr_only'
+const selectedBankId = ref('');
+const qrisCardDownloadRef = ref(null);
+const isDownloadingQris = ref(false);
+const copyInstructionStatus = ref('');
 const qrisPayAmount = ref(500000);
 const custQrisDataUrl = ref('');
 const copiedBankId = ref('');
@@ -977,25 +1135,92 @@ function copyBankAcc(accNum, bankName) {
 }
 
 const activePayingTrx = ref(null);
-async function openQrisModal(amount = 500000, packageName = '', trx = null) {
+
+const selectedBankDetail = computed(() => {
+  const banks = store.paymentConfig?.bankAccounts || [];
+  if (selectedBankId.value) {
+    const found = banks.find(b => b.id === selectedBankId.value);
+    if (found) return found;
+  }
+  return banks[0] || null;
+});
+
+async function openPaymentModal(amount = 500000, packageName = '', trx = null) {
   activePayingTrx.value = trx;
   qrisPayAmount.value = amount;
-  showCustomerQris.value = true;
+  selectedPayMethod.value = 'qris';
+  qrisDisplayFormat.value = 'card';
+  
+  const banks = store.paymentConfig?.bankAccounts || [];
+  if (banks.length > 0 && !selectedBankId.value) {
+    selectedBankId.value = banks[0].id;
+  }
+  
+  showPaymentModal.value = true;
   try {
-    const rawStatic = store.paymentConfig.rawQrisStatic;
+    const rawStatic = store.paymentConfig?.rawQrisStatic;
     const dynamicQris = convertStaticQrisToDynamic(rawStatic, {
       amount: amount,
       feeType: 'fixed',
       feeValue: 0
     });
     custQrisDataUrl.value = await QRCode.toDataURL(dynamicQris, {
-      width: 220,
+      width: 240,
       margin: 1,
       color: { dark: '#000000', light: '#ffffff' }
     });
   } catch (e) {
     console.warn('Customer QRIS generation error:', e);
   }
+}
+
+async function downloadQrisImage() {
+  const cardElem = qrisCardDownloadRef.value || document.getElementById('qrisCardPoster');
+  if (!cardElem) return;
+  
+  isDownloadingQris.value = true;
+  try {
+    const canvas = await html2canvas(cardElem, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: null
+    });
+    const link = document.createElement('a');
+    const invId = activePayingTrx.value?.id || 'QRIS';
+    link.download = `QRIS_${invId}_mine_skills.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  } catch (err) {
+    alert('Gagal mengunduh gambar QRIS: ' + err.message);
+  } finally {
+    isDownloadingQris.value = false;
+  }
+}
+
+function copyFullTransferInstruction() {
+  const bank = selectedBankDetail.value;
+  if (!bank) return;
+  const nominal = Number(qrisPayAmount.value || 0).toLocaleString('id-ID');
+  const text = [
+    `*Instruksi Pembayaran Paket Kursus mine.skills*`,
+    `Bank: ${bank.bankName}`,
+    `No. Rekening: ${bank.accountNumber}`,
+    `Atas Nama: ${bank.accountHolder}`,
+    `Total Transfer: Rp ${nominal} (Wajib pas hingga 3 digit terakhir)`,
+    `No. Invoice: ${activePayingTrx.value?.id || '-'}`
+  ].join('\n');
+  
+  if (navigator?.clipboard?.writeText) {
+    navigator.clipboard.writeText(text);
+  }
+  copyInstructionStatus.value = '✓ Info Transfer & Nominal Berhasil Disalin!';
+  setTimeout(() => {
+    copyInstructionStatus.value = '';
+  }, 2500);
+}
+
+async function openQrisModal(amount = 500000, packageName = '', trx = null) {
+  return openPaymentModal(amount, packageName, trx);
 }
 
 const studentData = computed(() => {

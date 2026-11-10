@@ -51,8 +51,8 @@ export async function sendWhatsAppInvoiceBackground({
     `*Manajemen mine.skills Indonesia*`
   ].join('\n');
 
-  // 1. If Fonnte Gateway Token is configured in environment or gatewayConfig
-  const fonnteToken = gatewayConfig.fonnteToken || process.env.FONNTE_TOKEN;
+  // 1. If Fonnte Gateway Token is configured in environment, gatewayConfig, or default constant
+  const fonnteToken = gatewayConfig.fonnteToken || process.env.FONNTE_TOKEN || '1SX6TAyvC7Kh18J7TQX6';
   if (fonnteToken) {
     try {
       const payload = {

@@ -585,13 +585,6 @@
           <h2 class="page-title">Status Paket & Riwayat Pembayaran</h2>
           <p class="page-sub">Informasi invoice dan perpanjangan paket sesi ananda.</p>
         </div>
-        <button @click="openPaymentModal(500000, 'Perpanjangan Paket 4x Sesi')" class="btn-primary">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-            <line x1="2" y1="10" x2="22" y2="10"></line>
-          </svg>
-          <span>Bayar Tagihan Paket</span>
-        </button>
       </div>
 
       <!-- Banner Kuota Sesi Selesai / Perlu Perpanjangan -->
@@ -1258,7 +1251,9 @@ const studentTransactions = computed(() => {
   const sName = studentData.value?.name;
   const all = store.transactions || [];
   const filtered = all.filter(t => (sId && t.studentId === sId) || (sName && t.studentName?.toLowerCase() === sName.toLowerCase()));
-  return filtered.length > 0 ? filtered : all.slice(0, 2);
+  if (filtered.length > 0) return filtered;
+  // If no transactions found for current student, show empty or only the single active pending/latest transaction
+  return all.length > 0 ? [all[0]] : [];
 });
 
 const activeProduct = computed(() => {

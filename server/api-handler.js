@@ -344,6 +344,35 @@ export async function handleApiRequest(req, res) {
       return sendJson(res, 200, result);
     }
 
+    // 8b-2. WHATSAPP GATEWAY DIAGNOSTIC & TEST ENDPOINT
+    if (pathname === '/api/whatsapp/test-fonnte') {
+      const target = parsedUrl.query?.target || '085286274726';
+      const fonnteToken = process.env.FONNTE_TOKEN || '1SX6TAyvC7Kh18J7TQX6';
+      try {
+        const response = await fetch('https://api.fonnte.com/send', {
+          method: 'POST',
+          headers: {
+            'Authorization': fonnteToken,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            target,
+            message: '🔔 *TES RESMI KONEKSI WHATSAPP MINE.SKILLS*\n\nJika pesan ini diterima, Fonnte telah 100% TERHUBUNG!',
+            countryCode: '62'
+          })
+        });
+        const resData = await response.json();
+        return sendJson(res, 200, {
+          success: resData.status === true,
+          tokenUsed: fonnteToken.slice(0, 6) + '***',
+          target,
+          fonnteResponse: resData
+        });
+      } catch (err) {
+        return sendJson(res, 500, { success: false, error: err.message });
+      }
+    }
+
     // 8c. AUTOMATED BANK MUTATION WEBHOOK (Play Store "Webhook Notification", Moota, Cekmutasi, Custom)
     if (pathname === '/api/webhook/mutasi' && (method === 'POST' || method === 'GET')) {
       const body = method === 'POST' ? await parseJsonBody(req) : {};

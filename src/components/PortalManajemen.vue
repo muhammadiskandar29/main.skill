@@ -609,82 +609,101 @@
         <table class="leads-table">
           <thead>
             <tr>
-              <th>Identitas Siswa & Usia</th>
-              <th>Nama Orang Tua / Wali</th>
-              <th>Program & Paket</th>
-              <th>Pelatih Pendamping</th>
-              <th>Jadwal Sesi</th>
-              <th class="text-right">Aksi Manajemen</th>
+              <th style="min-width: 170px;">Identitas Siswa</th>
+              <th style="min-width: 150px;">Orang Tua / Kontak</th>
+              <th style="min-width: 130px;">Program Kursus</th>
+              <th style="min-width: 130px;">Pelatih</th>
+              <th style="min-width: 110px;">Jadwal</th>
+              <th class="text-right" style="min-width: 180px;">Aksi</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="stu in filteredStudents" :key="stu.id">
+              <!-- Kolom 1: Siswa Ringkas & Padat -->
               <td>
                 <div class="stu-name-cell">
-                  <div style="display: flex; align-items: center; gap: 6px;">
+                  <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                     <strong>{{ stu.name }}</strong>
-                    <span v-if="stu.nickname" class="badge-chip gold mini" style="font-size: 10px; padding: 1px 6px;">{{ stu.nickname }}</span>
-                    <span :class="['badge-chip', stu.status === 'inactive' ? 'gray' : 'green', 'mini']" style="font-size: 10px; padding: 1px 6px;">
+                    <span :class="['badge-chip', stu.status === 'inactive' ? 'gray' : 'green', 'mini']" style="font-size: 9.5px; padding: 1px 5px;">
                       {{ stu.status === 'inactive' ? 'Nonaktif' : 'Aktif' }}
                     </span>
                   </div>
-                  <span class="sub-cell-txt">{{ stu.age }} Tahun • Bergabung: {{ stu.joinedDate }}</span>
-                  <div v-if="stu.location" class="sub-cell-txt" style="margin-top: 2px; color: var(--color-primary); display: flex; align-items: center; gap: 4px;">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                    <span>{{ stu.location }}</span>
-                    <span v-if="stu.preferredDay">• {{ stu.preferredDay }} ({{ stu.preferredTime }})</span>
-                  </div>
-                  <div v-if="stu.waterConfidence || (stu.medicalCondition && stu.medicalCondition !== 'Tidak ada')" style="margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px;">
-                    <span v-if="stu.waterConfidence" class="badge-chip teal" style="font-size: 10px; padding: 2px 6px;" :title="'Kemampuan awal: ' + stu.waterConfidence">Adaptasi: {{ stu.waterConfidence }}</span>
-                    <span v-if="stu.medicalCondition && stu.medicalCondition !== 'Tidak ada'" class="badge-chip gold" style="font-size: 10px; padding: 2px 6px;" :title="'Catatan medis: ' + stu.medicalCondition">Medis: {{ stu.medicalCondition }}</span>
-                  </div>
+                  <span class="sub-cell-txt">{{ stu.age }} Thn • Bergabung: {{ stu.joinedDate }}</span>
+                  <span v-if="stu.location" class="sub-cell-txt" style="color: var(--color-primary); font-size: 11px;">
+                    📍 {{ stu.location.split(',')[0] }}
+                  </span>
                 </div>
               </td>
+
+              <!-- Kolom 2: Orang Tua & Chat WA Cepat -->
               <td>
                 <div class="parent-info">
                   <strong>{{ stu.parentName }}</strong>
-                  <div class="wa-chat-inline">
-                    <span class="font-mono sub-cell-txt">{{ stu.phone }}</span>
-                    <a :href="actions.buildWhatsAppUrl(stu, 'welcome')" target="_blank" class="link-wa-chat" title="Chat via WhatsApp">
-                      Chat WA
+                  <div class="wa-chat-inline" style="margin-top: 2px;">
+                    <a :href="actions.buildWhatsAppUrl(stu, 'welcome')" target="_blank" class="link-wa-chat" style="display: inline-flex; align-items: center; gap: 4px; font-weight: 700; color: #16a34a; text-decoration: none; font-size: 11px; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 2px 7px; border-radius: 4px;">
+                      <span>💬 Chat WA</span>
                     </a>
                   </div>
                 </div>
               </td>
+
+              <!-- Kolom 3: Program -->
               <td>
-                <span class="badge-chip teal">{{ stu.productName || stu.program }}</span>
-                <div class="sub-cell-txt">{{ stu.packageName }}</div>
+                <span class="badge-chip teal" style="font-size: 11px; padding: 2px 8px;">{{ stu.productName || stu.program }}</span>
+                <div class="sub-cell-txt" style="font-size: 11px;">{{ stu.packageName }}</div>
               </td>
+
+              <!-- Kolom 4: Pelatih -->
               <td>
                 <div class="coach-lock-status">
-                  <strong>{{ stu.assignedCoachName || 'Belum di-assign' }}</strong>
-                  <span class="badge-chip gold" style="font-size: 10.5px; margin-top: 2px;">
-                    {{ stu.mappingStatus || 'Didampingi (4 Sesi)' }}
+                  <strong style="font-size: 12.5px;">{{ stu.assignedCoachName || 'Belum di-assign' }}</strong>
+                  <span class="badge-chip gold mini" style="font-size: 10px; margin-top: 2px; display: inline-block;">
+                    {{ stu.mappingStatus || 'Didampingi' }}
                   </span>
                 </div>
               </td>
+
+              <!-- Kolom 5: Sesi Jadwal -->
               <td>
-                <button @click="openStudentSchedulesModal(stu)" class="btn-schedule-view">
-                  <span class="badge-chip green">{{ (stu.memberSchedules || []).length || 4 }} Sesi Terjadwal</span>
-                  <span class="btn-view-txt">Atur Jadwal ▾</span>
+                <button @click="openStudentSchedulesModal(stu)" class="btn-schedule-view" title="Klik untuk lihat / atur jadwal sesi">
+                  <span class="badge-chip green mini" style="font-size: 10.5px;">{{ (stu.memberSchedules || []).length || 4 }} Sesi</span>
+                  <span class="btn-view-txt" style="font-size: 10.5px;">Atur Jadwal ▾</span>
                 </button>
               </td>
+
+              <!-- Kolom 6: Action Buttons Yang Luas, Terbaca, & Jelas -->
               <td class="text-right">
-                <div class="table-actions-cluster">
-                  <button @click="openRenewModal(stu)" class="btn-success-xs" title="Perpanjang 4 Sesi & Terbitkan Tagihan Baru" style="display: inline-flex; align-items: center; gap: 4px;">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
-                    <span>Perpanjang</span>
+                <div class="table-actions-cluster" style="display: flex; justify-content: flex-end; align-items: center; gap: 5px; flex-wrap: wrap;">
+                  <button 
+                    @click="openRenewModal(stu)" 
+                    class="btn-success-xs" 
+                    title="Perpanjang 4 Sesi & Terbitkan Tagihan Baru"
+                    style="padding: 4px 8px; font-size: 11px; font-weight: 700; white-space: nowrap;"
+                  >
+                    Perpanjang
                   </button>
-                  <button @click="openAssignCoachModal(stu)" class="btn-primary-xs" title="Tugaskan / Ganti Pelatih">
-                    Ganti Pelatih
+                  <button 
+                    @click="openAssignCoachModal(stu)" 
+                    class="btn-primary-xs" 
+                    title="Tugaskan / Ganti Pelatih Pendamping"
+                    style="padding: 4px 8px; font-size: 11px; font-weight: 700; white-space: nowrap;"
+                  >
+                    Ganti Coach
                   </button>
-                  <button @click="handleToggleStudentStatus(stu)" :class="stu.status === 'inactive' ? 'btn-secondary-xs' : 'btn-warning-xs'" :title="stu.status === 'inactive' ? 'Aktifkan Siswa' : 'Nonaktifkan Siswa'">
-                    {{ stu.status === 'inactive' ? 'Aktifkan' : 'Nonaktif' }}
-                  </button>
-                  <button @click="openEditStudentModal(stu)" class="btn-secondary-xs" title="Edit Data Siswa">
+                  <button 
+                    @click="openEditStudentModal(stu)" 
+                    class="btn-secondary-xs" 
+                    title="Edit Profil Siswa & Orang Tua"
+                    style="padding: 4px 8px; font-size: 11px; font-weight: 600;"
+                  >
                     Edit
                   </button>
-                  <button @click="handleDeleteStudent(stu.id)" class="btn-danger-xs" title="Hapus Siswa">
+                  <button 
+                    @click="handleDeleteStudent(stu.id)" 
+                    class="btn-danger-xs" 
+                    title="Hapus Siswa, Akun Login & Seluruh Tagihannya"
+                    style="padding: 4px 8px; font-size: 11px; font-weight: 700;"
+                  >
                     Hapus
                   </button>
                 </div>

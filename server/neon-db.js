@@ -891,12 +891,24 @@ export async function registerCustomerFlow({
   const baseAmount = packagePrice;
   const totalAmount = baseAmount + uniqueCode;
 
+  // Gunakan QRIS statis ASLI milik merchant yang di-upload admin (Master QRIS),
+  // bukan QRIS contoh/dummy, agar barcode bisa di-scan oleh m-Banking & e-Wallet.
+  let masterStaticQris = DEFAULT_RAW_QRIS;
+  try {
+    const payCfg = await getPaymentConfig();
+    if (payCfg?.rawQrisStatic && String(payCfg.rawQrisStatic).startsWith('000201')) {
+      masterStaticQris = String(payCfg.rawQrisStatic).trim();
+    }
+  } catch (cfgErr) {
+    console.warn('[Register] Gagal membaca master QRIS, memakai default:', cfgErr.message);
+  }
+
   let dynamicQrisString = '';
   try {
-    const resQris = convertQRIS(DEFAULT_RAW_QRIS, { amount: totalAmount });
-    dynamicQrisString = typeof resQris === 'string' ? resQris : (resQris?.qris || DEFAULT_RAW_QRIS);
+    const resQris = convertQRIS(masterStaticQris, { amount: totalAmount });
+    dynamicQrisString = typeof resQris === 'string' ? resQris : (resQris?.qris || masterStaticQris);
   } catch (err) {
-    dynamicQrisString = DEFAULT_RAW_QRIS;
+    dynamicQrisString = masterStaticQris;
   }
 
   // 5. Transaction

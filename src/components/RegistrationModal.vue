@@ -935,6 +935,7 @@ import { ref, computed, onMounted } from 'vue';
 import { store, actions } from '../data/store.js';
 import QRCode from 'qrcode';
 import html2canvas from 'html2canvas';
+import { convertQRIS } from '../utils/qris.js';
 import { generateToken } from '../utils/jwt.js';
 
 const props = defineProps({
@@ -1244,9 +1245,19 @@ async function handleStepSubmit() {
       selectedBankId.value = store.paymentConfig.bankAccounts[0].id;
     }
 
-    // Render QRIS code
-    if (res.qrisString) {
-      qrCodeDataUrl.value = await QRCode.toDataURL(res.qrisString, {
+    // Render QRIS: selalu bangun dari Master QRIS statis asli + nominal tagihan (termasuk 3 digit kode unik)
+    let finalQris = res.qrisString || '';
+    const masterStatic = store.paymentConfig?.rawQrisStatic;
+    const payAmount = Number(res.transaction?.amount || res.amount || 0);
+    if (masterStatic && String(masterStatic).startsWith('000201') && payAmount > 0) {
+      try {
+        finalQris = convertQRIS(String(masterStatic).trim(), { amount: payAmount });
+      } catch (e) {
+        console.warn('[Registrasi] Konversi QRIS gagal, memakai QRIS dari server:', e);
+      }
+    }
+    if (finalQris) {
+      qrCodeDataUrl.value = await QRCode.toDataURL(finalQris, {
         width: 260,
         margin: 1,
         color: { dark: '#0a0a0a', light: '#ffffff' }

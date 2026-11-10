@@ -1544,8 +1544,19 @@ export const actions = {
   },
 
   async deleteStudent(id) {
+    const targetStudent = (store.students || []).find(s => s.id === id);
     store.students = (store.students || []).filter(s => s.id !== id);
     store.transactions = (store.transactions || []).filter(t => t.studentId !== id);
+    if (targetStudent) {
+      if (Array.isArray(store.schedules)) {
+        store.schedules = store.schedules.filter(sch => sch.studentId !== id && sch.studentName !== targetStudent.name);
+        persistLocalStore('schedules', store.schedules);
+      }
+      if (Array.isArray(store.users)) {
+        store.users = store.users.filter(u => u.student_id !== id && (!targetStudent.email || u.email?.toLowerCase() !== targetStudent.email.toLowerCase()));
+        persistLocalStore('users', store.users);
+      }
+    }
     persistLocalStore('students', store.students);
     persistLocalStore('transactions', store.transactions);
 

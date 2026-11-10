@@ -660,13 +660,34 @@ export async function updateStudent(id, patch) {
 
 export async function deleteStudent(id) {
   const sql = getSql();
+  const existing = await getById('students', id);
   await deleteRecord('students', id);
   if (sql) {
     try {
       await sql.query(`DELETE FROM student_schedules WHERE data->>'studentId' = $1;`, [id]);
+      await sql.query(`DELETE FROM transactions WHERE data->>'studentId' = $1;`, [id]);
+      if (existing) {
+        if (existing.userId) {
+          await deleteRecord('users', existing.userId);
+        }
+        if (existing.email) {
+          await sql.query(`DELETE FROM users WHERE LOWER(data->>'email') = LOWER($1);`, [existing.email]);
+        }
+      }
     } catch (e) {
-      console.warn('[Neon DB] error cleaning schedules on deleteStudent:', e);
+      console.warn('[Neon DB] error cleaning associated records on deleteStudent:', e);
     }
+  }
+  // Also clean up fallback json
+  const fallback = readJsonFallback();
+  if (fallback) {
+    fallback.students = (fallback.students || []).filter(s => s.id !== id);
+    fallback.student_schedules = (fallback.student_schedules || []).filter(s => s.studentId !== id);
+    fallback.transactions = (fallback.transactions || []).filter(t => t.studentId !== id);
+    if (existing) {
+      fallback.users = (fallback.users || []).filter(u => u.student_id !== id && u.id !== existing.userId && (!existing.email || u.email?.toLowerCase() !== existing.email.toLowerCase()));
+    }
+    writeJsonFallback(fallback);
   }
   return true;
 }

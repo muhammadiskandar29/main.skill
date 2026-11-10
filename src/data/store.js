@@ -1271,8 +1271,42 @@ export const actions = {
   // CUSTOMER REGISTRATION FLOW (Instant Registration & Dynamic ASPI QRIS)
   // -------------------------------------------------------------
   async registerLead(regData) {
-    const student = await this.addStudent(regData);
+    // 1. Prioritaskan pendaftaran ke server backend agar nominal tagihan & kode unik konsisten
+    let serverRes = null;
+    try {
+      serverRes = await apiRegisterCustomer(regData);
+    } catch (err) {
+      console.warn('[Store] apiRegisterCustomer network/fallback warning:', err.message);
+    }
 
+    if (serverRes && serverRes.success && serverRes.data) {
+      const { student, user, transaction, schedules, qrisString, amount, baseAmount, uniqueCode } = serverRes.data;
+      if (student) {
+        store.students = [student, ...(store.students || []).filter(s => s.id !== student.id)];
+        persistLocalStore('students', store.students);
+      }
+      if (user) {
+        store.users = [user, ...(store.users || []).filter(u => u.id !== user.id && (!user.email || u.email?.toLowerCase() !== user.email.toLowerCase()))];
+        persistLocalStore('users', store.users);
+      }
+      if (transaction) {
+        store.transactions = [transaction, ...(store.transactions || []).filter(t => t.id !== transaction.id)];
+        persistLocalStore('transactions', store.transactions);
+      }
+      return {
+        student,
+        user,
+        transaction,
+        schedules,
+        qrisString,
+        amount,
+        baseAmount,
+        uniqueCode
+      };
+    }
+
+    // Fallback offline / local jika backend gagal dihubungi
+    const student = await this.addStudent(regData);
     const userEmail = (regData.email || '').trim().toLowerCase();
     const createdUser = (store.users || []).find(u => u.email.toLowerCase() === userEmail) || {
       id: `usr_${student.id}`,
@@ -1287,7 +1321,6 @@ export const actions = {
     }
 
     const transaction = (store.transactions || []).find(t => t.studentId === student.id) || (store.transactions || [])[0];
-
     const totalAmount = transaction?.totalAmount || transaction?.amount || 400142;
     let dynamicQris = store.paymentConfig?.rawQrisStatic || '';
     try {
@@ -1304,10 +1337,6 @@ export const actions = {
     if (transaction) {
       transaction.qrisString = dynamicQris;
     }
-
-    apiRegisterCustomer(regData).catch(err => {
-      console.warn('[Store] apiRegisterCustomer background sync warning:', err.message);
-    });
 
     return {
       student,

@@ -32,27 +32,38 @@ export function generateServerInvoicePdf(trx, brand = {}) {
 
   // Subtitle
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.setTextColor(100, 116, 139);
-  doc.text('Platform Peningkatan Skill Terpadu & Terstruktur (Akademi Resmi)', margin, 32);
-  doc.text(`${brandAddress} • WA: ${brandPhone} • Email: ${brandEmail}`, margin, 36.5);
-
-  // Document Title Pill
-  doc.setFillColor(241, 245, 249);
-  doc.roundedRect(pageWidth - margin - 62, 21, 62, 16, 2, 2, 'F');
-  
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(11);
-  doc.setTextColor(13, 77, 93);
-  doc.text('BUKTI PEMBAYARAN', pageWidth - margin - 31, 27.5, { align: 'center' });
-
-  doc.setFont('helvetica', 'normal');
   doc.setFontSize(8.5);
   doc.setTextColor(100, 116, 139);
-  doc.text('OFFICIAL INVOICE & RECEIPT', pageWidth - margin - 31, 33, { align: 'center' });
+  doc.text('Platform Peningkatan Skill Terpadu & Terstruktur (Akademi Resmi)', margin, 32);
+
+  // Address & Contacts (Wrapped cleanly so it never overlaps right pill)
+  const maxHeaderLeftWidth = contentWidth - 66;
+  const contactLine = `${brandAddress} • WA: ${brandPhone}`;
+  const splitAddress = doc.splitTextToSize(contactLine, maxHeaderLeftWidth);
+  doc.text(splitAddress[0] || brandAddress, margin, 36.5);
+  if (splitAddress.length > 1) {
+    doc.text(splitAddress[1], margin, 40.5);
+  }
+
+  // Document Title Pill
+  const pillWidth = 58;
+  const pillHeight = 15;
+  const pillX = pageWidth - margin - pillWidth;
+  doc.setFillColor(241, 245, 249);
+  doc.roundedRect(pillX, 22, pillWidth, pillHeight, 2, 2, 'F');
+  
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10.5);
+  doc.setTextColor(13, 77, 93);
+  doc.text('BUKTI PEMBAYARAN', pillX + (pillWidth / 2), 28, { align: 'center' });
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(7.5);
+  doc.setTextColor(100, 116, 139);
+  doc.text('OFFICIAL INVOICE & RECEIPT', pillX + (pillWidth / 2), 33, { align: 'center' });
 
   // 2. METADATA SECTION BOX
-  const metaY = 44;
+  const metaY = 46;
   doc.setFillColor(248, 250, 252);
   doc.setDrawColor(226, 232, 240);
   doc.setLineWidth(0.4);

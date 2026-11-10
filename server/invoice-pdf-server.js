@@ -1,4 +1,5 @@
 import { jsPDF } from 'jspdf';
+import { MINE_SKILLS_LOGO_BASE64 } from './logo-base64-server.js';
 
 /**
  * Server-side Official Invoice PDF Generator with Red "LUNAS" Stamp
@@ -20,47 +21,66 @@ export function generateServerInvoicePdf(trx, brand = {}) {
   const brandPhone = brand.callCenter || '0852-8627-4726';
   const brandEmail = brand.officialEmail || 'halo@mineskills.id';
 
+  // Extract City dynamically from address
+  let dynamicCity = 'Bekasi';
+  if (brandAddress.toLowerCase().includes('jakarta')) dynamicCity = 'Jakarta';
+  else if (brandAddress.toLowerCase().includes('bekasi')) dynamicCity = 'Bekasi';
+  else if (brandAddress.toLowerCase().includes('depok')) dynamicCity = 'Depok';
+  else if (brandAddress.toLowerCase().includes('bogor')) dynamicCity = 'Bogor';
+  else if (brandAddress.toLowerCase().includes('tangerang')) dynamicCity = 'Tangerang';
+
   // 1. TOP HEADER BANNER
   doc.setFillColor(13, 77, 93); // Dark Teal
   doc.rect(margin, 16, contentWidth, 2.5, 'F');
 
+  // Insert Logo Image if available
+  let textStartX = margin;
+  try {
+    if (MINE_SKILLS_LOGO_BASE64) {
+      doc.addImage(MINE_SKILLS_LOGO_BASE64, 'PNG', margin, 21, 14, 14);
+      textStartX = margin + 18;
+    }
+  } catch (e) {
+    textStartX = margin;
+  }
+
   // Brand Name
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(22);
+  doc.setFontSize(20);
   doc.setTextColor(13, 77, 93);
-  doc.text(brandName, margin, 27);
+  doc.text(brandName, textStartX, 27);
 
   // Subtitle
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8.5);
+  doc.setFontSize(8);
   doc.setTextColor(100, 116, 139);
-  doc.text('Platform Peningkatan Skill Terpadu & Terstruktur (Akademi Resmi)', margin, 32);
+  doc.text('Platform Peningkatan Skill Terpadu & Terstruktur (Akademi Resmi)', textStartX, 31.5);
 
   // Address & Contacts (Wrapped cleanly so it never overlaps right pill)
-  const maxHeaderLeftWidth = contentWidth - 66;
+  const maxHeaderLeftWidth = contentWidth - 68;
   const contactLine = `${brandAddress} • WA: ${brandPhone}`;
   const splitAddress = doc.splitTextToSize(contactLine, maxHeaderLeftWidth);
-  doc.text(splitAddress[0] || brandAddress, margin, 36.5);
+  doc.text(splitAddress[0] || brandAddress, textStartX, 35.5);
   if (splitAddress.length > 1) {
-    doc.text(splitAddress[1], margin, 40.5);
+    doc.text(splitAddress[1], textStartX, 39.5);
   }
 
   // Document Title Pill
-  const pillWidth = 58;
+  const pillWidth = 56;
   const pillHeight = 15;
   const pillX = pageWidth - margin - pillWidth;
   doc.setFillColor(241, 245, 249);
-  doc.roundedRect(pillX, 22, pillWidth, pillHeight, 2, 2, 'F');
+  doc.roundedRect(pillX, 21, pillWidth, pillHeight, 2, 2, 'F');
   
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10.5);
+  doc.setFontSize(10);
   doc.setTextColor(13, 77, 93);
-  doc.text('BUKTI PEMBAYARAN', pillX + (pillWidth / 2), 28, { align: 'center' });
+  doc.text('BUKTI PEMBAYARAN', pillX + (pillWidth / 2), 27, { align: 'center' });
 
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(7.5);
+  doc.setFontSize(7);
   doc.setTextColor(100, 116, 139);
-  doc.text('OFFICIAL INVOICE & RECEIPT', pillX + (pillWidth / 2), 33, { align: 'center' });
+  doc.text('OFFICIAL INVOICE & RECEIPT', pillX + (pillWidth / 2), 32, { align: 'center' });
 
   // 2. METADATA SECTION BOX
   const metaY = 46;
@@ -217,30 +237,31 @@ export function generateServerInvoicePdf(trx, brand = {}) {
   doc.setTextColor(100, 116, 139);
   doc.text(`Metode: ${trx.paymentMethodName || 'QRIS Dinamis / Bank Transfer'}`, summaryBoxX + 6, summaryY + 31);
 
-  // 5. OFFICIAL RED "LUNAS" RUBBER STAMP
-  const stampX = margin + 14;
-  const stampY = summaryY + 2;
+  // 5. OFFICIAL RED "LUNAS" RUBBER STAMP (WIDE WITH NO TEXT CLIPPING)
+  const stampX = margin + 12;
+  const stampY = summaryY + 4;
+  const stampW = 72;
+  const stampH = 26;
 
   doc.saveGraphicsState();
   doc.setDrawColor(220, 38, 38); // Vivid Red
-  doc.setLineWidth(1.6);
-  doc.roundedRect(stampX, stampY, 68, 28, 4, 4, 'D');
+  doc.setLineWidth(1.3);
+  doc.roundedRect(stampX, stampY, stampW, stampH, 3.5, 3.5, 'D');
 
-  doc.setLineWidth(0.6);
-  doc.roundedRect(stampX + 2, stampY + 2, 64, 24, 2.5, 2.5, 'D');
+  doc.setLineWidth(0.4);
+  doc.roundedRect(stampX + 1.6, stampY + 1.6, stampW - 3.2, stampH - 3.2, 2.2, 2.2, 'D');
 
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8);
+  doc.setFontSize(7);
   doc.setTextColor(220, 38, 38);
-  doc.text('★ MINE.SKILLS INDONESIA ★', stampX + 34, stampY + 7.5, { align: 'center' });
+  doc.text('MINE.SKILLS INDONESIA', stampX + (stampW / 2), stampY + 6.5, { align: 'center' });
 
-  doc.setFontSize(17);
-  doc.text('LUNAS', stampX + 34, stampY + 16, { align: 'center' });
+  doc.setFontSize(15);
+  doc.text('L U N A S', stampX + (stampW / 2), stampY + 14.5, { align: 'center' });
 
-  doc.setFontSize(7.5);
+  doc.setFontSize(6.5);
   doc.setFont('helvetica', 'normal');
-  doc.text(`VERIFIKASI OTOMATIS: ${trx.paidAt || new Date().toLocaleDateString('id-ID')}`, stampX + 34, stampY + 21, { align: 'center' });
-  doc.text('STATUS: SAH / RESMI', stampX + 34, stampY + 24.5, { align: 'center' });
+  doc.text(`VERIFIKASI RESMI: ${trx.paidAt || new Date().toLocaleDateString('id-ID')}`, stampX + (stampW / 2), stampY + 20, { align: 'center' });
   doc.restoreGraphicsState();
 
   // 6. LEGAL NOTES & SIGNATURE
@@ -253,23 +274,26 @@ export function generateServerInvoicePdf(trx, brand = {}) {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7.5);
   doc.setTextColor(100, 116, 139);
-  doc.text('1. Bukti pembayaran ini adalah dokumen tanda terima resmi yang sah diterbitkan secara elektronik oleh mine.skills.', margin, notesY + 5);
+  doc.text('1. Bukti pembayaran ini adalah dokumen tanda terima sah yang diterbitkan secara elektronik oleh manajemen mine.skills Indonesia.', margin, notesY + 5);
   doc.text('2. Siswa berhak mengikuti seluruh sesi latihan terjadwal dengan pendampingan pelatih resmi bersertifikasi.', margin, notesY + 9);
   doc.text('3. Sistem ini terproteksi verifikasi otomatis mutasi perbankan & QRIS berlisensi Bank Indonesia.', margin, notesY + 13);
 
-  // Digital Signature
-  const signX = pageWidth - margin - 45;
+  // Digital Signature (Tim Manajemen mine.skills)
+  const signX = pageWidth - margin - 35;
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   doc.setTextColor(71, 85, 105);
-  doc.text('Divalidasi Oleh Sistem:', signX, notesY + 2);
+  doc.text(`${dynamicCity}, ` + (new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })), signX, notesY + 2, { align: 'center' });
+  doc.text('Departemen Keuangan & Billing', signX, notesY + 6.5, { align: 'center' });
+  
   doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8.5);
   doc.setTextColor(13, 77, 93);
-  doc.text('Auto-Audit System', signX, notesY + 11);
+  doc.text('TIM MANAJEMEN MINE.SKILLS', signX, notesY + 22, { align: 'center' });
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7.5);
   doc.setTextColor(100, 116, 139);
-  doc.text('Finance & Accounting CMS', signX, notesY + 15);
+  doc.text('(Official Verified Receipt)', signX, notesY + 26, { align: 'center' });
 
   return doc;
 }

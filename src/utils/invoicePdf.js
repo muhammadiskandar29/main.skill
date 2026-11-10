@@ -1,4 +1,5 @@
 import { jsPDF } from 'jspdf';
+import { MINE_SKILLS_LOGO_BASE64 } from './logoBase64.js';
 
 /**
  * Generate an official, professional A4 PDF invoice with tabular layout and red "LUNAS" stamp.
@@ -22,46 +23,65 @@ export function generateInvoicePdf(trx, brand = {}) {
   const brandPhone = brand.callCenter || '0852-8627-4726';
   const brandEmail = brand.officialEmail || 'halo@mineskills.id';
 
+  // Extract City from brand address dynamically (fallback to Bekasi)
+  let dynamicCity = 'Bekasi';
+  if (brandAddress.toLowerCase().includes('jakarta')) dynamicCity = 'Jakarta';
+  else if (brandAddress.toLowerCase().includes('bekasi')) dynamicCity = 'Bekasi';
+  else if (brandAddress.toLowerCase().includes('depok')) dynamicCity = 'Depok';
+  else if (brandAddress.toLowerCase().includes('bogor')) dynamicCity = 'Bogor';
+  else if (brandAddress.toLowerCase().includes('tangerang')) dynamicCity = 'Tangerang';
+
   // 1. TOP HEADER BANNER
   doc.setFillColor(13, 77, 93); // Dark Teal #0d4d5d
   doc.rect(margin, 16, contentWidth, 2.5, 'F');
 
+  // Insert Logo Image if available
+  let textStartX = margin;
+  try {
+    if (MINE_SKILLS_LOGO_BASE64) {
+      doc.addImage(MINE_SKILLS_LOGO_BASE64, 'PNG', margin, 21, 14, 14);
+      textStartX = margin + 18;
+    }
+  } catch (e) {
+    textStartX = margin;
+  }
+
   // Brand Name
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(22);
+  doc.setFontSize(20);
   doc.setTextColor(13, 77, 93);
-  doc.text(brandName, margin, 27);
+  doc.text(brandName, textStartX, 27);
 
   // Subtitle
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8.5);
+  doc.setFontSize(8);
   doc.setTextColor(100, 116, 139);
-  doc.text('Platform Peningkatan Skill Terpadu & Terstruktur (Akademi Resmi)', margin, 32);
+  doc.text('Platform Peningkatan Skill Terpadu & Terstruktur (Akademi Resmi)', textStartX, 31.5);
 
   // Address & Contacts (Wrapped cleanly so it never overlaps the right pill)
-  const maxHeaderLeftWidth = contentWidth - 66;
+  const maxHeaderLeftWidth = contentWidth - 68;
   const contactLine = `${brandAddress} • WA: ${brandPhone}`;
   const splitAddress = doc.splitTextToSize(contactLine, maxHeaderLeftWidth);
-  doc.text(splitAddress[0] || brandAddress, margin, 36.5);
+  doc.text(splitAddress[0] || brandAddress, textStartX, 35.5);
   if (splitAddress.length > 1) {
-    doc.text(splitAddress[1], margin, 40.5);
+    doc.text(splitAddress[1], textStartX, 39.5);
   }
 
   // Document Title Pill (Right Aligned)
-  const pillWidth = 58;
+  const pillWidth = 56;
   const pillHeight = 15;
   const pillX = pageWidth - margin - pillWidth;
   doc.setFillColor(241, 245, 249);
-  doc.roundedRect(pillX, 22, pillWidth, pillHeight, 2, 2, 'F');
+  doc.roundedRect(pillX, 21, pillWidth, pillHeight, 2, 2, 'F');
   
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10.5);
+  doc.setFontSize(10);
   doc.setTextColor(13, 77, 93);
-  doc.text('BUKTI PEMBAYARAN', pillX + (pillWidth / 2), 28, { align: 'center' });
+  doc.text('BUKTI PEMBAYARAN', pillX + (pillWidth / 2), 27, { align: 'center' });
 
-  doc.setFontSize(7.5);
+  doc.setFontSize(7);
   doc.setTextColor(100, 116, 139);
-  doc.text('OFFICIAL RECEIPT / INVOICE', pillX + (pillWidth / 2), 33, { align: 'center' });
+  doc.text('OFFICIAL RECEIPT / INVOICE', pillX + (pillWidth / 2), 32, { align: 'center' });
 
   // Divider Line
   doc.setDrawColor(226, 232, 240);
@@ -206,30 +226,32 @@ export function generateInvoicePdf(trx, brand = {}) {
   doc.setFontSize(11);
   doc.text(amountStr, pageWidth - margin - 4, summaryY + 19.5, { align: 'right' });
 
-  // 4. OFFICIAL "LUNAS" RUBBER STAMP (STEMPEL RESMI DIGITAL MERAH/GREEN)
+  // 4. OFFICIAL "LUNAS" RUBBER STAMP (STEMPEL RESMI DIGITAL MERAH/GREEN DENGAN LEBAR CUKUP)
   const stampX = margin + 35;
   const stampY = summaryY + 18;
+  const stampW = 54; // Wider stamp box so text never clips outer border
+  const stampH = 24;
 
-  // Outer border & inner circle
+  // Outer border & inner border
   doc.setDrawColor(220, 38, 38); // Crimson Red #dc2626
   doc.setLineWidth(1.2);
-  doc.roundedRect(stampX - 22, stampY - 14, 44, 22, 3, 3, 'S');
+  doc.roundedRect(stampX - (stampW / 2), stampY - (stampH / 2), stampW, stampH, 3, 3, 'S');
   
   doc.setLineWidth(0.4);
-  doc.roundedRect(stampX - 20.5, stampY - 12.5, 41, 19, 2, 2, 'S');
+  doc.roundedRect(stampX - (stampW / 2) + 1.5, stampY - (stampH / 2) + 1.5, stampW - 3, stampH - 3, 2, 2, 'S');
 
   doc.setTextColor(220, 38, 38);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(7);
-  doc.text('★ MINE.SKILLS INDONESIA ★', stampX, stampY - 8.5, { align: 'center' });
-
-  doc.setFontSize(17);
-  doc.text('L U N A S', stampX, stampY - 0.5, { align: 'center' });
-
   doc.setFontSize(6.5);
-  doc.text(`VERIFIED • ${trx.paidAt || 'Telah Diverifikasi'}`, stampX, stampY + 5, { align: 'center' });
+  doc.text('MINE.SKILLS INDONESIA', stampX, stampY - 5.5, { align: 'center' });
 
-  // 5. LEGAL NOTICE & DIGITAL SIGNATURE (Clearance prevents overlap)
+  doc.setFontSize(15);
+  doc.text('L U N A S', stampX, stampY + 1.5, { align: 'center' });
+
+  doc.setFontSize(6);
+  doc.text(`VERIFIED • ${trx.paidAt || 'Telah Diverifikasi'}`, stampX, stampY + 6.8, { align: 'center' });
+
+  // 5. LEGAL NOTICE & DIGITAL SIGNATURE (Tim Manajemen Resmi)
   const legalY = 168;
   doc.setDrawColor(241, 245, 249);
   doc.setLineWidth(0.5);
@@ -245,7 +267,7 @@ export function generateInvoicePdf(trx, brand = {}) {
   doc.setFontSize(7.5);
   doc.setTextColor(100, 116, 139);
   const legalNotes = [
-    '1. Dokumen ini merupakan bukti pelunasan sah yang diterbitkan oleh sistem manajemen mine.skills.',
+    '1. Dokumen ini merupakan bukti pelunasan sah yang diterbitkan oleh sistem manajemen mine.skills Indonesia.',
     '2. Paket mencakup 4 sesi bimbingan bersama instruktur terverifikasi sesuai jadwal yang disepakati.',
     '3. Konfirmasi berhalangan hadir (sakit/izin) wajib dilakukan minimal 24 jam sebelum jadwal latihan.',
     '4. Raport perkembangan ananda dapat diakses melalui portal wali murid di https://main-skill.vercel.app'
@@ -258,22 +280,22 @@ export function generateInvoicePdf(trx, brand = {}) {
     curNoteY += (wrapped.length * 4);
   });
 
-  // Right Signature
+  // Right Signature (Tim Manajemen mine.skills)
   const signX = pageWidth - margin - 32;
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   doc.setTextColor(71, 85, 105);
-  doc.text('Bekasi, ' + (new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })), signX, legalY + 6, { align: 'center' });
+  doc.text(`${dynamicCity}, ` + (new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })), signX, legalY + 6, { align: 'center' });
   doc.text('Departemen Keuangan & Billing', signX, legalY + 10.5, { align: 'center' });
 
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(13, 77, 93);
   doc.setFontSize(8.5);
-  doc.text('YAYASAN MINE SKILLS', signX, legalY + 28, { align: 'center' });
+  doc.text('TIM MANAJEMEN MINE.SKILLS', signX, legalY + 28, { align: 'center' });
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7.5);
   doc.setTextColor(100, 116, 139);
-  doc.text('(Digital Verified Receipt)', signX, legalY + 32, { align: 'center' });
+  doc.text('(Official Verified Receipt)', signX, legalY + 32, { align: 'center' });
 
   return doc;
 }

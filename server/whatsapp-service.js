@@ -55,25 +55,29 @@ export async function sendWhatsAppInvoiceBackground({
   const fonnteToken = gatewayConfig.fonnteToken || process.env.FONNTE_TOKEN || '1SX6TAyvC7Kh18J7TQX6';
   if (fonnteToken) {
     try {
-      const payload = {
-        target: cleanPhone,
-        message: message,
-        countryCode: '62'
-      };
+      // Fonnte requires the file as binary multipart/form-data (base64 in JSON is ignored)
+      const finalFilename = pdfFilename || `Invoice_${invoiceId}_LUNAS.pdf`;
+      const form = new FormData();
+      form.append('target', cleanPhone);
+      form.append('message', message);
+      form.append('countryCode', '62');
 
-      // If PDF base64 is provided, attach as document
       if (pdfBase64) {
-        payload.file = pdfBase64.startsWith('data:') ? pdfBase64 : `data:application/pdf;base64,${pdfBase64}`;
-        payload.filename = pdfFilename || `Invoice_${invoiceId}_LUNAS.pdf`;
+        const rawBase64 = String(pdfBase64).includes(',')
+          ? String(pdfBase64).split(',').pop()
+          : String(pdfBase64);
+        const pdfBuffer = Buffer.from(rawBase64, 'base64');
+        const pdfBlob = new Blob([pdfBuffer], { type: 'application/pdf' });
+        form.append('file', pdfBlob, finalFilename);
+        form.append('filename', finalFilename);
       }
 
       const response = await fetch('https://api.fonnte.com/send', {
         method: 'POST',
         headers: {
-          'Authorization': fonnteToken,
-          'Content-Type': 'application/json'
+          'Authorization': fonnteToken
         },
-        body: JSON.stringify(payload)
+        body: form
       });
 
       const resData = await response.json();

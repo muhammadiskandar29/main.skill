@@ -60,6 +60,7 @@ import {
   updateRbacMatrix
 } from './neon-db.js';
 import { sendWhatsAppInvoiceBackground } from './whatsapp-service.js';
+import { generateServerInvoicePdf } from './invoice-pdf-server.js';
 
 export async function parseJsonBody(req) {
   if (req.body) {
@@ -334,6 +335,29 @@ export async function handleApiRequest(req, res) {
       if (method === 'DELETE') {
         await deleteTransaction(id);
         return sendJson(res, 200, { success: true, message: 'Transaksi berhasil dihapus.' });
+      }
+    }
+
+    // 8a-2. PUBLIC PDF INVOICE STREAMING & DOWNLOAD
+    if ((pathname.startsWith('/api/invoices/') || pathname.startsWith('/api/transactions/')) && pathname.endsWith('/pdf')) {
+      const id = decodeURIComponent(pathname.replace('/api/invoices/', '').replace('/api/transactions/', '').replace('/pdf', '').replace(/\/$/, ''));
+      const allTrx = await getAllTransactions();
+      const trx = allTrx.find(t => t.id === id || t.id.toLowerCase() === id.toLowerCase());
+      if (!trx) {
+        return sendJson(res, 404, { success: false, message: 'Invoice tidak ditemukan.' });
+      }
+      try {
+        const brand = await getBrandConfig();
+        const doc = generateServerInvoicePdf(trx, brand);
+        const pdfArrayBuffer = doc.output('arraybuffer');
+        const pdfBuffer = Buffer.from(pdfArrayBuffer);
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `inline; filename="Invoice_${trx.id}_LUNAS.pdf"`);
+        res.setHeader('Content-Length', pdfBuffer.length);
+        return res.end(pdfBuffer);
+      } catch (err) {
+        console.error('[PDF Generation Error]:', err);
+        return sendJson(res, 500, { success: false, message: 'Gagal membuat dokumen PDF faktur.' });
       }
     }
 

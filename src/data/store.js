@@ -39,7 +39,21 @@ import {
   apiGetBrandConfig,
   apiUpdateBrandConfig,
   apiGetHeroConfig,
-  apiUpdateHeroConfig
+  apiUpdateHeroConfig,
+  apiGetUsers,
+  apiCreateUser,
+  apiUpdateUser,
+  apiDeleteUser,
+  apiGetFaqs,
+  apiCreateFaq,
+  apiUpdateFaq,
+  apiDeleteFaq,
+  apiCreateTransaction,
+  apiUpdateTransaction,
+  apiDeleteTransaction,
+  apiDeleteCoachAttendance,
+  apiGetRbacMatrix,
+  apiUpdateRbacMatrix
 } from './api.js';
 
 const STORAGE_KEY = 'mine_skills_auth_session_v3';
@@ -544,7 +558,7 @@ export function loadLocalStore(key, fallback) {
     const raw = localStorage.getItem(`mine_skills_${key}_v1`);
     if (raw) {
       const parsed = JSON.parse(raw);
-      if (Array.isArray(fallback) && Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(fallback) && Array.isArray(parsed)) return parsed;
       if (!Array.isArray(fallback) && typeof parsed === 'object' && parsed !== null) return { ...fallback, ...parsed };
     }
   } catch (e) {
@@ -736,42 +750,49 @@ export const actions = {
       store.isLoading = true;
       const data = await fetchBootstrap();
       if (data) {
-        if (Array.isArray(data.products) && data.products.length > 0) {
+        if (Array.isArray(data.products)) {
           store.products = data.products;
           persistLocalStore('products', store.products);
         }
-        if (Array.isArray(data.coaches) && data.coaches.length > 0) {
+        if (Array.isArray(data.coaches)) {
           store.coaches = data.coaches;
           persistLocalStore('coaches', store.coaches);
         }
-        if (Array.isArray(data.packages) && data.packages.length > 0) {
+        if (Array.isArray(data.packages)) {
           store.packages = data.packages;
           persistLocalStore('packages', store.packages);
         }
-        if (Array.isArray(data.students) && data.students.length > 0) {
+        if (Array.isArray(data.students)) {
           store.students = data.students;
           persistLocalStore('students', store.students);
         }
-        if (Array.isArray(data.transactions) && data.transactions.length > 0) {
+        if (Array.isArray(data.transactions)) {
           store.transactions = data.transactions;
           persistLocalStore('transactions', store.transactions);
         }
-        if (Array.isArray(data.users) && data.users.length > 0) {
+        if (Array.isArray(data.users)) {
           store.users = data.users;
           persistLocalStore('users', store.users);
         }
-        if (Array.isArray(data.locations) && data.locations.length > 0) {
+        if (Array.isArray(data.locations)) {
           store.locations = data.locations;
           persistLocalStore('locations', store.locations);
         }
-        if (Array.isArray(data.coachAttendances) && data.coachAttendances.length > 0) {
+        if (Array.isArray(data.coachAttendances)) {
           store.coachAttendances = data.coachAttendances;
           persistLocalStore('coachAttendances', store.coachAttendances);
+        }
+        if (Array.isArray(data.faqs)) {
+          store.faqs = normalizeFaqList(data.faqs);
+          persistLocalStore('faqs', store.faqs);
         }
         if (data.paymentConfig) {
           store.paymentConfig = {
             ...store.paymentConfig,
-            ...data.paymentConfig
+            ...data.paymentConfig,
+            bankAccounts: Array.isArray(data.paymentConfig.bankAccounts)
+              ? data.paymentConfig.bankAccounts
+              : (store.paymentConfig.bankAccounts || [])
           };
           persistLocalStore('paymentConfig', store.paymentConfig);
         }
@@ -788,6 +809,13 @@ export const actions = {
             ...data.hero
           };
           persistLocalStore('hero', store.hero);
+        }
+        if (data.rbacMatrix) {
+          store.rbacMatrix = {
+            ...store.rbacMatrix,
+            ...data.rbacMatrix
+          };
+          persistLocalStore('rbacMatrix', store.rbacMatrix);
         }
 
         // Strict Auth Guard Check on bootstrap
@@ -1870,7 +1898,73 @@ export const actions = {
 
     user.status = user.status === 'inactive' ? 'active' : 'inactive';
     persistLocalStore('users', store.users);
+
+    try {
+      await apiUpdateUser(userId, { status: user.status });
+    } catch (err) {
+      console.warn('[Store] apiUpdateUser background sync warning:', err.message);
+    }
+
     return user.status;
+  },
+
+  async addUser(userData) {
+    const newUser = {
+      id: userData.id || `usr_${Date.now()}`,
+      name: (userData.name || 'Pengguna Baru').trim(),
+      email: (userData.email || `user.${Date.now()}@mineskills.id`).trim().toLowerCase(),
+      role: userData.role || 'customer',
+      password: userData.password || '123',
+      phone: (userData.phone || '').trim(),
+      status: userData.status || 'active',
+      avatar: userData.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=160',
+      created_at: new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
+    };
+
+    if (!Array.isArray(store.users)) store.users = [];
+    store.users.push(newUser);
+    persistLocalStore('users', store.users);
+
+    try {
+      const created = await apiCreateUser(newUser);
+      if (created && created.id) {
+        newUser.id = created.id;
+        persistLocalStore('users', store.users);
+      }
+    } catch (err) {
+      console.warn('[Store] apiCreateUser sync warning:', err.message);
+    }
+
+    return newUser;
+  },
+
+  async updateUser(id, patch) {
+    const user = (store.users || []).find(u => u.id === id);
+    if (user) {
+      Object.assign(user, patch);
+      persistLocalStore('users', store.users);
+    }
+
+    try {
+      await apiUpdateUser(id, patch);
+    } catch (err) {
+      console.warn('[Store] apiUpdateUser sync warning:', err.message);
+    }
+
+    return user;
+  },
+
+  async deleteUser(id) {
+    store.users = (store.users || []).filter(u => u.id !== id);
+    persistLocalStore('users', store.users);
+
+    try {
+      await apiDeleteUser(id);
+    } catch (err) {
+      console.warn('[Store] apiDeleteUser sync warning:', err.message);
+    }
+
+    return true;
   },
 
   // Payment Verification
@@ -1882,11 +1976,26 @@ export const actions = {
       persistLocalStore('transactions', store.transactions);
     }
 
-    apiVerifyPayment(invoiceId).catch(err => {
+    try {
+      await apiVerifyPayment(invoiceId);
+    } catch (err) {
       console.warn('[Store] apiVerifyPayment background sync warning:', err.message);
-    });
+    }
 
     return trx;
+  },
+
+  async deleteTransaction(id) {
+    store.transactions = (store.transactions || []).filter(t => t.id !== id);
+    persistLocalStore('transactions', store.transactions);
+
+    try {
+      await apiDeleteTransaction(id);
+    } catch (err) {
+      console.warn('[Store] apiDeleteTransaction sync warning:', err.message);
+    }
+
+    return true;
   },
 
   // Send WhatsApp Invoice in Background (Server-side delivery with PDF)
@@ -2010,11 +2119,26 @@ export const actions = {
       persistLocalStore('coachAttendances', store.coachAttendances);
     }
 
-    apiVerifyCoachAttendance(id).catch(err => {
+    try {
+      await apiVerifyCoachAttendance(id);
+    } catch (err) {
       console.warn('[Store] apiVerifyCoachAttendance background sync warning:', err.message);
-    });
+    }
 
     return match;
+  },
+
+  async deleteCoachAttendance(id) {
+    store.coachAttendances = (store.coachAttendances || []).filter(a => a.id !== id);
+    persistLocalStore('coachAttendances', store.coachAttendances);
+
+    try {
+      await apiDeleteCoachAttendance(id);
+    } catch (err) {
+      console.warn('[Store] apiDeleteCoachAttendance sync warning:', err.message);
+    }
+
+    return true;
   },
 
   cleanWaNumber(phoneStr) {
@@ -2061,6 +2185,17 @@ export const actions = {
     if (!Array.isArray(store.faqs)) store.faqs = [];
     store.faqs.unshift(newFaq);
     persistLocalStore('faqs', store.faqs);
+
+    try {
+      const created = await apiCreateFaq(newFaq);
+      if (created && created.id) {
+        newFaq.id = created.id;
+        persistLocalStore('faqs', store.faqs);
+      }
+    } catch (err) {
+      console.warn('[Store] apiCreateFaq sync warning:', err.message);
+    }
+
     return newFaq;
   },
 
@@ -2079,16 +2214,30 @@ export const actions = {
       });
       persistLocalStore('faqs', store.faqs);
     }
+
+    try {
+      await apiUpdateFaq(id, patch);
+    } catch (err) {
+      console.warn('[Store] apiUpdateFaq sync warning:', err.message);
+    }
+
     return f;
   },
 
   async deleteFaq(id) {
     store.faqs = (store.faqs || []).filter(x => x.id !== id);
     persistLocalStore('faqs', store.faqs);
+
+    try {
+      await apiDeleteFaq(id);
+    } catch (err) {
+      console.warn('[Store] apiDeleteFaq sync warning:', err.message);
+    }
+
     return true;
   },
 
-  toggleRbacPermission(roleKey, menuKey) {
+  async toggleRbacPermission(roleKey, menuKey) {
     const matrix = store.rbacMatrix[roleKey];
     if (!matrix) return;
     const idx = matrix.allowedMenus.indexOf(menuKey);
@@ -2096,6 +2245,13 @@ export const actions = {
       matrix.allowedMenus.splice(idx, 1);
     } else {
       matrix.allowedMenus.push(menuKey);
+    }
+    persistLocalStore('rbacMatrix', store.rbacMatrix);
+
+    try {
+      await apiUpdateRbacMatrix(store.rbacMatrix);
+    } catch (err) {
+      console.warn('[Store] apiUpdateRbacMatrix sync warning:', err.message);
     }
   },
 
@@ -2106,9 +2262,11 @@ export const actions = {
     store.brand = { ...store.brand, ...brandPatch };
     persistLocalStore('brand', store.brand);
 
-    apiUpdateBrandConfig(brandPatch).catch(err => {
+    try {
+      await apiUpdateBrandConfig(brandPatch);
+    } catch (err) {
       console.warn('[Store] apiUpdateBrandConfig background sync warning:', err.message);
-    });
+    }
 
     return store.brand;
   },
@@ -2117,9 +2275,11 @@ export const actions = {
     store.hero = { ...store.hero, ...heroPatch };
     persistLocalStore('hero', store.hero);
 
-    apiUpdateHeroConfig(heroPatch).catch(err => {
+    try {
+      await apiUpdateHeroConfig(heroPatch);
+    } catch (err) {
       console.warn('[Store] apiUpdateHeroConfig background sync warning:', err.message);
-    });
+    }
 
     return store.hero;
   },
@@ -2131,34 +2291,39 @@ export const actions = {
     store.paymentConfig = { ...store.paymentConfig, ...patch };
     persistLocalStore('paymentConfig', store.paymentConfig);
 
-    apiUpdatePaymentConfig(patch).catch(err => {
+    try {
+      await apiUpdatePaymentConfig(patch);
+    } catch (err) {
       console.warn('[Store] apiUpdatePaymentConfig background sync warning:', err.message);
-    });
+    }
 
     return store.paymentConfig;
   },
 
   async addBankAccount(bankData) {
     const newBank = {
-      id: `bank_${Date.now()}`,
+      id: bankData.id || `bank_${Date.now()}`,
       bankName: bankData.bankName || 'Bank Baru',
       accountNumber: bankData.accountNumber || '',
       accountHolder: bankData.accountHolder || 'YAYASAN MINE SKILLS INDONESIA',
       badge: bankData.badge || 'Verifikasi Otomatis'
     };
 
-    if (!store.paymentConfig.bankAccounts) store.paymentConfig.bankAccounts = [];
-    store.paymentConfig.bankAccounts.push(newBank);
+    if (!Array.isArray(store.paymentConfig.bankAccounts)) {
+      store.paymentConfig.bankAccounts = [];
+    }
+    store.paymentConfig.bankAccounts = [...store.paymentConfig.bankAccounts, newBank];
     persistLocalStore('paymentConfig', store.paymentConfig);
 
-    apiAddBankAccount(newBank).then(res => {
+    try {
+      const res = await apiAddBankAccount(newBank);
       if (res && res.id) {
         newBank.id = res.id;
         persistLocalStore('paymentConfig', store.paymentConfig);
       }
-    }).catch(err => {
+    } catch (err) {
       console.warn('[Store] apiAddBankAccount background sync warning:', err.message);
-    });
+    }
 
     return newBank;
   },
@@ -2167,12 +2332,15 @@ export const actions = {
     const match = (store.paymentConfig.bankAccounts || []).find(b => b.id === id);
     if (match) {
       Object.assign(match, patch);
+      store.paymentConfig.bankAccounts = [...store.paymentConfig.bankAccounts];
       persistLocalStore('paymentConfig', store.paymentConfig);
     }
 
-    apiUpdateBankAccount(id, patch).catch(err => {
+    try {
+      await apiUpdateBankAccount(id, patch);
+    } catch (err) {
       console.warn('[Store] apiUpdateBankAccount background sync warning:', err.message);
-    });
+    }
 
     return match;
   },
@@ -2181,9 +2349,11 @@ export const actions = {
     store.paymentConfig.bankAccounts = (store.paymentConfig.bankAccounts || []).filter(b => b.id !== id);
     persistLocalStore('paymentConfig', store.paymentConfig);
 
-    apiDeleteBankAccount(id).catch(err => {
+    try {
+      await apiDeleteBankAccount(id);
+    } catch (err) {
       console.warn('[Store] apiDeleteBankAccount background sync warning:', err.message);
-    });
+    }
 
     return true;
   }

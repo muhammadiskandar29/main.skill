@@ -767,5 +767,33 @@
       ],
       "isActive": true
     }
-  ]
+  ],
+  "coachAttendances": [],
+  "faqs": [],
+  "paymentConfig": {
+    "rawQrisStatic": "00020101021126650014ID.GO.IDR.WWW011893600998000001234502150001234567890120303UMI51660014ID.LINKAJA.WWW011893600821000001234502150001234567890120303UMI5204581253033605802ID5914MINE.SKILLS ID6007JAKARTA61051234063040ADB",
+    "merchantName": "MINE.SKILLS INDONESIA",
+    "merchantCity": "JAKARTA",
+    "nmid": "ID1020038847291",
+    "qrisImageUrl": "",
+    "bankAccounts": [
+      {
+        "id": "bca",
+        "bankName": "Bank Central Asia (BCA)",
+        "accountNumber": "8420991823",
+        "accountHolder": "YAYASAN MINE SKILLS INDONESIA",
+        "badge": "Verifikasi Otomatis"
+      },
+      {
+        "id": "mandiri",
+        "bankName": "Bank Mandiri",
+        "accountNumber": "1560019283741",
+        "accountHolder": "MINE SKILLS ACADEMY",
+        "badge": "Cek Manual"
+      }
+    ]
+  },
+  "brand": null,
+  "hero": null,
+  "rbacMatrix": null
 }

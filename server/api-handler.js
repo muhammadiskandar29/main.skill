@@ -23,15 +23,22 @@ import {
   updateStudentSchedule,
   deleteStudentSchedule,
   getAllTransactions,
+  createTransaction,
+  updateTransaction,
+  deleteTransaction,
   verifyTransaction,
   processBankMutationAutoVerify,
   registerCustomerFlow,
   saveUploadedImage,
   loginUser,
   getAllUsers,
+  createUser,
+  updateUser,
+  deleteUser,
   getAllCoachAttendances,
   recordCoachAttendance,
   verifyCoachAttendance,
+  deleteCoachAttendance,
   getAllLocations,
   createLocation,
   updateLocation,
@@ -44,7 +51,13 @@ import {
   getBrandConfig,
   updateBrandConfig,
   getHeroConfig,
-  updateHeroConfig
+  updateHeroConfig,
+  getAllFaqs,
+  createFaq,
+  updateFaq,
+  deleteFaq,
+  getRbacMatrix,
+  updateRbacMatrix
 } from './neon-db.js';
 import { sendWhatsAppInvoiceBackground } from './whatsapp-service.js';
 
@@ -54,7 +67,7 @@ export async function parseJsonBody(req) {
     try {
       return JSON.parse(req.body);
     } catch (e) {
-      return {};
+      return { text: String(req.body) };
     }
   }
 
@@ -71,7 +84,12 @@ export async function parseJsonBody(req) {
       try {
         resolve(JSON.parse(body));
       } catch (err) {
-        reject(err);
+        // Fallback for iOS Shortcuts / Form-urlencoded / Plain text payloads
+        try {
+          resolve({ text: decodeURIComponent(body.replace(/\+/g, ' ')) });
+        } catch (_) {
+          resolve({ text: body });
+        }
       }
     });
     req.on('error', reject);
@@ -291,6 +309,11 @@ export async function handleApiRequest(req, res) {
         const transactions = await getAllTransactions();
         return sendJson(res, 200, { success: true, data: transactions });
       }
+      if (method === 'POST') {
+        const body = await parseJsonBody(req);
+        const created = await createTransaction(body);
+        return sendJson(res, 201, { success: true, data: created });
+      }
     }
 
     if (pathname.startsWith('/api/transactions/') && pathname.endsWith('/verify') && method === 'POST') {
@@ -300,6 +323,20 @@ export async function handleApiRequest(req, res) {
       return sendJson(res, 200, { success: true, data: verified });
     }
 
+    if (pathname.startsWith('/api/transactions/') && !pathname.endsWith('/verify')) {
+      const id = decodeURIComponent(pathname.replace('/api/transactions/', '').replace(/\/$/, ''));
+      if (method === 'PUT') {
+        const body = await parseJsonBody(req);
+        const updated = await updateTransaction(id, body);
+        if (!updated) return sendJson(res, 404, { success: false, message: 'Transaksi tidak ditemukan.' });
+        return sendJson(res, 200, { success: true, data: updated });
+      }
+      if (method === 'DELETE') {
+        await deleteTransaction(id);
+        return sendJson(res, 200, { success: true, message: 'Transaksi berhasil dihapus.' });
+      }
+    }
+
     // 8b. WHATSAPP BACKGROUND AUTO-DISPATCH (PDF ATTACHED)
     if (pathname === '/api/whatsapp/send-invoice' && method === 'POST') {
       const body = await parseJsonBody(req);
@@ -307,11 +344,49 @@ export async function handleApiRequest(req, res) {
       return sendJson(res, 200, result);
     }
 
-    // 8c. AUTOMATED BANK MUTATION WEBHOOK (Moota, Cekmutasi, Tripay, Custom Bank Scraper)
-    if (pathname === '/api/webhook/mutasi' && method === 'POST') {
-      const body = await parseJsonBody(req);
-      const mutations = Array.isArray(body) ? body : (Array.isArray(body.mutations) ? body.mutations : [body]);
+    // 8c. AUTOMATED BANK MUTATION WEBHOOK (Play Store "Webhook Notification", Moota, Cekmutasi, Custom)
+    if (pathname === '/api/webhook/mutasi' && (method === 'POST' || method === 'GET')) {
+      const body = method === 'POST' ? await parseJsonBody(req) : {};
+      const mergedPayload = { ...parsedUrl.query, ...(typeof body === 'object' && body !== null ? body : {}) };
+      const mutations = Array.isArray(body) ? body : (Array.isArray(mergedPayload.mutations) ? mergedPayload.mutations : [mergedPayload]);
       const results = [];
+
+      // Helper to extract Rupiah nominal from Android Notification text (BCA, Mandiri, BRI, BNI, DANA, GoPay, QRIS)
+      const parseNominalFromText = (val) => {
+        if (typeof val === 'number') return Math.round(val);
+        const str = String(val || '').trim();
+        if (!str) return 0;
+
+        // 1. Try matching explicit currency patterns like "Rp 400.142,00", "Rp400.142", "IDR 400,142.00"
+        const currencyRegex = /(?:rp\.?|idr)\s*([0-9][0-9.,]*)/gi;
+        const matches = [...str.matchAll(currencyRegex)];
+        if (matches.length > 0) {
+          const candidates = [];
+          for (const m of matches) {
+            let numStr = m[1].trim();
+            // Remove trailing decimal cents like ,00 or .00
+            numStr = numStr.replace(/[.,]\d{2}$/, '');
+            const digits = parseInt(numStr.replace(/[^0-9]/g, ''), 10);
+            if (digits >= 1000) candidates.push(digits);
+          }
+          if (candidates.length > 0) {
+            // Prioritaskan nominal yang memiliki 3 digit kode unik (misal 500142 dibanding 500000)
+            const withUniqueCode = candidates.find(d => d % 1000 !== 0);
+            return withUniqueCode || candidates[0];
+          }
+        }
+
+        // 2. Try matching formatted thousand numbers like 400.142 or 400,142 in notification body
+        const thousandMatch = str.match(/\b(\d{1,3}(?:[.,]\d{3})+)(?:[.,]\d{2})?\b/);
+        if (thousandMatch) {
+          const digits = parseInt(thousandMatch[1].replace(/[^0-9]/g, ''), 10);
+          if (digits >= 1000) return digits;
+        }
+
+        // 3. Fallback: direct numeric string
+        const clean = str.replace(/[.,]\d{2}$/, '').replace(/[^0-9]/g, '');
+        return parseInt(clean, 10) || 0;
+      };
 
       for (const item of mutations) {
         const type = String(item.type || item.mutation_type || 'CR').toUpperCase();
@@ -319,15 +394,30 @@ export async function handleApiRequest(req, res) {
           continue;
         }
 
-        const rawAmount = item.amount || item.nominal || item.total || 0;
-        const cleanAmount = typeof rawAmount === 'string' ? parseInt(rawAmount.replace(/[^0-9]/g, ''), 10) : parseInt(rawAmount, 10);
+        const notifText = [
+          item.text,
+          item.bigText,
+          item.message,
+          item.content,
+          item.body,
+          item.description,
+          item.note,
+          item.title,
+          item.subText
+        ].filter(Boolean).join(' ');
+
+        const rawAmount = item.amount || item.nominal || item.total || notifText || 0;
+        const cleanAmount = parseNominalFromText(rawAmount);
+
+        const detectedBank = item.bank || item.bank_type || item.account_type || item.appName || item.title || item.package || 'Webhook Notification HP';
+        const detectedSender = item.sender || item.sender_name || item.title || 'Notifikasi Pembayaran';
 
         if (cleanAmount > 0) {
           const autoRes = await processBankMutationAutoVerify({
             amount: cleanAmount,
-            bank: item.bank || item.bank_type || item.account_type || 'Bank',
-            senderName: item.sender || item.sender_name || item.description || '',
-            description: item.description || item.note || '',
+            bank: detectedBank,
+            senderName: detectedSender,
+            description: notifText || 'Notifikasi otomatis dari HP Admin',
             invoiceId: item.invoice_id || item.invoiceId || null
           });
           results.push(autoRes);
@@ -336,7 +426,7 @@ export async function handleApiRequest(req, res) {
 
       return sendJson(res, 200, {
         success: true,
-        message: `Diproses ${results.length} mutasi kredit perbankan.`,
+        message: `Diproses ${results.length} notifikasi mutasi perbankan.`,
         data: results
       });
     }
@@ -366,9 +456,30 @@ export async function handleApiRequest(req, res) {
       return sendJson(res, 200, { success: true, data: authResult.user });
     }
 
-    if (pathname === '/api/users' && method === 'GET') {
-      const users = await getAllUsers();
-      return sendJson(res, 200, { success: true, data: users });
+    if (pathname === '/api/users') {
+      if (method === 'GET') {
+        const users = await getAllUsers();
+        return sendJson(res, 200, { success: true, data: users });
+      }
+      if (method === 'POST') {
+        const body = await parseJsonBody(req);
+        const created = await createUser(body);
+        return sendJson(res, 201, { success: true, data: created });
+      }
+    }
+
+    if (pathname.startsWith('/api/users/')) {
+      const id = decodeURIComponent(pathname.replace('/api/users/', '').replace(/\/$/, ''));
+      if (method === 'PUT') {
+        const body = await parseJsonBody(req);
+        const updated = await updateUser(id, body);
+        if (!updated) return sendJson(res, 404, { success: false, message: 'User tidak ditemukan.' });
+        return sendJson(res, 200, { success: true, data: updated });
+      }
+      if (method === 'DELETE') {
+        await deleteUser(id);
+        return sendJson(res, 200, { success: true, message: 'User berhasil dihapus.' });
+      }
     }
 
     // 10. COACH ATTENDANCE & GEOLOCATION MONITORING
@@ -391,6 +502,12 @@ export async function handleApiRequest(req, res) {
       return sendJson(res, 200, { success: true, data: verified });
     }
 
+    if (pathname.startsWith('/api/coach-attendances/') && !pathname.endsWith('/verify') && method === 'DELETE') {
+      const id = decodeURIComponent(pathname.replace('/api/coach-attendances/', '').replace(/\/$/, ''));
+      await deleteCoachAttendance(id);
+      return sendJson(res, 200, { success: true, message: 'Data absensi berhasil dihapus.' });
+    }
+
     // 11. LOCATIONS / VENUES MASTER CRUD
     if (pathname === '/api/locations') {
       if (method === 'GET') {
@@ -404,8 +521,8 @@ export async function handleApiRequest(req, res) {
       }
     }
 
-    if (pathname.startsWith('/api/locations/') && !pathname.endsWith('/')) {
-      const id = pathname.replace('/api/locations/', '');
+    if (pathname.startsWith('/api/locations/')) {
+      const id = decodeURIComponent(pathname.replace('/api/locations/', '').replace(/\/$/, ''));
       if (method === 'PUT') {
         const body = await parseJsonBody(req);
         const updated = await updateLocation(id, body);
@@ -437,8 +554,8 @@ export async function handleApiRequest(req, res) {
       return sendJson(res, 201, { success: true, data: created });
     }
 
-    if (pathname.startsWith('/api/payment-config/banks/') && !pathname.endsWith('/')) {
-      const bankId = pathname.replace('/api/payment-config/banks/', '');
+    if (pathname.startsWith('/api/payment-config/banks/')) {
+      const bankId = decodeURIComponent(pathname.replace('/api/payment-config/banks/', '').replace(/\/$/, ''));
       if (method === 'PUT') {
         const body = await parseJsonBody(req);
         const updated = await updateBankAccount(bankId, body);
@@ -446,8 +563,8 @@ export async function handleApiRequest(req, res) {
         return sendJson(res, 200, { success: true, data: updated });
       }
       if (method === 'DELETE') {
-        await deleteBankAccount(bankId);
-        return sendJson(res, 200, { success: true, message: 'Rekening bank berhasil dihapus.' });
+        const result = await deleteBankAccount(bankId);
+        return sendJson(res, 200, { success: true, message: 'Rekening bank berhasil dihapus.', data: result });
       }
     }
 
@@ -472,6 +589,46 @@ export async function handleApiRequest(req, res) {
       if (method === 'PUT' || method === 'POST') {
         const body = await parseJsonBody(req);
         const updated = await updateHeroConfig(body);
+        return sendJson(res, 200, { success: true, data: updated });
+      }
+    }
+
+    // 14. FAQ CMS CRUD
+    if (pathname === '/api/faqs') {
+      if (method === 'GET') {
+        const faqs = await getAllFaqs();
+        return sendJson(res, 200, { success: true, data: faqs });
+      }
+      if (method === 'POST') {
+        const body = await parseJsonBody(req);
+        const created = await createFaq(body);
+        return sendJson(res, 201, { success: true, data: created });
+      }
+    }
+
+    if (pathname.startsWith('/api/faqs/')) {
+      const id = decodeURIComponent(pathname.replace('/api/faqs/', '').replace(/\/$/, ''));
+      if (method === 'PUT') {
+        const body = await parseJsonBody(req);
+        const updated = await updateFaq(id, body);
+        if (!updated) return sendJson(res, 404, { success: false, message: 'FAQ tidak ditemukan.' });
+        return sendJson(res, 200, { success: true, data: updated });
+      }
+      if (method === 'DELETE') {
+        await deleteFaq(id);
+        return sendJson(res, 200, { success: true, message: 'FAQ berhasil dihapus.' });
+      }
+    }
+
+    // 15. RBAC MATRIX CRUD
+    if (pathname === '/api/rbac-matrix') {
+      if (method === 'GET') {
+        const matrix = await getRbacMatrix();
+        return sendJson(res, 200, { success: true, data: matrix });
+      }
+      if (method === 'PUT') {
+        const body = await parseJsonBody(req);
+        const updated = await updateRbacMatrix(body);
         return sendJson(res, 200, { success: true, data: updated });
       }
     }

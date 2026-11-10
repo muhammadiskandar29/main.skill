@@ -1349,6 +1349,14 @@
                     >
                       ↗
                     </a>
+                    <button 
+                      type="button"
+                      @click="handleDeleteAttendance(att)" 
+                      class="btn-danger-xs"
+                      title="Hapus Data Presensi"
+                    >
+                      Hapus
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -1562,6 +1570,15 @@
                     >
                       Uji Mutasi
                     </button>
+                    <button 
+                      type="button"
+                      @click="handleDeleteTransaction(trx)" 
+                      class="btn-danger-xs"
+                      style="padding: 5px 8px; font-size: 11px;"
+                      title="Hapus Invoice"
+                    >
+                      Hapus
+                    </button>
                   </div>
                   <div v-else class="paid-action-buttons">
                     <span class="status-lunas-badge" style="font-size: 11.5px;">Lunas</span>
@@ -1585,6 +1602,15 @@
                       <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
                     </svg>
                     <span>WA</span>
+                  </button>
+                  <button 
+                    type="button"
+                    @click="handleDeleteTransaction(trx)" 
+                    class="btn-danger-xs"
+                    style="padding: 4px 8px; font-size: 11px;"
+                    title="Hapus Invoice"
+                  >
+                    Hapus
                   </button>
                 </div>
               </td>
@@ -1845,13 +1871,16 @@
 
             <!-- Card Actions -->
             <div class="bank-card-actions">
-              <button @click="openEditBankModal(bank)" class="btn-secondary btn-xs" title="Edit Rekening">
+              <button type="button" @click="openEditBankModal(bank)" class="btn-secondary btn-xs" title="Edit Rekening">
                 Edit
               </button>
-              <button @click="confirmDeleteBank(bank)" class="btn-danger-xs" title="Hapus Rekening">
+              <button type="button" @click="confirmDeleteBank(bank)" class="btn-danger-xs" title="Hapus Rekening">
                 Hapus
               </button>
             </div>
+          </div>
+          <div v-if="!store.paymentConfig?.bankAccounts || store.paymentConfig.bankAccounts.length === 0" class="card-humanist" style="grid-column: 1 / -1; text-align: center; padding: 32px; color: var(--text-muted);">
+            Belum ada rekening bank resmi yang terdaftar. Klik tombol <strong>Tambah Rekening Baru</strong> di atas untuk menambahkan.
           </div>
         </div>
       </div>
@@ -1900,6 +1929,42 @@
               <li>Webhook mutasi bank mendeteksi kredit masuk <strong>Rp 500.142</strong>.</li>
               <li>Sistem mencocokkan nominal tersebut, mengubah status jadi <strong>Lunas (Verified)</strong>, mencetak PDF ber-cap LUNAS, dan mengirimkannya ke WhatsApp wali murid.</li>
             </ol>
+
+            <details style="margin-top: 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px 12px;">
+              <summary style="cursor: pointer; font-size: 12.5px; font-weight: 800; color: #166534;">
+                🔒 Panduan & Script Resmi Gmail (100% Tanpa Pihak Ketiga) — Klik untuk Buka
+              </summary>
+              <div style="margin-top: 10px; font-size: 12px; color: #1e293b; line-height: 1.5;">
+                <p style="margin: 0 0 8px;">
+                  Salin kode di bawah ini ke <strong>https://script.google.com</strong> pada akun Gmail Anda yang menerima email notifikasi dari Bank (BCA/Mandiri/BRI/BNI/QRIS):
+                </p>
+                <pre class="font-mono" style="background: #0f172a; color: #f8fafc; padding: 10px; border-radius: 6px; font-size: 11px; overflow-x: auto; max-height: 220px;">const WEBHOOK_URL = window_origin_or_domain + '/api/webhook/mutasi'; // Ganti dengan URL domain Anda
+const LABEL_NAME  = 'Mutasi-Diproses';
+
+function cekMutasiBankGmail() {
+  let label = GmailApp.getUserLabelByName(LABEL_NAME) || GmailApp.createLabel(LABEL_NAME);
+  const query = 'newer_than:1d -label:' + LABEL_NAME + ' (from:bca.co.id OR from:bankmandiri.co.id OR from:bri.co.id OR from:bni.co.id OR from:bsi.co.id OR from:gopay.co.id OR subject:"Transfer" OR subject:"Dana Masuk" OR subject:"QRIS" OR subject:"Bukti Transaksi")';
+  const threads = GmailApp.search(query, 0, 10);
+  for (const thread of threads) {
+    for (const msg of thread.getMessages()) {
+      UrlFetchApp.fetch(WEBHOOK_URL, {
+        method: 'post',
+        contentType: 'application/json',
+        payload: JSON.stringify({
+          type: 'CR',
+          bank: msg.getFrom(),
+          sender: msg.getFrom(),
+          title: msg.getSubject(),
+          text: msg.getSubject() + ' ' + msg.getPlainBody()
+        }),
+        muteHttpExceptions: true
+      });
+    }
+    thread.addLabel(label);
+  }
+}</pre>
+              </div>
+            </details>
           </div>
 
           <!-- Right: Interactive Simulator Widget -->
@@ -2136,6 +2201,13 @@
           <h2 class="page-title">Pengaturan Hak Akses (RBAC) & Akun Pengguna</h2>
           <p class="page-sub">Manajemen kredensial login (Customer, Coach, Manajemen). Seluruh akun baru memiliki default password: <strong>123</strong>.</p>
         </div>
+        <button type="button" @click="openAddUserModal" class="btn-primary" style="display: inline-flex; align-items: center; gap: 6px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>Tambah Pengguna Baru</span>
+        </button>
       </div>
 
       <div class="card-humanist table-wrap">
@@ -2145,8 +2217,9 @@
               <th>Nama Pengguna</th>
               <th>Email Akun (Login ID)</th>
               <th>Peran (Role)</th>
-              <th>Default Password</th>
+              <th>Password</th>
               <th>Status Akun</th>
+              <th style="text-align: right;">Aksi</th>
             </tr>
           </thead>
           <tbody>
@@ -2155,22 +2228,36 @@
               <td><span class="font-mono">{{ u.email }}</span></td>
               <td>
                 <span class="badge-chip" :class="u.role === 'manajemen' ? 'gold' : (u.role === 'coach' ? 'teal' : 'green')">
-                  {{ u.role.toUpperCase() }}
+                  {{ (u.role || 'customer').toUpperCase() }}
                 </span>
               </td>
-              <td><span class="badge-chip gold">123</span></td>
+              <td><span class="badge-chip gold">{{ u.password || '123' }}</span></td>
               <td>
                 <div style="display: flex; align-items: center; gap: 8px;">
                   <span :class="['badge-chip', u.status === 'inactive' ? 'gray' : 'green']">
                     {{ u.status === 'inactive' ? 'Nonaktif' : 'Aktif' }}
                   </span>
                   <button 
-                    v-if="u.id !== store.currentUser.id" 
-                    @click="actions.toggleUserStatus(u.id)" 
+                    type="button"
+                    v-if="u.id !== store.currentUser?.id" 
+                    @click="handleToggleUserStatus(u)" 
                     class="btn-secondary-xs"
                     style="padding: 2px 8px; font-size: 11px;"
                   >
                     {{ u.status === 'inactive' ? 'Aktifkan' : 'Nonaktifkan' }}
+                  </button>
+                </div>
+              </td>
+              <td style="text-align: right;">
+                <div style="display: flex; justify-content: flex-end; gap: 6px;">
+                  <button type="button" @click="openEditUserModal(u)" class="btn-secondary-xs">Edit</button>
+                  <button 
+                    type="button" 
+                    v-if="u.id !== store.currentUser?.id" 
+                    @click="handleDeleteUser(u)" 
+                    class="btn-danger-xs"
+                  >
+                    Hapus
                   </button>
                 </div>
               </td>
@@ -3365,6 +3452,98 @@
         </form>
       </div>
     </div>
+
+    <!-- 11. MODAL: TAMBAH / EDIT AKUN PENGGUNA (RBAC) -->
+    <div v-if="showUserModal" class="modal-backdrop" @click.self="showUserModal = false">
+      <div class="modal-dialog modal-md">
+        <div class="modal-header">
+          <div class="modal-header-info">
+            <span class="badge-chip gold">Keamanan & Otorisasi</span>
+            <h3 class="modal-title">{{ isEditUser ? 'Edit Akun Pengguna' : 'Tambah Akun Pengguna Baru' }}</h3>
+          </div>
+          <button type="button" class="btn-close" @click="showUserModal = false">✕</button>
+        </div>
+
+        <form @submit.prevent="handleSubmitUser" class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Nama Lengkap Pengguna <span class="required">*</span></label>
+            <input v-model="userForm.name" type="text" class="form-input" placeholder="Contoh: Budi Santoso" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Email Akun (Login ID) <span class="required">*</span></label>
+            <input v-model="userForm.email" type="email" class="form-input" placeholder="Contoh: budi@mineskills.id" required />
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Peran (Role) <span class="required">*</span></label>
+              <select v-model="userForm.role" class="form-select" required>
+                <option value="customer">Customer (Wali Murid / Siswa)</option>
+                <option value="coach">Coach (Pelatih / Instruktur)</option>
+                <option value="manajemen">Manajemen (Admin CMS & CRM)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Password Login <span class="required">*</span></label>
+              <input v-model="userForm.password" type="text" class="form-input" placeholder="123" required />
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label">Nomor Telepon / WhatsApp</label>
+              <input v-model="userForm.phone" type="text" class="form-input" placeholder="081234567890" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status Akun</label>
+              <select v-model="userForm.status" class="form-select">
+                <option value="active">Aktif</option>
+                <option value="inactive">Nonaktif</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="modal-footer" style="margin-top: 16px;">
+            <button type="button" @click="showUserModal = false" class="btn-secondary">Batal</button>
+            <button type="submit" class="btn-primary">
+              {{ isEditUser ? 'Simpan Perubahan' : 'Buat Akun Pengguna' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 12. GLOBAL CUSTOM CONFIRMATION MODAL (SAFE FOR ALL BROWSERS & WEBVIEWS) -->
+    <div v-if="confirmDialog.show" class="modal-backdrop" style="z-index: 99999;" @click.self="handleConfirmDialogChoice(false)">
+      <div class="modal-dialog modal-sm" style="max-width: 440px;">
+        <div class="modal-header">
+          <div class="modal-header-info">
+            <span class="badge-chip" :class="confirmDialog.isDanger ? 'gold' : 'teal'">Konfirmasi Tindakan</span>
+            <h3 class="modal-title">{{ confirmDialog.title }}</h3>
+          </div>
+          <button type="button" class="btn-close" @click="handleConfirmDialogChoice(false)">✕</button>
+        </div>
+        <div class="modal-body">
+          <p style="font-size: 14px; color: var(--text-main); line-height: 1.6; margin: 0 0 20px 0;">
+            {{ confirmDialog.message }}
+          </p>
+          <div class="modal-footer" style="margin-top: 8px; padding-top: 14px; border-top: 1px solid var(--border-subtle);">
+            <button type="button" class="btn-secondary" @click="handleConfirmDialogChoice(false)">
+              {{ confirmDialog.cancelText }}
+            </button>
+            <button 
+              type="button" 
+              :class="confirmDialog.isDanger ? 'btn-danger-sm' : 'btn-primary'"
+              style="padding: 9px 18px; font-size: 13.5px; font-weight: 700;"
+              @click="handleConfirmDialogChoice(true)"
+            >
+              {{ confirmDialog.confirmText }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -3390,6 +3569,37 @@ const noticeMessage = ref('');
 function showNotice(msg) {
   noticeMessage.value = msg;
   setTimeout(() => { noticeMessage.value = ''; }, 3500);
+}
+
+// Custom Confirmation Dialog (Replaces native window.confirm which can be blocked in webviews)
+const confirmDialog = reactive({
+  show: false,
+  title: 'Konfirmasi Hapus Data',
+  message: '',
+  confirmText: 'Ya, Hapus Sekarang',
+  cancelText: 'Batal',
+  isDanger: true,
+  resolve: null
+});
+
+function askConfirm(message, title = 'Konfirmasi Penghapusan', confirmText = 'Ya, Hapus Sekarang', isDanger = true) {
+  return new Promise((resolve) => {
+    confirmDialog.title = title;
+    confirmDialog.message = message;
+    confirmDialog.confirmText = confirmText;
+    confirmDialog.isDanger = isDanger;
+    confirmDialog.resolve = resolve;
+    confirmDialog.show = true;
+  });
+}
+
+function handleConfirmDialogChoice(choice) {
+  confirmDialog.show = false;
+  if (confirmDialog.resolve) {
+    const res = confirmDialog.resolve;
+    confirmDialog.resolve = null;
+    res(choice);
+  }
 }
 
 // -------------------------------------------------------------
@@ -3611,7 +3821,7 @@ async function handleSubmitProduct() {
 }
 
 async function handleDeleteProduct(id) {
-  if (confirm('Yakin ingin menghapus program pelatihan ini beserta seluruh paketnya?')) {
+  if (await askConfirm('Yakin ingin menghapus program pelatihan ini beserta seluruh paketnya?')) {
     await actions.deleteProduct(id);
     showNotice('Program pelatihan berhasil dihapus.');
   }
@@ -3706,7 +3916,7 @@ async function handleSubmitLocation() {
 }
 
 async function handleDeleteLocation(id) {
-  if (confirm('Yakin ingin menghapus data lokasi fasilitas ini?')) {
+  if (await askConfirm('Yakin ingin menghapus data lokasi fasilitas ini?')) {
     await actions.deleteLocation(id);
     showNotice('Data lokasi berhasil dihapus.');
   }
@@ -3861,7 +4071,7 @@ async function handleSubmitPackage() {
 }
 
 async function handleDeletePackage(id) {
-  if (confirm('Hapus paket kursus ini?')) {
+  if (await askConfirm('Yakin ingin menghapus paket kursus ini?')) {
     await actions.deletePackage(id);
     showNotice('Paket kursus berhasil dihapus.');
   }
@@ -3945,7 +4155,7 @@ async function handleSubmitCoach() {
 }
 
 async function handleDeleteCoach(id) {
-  if (confirm('Hapus instruktur ini? Akun login terkait juga akan dinonaktifkan.')) {
+  if (await askConfirm('Hapus instruktur ini? Akun login terkait juga akan dinonaktifkan.')) {
     await actions.deleteCoach(id);
     showNotice('Instruktur berhasil dihapus.');
   }
@@ -3958,7 +4168,7 @@ async function handleToggleCoach(id) {
   const confirmMsg = isInactive
     ? `Aktifkan kembali instruktur ${coach.name}? Akun login coach akan diaktifkan.`
     : `Nonaktifkan instruktur ${coach.name}? Akun login coach akan dinonaktifkan dan tidak dapat login.`;
-  if (confirm(confirmMsg)) {
+  if (await askConfirm(confirmMsg, 'Konfirmasi Status Instruktur', isInactive ? 'Ya, Aktifkan' : 'Ya, Nonaktifkan', !isInactive)) {
     await actions.toggleCoachStatus(id);
     showNotice(`Status instruktur ${coach.name} berhasil diperbarui.`);
   }
@@ -4012,7 +4222,7 @@ async function handleToggleStudentStatus(stu) {
   const confirmMsg = isInactive
     ? `Aktifkan kembali siswa ${stu.name}? Akun wali murid akan diaktifkan.`
     : `Nonaktifkan siswa ${stu.name}? Akun wali murid akan dinonaktifkan dan tidak dapat login.`;
-  if (confirm(confirmMsg)) {
+  if (await askConfirm(confirmMsg, 'Konfirmasi Status Siswa', isInactive ? 'Ya, Aktifkan' : 'Ya, Nonaktifkan', !isInactive)) {
     await actions.toggleStudentStatus(stu.id);
     showNotice(`Status siswa ${stu.name} berhasil diperbarui.`);
   }
@@ -4084,7 +4294,7 @@ async function handleSubmitStudent() {
 }
 
 async function handleDeleteStudent(id) {
-  if (confirm('Yakin ingin menghapus data siswa ini beserta jadwal sesinya?')) {
+  if (await askConfirm('Yakin ingin menghapus data siswa ini beserta jadwal sesinya?')) {
     await actions.deleteStudent(id);
     showNotice('Data siswa berhasil dihapus.');
   }
@@ -4268,7 +4478,7 @@ async function handleSaveFaq() {
 }
 
 async function handleDeleteFaq(id) {
-  if (confirm('Yakin ingin menghapus pertanyaan FAQ ini?')) {
+  if (await askConfirm('Yakin ingin menghapus pertanyaan FAQ ini?')) {
     await actions.deleteFaq(id);
     showNotice('FAQ berhasil dihapus.');
   }
@@ -4602,7 +4812,7 @@ async function handleSaveReschedule() {
 }
 
 async function handleDeleteSchedule(sch) {
-  if (confirm(`Yakin ingin menghapus sesi latihan ke-${sch.sessionNo} untuk ${sch.studentName}?`)) {
+  if (await askConfirm(`Yakin ingin menghapus sesi latihan ke-${sch.sessionNo} untuk ${sch.studentName}?`)) {
     try {
       await actions.deleteSchedule(sch.id);
       showNotice(`Sesi latihan ke-${sch.sessionNo} berhasil dihapus.`);
@@ -4611,7 +4821,7 @@ async function handleDeleteSchedule(sch) {
         if (refreshed) activeStudentForSchedules.value = refreshed;
       }
     } catch (err) {
-      alert(err.message || 'Gagal menghapus sesi');
+      showNotice(err.message || 'Gagal menghapus sesi');
     }
   }
 }
@@ -4824,9 +5034,103 @@ async function saveBankAccount() {
 }
 
 async function confirmDeleteBank(bank) {
-  if (confirm(`Yakin ingin menghapus rekening ${bank.bankName} (${bank.accountNumber})? Rekening ini tidak akan muncul lagi di opsi transfer orang tua siswa.`)) {
+  if (await askConfirm(`Yakin ingin menghapus rekening ${bank.bankName} (${bank.accountNumber})? Rekening ini tidak akan muncul lagi di opsi transfer orang tua siswa.`)) {
     await actions.deleteBankAccount(bank.id);
     showNotice(`Rekening ${bank.bankName} berhasil dihapus.`);
+  }
+}
+
+async function handleDeleteTransaction(trx) {
+  if (await askConfirm(`Yakin ingin menghapus data tagihan / invoice ${trx.id} (${trx.studentName})?`)) {
+    await actions.deleteTransaction(trx.id);
+    showNotice(`Invoice ${trx.id} berhasil dihapus.`);
+  }
+}
+
+async function handleDeleteAttendance(att) {
+  if (await askConfirm(`Yakin ingin menghapus data presensi ${att.coachName} (${att.date} - ${att.time})?`)) {
+    await actions.deleteCoachAttendance(att.id);
+    showNotice(`Data presensi ${att.coachName} berhasil dihapus.`);
+  }
+}
+
+// -------------------------------------------------------------
+// USER MANAGEMENT & RBAC CRUD (m_rbac)
+// -------------------------------------------------------------
+const showUserModal = ref(false);
+const isEditUser = ref(false);
+const editingUserId = ref(null);
+const userForm = ref({
+  name: '',
+  email: '',
+  role: 'customer',
+  password: '123',
+  phone: '',
+  status: 'active'
+});
+
+function openAddUserModal() {
+  isEditUser.value = false;
+  editingUserId.value = null;
+  userForm.value = {
+    name: '',
+    email: '',
+    role: 'customer',
+    password: '123',
+    phone: '',
+    status: 'active'
+  };
+  showUserModal.value = true;
+}
+
+function openEditUserModal(user) {
+  isEditUser.value = true;
+  editingUserId.value = user.id;
+  userForm.value = {
+    name: user.name || '',
+    email: user.email || '',
+    role: user.role || 'customer',
+    password: user.password || '123',
+    phone: user.phone || '',
+    status: user.status || 'active'
+  };
+  showUserModal.value = true;
+}
+
+async function handleSubmitUser() {
+  if (!userForm.value.name.trim() || !userForm.value.email.trim()) {
+    showNotice('Nama dan Email pengguna wajib diisi!');
+    return;
+  }
+  try {
+    if (isEditUser.value && editingUserId.value) {
+      await actions.updateUser(editingUserId.value, { ...userForm.value });
+      showNotice(`Data pengguna "${userForm.value.name}" berhasil diperbarui!`);
+    } else {
+      await actions.addUser({ ...userForm.value });
+      showNotice(`Pengguna baru "${userForm.value.name}" berhasil ditambahkan!`);
+    }
+    showUserModal.value = false;
+  } catch (err) {
+    showNotice(err.message || 'Gagal menyimpan data pengguna');
+  }
+}
+
+async function handleDeleteUser(user) {
+  if (await askConfirm(`Yakin ingin menghapus akun pengguna ${user.name} (${user.email})?`)) {
+    await actions.deleteUser(user.id);
+    showNotice(`Akun pengguna ${user.name} berhasil dihapus.`);
+  }
+}
+
+async function handleToggleUserStatus(user) {
+  const isInactive = user.status === 'inactive';
+  const msg = isInactive
+    ? `Aktifkan kembali akun pengguna ${user.name} (${user.email})?`
+    : `Nonaktifkan akun pengguna ${user.name} (${user.email})? Pengguna tidak akan bisa login.`;
+  if (await askConfirm(msg, 'Konfirmasi Status Pengguna', isInactive ? 'Ya, Aktifkan' : 'Ya, Nonaktifkan', !isInactive)) {
+    await actions.toggleUserStatus(user.id);
+    showNotice(`Status akun ${user.name} berhasil diperbarui.`);
   }
 }
 
@@ -4882,7 +5186,7 @@ async function handleVerifyPayment(invoiceId) {
       showNotice(`Invoice ${invoiceId} berhasil diverifikasi Lunas!`);
     }
   } catch (err) {
-    alert(err.message || 'Gagal memverifikasi pembayaran');
+    showNotice(err.message || 'Gagal memverifikasi pembayaran');
   }
 }
 
@@ -4892,13 +5196,13 @@ function downloadInvoice(trx) {
     doc.save(`Invoice_${trx.id}_LUNAS.pdf`);
     showNotice(`Invoice resmi ${trx.id} ber-cap LUNAS berhasil diunduh.`);
   } catch (err) {
-    alert('Gagal mengunduh invoice PDF: ' + err.message);
+    showNotice('Gagal mengunduh invoice PDF: ' + err.message);
   }
 }
 
 async function sendInvoiceWa(trx) {
   if (!trx.phone) {
-    alert('Nomor telepon / WhatsApp wali murid tidak tersedia untuk invoice ini.');
+    showNotice('Nomor telepon / WhatsApp wali murid tidak tersedia untuk invoice ini.');
     return;
   }
   try {
@@ -4909,7 +5213,7 @@ async function sendInvoiceWa(trx) {
     showNotice(`Invoice PDF resmi ber-cap LUNAS berhasil terkirim ke nomor WhatsApp ${trx.parentName} (${trx.phone}).`);
   } catch (err) {
     // If background fails, offer fallback to manual click-to-chat
-    if (confirm(`Pengiriman otomatis di background mengalami kendala (${err.message}). Apakah Anda ingin membuka WhatsApp Web secara manual?`)) {
+    if (await askConfirm(`Pengiriman otomatis di background mengalami kendala (${err.message}). Apakah Anda ingin membuka WhatsApp Web secara manual?`, 'Kirim via WhatsApp Web', 'Ya, Buka WhatsApp Web', false)) {
       const waUrl = buildInvoiceWhatsAppUrl(trx, store.brand);
       window.open(waUrl, '_blank');
     }

@@ -23,10 +23,27 @@ function getSql() {
 }
 
 // Helper to read fallback json if DB is offline
-function readJsonFallback() {
+export function readJsonFallback() {
   try {
     if (fs.existsSync(DB_FILE)) {
-      return JSON.parse(fs.readFileSync(DB_FILE, 'utf-8'));
+      const raw = fs.readFileSync(DB_FILE, 'utf-8');
+      const parsed = JSON.parse(raw);
+      return {
+        users: Array.isArray(parsed.users) ? parsed.users : [],
+        products: Array.isArray(parsed.products) ? parsed.products : [],
+        packages: Array.isArray(parsed.packages) ? parsed.packages : [],
+        coaches: Array.isArray(parsed.coaches) ? parsed.coaches : [],
+        students: Array.isArray(parsed.students) ? parsed.students : [],
+        studentSchedules: Array.isArray(parsed.studentSchedules) ? parsed.studentSchedules : [],
+        transactions: Array.isArray(parsed.transactions) ? parsed.transactions : [],
+        locations: Array.isArray(parsed.locations) ? parsed.locations : [],
+        coachAttendances: Array.isArray(parsed.coachAttendances) ? parsed.coachAttendances : [],
+        faqs: Array.isArray(parsed.faqs) ? parsed.faqs : [],
+        paymentConfig: parsed.paymentConfig || null,
+        brand: parsed.brand || null,
+        hero: parsed.hero || null,
+        rbacMatrix: parsed.rbacMatrix || null
+      };
     }
   } catch (e) {
     console.warn('[DB] Fallback JSON read error:', e);
@@ -39,8 +56,24 @@ function readJsonFallback() {
     students: [],
     studentSchedules: [],
     transactions: [],
-    locations: []
+    locations: [],
+    coachAttendances: [],
+    faqs: [],
+    paymentConfig: null,
+    brand: null,
+    hero: null,
+    rbacMatrix: null
   };
+}
+
+export function writeJsonFallback(data) {
+  try {
+    fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
+    return true;
+  } catch (err) {
+    console.error('[DB] Fallback JSON write error:', err);
+    return false;
+  }
 }
 
 export async function queryTable(table, whereClause = '', params = []) {
@@ -55,7 +88,9 @@ export async function queryTable(table, whereClause = '', params = []) {
     }
   }
   const fallback = readJsonFallback();
-  const key = table === 'student_schedules' ? 'studentSchedules' : table;
+  const key = table === 'student_schedules' ? 'studentSchedules' :
+              table === 'coach_attendances' ? 'coachAttendances' :
+              table;
   return fallback[key] || [];
 }
 
@@ -70,11 +105,47 @@ export async function getById(table, id) {
     }
   }
   const fallback = readJsonFallback();
-  const key = table === 'student_schedules' ? 'studentSchedules' : table;
-  return (fallback[key] || []).find(item => item.id === id) || null;
+  if (table === 'app_settings') {
+    const settingKey = id === 'payment_config' ? 'paymentConfig' :
+                       id === 'brand_config' ? 'brand' :
+                       id === 'hero_config' ? 'hero' :
+                       id === 'rbac_matrix' ? 'rbacMatrix' : id;
+    return fallback[settingKey] || null;
+  }
+  const key = table === 'student_schedules' ? 'studentSchedules' :
+              table === 'coach_attendances' ? 'coachAttendances' :
+              table;
+  return (fallback[key] || []).find(item => item && item.id === id) || null;
 }
 
 export async function upsertRecord(table, id, data) {
+  // Always update local disk cache so offline & local dev never lose data
+  try {
+    const db = readJsonFallback();
+    if (table === 'app_settings') {
+      const settingKey = id === 'payment_config' ? 'paymentConfig' :
+                         id === 'brand_config' ? 'brand' :
+                         id === 'hero_config' ? 'hero' :
+                         id === 'rbac_matrix' ? 'rbacMatrix' : id;
+      db[settingKey] = data;
+    } else {
+      const key = table === 'student_schedules' ? 'studentSchedules' :
+                  table === 'coach_attendances' ? 'coachAttendances' :
+                  table;
+      if (!Array.isArray(db[key])) db[key] = [];
+      const idx = db[key].findIndex(item => item && item.id === id);
+      if (idx >= 0) {
+        db[key][idx] = data;
+      } else {
+        db[key].push(data);
+      }
+    }
+    writeJsonFallback(db);
+  } catch (err) {
+    console.warn('[DB] writeJsonFallback error in upsertRecord:', err.message);
+  }
+
+  // Also sync to Neon PostgreSQL if available
   const sql = getSql();
   if (sql) {
     try {
@@ -86,23 +157,46 @@ export async function upsertRecord(table, id, data) {
       );
       return true;
     } catch (err) {
-      console.error(`[Neon DB] upsertRecord error on ${table}:`, err.message);
+      console.warn(`[Neon DB] upsertRecord error on ${table}:`, err.message);
     }
   }
-  return false;
+  return true;
 }
 
 export async function deleteRecord(table, id) {
+  // Always update local disk cache first
+  try {
+    const db = readJsonFallback();
+    if (table === 'app_settings') {
+      const settingKey = id === 'payment_config' ? 'paymentConfig' :
+                         id === 'brand_config' ? 'brand' :
+                         id === 'hero_config' ? 'hero' :
+                         id === 'rbac_matrix' ? 'rbacMatrix' : id;
+      delete db[settingKey];
+    } else {
+      const key = table === 'student_schedules' ? 'studentSchedules' :
+                  table === 'coach_attendances' ? 'coachAttendances' :
+                  table;
+      if (Array.isArray(db[key])) {
+        db[key] = db[key].filter(item => item && item.id !== id);
+      }
+    }
+    writeJsonFallback(db);
+  } catch (err) {
+    console.warn('[DB] writeJsonFallback error in deleteRecord:', err.message);
+  }
+
+  // Also sync delete to Neon PostgreSQL if available
   const sql = getSql();
   if (sql) {
     try {
       await sql.query(`DELETE FROM ${table} WHERE id = $1;`, [id]);
       return true;
     } catch (err) {
-      console.error(`[Neon DB] deleteRecord error on ${table}:`, err.message);
+      console.warn(`[Neon DB] deleteRecord error on ${table}:`, err.message);
     }
   }
-  return false;
+  return true;
 }
 
 // -------------------------------------------------------------
@@ -1272,13 +1366,13 @@ export async function updatePaymentConfig(patch) {
 export async function addBankAccount(bankData) {
   const current = await getPaymentConfig();
   const newBank = {
-    id: `bank_${Date.now()}`,
+    id: bankData.id || `bank_${Date.now()}`,
     bankName: bankData.bankName || 'Bank Baru',
     accountNumber: bankData.accountNumber || '',
     accountHolder: bankData.accountHolder || 'YAYASAN MINE SKILLS INDONESIA',
     badge: bankData.badge || 'Verifikasi Otomatis'
   };
-  const updatedBanks = [...(current.bankAccounts || []), newBank];
+  const updatedBanks = [...(current.bankAccounts || []).filter(b => b.id !== newBank.id), newBank];
   await updatePaymentConfig({ bankAccounts: updatedBanks });
   return newBank;
 }
@@ -1297,7 +1391,7 @@ export async function deleteBankAccount(id) {
   const current = await getPaymentConfig();
   const updatedBanks = (current.bankAccounts || []).filter(b => b.id !== id);
   await updatePaymentConfig({ bankAccounts: updatedBanks });
-  return { success: true, id };
+  return { success: true, id, bankAccounts: updatedBanks };
 }
 
 // -------------------------------------------------------------
@@ -1331,6 +1425,11 @@ export async function getBrandConfig() {
     inMemoryBrandConfig = { ...inMemoryBrandConfig, ...cfg };
     return inMemoryBrandConfig;
   }
+  const fallback = readJsonFallback();
+  if (fallback.brand) {
+    inMemoryBrandConfig = { ...inMemoryBrandConfig, ...fallback.brand };
+    return inMemoryBrandConfig;
+  }
   return inMemoryBrandConfig;
 }
 
@@ -1350,6 +1449,11 @@ export async function getHeroConfig() {
     inMemoryHeroConfig = { ...inMemoryHeroConfig, ...cfg };
     return inMemoryHeroConfig;
   }
+  const fallback = readJsonFallback();
+  if (fallback.hero) {
+    inMemoryHeroConfig = { ...inMemoryHeroConfig, ...fallback.hero };
+    return inMemoryHeroConfig;
+  }
   return inMemoryHeroConfig;
 }
 
@@ -1362,8 +1466,189 @@ export async function updateHeroConfig(patch) {
   return updated;
 }
 
+// -------------------------------------------------------------
+// USER MANAGEMENT CRUD
+// -------------------------------------------------------------
+export async function createUser(payload) {
+  const id = payload.id || `usr_${Date.now()}`;
+  const newUser = {
+    id,
+    name: payload.name?.trim() || 'Pengguna Baru',
+    email: payload.email?.trim() || `user.${Date.now()}@mineskills.id`,
+    role: payload.role || 'customer',
+    password: payload.password || '123',
+    phone: payload.phone?.trim() || '',
+    status: payload.status || 'active',
+    avatar: payload.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=160',
+    created_at: new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
+  };
+  await upsertRecord('users', id, newUser);
+  return newUser;
+}
+
+export async function updateUser(id, patch) {
+  const existing = await getById('users', id);
+  if (!existing) return null;
+  const updated = { ...existing, ...patch, id };
+  await upsertRecord('users', id, updated);
+  return updated;
+}
+
+export async function deleteUser(id) {
+  await deleteRecord('users', id);
+  return { success: true, id };
+}
+
+// -------------------------------------------------------------
+// FAQ CMS CRUD
+// -------------------------------------------------------------
+const DEFAULT_FAQS = [
+  {
+    id: 'faq_1',
+    q: 'Berapa jumlah maksimal siswa dalam satu kelas?',
+    question: 'Berapa jumlah maksimal siswa dalam satu kelas?',
+    a: 'Kami membatasi secara ketat maksimal 3 hingga 5 siswa per sesi untuk kelas reguler/small group, dan 1-on-1 untuk kelas privat. Hal ini untuk memastikan rasio keselamatan dan perhatian instruktur yang optimal.',
+    answer: 'Kami membatasi secara ketat maksimal 3 hingga 5 siswa per sesi untuk kelas reguler/small group, dan 1-on-1 untuk kelas privat. Hal ini untuk memastikan rasio keselamatan dan perhatian instruktur yang optimal.',
+    category: 'Umum & Pendaftaran'
+  },
+  {
+    id: 'faq_2',
+    q: 'Apakah jadwal sesi latihan bisa di-reschedule?',
+    question: 'Apakah jadwal sesi latihan bisa di-reschedule?',
+    a: 'Bisa. Izin atau pengajuan reschedule dapat dilakukan melalui portal orang tua maksimal H-1 sebelum sesi latihan dimulai demi ketersediaan slot instruktur.',
+    answer: 'Bisa. Izin atau pengajuan reschedule dapat dilakukan melalui portal orang tua maksimal H-1 sebelum sesi latihan dimulai demi ketersediaan slot instruktur.',
+    category: 'Jadwal & Presensi'
+  },
+  {
+    id: 'faq_3',
+    q: 'Bagaimana metode pembayaran yang tersedia?',
+    question: 'Bagaimana metode pembayaran yang tersedia?',
+    a: 'Kami mendukung QRIS Dinamis ASPI otomatis serta transfer langsung ke rekening bank resmi yayasan. Mutasi diverifikasi otomatis secara real-time.',
+    answer: 'Kami mendukung QRIS Dinamis ASPI otomatis serta transfer langsung ke rekening bank resmi yayasan. Mutasi diverifikasi otomatis secara real-time.',
+    category: 'Pembayaran'
+  }
+];
+
+export async function getAllFaqs() {
+  const faqs = await queryTable('faqs');
+  if (faqs && faqs.length > 0) return faqs;
+  const fallback = readJsonFallback();
+  if (fallback.faqs && fallback.faqs.length > 0) return fallback.faqs;
+  return DEFAULT_FAQS;
+}
+
+export async function createFaq(payload) {
+  const id = payload.id || `faq_${Date.now()}`;
+  const q = payload.q || payload.question || 'Pertanyaan Baru';
+  const a = payload.a || payload.answer || 'Jawaban pertanyaan...';
+  const newFaq = {
+    id,
+    q,
+    question: q,
+    a,
+    answer: a,
+    category: payload.category || 'Umum & Pendaftaran',
+    created_at: new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
+  };
+  await upsertRecord('faqs', id, newFaq);
+  return newFaq;
+}
+
+export async function updateFaq(id, patch) {
+  const existing = await getById('faqs', id);
+  const q = patch.q !== undefined ? patch.q : (patch.question !== undefined ? patch.question : existing?.q);
+  const a = patch.a !== undefined ? patch.a : (patch.answer !== undefined ? patch.answer : existing?.a);
+  const updated = {
+    ...(existing || {}),
+    ...patch,
+    id,
+    q,
+    question: q,
+    a,
+    answer: a
+  };
+  await upsertRecord('faqs', id, updated);
+  return updated;
+}
+
+export async function deleteFaq(id) {
+  await deleteRecord('faqs', id);
+  return { success: true, id };
+}
+
+// -------------------------------------------------------------
+// TRANSACTIONS EXTENDED CRUD
+// -------------------------------------------------------------
+export async function createTransaction(payload) {
+  const id = payload.id || `inv_${Date.now()}`;
+  const newTrx = {
+    id,
+    ...payload,
+    created_at: payload.created_at || new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
+  };
+  await upsertRecord('transactions', id, newTrx);
+  return newTrx;
+}
+
+export async function updateTransaction(id, patch) {
+  const existing = await getById('transactions', id);
+  if (!existing) return null;
+  const updated = { ...existing, ...patch, id };
+  await upsertRecord('transactions', id, updated);
+  return updated;
+}
+
+export async function deleteTransaction(id) {
+  await deleteRecord('transactions', id);
+  return { success: true, id };
+}
+
+// -------------------------------------------------------------
+// COACH ATTENDANCE DELETION
+// -------------------------------------------------------------
+export async function deleteCoachAttendance(id) {
+  await deleteRecord('coach_attendances', id);
+  return { success: true, id };
+}
+
+// -------------------------------------------------------------
+// RBAC MATRIX CRUD
+// -------------------------------------------------------------
+const DEFAULT_RBAC_MATRIX = {
+  customer: {
+    roleName: 'Customer (Orang Tua / Siswa)',
+    badgeColor: '#0d9488',
+    allowedMenus: ['c_overview', 'c_progress', 'c_schedule', 'c_certificates', 'c_billing', 'c_payment_checkout']
+  },
+  coach: {
+    roleName: 'Coach (Pelatih / Instruktur)',
+    badgeColor: '#e5a024',
+    allowedMenus: ['co_overview', 'co_schedule', 'co_input_progress', 'co_attendance', 'co_students']
+  },
+  manajemen: {
+    roleName: 'Manajemen (Admin CMS & CRM)',
+    badgeColor: '#dc2626',
+    allowedMenus: ['m_overview', 'm_students', 'm_schedules', 'm_attendance', 'm_products', 'm_packages', 'm_coaches', 'm_locations', 'm_payments', 'm_website', 'm_rbac']
+  }
+};
+
+export async function getRbacMatrix() {
+  await ensureAppSettingsTable();
+  const cfg = await getById('app_settings', 'rbac_matrix');
+  if (cfg) return cfg;
+  const fallback = readJsonFallback();
+  if (fallback.rbacMatrix) return fallback.rbacMatrix;
+  return DEFAULT_RBAC_MATRIX;
+}
+
+export async function updateRbacMatrix(matrix) {
+  await ensureAppSettingsTable();
+  await upsertRecord('app_settings', 'rbac_matrix', matrix);
+  return matrix;
+}
+
 export async function getBootstrapData() {
-  const [products, coaches, packages, students, transactions, users, locations, coachAttendances, paymentConfig, brand, hero] = await Promise.all([
+  const [products, coaches, packages, students, transactions, users, locations, coachAttendances, paymentConfig, brand, hero, faqs, rbacMatrix] = await Promise.all([
     getAllProducts(),
     getAllCoaches(),
     getAllPackages(),
@@ -1374,7 +1659,9 @@ export async function getBootstrapData() {
     getAllCoachAttendances(),
     getPaymentConfig(),
     getBrandConfig(),
-    getHeroConfig()
+    getHeroConfig(),
+    getAllFaqs(),
+    getRbacMatrix()
   ]);
 
   return {
@@ -1388,7 +1675,9 @@ export async function getBootstrapData() {
     coachAttendances,
     paymentConfig,
     brand,
-    hero
+    hero,
+    faqs,
+    rbacMatrix
   };
 }
 

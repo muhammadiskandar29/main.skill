@@ -368,7 +368,7 @@ export async function apiAddBankAccount(bankData) {
 }
 
 export async function apiUpdateBankAccount(id, patch) {
-  const res = await fetch(`${API_BASE}/payment-config/banks/${id}`, {
+  const res = await fetch(`${API_BASE}/payment-config/banks/${encodeURIComponent(id)}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(patch)
@@ -379,7 +379,7 @@ export async function apiUpdateBankAccount(id, patch) {
 }
 
 export async function apiDeleteBankAccount(id) {
-  const res = await fetch(`${API_BASE}/payment-config/banks/${id}`, {
+  const res = await fetch(`${API_BASE}/payment-config/banks/${encodeURIComponent(id)}`, {
     method: 'DELETE'
   });
   const json = await res.json();
@@ -421,6 +421,143 @@ export async function apiUpdateHeroConfig(heroData) {
   if (!res.ok || !json.success) throw new Error(json.message || 'Gagal update hero banner');
   return json.data;
 }
+
+// Users CRUD
+export async function apiGetUsers() {
+  const res = await fetch(`${API_BASE}/users`);
+  const json = await res.json();
+  return json.data;
+}
+
+export async function apiCreateUser(userData) {
+  const res = await fetch(`${API_BASE}/users`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(userData)
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Gagal menambah pengguna');
+  return json.data;
+}
+
+export async function apiUpdateUser(id, patch) {
+  const res = await fetch(`${API_BASE}/users/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(patch)
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Gagal memperbarui pengguna');
+  return json.data;
+}
+
+export async function apiDeleteUser(id) {
+  const res = await fetch(`${API_BASE}/users/${encodeURIComponent(id)}`, {
+    method: 'DELETE'
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Gagal menghapus pengguna');
+  return json;
+}
+
+// FAQ CRUD
+export async function apiGetFaqs() {
+  const res = await fetch(`${API_BASE}/faqs`);
+  const json = await res.json();
+  return json.data;
+}
+
+export async function apiCreateFaq(faqData) {
+  const res = await fetch(`${API_BASE}/faqs`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(faqData)
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Gagal menambah FAQ');
+  return json.data;
+}
+
+export async function apiUpdateFaq(id, patch) {
+  const res = await fetch(`${API_BASE}/faqs/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(patch)
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Gagal memperbarui FAQ');
+  return json.data;
+}
+
+export async function apiDeleteFaq(id) {
+  const res = await fetch(`${API_BASE}/faqs/${encodeURIComponent(id)}`, {
+    method: 'DELETE'
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Gagal menghapus FAQ');
+  return json;
+}
+
+// Transactions Extended CRUD
+export async function apiCreateTransaction(trxData) {
+  const res = await fetch(`${API_BASE}/transactions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(trxData)
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Gagal menambah transaksi');
+  return json.data;
+}
+
+export async function apiUpdateTransaction(id, patch) {
+  const res = await fetch(`${API_BASE}/transactions/${encodeURIComponent(id)}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(patch)
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Gagal memperbarui transaksi');
+  return json.data;
+}
+
+export async function apiDeleteTransaction(id) {
+  const res = await fetch(`${API_BASE}/transactions/${encodeURIComponent(id)}`, {
+    method: 'DELETE'
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Gagal menghapus transaksi');
+  return json;
+}
+
+// Coach Attendance Delete
+export async function apiDeleteCoachAttendance(id) {
+  const res = await fetch(`${API_BASE}/coach-attendances/${encodeURIComponent(id)}`, {
+    method: 'DELETE'
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Gagal menghapus data absensi');
+  return json;
+}
+
+// RBAC Matrix CRUD
+export async function apiGetRbacMatrix() {
+  const res = await fetch(`${API_BASE}/rbac-matrix`);
+  const json = await res.json();
+  return json.data;
+}
+
+export async function apiUpdateRbacMatrix(matrix) {
+  const res = await fetch(`${API_BASE}/rbac-matrix`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(matrix)
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Gagal memperbarui hak akses');
+  return json.data;
+}
+
 
 
 

@@ -529,11 +529,6 @@
                 </span>
                 <span class="price-venue-tag">{{ formData.location }} • {{ formData.preferredDay }} ({{ formData.preferredTime }})</span>
               </div>
-              <div class="price-banner-right">
-                <div class="badge-chip gold">Metode Pembayaran Resmi</div>
-                <span class="qris-auto-tag">QRIS & Transfer Bank</span>
-                <span class="merchant-tag-sm">{{ store.paymentConfig.merchantName }}</span>
-              </div>
             </div>
 
             <!-- Opsi Pembayaran Lainnya (Bank Accounts dari Master Payment) -->
@@ -953,7 +948,7 @@ const props = defineProps({
   }
 });
 
-const emit = defineEmits(['close']);
+const emit = defineEmits(['close', 'go-to-portal']);
 
 // 4 Interactive Steps
 const steps = [
@@ -1239,6 +1234,11 @@ async function handleStepSubmit() {
     isSubmitting.value = true;
     const res = await actions.registerLead(formData.value);
     registrationResult.value = res;
+    if (res?.user?.email) {
+      try {
+        localStorage.setItem('mineskills_last_registered_email', res.user.email);
+      } catch (e) {}
+    }
 
     if (store.paymentConfig?.bankAccounts?.length) {
       selectedBankId.value = store.paymentConfig.bankAccounts[0].id;
@@ -1260,19 +1260,21 @@ async function handleStepSubmit() {
 }
 
 function goToCustomerPortal() {
+  const registeredEmail = registrationResult.value?.user?.email || formData.value.email;
+  const registeredUser = registrationResult.value?.user || (store.users || []).find(u => u.email?.toLowerCase() === registeredEmail?.toLowerCase()) || {
+    id: `usr_${Date.now()}`,
+    name: formData.value.parentName || formData.value.studentName,
+    email: registeredEmail,
+    role: 'customer'
+  };
+
+  try {
+    localStorage.setItem('mineskills_last_registered_email', registeredEmail);
+  } catch (e) {}
+
+  actions.directLoginUser(registeredUser, 'c_finance');
+  emit('go-to-portal', registeredUser);
   emit('close');
-  if (registrationResult.value?.user) {
-    const user = registrationResult.value.user;
-    store.currentUser = user;
-    try {
-      const token = generateToken(user);
-      store.authToken = token;
-      localStorage.setItem('mineskills_auth_token_jwt', token);
-      localStorage.setItem('mineskills_auth_user', JSON.stringify(user));
-    } catch (e) {}
-  }
-  actions.switchRole('customer');
-  store.activePortalMenu = 'c_finance';
 }
 
 const copiedNotice = ref('');

@@ -145,7 +145,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { store, actions } from '../data/store.js';
 
 const emit = defineEmits(['close', 'open-register']);
@@ -155,6 +155,15 @@ const password = ref('123');
 const showPassword = ref(false);
 const isLoading = ref(false);
 const errorMessage = ref('');
+
+onMounted(() => {
+  try {
+    const lastReg = localStorage.getItem('mineskills_last_registered_email');
+    if (lastReg) {
+      email.value = lastReg;
+    }
+  } catch (e) {}
+});
 
 function fillQuick(e, p) {
   email.value = e;

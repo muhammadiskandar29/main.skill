@@ -270,6 +270,7 @@
       :initial-product-id="selectedRegisterProductId"
       :initial-package-id="selectedRegisterPackageId"
       @close="isRegisterOpen = false" 
+      @go-to-portal="handleRegistrationGoToPortal"
     />
   </div>
 </template>
@@ -351,6 +352,24 @@ function handleLoginSuccess(user) {
     }
   } catch (e) {
     window.location.hash = '';
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function handleRegistrationGoToPortal(user) {
+  isRegisterOpen.value = false;
+  currentRoute.value = 'home';
+  try {
+    if (window.location.pathname === '/login') {
+      window.history.pushState(null, '', '/');
+    } else if (window.location.hash.includes('login')) {
+      window.location.hash = '';
+    }
+  } catch (e) {
+    window.location.hash = '';
+  }
+  if (user) {
+    actions.directLoginUser(user, 'c_finance');
   }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }

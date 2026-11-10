@@ -787,9 +787,12 @@ export const actions = {
           persistLocalStore('faqs', store.faqs);
         }
         if (data.paymentConfig) {
+          const rawMerchant = data.paymentConfig.merchantName;
+          const cleanMerchant = (!rawMerchant || rawMerchant.toLowerCase().includes('ky store')) ? 'MINE.SKILLS INDONESIA' : rawMerchant;
           store.paymentConfig = {
             ...store.paymentConfig,
             ...data.paymentConfig,
+            merchantName: cleanMerchant,
             bankAccounts: Array.isArray(data.paymentConfig.bankAccounts)
               ? data.paymentConfig.bankAccounts
               : (store.paymentConfig.bankAccounts || [])
@@ -862,6 +865,24 @@ export const actions = {
     } catch (e) {
       console.warn('Failed to clear session storage:', e);
     }
+  },
+
+  // Direct User Login (misal setelah registrasi sukses atau deep-link akun)
+  directLoginUser(user, targetMenu = 'c_finance') {
+    if (!user) return;
+    const token = generateToken(user);
+    store.authToken = token;
+    store.currentUser = user;
+    store.currentRole = user.role || 'customer';
+    store.activePortalMenu = targetMenu;
+    store.isLoginModalOpen = false;
+    try {
+      localStorage.setItem(TOKEN_KEY, token);
+      localStorage.setItem(USER_KEY, JSON.stringify(user));
+      if (user.email) {
+        localStorage.setItem('mineskills_last_registered_email', user.email);
+      }
+    } catch (e) {}
   },
 
   // Role Switcher (Strict RBAC Guarded)

@@ -476,6 +476,15 @@ onMounted(() => {
   slideInterval = setInterval(() => {
     currentSlideIdx.value = (currentSlideIdx.value + 1) % slides.length;
   }, 4500);
+
+  try {
+    const lastReg = localStorage.getItem('mineskills_last_registered_email');
+    if (lastReg) {
+      activeRoleTab.value = 'customer';
+      email.value = lastReg;
+      password.value = '123';
+    }
+  } catch (e) {}
 });
 
 onUnmounted(() => {

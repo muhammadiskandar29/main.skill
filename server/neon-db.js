@@ -917,7 +917,7 @@ export async function registerCustomerFlow({
     amount: totalAmount,
     formattedAmount: `Rp ${totalAmount.toLocaleString('id-ID')}`,
     paymentMethod: 'qris',
-    paymentMethodName: 'QRIS Dinamis ASPI & Auto-Mutasi',
+    paymentMethodName: 'QRIS & Transfer Bank (Verifikasi Otomatis)',
     qrisString: dynamicQrisString,
     status: 'Menunggu Pembayaran',
     paidAt: '-',
@@ -1544,8 +1544,8 @@ const DEFAULT_FAQS = [
     id: 'faq_3',
     q: 'Bagaimana metode pembayaran yang tersedia?',
     question: 'Bagaimana metode pembayaran yang tersedia?',
-    a: 'Kami mendukung QRIS Dinamis ASPI otomatis serta transfer langsung ke rekening bank resmi yayasan. Mutasi diverifikasi otomatis secara real-time.',
-    answer: 'Kami mendukung QRIS Dinamis ASPI otomatis serta transfer langsung ke rekening bank resmi yayasan. Mutasi diverifikasi otomatis secara real-time.',
+    a: 'Kami mendukung QRIS (semua e-wallet dan mobile banking) serta transfer langsung ke rekening bank resmi manajemen. Mutasi diverifikasi otomatis secara real-time.',
+    answer: 'Kami mendukung QRIS (semua e-wallet dan mobile banking) serta transfer langsung ke rekening bank resmi manajemen. Mutasi diverifikasi otomatis secara real-time.',
     category: 'Pembayaran'
   }
 ];

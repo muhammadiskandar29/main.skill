@@ -514,8 +514,8 @@ const initialFaqs = [
     id: 'faq_4',
     q: 'Metode pembayaran apa saja yang didukung?',
     question: 'Metode pembayaran apa saja yang didukung?',
-    a: 'Kami mendukung pembayaran QRIS Dinamis (ASPI/EMVCo) yang dapat di-scan dari BCA Mobile, Livin Mandiri, GoPay, OVO, ShopeePay, serta transfer langsung ke rekening bank resmi yayasan.',
-    answer: 'Kami mendukung pembayaran QRIS Dinamis (ASPI/EMVCo) yang dapat di-scan dari BCA Mobile, Livin Mandiri, GoPay, OVO, ShopeePay, serta transfer langsung ke rekening bank resmi yayasan.',
+    a: 'Kami mendukung pembayaran QRIS (semua mobile banking & e-wallet) serta transfer langsung ke rekening bank resmi manajemen. Mutasi diverifikasi otomatis secara real-time.',
+    answer: 'Kami mendukung pembayaran QRIS (semua mobile banking & e-wallet) serta transfer langsung ke rekening bank resmi manajemen. Mutasi diverifikasi otomatis secara real-time.',
     category: 'Biaya & Paket'
   },
   {
@@ -1279,8 +1279,9 @@ export const actions = {
       console.warn('[Store] apiRegisterCustomer network/fallback warning:', err.message);
     }
 
-    if (serverRes && serverRes.success && serverRes.data) {
-      const { student, user, transaction, schedules, qrisString, amount, baseAmount, uniqueCode } = serverRes.data;
+    const regPayload = (serverRes && (serverRes.data || (serverRes.student && serverRes))) ? (serverRes.data || serverRes) : null;
+    if (regPayload && regPayload.student) {
+      const { student, user, transaction, schedules, qrisString, amount, baseAmount, uniqueCode } = regPayload;
       if (student) {
         store.students = [student, ...(store.students || []).filter(s => s.id !== student.id)];
         persistLocalStore('students', store.students);
@@ -1483,7 +1484,7 @@ export const actions = {
       amount: totalAmount,
       formattedAmount: `Rp ${totalAmount.toLocaleString('id-ID')}`,
       paymentMethod: 'qris',
-      paymentMethodName: 'QRIS Dinamis ASPI & Auto-Mutasi',
+      paymentMethodName: 'QRIS & Transfer Bank (Verifikasi Otomatis)',
       status: 'Menunggu Pembayaran',
       paidAt: '-',
       created_at: now.toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
@@ -1772,7 +1773,7 @@ export const actions = {
       amount: totalAmount,
       formattedAmount: `Rp ${totalAmount.toLocaleString('id-ID')}`,
       paymentMethod: 'qris',
-      paymentMethodName: 'QRIS Dinamis ASPI & Auto-Mutasi',
+      paymentMethodName: 'QRIS & Transfer Bank (Verifikasi Otomatis)',
       qrisString: qrisStr,
       status: 'Menunggu Pembayaran',
       paidAt: '-',
@@ -2199,7 +2200,7 @@ export const actions = {
     if (template === 'welcome') {
       message = `Yth. Bapak/Ibu ${lead.parentName},\n\nTerima kasih telah mendaftar di *${store.brand.name}* untuk ananda *${lead.studentName}* (${lead.studentAge} tahun).\n\n[RINCIAN PENDAFTARAN]\n• Program: ${lead.program || lead.productName}\n• Paket: ${lead.packageType || lead.packageName}\n• Lokasi: ${lead.location}\n\nJadwal 4 sesi resmi telah tersimpan di sistem. Silakan masuk ke portal siswa menggunakan email terdaftar dan kata sandi default: *123*.\n\nInformasi lebih lanjut dapat menghubungi tim administrasi kami.`;
     } else if (template === 'invoice') {
-      message = `Yth. Bapak/Ibu ${lead.parentName},\n\nBerikut rincian tagihan pendaftaran *${store.brand.name}* ananda *${lead.studentName}*:\n\n• Paket: ${lead.packageType || lead.packageName}\n• Metode Bayar: QRIS Dinamis ASPI / Transfer Bank\n\nKata sandi default login portal: *123*. Terima kasih.`;
+      message = `Yth. Bapak/Ibu ${lead.parentName},\n\nBerikut rincian tagihan pendaftaran *${store.brand.name}* ananda *${lead.studentName}*:\n\n• Paket: ${lead.packageType || lead.packageName}\n• Metode Bayar: QRIS / Transfer Bank Resmi\n\nKata sandi default login portal: *123*. Terima kasih.`;
     } else if (template === 'renewal') {
       message = `Yth. Bapak/Ibu ${lead.parentName},\n\nSiswa ananda *${lead.studentName}* telah menyelesaikan seluruh sesi bimbingan pada paket sebelumnya dengan pencapaian yang baik.\n\n[DETAIL PERPANJANGAN PAKET]\n• Program: ${lead.productName || lead.program || 'Skill Renang'}\n• Paket: ${lead.packageName || lead.packageType || 'Small Group'}\n• Total Sesi: 4 Sesi Pertemuan Lanjutan\n• Pelatih Pendamping: ${lead.assignedCoachName || 'Coach Adit'}\n\nJadwal sesi lanjutan telah diperbarui di sistem. Silakan masuk ke portal siswa untuk melihat rincian jadwal dan QRIS resmi.\n\nTerima kasih atas kepercayaan Bapak/Ibu bersama *${store.brand.name}*.`;
     }

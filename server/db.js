@@ -691,7 +691,7 @@ export function registerCustomerFlow({
     amount: packagePrice,
     formattedAmount: `Rp ${packagePrice.toLocaleString('id-ID')}`,
     paymentMethod: 'qris',
-    paymentMethodName: 'QRIS Dinamis ASPI',
+    paymentMethodName: 'QRIS & Transfer Bank (Verifikasi Otomatis)',
     qrisString: dynamicQrisString,
     status: 'Menunggu Pembayaran',
     paidAt: '-',

@@ -627,7 +627,7 @@
             </div>
             <div class="b-row">
               <span>Metode Pembayaran:</span>
-              <span>{{ trx.paymentMethodName || 'QRIS Dinamis ASPI' }}</span>
+              <span>{{ trx.paymentMethodName || 'QRIS & Transfer Bank' }}</span>
             </div>
           </div>
 
@@ -662,7 +662,7 @@
             Alternatif Pembayaran: Transfer Rekening Bank Resmi
           </h4>
           <p style="font-size: 13px; color: var(--text-muted);">
-            Bila tidak menggunakan QRIS, Ayah/Bunda dapat mentransfer biaya paket kursus ke salah satu rekening resmi yayasan berikut:
+            Bila tidak menggunakan QRIS, Ayah/Bunda dapat mentransfer biaya paket kursus ke salah satu rekening resmi manajemen berikut:
           </p>
         </div>
 
@@ -721,8 +721,8 @@
                 :class="selectedPayMethod === 'qris' ? 'btn-primary' : 'btn-secondary'"
                 style="padding: 12px 10px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 4px; border-radius: 10px;"
               >
-                <span style="font-size: 15px;">📱 QRIS Dinamis</span>
-                <span style="font-size: 10.5px; opacity: 0.85; font-weight: 500;">BCA, GoPay, Mandiri, ShopeePay</span>
+                <span style="font-size: 15px;">📱 QRIS Resmi</span>
+                <span style="font-size: 10.5px; opacity: 0.85; font-weight: 500;">BCA, GoPay, Mandiri, OVO & Semua Bank</span>
               </button>
               <button 
                 type="button" 
@@ -736,7 +736,7 @@
             </div>
 
             <!-- ==============================================
-                 OPSI A: QRIS DINAMIS DENGAN KARTU ORNAMEN RESMI
+                 OPSI A: QRIS DENGAN KARTU ORNAMEN RESMI
                  ============================================== -->
             <div v-if="selectedPayMethod === 'qris'" class="qris-payment-panel">
               <!-- Dropdown Opsi QRIS -->
@@ -843,7 +843,7 @@
               >
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
                   <strong style="font-size: 15px; color: #166534;">{{ selectedBankDetail.bankName }}</strong>
-                  <span class="badge-chip teal">{{ selectedBankDetail.badge || 'Resmi Yayasan' }}</span>
+                  <span class="badge-chip teal">{{ selectedBankDetail.badge || 'Rekening Resmi' }}</span>
                 </div>
 
                 <div style="background: #ffffff; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
@@ -1226,6 +1226,10 @@ const studentData = computed(() => {
     const foundEmail = (store.students || []).find(s => s.email && s.email.toLowerCase() === store.currentUser.email.toLowerCase());
     if (foundEmail) return foundEmail;
   }
+  if (store.currentUser?.name) {
+    const foundName = (store.students || []).find(s => s.parentName?.toLowerCase() === store.currentUser.name.toLowerCase() || s.name?.toLowerCase() === store.currentUser.name.toLowerCase());
+    if (foundName) return foundName;
+  }
   return (store.students || [])[0] || {
     name: 'Kenzo Al-Fatih',
     age: 7,
@@ -1252,8 +1256,9 @@ const studentTransactions = computed(() => {
   const all = store.transactions || [];
   const filtered = all.filter(t => (sId && t.studentId === sId) || (sName && t.studentName?.toLowerCase() === sName.toLowerCase()));
   if (filtered.length > 0) return filtered;
-  // If no transactions found for current student, show empty or only the single active pending/latest transaction
-  return all.length > 0 ? [all[0]] : [];
+  const byUser = all.filter(t => (store.currentUser?.phone && t.phone === store.currentUser.phone) || (store.currentUser?.email && t.email === store.currentUser.email));
+  if (byUser.length > 0) return byUser;
+  return [];
 });
 
 const activeProduct = computed(() => {

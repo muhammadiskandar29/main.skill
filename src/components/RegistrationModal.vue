@@ -9,7 +9,7 @@
             <div class="badge-chip gold">Registrasi Siswa Resmi</div>
           </div>
           <h3 class="modal-title">Formulir Pendaftaran Siswa {{ store.brand.name }}</h3>
-          <p class="modal-desc">Asesmen kemampuan awal, reservasi slot kelas, dan tagihan QRIS Dinamis ASPI.</p>
+          <p class="modal-desc">Asesmen kemampuan awal, reservasi slot kelas, dan penerbitan faktur pembayaran resmi.</p>
         </div>
         <button class="btn-close" @click="$emit('close')" aria-label="Tutup Formulir">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -523,12 +523,12 @@
           </div>
 
           <!-- =====================================================================
-               STEP 4: PERSETUJUAN & TAGIHAN QRIS DINAMIS (SEKSI G, H & PAYMENT)
+               STEP 4: KONFIRMASI & METODE PEMBAYARAN
                ===================================================================== -->
           <div v-else-if="currentStep === 4" class="wizard-step-pane">
             <div class="step-intro-banner">
-              <h4 class="step-pane-title">D. Konfirmasi Persetujuan & Penerbitan QRIS</h4>
-              <p class="step-pane-desc">Periksa ringkasan pendaftaran Anda, setujui dokumentasi, dan selesaikan dengan QRIS Dinamis ASPI.</p>
+              <h4 class="step-pane-title">D. Konfirmasi Pendaftaran & Metode Pembayaran</h4>
+              <p class="step-pane-desc">Periksa ringkasan pendaftaran Anda, setujui ketentuan, dan selesaikan administrasi pembayaran resmi.</p>
             </div>
 
             <!-- Ringkasan Paket Dinamis Terpilih -->
@@ -542,15 +542,15 @@
                 <span class="price-venue-tag">{{ formData.location }} • {{ formData.preferredDay }} ({{ formData.preferredTime }})</span>
               </div>
               <div class="price-banner-right">
-                <div class="badge-chip gold">QRIS Dinamis ASPI</div>
-                <span class="qris-auto-tag">EMVCo Checksum CRC16</span>
+                <div class="badge-chip gold">Metode Pembayaran Resmi</div>
+                <span class="qris-auto-tag">QRIS & Transfer Bank</span>
                 <span class="merchant-tag-sm">{{ store.paymentConfig.merchantName }}</span>
               </div>
             </div>
 
             <!-- Opsi Pembayaran Lainnya (Bank Accounts dari Master Payment) -->
             <div v-if="store.paymentConfig.bankAccounts && store.paymentConfig.bankAccounts.length > 0" class="bank-accounts-info-box">
-              <span class="bank-acc-title">Atau Bayar Melalui Transfer Rekening Resmi Yayasan:</span>
+              <span class="bank-acc-title">Pilihan Transfer Rekening Bank Resmi Manajemen:</span>
               <div class="bank-chips-row">
                 <div v-for="b in store.paymentConfig.bankAccounts" :key="b.id" class="bank-chip-item">
                   <strong>{{ b.bankName }}</strong>: <span class="font-mono">{{ b.accountNumber }}</span> (a.n {{ b.accountHolder }})
@@ -652,8 +652,8 @@
               :disabled="isSubmitting || !formData.parentDeclaration" 
               class="btn-gold btn-submit-wizard"
             >
-              <span v-if="isSubmitting">Menerbitkan Invoice & QRIS...</span>
-              <span v-else>Daftar {{ currentSelectedProduct?.name }} & Dapatkan QRIS ({{ currentSelectedPackage?.formattedPrice }})</span>
+              <span v-if="isSubmitting">Menerbitkan Tagihan & Faktur...</span>
+              <span v-else>Konfirmasi Pendaftaran & Bayar ({{ currentSelectedPackage?.formattedPrice }})</span>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                 <polyline points="9 18 15 12 9 6"></polyline>
               </svg>
@@ -662,8 +662,8 @@
         </form>
       </div>
 
-      <!-- State 2: Dynamic QRIS Generated & Account Confirmation -->
-      <div v-else class="modal-body success-view">
+      <!-- State 2: Dynamic QRIS & Payment Options Modal (Konsisten dengan Portal Customer) -->
+      <div v-else class="modal-body success-view" style="max-height: 72vh; overflow-y: auto; padding-right: 6px;">
         <div class="success-icon">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2.5">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
@@ -677,7 +677,7 @@
         </p>
 
         <!-- Auto User Account Created Info Banner -->
-        <div class="account-created-box">
+        <div class="account-created-box" style="margin-bottom: 16px;">
           <div class="acc-badge">Akun Portal Customer Otomatis Dibuat</div>
           <div class="acc-details">
             <div class="acc-item">
@@ -693,8 +693,8 @@
         </div>
 
         <!-- Itemized Breakdown & 3-Digit Unique Code Box -->
-        <div class="card-humanist" style="background: #f8fafc; border: 1.5px solid #0284c7; padding: 18px; border-radius: 12px; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08);">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 10px;">
+        <div class="card-humanist" style="background: #f8fafc; border: 1.5px solid #0284c7; padding: 16px; border-radius: 12px; margin-bottom: 18px; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 8px;">
             <div style="display: flex; align-items: center; gap: 8px;">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2.5">
                 <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
@@ -706,94 +706,224 @@
             <span class="badge-chip gold" style="font-size: 11px;">Otomasi Real-Time</span>
           </div>
 
-          <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13.5px; color: #334155;">
+          <div style="display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: #334155;">
             <div style="display: flex; justify-content: space-between;">
               <span style="color: #64748b;">Biaya Paket Pelatihan:</span>
-              <strong class="font-mono">Rp {{ (registrationResult.transaction.baseAmount || registrationResult.amount).toLocaleString('id-ID') }}</strong>
+              <strong class="font-mono">Rp {{ ((registrationResult.transaction.baseAmount || registrationResult.amount) || 0).toLocaleString('id-ID') }}</strong>
             </div>
             <div style="display: flex; justify-content: space-between; color: #b45309; background: #fef3c7; padding: 6px 10px; border-radius: 8px; border: 1px solid #fde68a;">
               <div style="display: flex; flex-direction: column;">
                 <span style="font-weight: 700;">Kode Unik Transaksi (3 Digit):</span>
-                <span style="font-size: 11px; color: #92400e;">Identifikator unik verifikasi perbankan & QRIS otomatis</span>
+                <span style="font-size: 11px; color: #92400e;">Identifikator unik verifikasi perbankan otomatis</span>
               </div>
-              <strong class="font-mono" style="font-size: 15px; font-weight: 800;">+ Rp {{ (registrationResult.transaction.uniqueCode || 0).toLocaleString('id-ID') }}</strong>
+              <strong class="font-mono" style="font-size: 14.5px; font-weight: 800;">+ Rp {{ (registrationResult.transaction.uniqueCode || 0).toLocaleString('id-ID') }}</strong>
             </div>
             <div style="border-top: 1px solid #e2e8f0; margin-top: 4px; padding-top: 8px; display: flex; justify-content: space-between; align-items: center;">
               <div>
-                <span style="font-weight: 800; color: #0f172a; font-size: 14.5px;">Total Wajib Ditransfer:</span>
-                <div style="font-size: 11.5px; color: #dc2626; font-weight: 600;">*Nominal wajib tepat hingga 3 digit terakhir</div>
+                <span style="font-weight: 800; color: #0f172a; font-size: 14px;">Total Wajib Ditransfer:</span>
+                <div style="font-size: 11px; color: #dc2626; font-weight: 600;">*Nominal wajib tepat hingga 3 digit terakhir</div>
               </div>
               <div style="text-align: right;">
-                <div style="font-size: 22px; font-weight: 900; color: #0284c7;" class="font-mono">
-                  Rp {{ (registrationResult.transaction.amount || registrationResult.amount).toLocaleString('id-ID') }}
+                <div style="font-size: 21px; font-weight: 900; color: #0284c7;" class="font-mono">
+                  Rp {{ ((registrationResult.transaction.amount || registrationResult.amount) || 0).toLocaleString('id-ID') }}
                 </div>
               </div>
             </div>
           </div>
 
-          <div style="margin-top: 12px; display: flex; gap: 8px;">
+          <div style="margin-top: 10px; display: flex; gap: 8px;">
             <button 
               type="button" 
               @click="copyText(registrationResult.transaction.amount || registrationResult.amount, 'Nominal Total')"
               class="btn-primary" 
-              style="flex: 1; padding: 10px 14px; font-size: 12.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; background: #0284c7;"
+              style="flex: 1; padding: 9px 12px; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; background: #0284c7;"
             >
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>
-              <span>Salin Nominal Tepat (Rp {{ (registrationResult.transaction.amount || registrationResult.amount).toLocaleString('id-ID') }})</span>
+              <span>Salin Nominal Tepat (Rp {{ ((registrationResult.transaction.amount || registrationResult.amount) || 0).toLocaleString('id-ID') }})</span>
             </button>
           </div>
-          <div v-if="copiedNotice" style="margin-top: 8px; font-size: 12px; color: #16a34a; font-weight: 700; text-align: center;">
+          <div v-if="copiedNotice" style="margin-top: 6px; font-size: 11.5px; color: #16a34a; font-weight: 700; text-align: center;">
             ✓ {{ copiedNotice }}
           </div>
         </div>
 
-        <!-- Dynamic QRIS Display Box -->
-        <div class="qris-display-card card-humanist">
-          <div class="qris-card-header">
-            <div>
-              <span class="badge-chip gold">QRIS Dinamis ASPI Resmi (Terkunci Otomatis)</span>
-              <h4 class="qris-merchant-title">{{ store.paymentConfig.merchantName }}</h4>
-            </div>
-            <span class="invoice-tag">No: {{ registrationResult.transaction.id }}</span>
-          </div>
-
-          <div class="qris-code-container">
-            <img v-if="qrCodeDataUrl" :src="qrCodeDataUrl" alt="QRIS Dinamis" class="generated-qr-image" />
-            <div v-else class="qr-loading">Menyiapkan QRIS Dinamis ASPI...</div>
-          </div>
-
-          <div class="qris-amount-row">
-            <span class="amount-lbl">Nominal QRIS Terkunci:</span>
-            <strong class="amount-val">{{ registrationResult.transaction.formattedAmount }}</strong>
-          </div>
-          <p class="qris-instruction">
-            Buka aplikasi Mobile Banking (BCA, Mandiri, BRI, BNI) atau e-Wallet (GoPay, OVO, Dana, ShopeePay), lalu scan barcode di atas. Layar HP Anda akan <strong>langsung terkunci di angka {{ registrationResult.transaction.formattedAmount }}</strong>.
-          </p>
+        <!-- Tab Pilihan Metode Pembayaran (Sesuai Portal Customer) -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px;">
+          <button 
+            type="button" 
+            @click="selectedPayMethod = 'qris'" 
+            :class="selectedPayMethod === 'qris' ? 'btn-primary' : 'btn-secondary'"
+            style="padding: 12px 10px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 4px; border-radius: 10px;"
+          >
+            <span style="font-size: 14.5px;">📱 QRIS Resmi</span>
+            <span style="font-size: 10.5px; opacity: 0.85; font-weight: 500;">BCA, GoPay, Mandiri, OVO & Semua Bank</span>
+          </button>
+          <button 
+            type="button" 
+            @click="selectedPayMethod = 'transfer'" 
+            :class="selectedPayMethod === 'transfer' ? 'btn-primary' : 'btn-secondary'"
+            style="padding: 12px 10px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 4px; border-radius: 10px;"
+          >
+            <span style="font-size: 14.5px;">🏦 Transfer Bank</span>
+            <span style="font-size: 10.5px; opacity: 0.85; font-weight: 500;">BCA, Mandiri, BRI, BNI</span>
+          </button>
         </div>
 
-        <!-- Opsi Transfer Rekening Bank Resmi -->
-        <div v-if="store.paymentConfig.bankAccounts && store.paymentConfig.bankAccounts.length > 0" class="bank-accounts-info-box" style="margin-top: 18px; padding: 16px; background: #ffffff; border: 1px solid var(--border-subtle); border-radius: 12px;">
-          <div style="font-weight: 700; font-size: 13.5px; color: #0f172a; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
-            <span>Atau Transfer Melalui Rekening Bank Yayasan:</span>
-            <span style="font-size: 11px; color: #64748b;">(Transfer nominal tepat)</span>
+        <!-- ==============================================
+             OPSI A: QRIS RESMI DENGAN KARTU ORNAMEN
+             ============================================== -->
+        <div v-if="selectedPayMethod === 'qris'" class="qris-payment-panel">
+          <!-- Dropdown Opsi Format QRIS -->
+          <div class="form-group" style="margin-bottom: 12px;">
+            <label class="form-label" style="font-weight: 700; font-size: 12px;">Pilihan Tampilan / Format QRIS:</label>
+            <select v-model="qrisDisplayFormat" class="form-select" style="font-size: 12.5px;">
+              <option value="card">Kartu Standar mine.skills (Siap Download PNG)</option>
+              <option value="qr_only">QR Code Saja (Langsung Scan di Layar)</option>
+            </select>
           </div>
-          <div class="bank-chips-row" style="display: flex; flex-direction: column; gap: 8px;">
-            <div v-for="b in store.paymentConfig.bankAccounts" :key="b.id" class="bank-chip-item" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+
+          <!-- Kartu Ornamen QRIS Resmi (Siap didownload jadi PNG) -->
+          <div 
+            v-if="qrisDisplayFormat === 'card'"
+            ref="regQrisCardRef"
+            id="regQrisCardPoster"
+            style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); color: #ffffff; border-radius: 16px; padding: 20px; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.25); position: relative; overflow: hidden; margin-bottom: 14px; text-align: center; border: 1px solid rgba(255,255,255,0.1);"
+          >
+            <!-- Ornamen Lingkaran Aksen Brand -->
+            <div style="position: absolute; top: -30px; right: -30px; width: 110px; height: 110px; border-radius: 50%; background: radial-gradient(circle, rgba(2,132,199,0.35) 0%, rgba(2,132,199,0) 70%); pointer-events: none;"></div>
+            <div style="position: absolute; bottom: -30px; left: -30px; width: 110px; height: 110px; border-radius: 50%; background: radial-gradient(circle, rgba(245,158,11,0.25) 0%, rgba(245,158,11,0) 70%); pointer-events: none;"></div>
+
+            <!-- Header Kartu: Logo & ASPI Badge -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 10px;">
+              <div style="text-align: left;">
+                <div style="font-size: 15px; font-weight: 900; letter-spacing: 0.05em; color: #38bdf8;">MINE.SKILLS</div>
+                <span style="font-size: 10px; color: #94a3b8; text-transform: uppercase;">Official Payment Partner</span>
+              </div>
+              <div style="background: #dc2626; color: #ffffff; font-weight: 900; font-size: 14px; padding: 3px 10px; border-radius: 6px; letter-spacing: 0.08em;">
+                QRIS
+              </div>
+            </div>
+
+            <!-- QR Image Holder -->
+            <div style="background: #ffffff; padding: 12px; border-radius: 12px; display: inline-block; margin-bottom: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);">
+              <img v-if="qrCodeDataUrl" :src="qrCodeDataUrl" alt="QRIS Resmi" style="width: 200px; height: 200px; display: block; border-radius: 4px;" />
+              <div v-else style="width: 200px; height: 200px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 12px;">Menyiapkan QRIS...</div>
+            </div>
+
+            <!-- Nominal Terkunci -->
+            <div style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 8px 12px; margin-bottom: 8px;">
+              <span style="font-size: 11px; color: #94a3b8; display: block;">Nominal Terkunci Otomatis:</span>
+              <div style="font-size: 21px; font-weight: 900; color: #38bdf8;" class="font-mono">
+                Rp {{ (((registrationResult.transaction.amount || registrationResult.amount)) || 0).toLocaleString('id-ID') }}
+              </div>
+            </div>
+
+            <!-- Footer Ornamen: Nama Merchant & Info Tagihan -->
+            <div style="font-size: 10.5px; color: #94a3b8; line-height: 1.4;">
+              NMID: {{ store.paymentConfig?.nmid || 'ID1020038847291' }} • {{ store.paymentConfig?.merchantName || 'MINE.SKILLS INDONESIA' }}
+              <div style="color: #64748b; font-size: 9.5px; margin-top: 2px;">No. Invoice: {{ registrationResult.transaction.id }}</div>
+            </div>
+          </div>
+
+          <!-- Tampilan QR Code Saja -->
+          <div v-else style="text-align: center; padding: 18px; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; margin-bottom: 14px;">
+            <div style="margin-bottom: 10px;">
+              <span class="badge-chip gold">Scan QRIS Resmi</span>
+              <div style="font-size: 18px; font-weight: 900; color: #0284c7; margin-top: 6px;" class="font-mono">
+                Rp {{ (((registrationResult.transaction.amount || registrationResult.amount)) || 0).toLocaleString('id-ID') }}
+              </div>
+            </div>
+            <div style="display: inline-block; padding: 8px; border: 1px solid #cbd5e1; border-radius: 10px; background: #fff;">
+              <img v-if="qrCodeDataUrl" :src="qrCodeDataUrl" alt="QRIS Resmi" style="width: 220px; height: 220px; display: block;" />
+              <div v-else style="width: 220px; height: 220px; display: flex; align-items: center; justify-content: center; color: #64748b;">Menyiapkan QRIS...</div>
+            </div>
+            <p style="font-size: 11.5px; color: #64748b; margin-top: 8px; margin-bottom: 0;">
+              Scan langsung dari aplikasi m-Banking atau e-Wallet di HP Anda.
+            </p>
+          </div>
+
+          <!-- Tombol Aksi QRIS -->
+          <div style="display: flex; gap: 8px;">
+            <button 
+              type="button" 
+              @click="downloadQrisImage" 
+              class="btn-primary" 
+              style="flex: 1; padding: 9px; font-size: 12.5px; display: inline-flex; align-items: center; justify-content: center; gap: 6px;"
+              :disabled="isDownloadingQris"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>{{ isDownloadingQris ? 'Menyimpan...' : 'Download Gambar QRIS (PNG)' }}</span>
+            </button>
+            <button 
+              type="button" 
+              @click="copyText(registrationResult.transaction.amount || registrationResult.amount, 'Nominal QRIS')" 
+              class="btn-secondary" 
+              style="padding: 9px 12px; font-size: 12px;"
+              title="Salin Angka Tagihan"
+            >
+              Salin Nominal
+            </button>
+          </div>
+        </div>
+
+        <!-- ==============================================
+             OPSI B: TRANSFER BANK DENGAN DROPDOWN PILIHAN
+             ============================================== -->
+        <div v-else class="transfer-payment-panel">
+          <!-- Dropdown Pilih Bank -->
+          <div class="form-group" style="margin-bottom: 14px;">
+            <label class="form-label" style="font-weight: 700; font-size: 12.5px;">Pilih Rekening Bank Tujuan:</label>
+            <select v-model="selectedBankId" class="form-select" style="font-size: 13px;">
+              <option 
+                v-for="b in (store.paymentConfig?.bankAccounts || [])" 
+                :key="b.id" 
+                :value="b.id"
+              >
+                {{ b.bankName }} — {{ b.accountNumber }} (a.n {{ b.accountHolder }})
+              </option>
+            </select>
+          </div>
+
+          <!-- Kartu Detail Rekening yang Dipilih -->
+          <div 
+            v-if="selectedBankDetail" 
+            style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 12px; padding: 16px; margin-bottom: 14px;"
+          >
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <strong style="font-size: 15px; color: #166534;">{{ selectedBankDetail.bankName }}</strong>
+              <span class="badge-chip teal">{{ selectedBankDetail.badge || 'Rekening Resmi' }}</span>
+            </div>
+
+            <div style="background: #ffffff; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px 14px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
               <div>
-                <strong style="color: #0f172a;">{{ b.bankName }}</strong>: <span class="font-mono" style="font-size: 14px; font-weight: 700; color: #0284c7;">{{ b.accountNumber }}</span>
-                <div style="font-size: 11px; color: #64748b;">a.n {{ b.accountHolder }}</div>
+                <span style="font-size: 11px; color: #64748b; display: block;">Nomor Rekening:</span>
+                <span class="font-mono" style="font-size: 18px; font-weight: 900; color: #0284c7; letter-spacing: 0.05em;">
+                  {{ selectedBankDetail.accountNumber }}
+                </span>
               </div>
               <button 
                 type="button" 
-                @click="copyText(b.accountNumber, `No. Rekening ${b.bankName}`)"
+                @click="copyText(selectedBankDetail.accountNumber, `No. Rekening ${selectedBankDetail.bankName}`)" 
                 class="btn-secondary" 
-                style="padding: 5px 10px; font-size: 11.5px;"
+                style="padding: 5px 12px; font-size: 11.5px; font-weight: 700;"
               >
                 Salin Rekening
               </button>
+            </div>
+
+            <div style="font-size: 12px; color: #166534; margin-bottom: 6px;">
+              Atas Nama: <strong>{{ selectedBankDetail.accountHolder }}</strong>
+            </div>
+
+            <div style="background: #ecfdf5; border-radius: 6px; padding: 8px 10px; font-size: 11.5px; color: #065f46; line-height: 1.45;">
+              <strong>Penting:</strong> Pastikan mentransfer tepat sejumlah <strong>Rp {{ (((registrationResult.transaction.amount || registrationResult.amount)) || 0).toLocaleString('id-ID') }}</strong> (termasuk 3 digit kode unik) agar pembayaran otomatis terverifikasi LUNAS oleh sistem.
             </div>
           </div>
         </div>
@@ -821,6 +951,8 @@
 import { ref, computed, onMounted } from 'vue';
 import { store, actions } from '../data/store.js';
 import QRCode from 'qrcode';
+import html2canvas from 'html2canvas';
+import { generateToken } from '../utils/jwt.js';
 
 const props = defineProps({
   initialProductId: {
@@ -840,7 +972,7 @@ const steps = [
   { number: 1, title: 'Identitas Anak & Wali' },
   { number: 2, title: 'Kemampuan & Kesehatan' },
   { number: 3, title: 'Pilihan Kelas & Jadwal' },
-  { number: 4, title: 'Persetujuan & QRIS' }
+  { number: 4, title: 'Konfirmasi & Pembayaran' }
 ];
 
 const currentStep = ref(1);
@@ -1063,10 +1195,46 @@ function goToStep(stepNum) {
   }
 }
 
-// Submission & Dynamic QRIS Generation
+// Submission & Payment Generation
 const isSubmitting = ref(false);
 const registrationResult = ref(null);
 const qrCodeDataUrl = ref('');
+
+// Payment Modal State (Sesuai Portal Customer)
+const selectedPayMethod = ref('qris');
+const qrisDisplayFormat = ref('card');
+const regQrisCardRef = ref(null);
+const isDownloadingQris = ref(false);
+const selectedBankId = ref('');
+
+const selectedBankDetail = computed(() => {
+  const accounts = store.paymentConfig?.bankAccounts || [];
+  if (!accounts.length) return null;
+  if (!selectedBankId.value) return accounts[0];
+  return accounts.find(b => b.id === selectedBankId.value) || accounts[0];
+});
+
+async function downloadQrisImage() {
+  const cardElem = regQrisCardRef.value || document.getElementById('regQrisCardPoster');
+  if (!cardElem) return;
+  isDownloadingQris.value = true;
+  try {
+    const canvas = await html2canvas(cardElem, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: null
+    });
+    const link = document.createElement('a');
+    link.download = `QRIS-MINESKILLS-${registrationResult.value?.transaction?.id || 'TAGIHAN'}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  } catch (err) {
+    console.error('Download QRIS error:', err);
+    alert('Gagal mendownload gambar QRIS. Silakan screenshot barcode ini.');
+  } finally {
+    isDownloadingQris.value = false;
+  }
+}
 
 async function handleStepSubmit() {
   if (currentStep.value < 4) {
@@ -1084,7 +1252,11 @@ async function handleStepSubmit() {
     const res = await actions.registerLead(formData.value);
     registrationResult.value = res;
 
-    // Render dynamic QRIS code
+    if (store.paymentConfig?.bankAccounts?.length) {
+      selectedBankId.value = store.paymentConfig.bankAccounts[0].id;
+    }
+
+    // Render QRIS code
     if (res.qrisString) {
       qrCodeDataUrl.value = await QRCode.toDataURL(res.qrisString, {
         width: 260,
@@ -1102,10 +1274,17 @@ async function handleStepSubmit() {
 function goToCustomerPortal() {
   emit('close');
   if (registrationResult.value?.user) {
-    store.currentUser = registrationResult.value.user;
+    const user = registrationResult.value.user;
+    store.currentUser = user;
+    try {
+      const token = generateToken(user);
+      store.authToken = token;
+      localStorage.setItem('mineskills_auth_token_jwt', token);
+      localStorage.setItem('mineskills_auth_user', JSON.stringify(user));
+    } catch (e) {}
   }
   actions.switchRole('customer');
-  store.activePortalMenu = 'c_schedule';
+  store.activePortalMenu = 'c_finance';
 }
 
 const copiedNotice = ref('');

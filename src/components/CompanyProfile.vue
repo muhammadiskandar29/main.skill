@@ -474,7 +474,7 @@
               <li>✓ Raport perkembangan digital setiap akhir sesi</li>
               <li>✓ Sertifikat dan reward setiap pencapaian level</li>
               <li>✓ Fleksibilitas jadwal sesi latihan</li>
-              <li>✓ Pembayaran mudah melalui QRIS Dinamis & Transfer Bank</li>
+              <li>✓ Pembayaran mudah melalui QRIS & Transfer Bank Resmi</li>
             </ul>
 
             <div class="tier-footer">
@@ -919,7 +919,7 @@ const faqItems = computed(() => {
     },
     {
       q: 'Metode pembayaran apa saja yang didukung?',
-      a: 'Kami mendukung pembayaran QRIS Dinamis (ASPI/EMVCo) yang dapat di-scan dari BCA Mobile, Livin Mandiri, GoPay, OVO, ShopeePay, serta transfer langsung ke rekening bank resmi yayasan.'
+      a: 'Kami mendukung pembayaran QRIS (semua e-wallet dan mobile banking) serta transfer langsung ke rekening bank resmi manajemen. Mutasi diverifikasi otomatis secara real-time.'
     },
     {
       q: 'Kapan orang tua bisa melihat raport perkembangan anak?',

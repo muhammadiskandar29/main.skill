@@ -370,40 +370,28 @@
                ===================================================================== -->
           <div v-else-if="currentStep === 3" class="wizard-step-pane">
             <div class="step-intro-banner">
-              <h4 class="step-pane-title">C. Pilihan Program, Paket Kelas, Jadwal & Fasilitas</h4>
-              <p class="step-pane-desc">Semua paket terdiri dari 4 sesi berjenjang. Pilihan paket dan fasilitas kolam/studio tersinkronisasi otomatis dengan program pilihan Anda.</p>
+              <h4 class="step-pane-title">C. Pilihan Paket Kelas, Jadwal & Fasilitas</h4>
+              <p class="step-pane-desc">Semua paket terdiri dari 4 sesi berjenjang. Pilihan skema paket dan fasilitas lokasi telah disesuaikan dengan program pilihan ananda.</p>
             </div>
 
-            <!-- Bagian 1: Konfirmasi / Ganti Program Pelatihan (Dinamis dari Master Produk) -->
-            <div class="card-section">
-              <div class="card-section-header-row">
-                <span class="card-section-badge">1. Program Pembinaan yang Dipilih (Dinamis Master Produk)</span>
-                <span class="badge-chip gold mini">{{ store.products.length }} Program Tersedia</span>
-              </div>
-              <p class="section-sub-hint">Pilih cabang keahlian di bawah untuk menyesuaikan paket kelas & lokasi fasilitas:</p>
-
-              <div class="products-choice-grid">
-                <div 
-                  v-for="prod in store.products" 
-                  :key="prod.id"
-                  class="prod-choice-card"
-                  :class="{ selected: formData.productId === prod.id }"
-                  @click="selectProduct(prod.id)"
-                >
-                  <div class="prod-choice-top">
-                    <span class="badge-chip teal mini">{{ prod.category || 'Program' }}</span>
-                    <div class="prod-radio-indicator"></div>
-                  </div>
-                  <h4 class="prod-choice-name">{{ prod.name }}</h4>
-                  <span class="prod-choice-age">Sasaran Usia: {{ prod.targetAge }}</span>
+            <!-- Banner Ringkas Program Terpilih (Dipilih di Step 1) -->
+            <div class="card-section" style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 12px; padding: 12px 18px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center;">
+              <div style="display: flex; align-items: center; gap: 10px;">
+                <span class="badge-chip teal" style="font-size: 11px;">Program Terpilih</span>
+                <div>
+                  <strong style="font-size: 15px; color: #166534;">{{ currentSelectedProduct?.name }}</strong>
+                  <span style="font-size: 12px; color: #15803d; margin-left: 6px;">(Sasaran Usia: {{ currentSelectedProduct?.targetAge }})</span>
                 </div>
               </div>
+              <button type="button" @click="goToStep(1)" class="btn-secondary" style="padding: 4px 10px; font-size: 11px;">
+                Ubah di Step 1
+              </button>
             </div>
 
             <!-- Pilihan Jenis Kelas (Dinamis dari Master Paket) -->
-            <div class="card-section" style="margin-top: 18px;">
+            <div class="card-section">
               <div class="card-section-header-row">
-                <span class="card-section-badge">2. Pilih Skema Paket Kelas — {{ currentSelectedProduct?.name }}</span>
+                <span class="card-section-badge">1. Pilih Skema Paket Kelas — {{ currentSelectedProduct?.name }}</span>
                 <span class="badge-chip teal mini">{{ availablePackages.length }} Paket Aktif</span>
               </div>
 
@@ -434,7 +422,7 @@
             <!-- Pilihan Lokasi Latihan (Dinamis dari Master Lokasi untuk Produk Terpilih) -->
             <div class="card-section" style="margin-top: 18px;">
               <div class="card-section-header-row">
-                <span class="card-section-badge">3. Fasilitas & Lokasi Latihan</span>
+                <span class="card-section-badge">2. Fasilitas & Lokasi Latihan</span>
                 <span class="badge-chip green mini">{{ availableLocations.length }} Fasilitas Mendukung</span>
               </div>
 

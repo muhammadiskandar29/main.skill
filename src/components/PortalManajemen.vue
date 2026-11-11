@@ -1958,14 +1958,15 @@
                   Salin kode di bawah ini ke <strong>https://script.google.com</strong> pada akun Gmail Anda yang menerima email notifikasi dari Bank (BCA/Mandiri/BRI/BNI/QRIS):
                 </p>
                 <pre class="font-mono" style="background: #0f172a; color: #f8fafc; padding: 10px; border-radius: 6px; font-size: 11px; overflow-x: auto; max-height: 220px;">const WEBHOOK_URL = window_origin_or_domain + '/api/webhook/mutasi'; // Ganti dengan URL domain Anda
-const LABEL_NAME  = 'Mutasi-Diproses';
 
 function cekMutasiBankGmail() {
-  let label = GmailApp.getUserLabelByName(LABEL_NAME) || GmailApp.createLabel(LABEL_NAME);
-  const query = 'newer_than:1d -label:' + LABEL_NAME + ' (from:bca.co.id OR from:bankmandiri.co.id OR from:bri.co.id OR from:bni.co.id OR from:bsi.co.id OR from:gopay.co.id OR subject:"Transfer" OR subject:"Dana Masuk" OR subject:"QRIS" OR subject:"Bukti Transaksi")';
-  const threads = GmailApp.search(query, 0, 10);
+  const props = PropertiesService.getUserProperties();
+  const query = 'newer_than:1d (from:bca.co.id OR from:bankmandiri.co.id OR from:bri.co.id OR from:bni.co.id OR from:bsi.co.id OR from:gopay.co.id OR subject:"Transfer" OR subject:"Dana Masuk" OR subject:"QRIS" OR subject:"Bukti Transaksi")';
+  const threads = GmailApp.search(query, 0, 15);
   for (const thread of threads) {
     for (const msg of thread.getMessages()) {
+      const msgId = msg.getId();
+      if (props.getProperty('MSG_' + msgId)) continue;
       UrlFetchApp.fetch(WEBHOOK_URL, {
         method: 'post',
         contentType: 'application/json',
@@ -1978,8 +1979,8 @@ function cekMutasiBankGmail() {
         }),
         muteHttpExceptions: true
       });
+      props.setProperty('MSG_' + msgId, new Date().toISOString());
     }
-    thread.addLabel(label);
   }
 }</pre>
               </div>

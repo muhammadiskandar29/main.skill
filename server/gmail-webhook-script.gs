@@ -1,37 +1,26 @@
 /**
  * ============================================================================
  * GOOGLE APPS SCRIPT RESMI: GMAIL BANK NOTIFICATION -> WEBHOOK MAIN.SKILL
- * 100% Aman (Berjalan di akun Google pribadi Anda sendiri, tanpa pihak ketiga)
+ * 100% Aman, Idempotent, dan Bersih Tanpa Label (Menggunakan Memory Properties)
  * ============================================================================
  *
- * CARA PASANG (2 MENIT):
- * 1. Buka https://script.google.com menggunakan akun Gmail yang menerima email notifikasi Bank.
- * 2. Klik tombol "+ Proyek Baru" (New Project).
- * 3. Hapus semua kode bawaan, lalu TEMPEL (Paste) seluruh kode di file ini.
- * 4. Pastikan variabel WEBHOOK_URL di bawah sesuai dengan alamat domain website Anda.
- * 5. Klik ikon Simpan (💾) di atas, lalu klik tombol "Jalankan" (Run) sekali untuk memberi izin (Review Permissions -> Allow).
- * 6. Di menu sebelah kiri, klik ikon Jam "Pemicu" (Triggers) -> "+ Tambahkan Pemicu" (Add Trigger):
- *    - Pilih fungsi: cekMutasiBankGmail
- *    - Pilih sumber acara: Dipicu waktu (Time-driven)
- *    - Pilih jenis pemicu waktu: Penghitung menit (Minutes timer)
- *    - Pilih interval menit: Setiap menit (Every minute)
- *    - Klik Simpan!
+ * CARA PASANG (1 MENIT):
+ * 1. Buka https://script.google.com menggunakan akun Gmail yang menerima notifikasi Bank.
+ * 2. Buka proyek Anda (atau klik "+ Proyek Baru").
+ * 3. Timpa/Paste seluruh kode di bawah ini.
+ * 4. Klik ikon Simpan (💾).
+ * 5. Pemicu (Trigger) tetap sama: jalan otomatis setiap 1 menit.
+ * 6. (Opsional) Di Gmail Web, hapus label lama 'Mutasi-Diproses' agar inbox bersih 100%.
  */
 
 const WEBHOOK_URL = 'https://main-skill.vercel.app/api/webhook/mutasi';
-const LABEL_NAME  = 'Mutasi-Diproses';
 
 function cekMutasiBankGmail() {
-  // 1. Siapkan label penanda agar email yang sudah diproses tidak dikirim ulang
-  let label = GmailApp.getUserLabelByName(LABEL_NAME);
-  if (!label) {
-    label = GmailApp.createLabel(LABEL_NAME);
-  }
+  const props = PropertiesService.getUserProperties();
 
-  // 2. Cari email mutasi bank 1 hari terakhir yang belum diberi label 'Mutasi-Diproses'
+  // 1. Cari email mutasi bank 1 hari terakhir
   const query = [
     'newer_than:1d',
-    `-label:${LABEL_NAME}`,
     '(',
       'from:bca.co.id OR',
       'from:bankmandiri.co.id OR',
@@ -46,7 +35,7 @@ function cekMutasiBankGmail() {
     ')'
   ].join(' ');
 
-  const threads = GmailApp.search(query, 0, 10);
+  const threads = GmailApp.search(query, 0, 15);
   if (!threads || threads.length === 0) {
     Logger.log('Belum ada email mutasi bank baru.');
     return;
@@ -58,6 +47,13 @@ function cekMutasiBankGmail() {
 
     for (let j = 0; j < messages.length; j++) {
       const msg = messages[j];
+      const msgId = msg.getId();
+
+      // Jika ID email ini sudah pernah diproses di memory internal, lewati!
+      if (props.getProperty('MSG_' + msgId)) {
+        continue;
+      }
+
       const subject = msg.getSubject() || '';
       const sender  = msg.getFrom() || '';
       const body    = msg.getPlainBody() || '';
@@ -77,14 +73,14 @@ function cekMutasiBankGmail() {
           payload: JSON.stringify(payload),
           muteHttpExceptions: true
         });
-        Logger.log(`Terkirim ke Webhook (${response.getResponseCode()}): ${subject}`);
+
+        // Tandai ID email ini sudah sukses diproses di memory internal Google
+        props.setProperty('MSG_' + msgId, new Date().toISOString());
+        Logger.log(`Terkirim (${response.getResponseCode()}): ${subject}`);
       } catch (err) {
         Logger.log(`Gagal mengirim ke Webhook: ${err.message}`);
       }
     }
-
-    // 3. Tandai thread sudah diproses
-    thread.addLabel(label);
   }
 }
 

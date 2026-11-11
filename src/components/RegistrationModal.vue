@@ -49,21 +49,23 @@
 
         <form @submit.prevent="handleStepSubmit" class="modal-body wizard-body">
           <!-- =====================================================================
-               STEP 1: DATA PESERTA & ORANG TUA / WALI (SEKSI A & B)
+               STEP 1: DATA PESERTA & ORANG TUA / WALI
                ===================================================================== -->
           <div v-if="currentStep === 1" class="wizard-step-pane">
             <div class="step-intro-banner">
-              <h4 class="step-pane-title">A. Data Peserta & Orang Tua / Wali</h4>
-              <p class="step-pane-desc">Informasi dasar ananda dan kontak resmi untuk pelaporan perkembangan serta akun portal.</p>
+              <h4 class="step-pane-title">1. Data Peserta & Orang Tua / Wali</h4>
+              <p class="step-pane-desc">Pilih program pembinaan dan lengkapi data kontak resmi untuk pelaporan perkembangan serta akses portal.</p>
             </div>
 
-            <!-- Bagian 0: Pilihan Cabang Program (Dinamis dari Master Produk) -->
-            <div class="card-section" style="margin-bottom: 18px;">
-              <div class="card-section-header-row">
-                <span class="card-section-badge">Pilihan Program Pembinaan (Dinamis Master)</span>
-                <span class="badge-chip gold mini">{{ store.products.length }} Program Tersedia</span>
+            <!-- Bagian 1: Pilihan Cabang Program -->
+            <div class="form-clean-section">
+              <div class="section-label-row">
+                <span class="section-badge-num">1</span>
+                <div>
+                  <h5 class="section-title">Pilih Program Pembinaan</h5>
+                  <p class="section-sub">Tersedia {{ store.products.length }} program keahlian aktif</p>
+                </div>
               </div>
-              <label class="form-label">Pilih Program / Cabang Keahlian yang Diikuti <span class="required">*</span></label>
               
               <div class="products-pill-grid">
                 <button 
@@ -75,18 +77,24 @@
                   @click="selectProduct(prod.id)"
                 >
                   <div class="pill-card-top">
-                    <span class="badge-chip teal mini">{{ prod.category || 'Akademi' }}</span>
-                    <span v-if="formData.productId === prod.id" class="badge-chip gold mini">Terpilih</span>
+                    <span class="prod-cat-tag">{{ prod.category || 'Akademi' }}</span>
+                    <span v-if="formData.productId === prod.id" class="prod-active-dot">✓ Terpilih</span>
                   </div>
                   <strong class="pill-name">{{ prod.name }}</strong>
-                  <span class="pill-target">Usia {{ prod.targetAge }}</span>
+                  <span class="pill-target">Usia: {{ prod.targetAge }}</span>
                 </button>
               </div>
             </div>
 
-            <!-- Bagian A: Data Anak -->
-            <div class="card-section">
-              <span class="card-section-badge">Data Ananda</span>
+            <!-- Bagian 2: Data Anak -->
+            <div class="form-clean-section">
+              <div class="section-label-row">
+                <span class="section-badge-num">2</span>
+                <div>
+                  <h5 class="section-title">Data Ananda</h5>
+                  <p class="section-sub">Identitas lengkap calon siswa untuk administrasi kelas</p>
+                </div>
+              </div>
               
               <div class="form-grid">
                 <div class="form-group">
@@ -113,24 +121,24 @@
 
               <div class="form-grid-3">
                 <div class="form-group">
-                  <label class="form-label">Usia Anak (Tahun) <span class="required">*</span></label>
+                  <label class="form-label">Usia (Tahun) <span class="required">*</span></label>
                   <input 
                     v-model="formData.studentAge" 
                     type="number" 
                     min="3" 
                     max="70" 
                     class="form-input" 
-                    placeholder="Contoh: 7" 
+                    placeholder="7" 
                     required 
                   />
                 </div>
 
                 <div class="form-group">
                   <label class="form-label">Jenis Kelamin <span class="required">*</span></label>
-                  <div class="chips-selector">
+                  <div class="segmented-control">
                     <button 
                       type="button" 
-                      class="chip-btn" 
+                      class="segmented-btn" 
                       :class="{ active: formData.gender === 'Laki-laki' }"
                       @click="formData.gender = 'Laki-laki'"
                     >
@@ -138,7 +146,7 @@
                     </button>
                     <button 
                       type="button" 
-                      class="chip-btn" 
+                      class="segmented-btn" 
                       :class="{ active: formData.gender === 'Perempuan' }"
                       @click="formData.gender = 'Perempuan'"
                     >
@@ -153,16 +161,22 @@
                     v-model="formData.schoolGrade" 
                     type="text" 
                     class="form-input" 
-                    placeholder="Contoh: SDIT Al-Azhar / Kelas 2" 
+                    placeholder="SDIT Al-Azhar / Kelas 2" 
                     required 
                   />
                 </div>
               </div>
             </div>
 
-            <!-- Bagian B: Data Orang Tua -->
-            <div class="card-section" style="margin-top: 18px;">
-              <span class="card-section-badge">Data Orang Tua / Wali</span>
+            <!-- Bagian 3: Data Orang Tua -->
+            <div class="form-clean-section last">
+              <div class="section-label-row">
+                <span class="section-badge-num">3</span>
+                <div>
+                  <h5 class="section-title">Data Orang Tua / Wali</h5>
+                  <p class="section-sub">Kontak pelaporan dan akun login portal siswa</p>
+                </div>
+              </div>
 
               <div class="form-grid">
                 <div class="form-group">
@@ -199,7 +213,7 @@
                     placeholder="sarah.ramadhani@gmail.com" 
                     required 
                   />
-                  <span class="form-hint">Login portal siswa otomatis dibuat dengan default password: <strong>123</strong></span>
+                  <span class="form-hint">Default password portal otomatis di-set: <strong>123</strong></span>
                 </div>
 
                 <div class="form-group">
@@ -208,7 +222,7 @@
                     v-model="formData.address" 
                     type="text" 
                     class="form-input" 
-                    placeholder="Contoh: Jatiwaringin, Pondok Gede, Kota Bekasi" 
+                    placeholder="Contoh: Pondok Gede, Kota Bekasi" 
                   />
                 </div>
               </div>
@@ -216,44 +230,50 @@
           </div>
 
           <!-- =====================================================================
-               STEP 2: ASESMEN KEMAMPUAN & KESEHATAN (SEKSI C & D)
+               STEP 2: ASESMEN KEMAMPUAN & KESEHATAN
                ===================================================================== -->
           <div v-else-if="currentStep === 2" class="wizard-step-pane">
             <div class="step-intro-banner">
-              <h4 class="step-pane-title">B. Asesmen Kemampuan & Kesiapan: {{ currentSelectedProduct?.name }}</h4>
-              <p class="step-pane-desc">Data ini sangat penting bagi Coach/Instruktur agar dapat menyesuaikan pendekatan latihan dengan aman & terukur.</p>
+              <h4 class="step-pane-title">2. Asesmen Kemampuan: {{ currentSelectedProduct?.name }}</h4>
+              <p class="step-pane-desc">Informasi awal untuk penyesuaian materi pembinaan agar aman, terarah, dan menyenangkan bagi anak.</p>
             </div>
 
             <!-- Jika Renang: Tampilkan Asesmen Spesifik Air & Water Safety -->
-            <div v-if="isSwimming" class="card-section">
-              <span class="card-section-badge">Kemampuan Renang & Keselamatan Air</span>
+            <div v-if="isSwimming" class="form-clean-section">
+              <div class="section-label-row">
+                <span class="section-badge-num">A</span>
+                <div>
+                  <h5 class="section-title">Kesiapan & Pengalaman di Air</h5>
+                  <p class="section-sub">Pilih opsi yang paling menggambarkan kondisi ananda saat ini</p>
+                </div>
+              </div>
 
               <!-- Pernah les renang -->
               <div class="form-group">
                 <label class="form-label">Apakah ananda pernah mengikuti les renang sebelumnya? <span class="required">*</span></label>
-                <div class="chips-grid-4">
+                <div class="chips-flex-grid">
                   <button 
                     v-for="exp in experienceOptions" 
                     :key="exp"
                     type="button" 
-                    class="chip-card-btn"
+                    class="clean-chip-btn"
                     :class="{ active: formData.swimmingExperience === exp }"
                     @click="formData.swimmingExperience = exp"
                   >
-                    <span class="chip-title">{{ exp }}</span>
+                    <span>{{ exp }}</span>
                   </button>
                 </div>
               </div>
 
               <!-- Tingkat Kemampuan Air -->
-              <div class="form-group" style="margin-top: 18px;">
+              <div class="form-group" style="margin-top: 16px;">
                 <label class="form-label">Bagaimana kemampuan ananda di air saat ini? <span class="required">*</span></label>
-                <div class="chips-grid-wrap">
+                <div class="chips-flex-grid">
                   <button 
                     v-for="cap in capacityOptions" 
                     :key="cap"
                     type="button" 
-                    class="chip-card-btn mini"
+                    class="clean-chip-btn"
                     :class="{ active: formData.waterConfidence === cap }"
                     @click="formData.waterConfidence = cap"
                   >
@@ -263,69 +283,75 @@
               </div>
 
               <!-- Tingkat Ketakutan Air -->
-              <div class="form-group" style="margin-top: 18px;">
+              <div class="form-group" style="margin-top: 16px;">
                 <label class="form-label">Apakah ananda memiliki rasa takut terhadap air? <span class="required">*</span></label>
-                <div class="chips-grid-4">
+                <div class="segmented-control-4">
                   <button 
                     v-for="fear in fearOptions" 
                     :key="fear"
                     type="button" 
-                    class="chip-card-btn"
+                    class="segmented-btn"
                     :class="{ active: formData.waterFear === fear }"
                     @click="formData.waterFear = fear"
                   >
-                    <span>{{ fear }}</span>
+                    {{ fear }}
                   </button>
                 </div>
               </div>
 
               <!-- Gaya Renang Yang Dikuasai -->
-              <div class="form-group" style="margin-top: 18px;">
+              <div class="form-group" style="margin-top: 16px;">
                 <label class="form-label">Gaya renang yang sudah dikuasai (Bisa pilih lebih dari satu): <span class="required">*</span></label>
-                <div class="chips-grid-wrap">
+                <div class="chips-flex-grid">
                   <button 
                     v-for="style in styleOptions" 
                     :key="style"
                     type="button" 
-                    class="chip-card-btn mini"
+                    class="clean-chip-btn"
                     :class="{ active: formData.masteredStyles.includes(style) }"
                     @click="toggleStyleOption(style)"
                   >
-                    <span v-if="formData.masteredStyles.includes(style)">✓ </span>
+                    <span v-if="formData.masteredStyles.includes(style)" class="check-mark">✓ </span>
                     <span>{{ style }}</span>
                   </button>
                 </div>
               </div>
             </div>
 
-            <!-- Jika Non-Renang (Tari / Mengemudi / dll): Tampilkan Asesmen Bidang Terkait -->
-            <div v-else class="card-section">
-              <span class="card-section-badge">Pengalaman & Tingkat Kemampuan Awal</span>
+            <!-- Jika Non-Renang: Asesmen Bidang Terkait -->
+            <div v-else class="form-clean-section">
+              <div class="section-label-row">
+                <span class="section-badge-num">A</span>
+                <div>
+                  <h5 class="section-title">Pengalaman di Bidang {{ currentSelectedProduct?.name }}</h5>
+                  <p class="section-sub">Evaluasi awal tingkat keterampilan</p>
+                </div>
+              </div>
 
               <div class="form-group">
-                <label class="form-label">Pengalaman di bidang {{ currentSelectedProduct?.name }} sebelumnya? <span class="required">*</span></label>
-                <div class="chips-grid-4">
+                <label class="form-label">Pengalaman sebelumnya? <span class="required">*</span></label>
+                <div class="chips-flex-grid">
                   <button 
                     v-for="exp in experienceOptions" 
                     :key="exp"
                     type="button" 
-                    class="chip-card-btn"
+                    class="clean-chip-btn"
                     :class="{ active: formData.swimmingExperience === exp }"
                     @click="formData.swimmingExperience = exp"
                   >
-                    <span class="chip-title">{{ exp }}</span>
+                    <span>{{ exp }}</span>
                   </button>
                 </div>
               </div>
 
-              <div class="form-group" style="margin-top: 18px;">
-                <label class="form-label">Tingkat penguasaan atau kesiapan awal saat ini? <span class="required">*</span></label>
-                <div class="chips-grid-wrap">
+              <div class="form-group" style="margin-top: 16px;">
+                <label class="form-label">Tingkat kesiapan awal saat ini? <span class="required">*</span></label>
+                <div class="chips-flex-grid">
                   <button 
                     v-for="cap in ['Pemula (Mulai dari Nol)', 'Tingkat Dasar (Pernah Belajar Mandiri)', 'Tingkat Menengah (Sudah Berpengalaman)', 'Tingkat Lanjut (Persiapan Ujian / Pentas)']" 
                     :key="cap"
                     type="button" 
-                    class="chip-card-btn mini"
+                    class="clean-chip-btn"
                     :class="{ active: formData.waterConfidence === cap }"
                     @click="formData.waterConfidence = cap"
                   >
@@ -335,9 +361,15 @@
               </div>
             </div>
 
-            <!-- Bagian D: Kesehatan & Keselamatan -->
-            <div class="card-section" style="margin-top: 18px;">
-              <span class="card-section-badge">Informasi Kesehatan & Keselamatan</span>
+            <!-- Bagian: Kesehatan & Keselamatan -->
+            <div class="form-clean-section last">
+              <div class="section-label-row">
+                <span class="section-badge-num">B</span>
+                <div>
+                  <h5 class="section-title">Informasi Kesehatan & Keselamatan</h5>
+                  <p class="section-sub">Penting demi kenyamanan dan keselamatan anak saat sesi berlangsung</p>
+                </div>
+              </div>
 
               <div class="form-group">
                 <label class="form-label">
@@ -347,10 +379,10 @@
                   v-model="formData.medicalCondition" 
                   class="form-textarea" 
                   rows="2" 
-                  placeholder="Contoh: Ada riwayat asma jika kedinginan lama, alergi kaporit ringan. Jika tidak ada, tuliskan 'Tidak ada'."
+                  placeholder="Contoh: Ada riwayat asma ringan, tidak ada alergi. Jika tidak ada, tuliskan 'Tidak ada'."
                   required
                 ></textarea>
-                <span class="form-hint">Informasi ini mutlak untuk keselamatan anak saat latihan bersama pelatih.</span>
+                <span class="form-hint">Informasi ini mutlak untuk keselamatan anak saat latihan bersama coach.</span>
               </div>
 
               <div class="form-group" style="margin-top: 14px;">
@@ -359,40 +391,41 @@
                   v-model="formData.coachNotes" 
                   type="text" 
                   class="form-input" 
-                  placeholder="Contoh: Ananda sedikit pemalu di pertemuan pertama, mohon bimbingan ramah." 
+                  placeholder="Contoh: Ananda pemalu di awal, mohon pendekatan ramah." 
                 />
               </div>
             </div>
           </div>
 
           <!-- =====================================================================
-               STEP 3: PILIHAN KELAS, JADWAL & KOLAM (SEKSI E & F)
+               STEP 3: PILIHAN KELAS, JADWAL & LOKASI
                ===================================================================== -->
           <div v-else-if="currentStep === 3" class="wizard-step-pane">
             <div class="step-intro-banner">
-              <h4 class="step-pane-title">C. Pilihan Paket Kelas, Jadwal & Fasilitas</h4>
-              <p class="step-pane-desc">Semua paket terdiri dari 4 sesi berjenjang. Pilihan skema paket dan fasilitas lokasi telah disesuaikan dengan program pilihan ananda.</p>
+              <h4 class="step-pane-title">3. Pilihan Paket Kelas, Jadwal & Fasilitas</h4>
+              <p class="step-pane-desc">Semua paket terdiri dari 4 sesi terstruktur. Pilih skema rasio kelas, lokasi, dan jadwal yang sesuai.</p>
             </div>
 
-            <!-- Banner Ringkas Program Terpilih (Dipilih di Step 1) -->
-            <div class="card-section" style="background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 12px; padding: 12px 18px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center;">
-              <div style="display: flex; align-items: center; gap: 10px;">
-                <span class="badge-chip teal" style="font-size: 11px;">Program Terpilih</span>
-                <div>
-                  <strong style="font-size: 15px; color: #166534;">{{ currentSelectedProduct?.name }}</strong>
-                  <span style="font-size: 12px; color: #15803d; margin-left: 6px;">(Sasaran Usia: {{ currentSelectedProduct?.targetAge }})</span>
-                </div>
+            <!-- Ringkasan Singkat Program Terpilih -->
+            <div class="program-selected-bar">
+              <div class="prog-bar-left">
+                <span class="prog-bar-label">Program Terpilih:</span>
+                <strong class="prog-bar-title">{{ currentSelectedProduct?.name }}</strong>
+                <span class="prog-bar-age">(Sasaran Usia: {{ currentSelectedProduct?.targetAge }})</span>
               </div>
-              <button type="button" @click="goToStep(1)" class="btn-secondary" style="padding: 4px 10px; font-size: 11px;">
+              <button type="button" @click="goToStep(1)" class="btn-change-prog">
                 Ubah di Step 1
               </button>
             </div>
 
-            <!-- Pilihan Jenis Kelas (Dinamis dari Master Paket) -->
-            <div class="card-section">
-              <div class="card-section-header-row">
-                <span class="card-section-badge">1. Pilih Skema Paket Kelas — {{ currentSelectedProduct?.name }}</span>
-                <span class="badge-chip teal mini">{{ availablePackages.length }} Paket Aktif</span>
+            <!-- Pilihan Jenis Paket Kelas -->
+            <div class="form-clean-section">
+              <div class="section-label-row">
+                <span class="section-badge-num">1</span>
+                <div>
+                  <h5 class="section-title">Pilih Skema Paket Kelas</h5>
+                  <p class="section-sub">{{ availablePackages.length }} pilihan paket tersedia</p>
+                </div>
               </div>
 
               <div class="package-cards-grid">
@@ -410,52 +443,62 @@
                   </div>
                   <h4 class="pkg-choice-name">{{ pkg.name }}</h4>
                   <div class="pkg-choice-specs">
-                    <span>Rasio: {{ pkg.ratio }}</span>
-                    <span>Durasi: {{ pkg.duration }}</span>
-                    <span>Pertemuan: {{ pkg.meetings }}</span>
+                    <span class="spec-pill">Rasio {{ pkg.ratio }}</span>
+                    <span class="spec-pill">{{ pkg.duration }}</span>
+                    <span class="spec-pill">{{ pkg.meetings }}</span>
                   </div>
                   <p class="pkg-choice-desc">{{ pkg.description || 'Program pembinaan skill bertahap dengan pengawasan intensif' }}</p>
                 </div>
               </div>
             </div>
 
-            <!-- Pilihan Lokasi Latihan (Dinamis dari Master Lokasi untuk Produk Terpilih) -->
-            <div class="card-section" style="margin-top: 18px;">
-              <div class="card-section-header-row">
-                <span class="card-section-badge">2. Fasilitas & Lokasi Latihan</span>
-                <span class="badge-chip green mini">{{ availableLocations.length }} Fasilitas Mendukung</span>
-              </div>
-
-              <div class="form-group">
-                <label class="form-label">Pilih Fasilitas / Lokasi Pelatihan <span class="required">*</span></label>
-                <div class="venues-choice-grid">
-                  <div 
-                    v-for="loc in availableLocations" 
-                    :key="loc.id"
-                    class="venue-choice-box"
-                    :class="{ selected: formData.location === loc.name }"
-                    @click="formData.location = loc.name"
-                  >
-                    <div class="venue-radio-indicator"></div>
-                    <div class="venue-choice-info">
-                      <strong class="venue-choice-title">{{ loc.name }}</strong>
-                      <span class="venue-choice-sub">{{ loc.area }} • {{ loc.address }}</span>
-                      <span class="venue-choice-facilities">{{ loc.facilities }}</span>
-                    </div>
-                  </div>
+            <!-- Pilihan Lokasi Latihan -->
+            <div class="form-clean-section">
+              <div class="section-label-row">
+                <span class="section-badge-num">2</span>
+                <div>
+                  <h5 class="section-title">Pilih Fasilitas & Lokasi Latihan</h5>
+                  <p class="section-sub">{{ availableLocations.length }} fasilitas mendukung program ini</p>
                 </div>
               </div>
 
-              <!-- Pilihan Hari & Jam -->
-              <div class="form-grid" style="margin-top: 18px;">
+              <div class="venues-choice-grid">
+                <div 
+                  v-for="loc in availableLocations" 
+                  :key="loc.id"
+                  class="venue-choice-box"
+                  :class="{ selected: formData.location === loc.name }"
+                  @click="formData.location = loc.name"
+                >
+                  <div class="venue-radio-indicator"></div>
+                  <div class="venue-choice-info">
+                    <strong class="venue-choice-title">{{ loc.name }}</strong>
+                    <span class="venue-choice-sub">{{ loc.area }} • {{ loc.address }}</span>
+                    <span class="venue-choice-facilities">{{ loc.facilities }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pilihan Hari, Jam, Tujuan & Referral -->
+            <div class="form-clean-section last">
+              <div class="section-label-row">
+                <span class="section-badge-num">3</span>
+                <div>
+                  <h5 class="section-title">Jadwal Sesi & Tujuan Pembinaan</h5>
+                  <p class="section-sub">Tentukan preferensi hari dan jam sesi latihan ananda</p>
+                </div>
+              </div>
+
+              <div class="form-grid">
                 <div class="form-group">
                   <label class="form-label">Hari yang Diinginkan <span class="required">*</span></label>
-                  <div class="chips-selector">
+                  <div class="segmented-control">
                     <button 
                       v-for="day in ['Sabtu', 'Minggu', 'Jumat']"
                       :key="day"
                       type="button" 
-                      class="chip-btn"
+                      class="segmented-btn"
                       :class="{ active: formData.preferredDay === day }"
                       @click="formData.preferredDay = day"
                     >
@@ -478,8 +521,7 @@
                 </div>
               </div>
 
-              <!-- Tujuan Ikut Renang & Referral -->
-              <div class="form-grid" style="margin-top: 18px;">
+              <div class="form-grid" style="margin-top: 14px;">
                 <div class="form-group">
                   <label class="form-label">Tujuan Utama Mengikuti Program</label>
                   <select v-model="formData.programGoals" class="form-select">
@@ -511,29 +553,29 @@
           </div>
 
           <!-- =====================================================================
-               STEP 4: KONFIRMASI & METODE PEMBAYARAN
+               STEP 4: KONFIRMASI & PEMBAYARAN
                ===================================================================== -->
           <div v-else-if="currentStep === 4" class="wizard-step-pane">
             <div class="step-intro-banner">
-              <h4 class="step-pane-title">D. Konfirmasi Pendaftaran & Metode Pembayaran</h4>
+              <h4 class="step-pane-title">4. Konfirmasi Pendaftaran & Pembayaran</h4>
               <p class="step-pane-desc">Periksa ringkasan pendaftaran Anda, setujui ketentuan, dan selesaikan administrasi pembayaran resmi.</p>
             </div>
 
-            <!-- Ringkasan Paket Dinamis Terpilih -->
+            <!-- Ringkasan Paket Terpilih -->
             <div class="price-banner-box">
               <div class="price-banner-left">
-                <span class="price-banner-label">Total Biaya Paket (Dihitung Otomatis):</span>
+                <span class="price-banner-label">Total Investasi Paket:</span>
                 <strong class="price-banner-val">{{ currentSelectedPackage?.formattedPrice || 'Rp 400.000' }}</strong>
                 <span class="price-banner-sub">
-                  {{ currentSelectedProduct?.name }} • {{ currentSelectedPackage?.name }} • {{ currentSelectedPackage?.meetings || '4x pertemuan' }} • {{ currentSelectedPackage?.duration || '90 menit/sesi' }}
+                  {{ currentSelectedProduct?.name }} • {{ currentSelectedPackage?.name }} ({{ currentSelectedPackage?.meetings || '4x pertemuan' }})
                 </span>
                 <span class="price-venue-tag">{{ formData.location }} • {{ formData.preferredDay }} ({{ formData.preferredTime }})</span>
               </div>
             </div>
 
-            <!-- Opsi Pembayaran Lainnya (Bank Accounts dari Master Payment) -->
+            <!-- Pilihan Transfer Rekening Bank Resmi -->
             <div v-if="store.paymentConfig.bankAccounts && store.paymentConfig.bankAccounts.length > 0" class="bank-accounts-info-box">
-              <span class="bank-acc-title">Pilihan Transfer Rekening Bank Resmi Manajemen:</span>
+              <span class="bank-acc-title">Rekening Bank Resmi Manajemen:</span>
               <div class="bank-chips-row">
                 <div v-for="b in store.paymentConfig.bankAccounts" :key="b.id" class="bank-chip-item">
                   <strong>{{ b.bankName }}</strong>: <span class="font-mono">{{ b.accountNumber }}</span> (a.n {{ b.accountHolder }})
@@ -541,9 +583,15 @@
               </div>
             </div>
 
-            <!-- Seksi G: Persetujuan Dokumentasi -->
-            <div class="card-section" style="margin-top: 18px;">
-              <span class="card-section-badge">Izin & Persetujuan Dokumentasi</span>
+            <!-- Izin & Persetujuan Dokumentasi -->
+            <div class="form-clean-section" style="margin-top: 18px;">
+              <div class="section-label-row">
+                <span class="section-badge-num">A</span>
+                <div>
+                  <h5 class="section-title">Izin & Persetujuan Dokumentasi</h5>
+                  <p class="section-sub">Digunakan untuk progress report evaluasi siswa</p>
+                </div>
+              </div>
 
               <div class="consent-row">
                 <div class="consent-info">
@@ -580,9 +628,15 @@
               </div>
             </div>
 
-            <!-- Seksi H: Pernyataan Orang Tua / Wali -->
-            <div class="card-section" style="margin-top: 18px;">
-              <span class="card-section-badge">Pernyataan Orang Tua / Wali</span>
+            <!-- Pernyataan Orang Tua / Wali -->
+            <div class="form-clean-section last">
+              <div class="section-label-row">
+                <span class="section-badge-num">B</span>
+                <div>
+                  <h5 class="section-title">Pernyataan Orang Tua / Wali</h5>
+                  <p class="section-sub">Konfirmasi validitas data pendaftaran</p>
+                </div>
+              </div>
 
               <label class="checkbox-statement-card">
                 <input type="checkbox" v-model="formData.parentDeclaration" required class="statement-check" />
@@ -1308,15 +1362,23 @@ function getWaConfirmationUrl() {
 </script>
 
 <style scoped>
+/* =========================================================================
+   MODAL CONTAINER & DIALOG (CLEAN, WHITE & ELEGANT)
+   ========================================================================= */
 .modal-dialog-wizard {
-  max-width: 780px;
+  max-width: 760px;
   width: 95%;
   height: 88vh;
-  max-height: 850px;
+  max-height: 840px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  background: #ffffff;
+  border-radius: 18px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  box-shadow: 
+    0 25px 60px -15px rgba(13, 77, 93, 0.18),
+    0 4px 20px rgba(0, 0, 0, 0.04);
 }
 
 .wizard-container {
@@ -1327,9 +1389,12 @@ function getWaConfirmationUrl() {
   overflow: hidden;
 }
 
+/* =========================================================================
+   MODAL HEADER
+   ========================================================================= */
 .modal-header {
-  padding: 20px 28px 16px;
-  border-bottom: 1px solid var(--border-subtle);
+  padding: 18px 26px 14px;
+  border-bottom: 1px solid #f1f5f9;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
@@ -1341,48 +1406,73 @@ function getWaConfirmationUrl() {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .modal-logo-img {
-  height: 32px;
+  height: 28px;
   width: auto;
+  object-fit: contain;
 }
 
 .modal-title {
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 800;
-  color: var(--color-primary-dark);
+  color: #09343f;
   margin: 0;
+  letter-spacing: -0.01em;
 }
 
 .modal-desc {
-  font-size: 13px;
-  color: var(--text-muted);
-  margin: 4px 0 0;
+  font-size: 12.5px;
+  color: #64748b;
+  margin: 3px 0 0;
 }
 
-/* Wizard Stepper Header */
+.btn-close {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.btn-close:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+  transform: rotate(90deg);
+}
+
+/* =========================================================================
+   WIZARD STEPPER (CLEAN, FLAT & CALM)
+   ========================================================================= */
 .wizard-stepper {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 28px;
+  padding: 12px 26px;
   background: #f8fafc;
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 1px solid #f1f5f9;
   position: relative;
-  gap: 8px;
+  gap: 12px;
   flex-shrink: 0;
 }
 
 .step-item {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 9px;
   cursor: pointer;
   position: relative;
   flex: 1;
-  opacity: 0.55;
+  opacity: 0.45;
   transition: all 0.2s ease;
 }
 
@@ -1391,27 +1481,28 @@ function getWaConfirmationUrl() {
 }
 
 .step-item.completed {
-  opacity: 0.9;
+  opacity: 0.85;
 }
 
 .step-circle {
-  width: 30px;
-  height: 30px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   background: #e2e8f0;
-  color: #475569;
-  font-size: 13px;
-  font-weight: 700;
+  color: #64748b;
+  font-size: 11.5px;
+  font-weight: 800;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
+  flex-shrink: 0;
 }
 
 .step-item.active .step-circle {
-  background: var(--color-accent-gold);
-  color: #1a1600;
-  box-shadow: 0 0 0 4px rgba(229, 160, 36, 0.2);
+  background: #0d4d5d;
+  color: #ffffff;
+  box-shadow: 0 0 0 3px rgba(13, 77, 93, 0.15);
 }
 
 .step-item.completed .step-circle {
@@ -1425,29 +1516,32 @@ function getWaConfirmationUrl() {
 }
 
 .step-num-txt {
-  font-size: 10.5px;
+  font-size: 9.5px;
   text-transform: uppercase;
-  color: #64748b;
+  color: #94a3b8;
   font-weight: 700;
   letter-spacing: 0.05em;
 }
 
 .step-title-txt {
-  font-size: 12.5px;
-  color: var(--text-main);
+  font-size: 12px;
+  font-weight: 700;
+  color: #1e293b;
   white-space: nowrap;
 }
 
 .step-connector {
   position: absolute;
-  right: -8px;
+  right: -6px;
   top: 50%;
-  width: 14px;
-  height: 2px;
+  width: 12px;
+  height: 1.5px;
   background: #cbd5e1;
 }
 
-/* Wizard Body & Scrollable Pane */
+/* =========================================================================
+   WIZARD BODY & SCROLLABLE CONTENT
+   ========================================================================= */
 .wizard-body {
   display: flex;
   flex-direction: column;
@@ -1461,72 +1555,84 @@ function getWaConfirmationUrl() {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 24px 28px;
+  padding: 22px 26px;
 }
 
 .step-intro-banner {
-  margin-bottom: 20px;
+  margin-bottom: 18px;
 }
 
 .step-pane-title {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 800;
-  color: var(--color-primary-dark);
-  margin: 0 0 4px;
+  color: #09343f;
+  margin: 0 0 3px;
 }
 
 .step-pane-desc {
-  font-size: 13px;
-  color: var(--text-muted);
+  font-size: 12.5px;
+  color: #64748b;
   margin: 0;
 }
 
-/* Card Sections */
-.card-section {
-  background: #ffffff;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 20px;
-  position: relative;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+/* =========================================================================
+   CLEAN SECTIONS (FLAT, SPACIOUS & NO HEAVY BORDERS)
+   ========================================================================= */
+.form-clean-section {
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #f1f5f9;
 }
 
-.card-section-badge {
-  display: inline-block;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--color-primary-dark);
-  background: #f1f5f9;
-  padding: 3px 9px;
-  border-radius: 4px;
-  margin-bottom: 14px;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.card-section-header-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.card-section-header-row .card-section-badge {
+.form-clean-section.last {
+  border-bottom: none;
   margin-bottom: 0;
+  padding-bottom: 6px;
 }
 
-.section-sub-hint {
-  font-size: 12px;
-  color: var(--text-muted);
-  margin: 0 0 14px;
+.section-label-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 14px;
 }
 
-/* Products Pill Selector (Step 1) */
+.section-badge-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  color: #0f766e;
+  font-size: 11px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.section-title {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 2px;
+}
+
+.section-sub {
+  font-size: 11.5px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* =========================================================================
+   PRODUCTS PILL SELECTOR (STEP 1)
+   ========================================================================= */
 .products-pill-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
   gap: 10px;
-  margin-top: 8px;
 }
 
 .product-pill-card {
@@ -1534,25 +1640,24 @@ function getWaConfirmationUrl() {
   flex-direction: column;
   align-items: flex-start;
   padding: 12px 14px;
-  background: #f8fafc;
-  border: 2px solid var(--border-subtle);
-  border-radius: var(--radius-md);
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
   cursor: pointer;
   text-align: left;
   transition: all 0.2s ease;
-  position: relative;
 }
 
 .product-pill-card:hover {
-  border-color: var(--color-primary-light);
-  background: #ffffff;
+  border-color: #94a3b8;
+  background: #f8fafc;
   transform: translateY(-1px);
 }
 
 .product-pill-card.active {
-  border-color: var(--color-accent-gold);
-  background: #fffdf5;
-  box-shadow: 0 0 0 3px rgba(229, 160, 36, 0.15);
+  border-color: #0d9488;
+  background: #f0fdfa;
+  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.15);
 }
 
 .pill-card-top {
@@ -1560,216 +1665,246 @@ function getWaConfirmationUrl() {
   justify-content: space-between;
   align-items: center;
   width: 100%;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
-.pill-emoji {
-  font-size: 22px;
+.prod-cat-tag {
+  font-size: 10px;
+  font-weight: 700;
+  color: #0d9488;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.prod-active-dot {
+  font-size: 10px;
+  font-weight: 700;
+  color: #0d9488;
 }
 
 .pill-name {
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 800;
-  color: var(--color-primary-dark);
-  margin-bottom: 2px;
-}
-
-.pill-cat {
-  font-size: 11px;
-  color: #0f766e;
-  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
 }
 
 .pill-target {
   font-size: 11px;
-  color: var(--text-muted);
-  margin-top: 4px;
+  color: #64748b;
+  margin-top: 3px;
 }
 
-/* Products Choice Grid (Step 3) */
-.products-choice-grid {
+/* =========================================================================
+   FORM INPUTS & GRIDS
+   ========================================================================= */
+.form-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-  gap: 12px;
-  margin-top: 10px;
-}
-
-.prod-choice-card {
-  padding: 14px;
-  border-radius: var(--radius-md);
-  border: 2px solid var(--border-subtle);
-  background: #f8fafc;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  flex-direction: column;
-}
-
-.prod-choice-card:hover {
-  border-color: var(--color-primary);
-  background: #ffffff;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.prod-choice-card.selected {
-  border-color: var(--color-accent-gold);
-  background: #fffdf7;
-  box-shadow: 0 0 0 3px rgba(229, 160, 36, 0.18);
-}
-
-.prod-choice-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.prod-choice-icon-wrap {
-  font-size: 24px;
-}
-
-.prod-radio-indicator {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  border: 2px solid #cbd5e1;
-  background: #ffffff;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.prod-choice-card.selected .prod-radio-indicator {
-  border-color: var(--color-accent-gold);
-  background: var(--color-accent-gold);
-  box-shadow: inset 0 0 0 3px #ffffff;
-}
-
-.prod-choice-name {
-  font-size: 14px;
-  font-weight: 800;
-  color: var(--color-primary-dark);
-  margin: 0 0 4px;
-}
-
-.prod-choice-category {
-  font-size: 11px;
-  font-weight: 700;
-  color: #0f766e;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.prod-choice-age {
-  font-size: 11.5px;
-  color: var(--text-muted);
-  margin-top: 6px;
-}
-
-.empty-packages-notice {
-  padding: 24px;
-  text-align: center;
-  background: #f8fafc;
-  border: 1px dashed var(--border-subtle);
-  border-radius: var(--radius-md);
-  color: var(--text-muted);
-  font-size: 13px;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
 }
 
 .form-grid-3 {
   display: grid;
-  grid-template-columns: 1fr 1.2fr 1.5fr;
-  gap: 16px;
+  grid-template-columns: 1fr 1.3fr 1.5fr;
+  gap: 14px;
+  margin-top: 14px;
 }
 
-/* Interactive Chips */
-.chips-selector {
+.form-group {
   display: flex;
-  gap: 8px;
+  flex-direction: column;
+  gap: 5px;
 }
 
-.chip-btn {
-  flex: 1;
-  padding: 9px 12px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-subtle);
-  background: #f8fafc;
-  color: var(--text-main);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-.chip-btn:hover {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
-}
-
-.chip-btn.active {
-  background: #0f766e;
-  border-color: #0f766e;
-  color: #ffffff;
+.form-label {
+  font-size: 12px;
   font-weight: 700;
+  color: #1e293b;
 }
 
-.chips-grid-4 {
+.required {
+  color: #dc2626;
+}
+
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  padding: 9.5px 12px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 13.5px;
+  background: #f8fafc;
+  color: #0f172a;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  outline: none;
+  border-color: #0d4d5d;
+  background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(13, 77, 93, 0.12);
+}
+
+.form-textarea {
+  resize: vertical;
+}
+
+.form-hint {
+  font-size: 11px;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+/* =========================================================================
+   SEGMENTED CONTROLS & CHIPS (SLEEK & COMPACT)
+   ========================================================================= */
+.segmented-control {
+  display: flex;
+  gap: 4px;
+  background: #f1f5f9;
+  padding: 3px;
+  border-radius: 8px;
+}
+
+.segmented-control-4 {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  gap: 4px;
+  background: #f1f5f9;
+  padding: 3px;
+  border-radius: 8px;
 }
 
-.chips-grid-wrap {
+.segmented-btn {
+  flex: 1;
+  padding: 7px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: center;
+}
+
+.segmented-btn:hover {
+  color: #0f172a;
+}
+
+.segmented-btn.active {
+  background: #ffffff;
+  color: #0f172a;
+  font-weight: 700;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.chips-flex-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
 
-.chip-card-btn {
-  padding: 10px 14px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-subtle);
-  background: #f8fafc;
-  color: var(--text-main);
-  font-size: 12.5px;
+.clean-chip-btn {
+  padding: 8px 13px;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  color: #334155;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  text-align: center;
   transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
 }
 
-.chip-card-btn.mini {
-  padding: 7px 12px;
-  font-size: 12px;
+.clean-chip-btn:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
 }
 
-.chip-card-btn:hover {
-  background: #f1f5f9;
-  border-color: var(--color-accent-gold);
-}
-
-.chip-card-btn.active {
-  background: #0f766e;
-  border-color: #0f766e;
-  color: #ffffff;
+.clean-chip-btn.active {
+  border-color: #0d9488;
+  background: #f0fdfa;
+  color: #0f766e;
   font-weight: 700;
-  box-shadow: 0 2px 5px rgba(15, 118, 110, 0.25);
+  box-shadow: 0 1px 2px rgba(13, 148, 136, 0.08);
 }
 
-/* Package Cards Grid */
+.check-mark {
+  color: #0d9488;
+  font-weight: 800;
+}
+
+/* =========================================================================
+   STEP 3: PROGRAM SELECTED BAR, PACKAGES & VENUES
+   ========================================================================= */
+.program-selected-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  border-radius: 9px;
+  padding: 9px 14px;
+  margin-bottom: 18px;
+}
+
+.prog-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.prog-bar-label {
+  font-size: 11px;
+  color: #0f766e;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.prog-bar-title {
+  font-size: 13.5px;
+  color: #0f766e;
+  font-weight: 800;
+}
+
+.prog-bar-age {
+  font-size: 11.5px;
+  color: #115e59;
+}
+
+.btn-change-prog {
+  padding: 3px 9px;
+  font-size: 11px;
+  font-weight: 700;
+  background: #ffffff;
+  border: 1px solid #99f6e4;
+  color: #0f766e;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-change-prog:hover {
+  background: #ccfbf1;
+}
+
 .package-cards-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 14px;
+  gap: 11px;
 }
 
 .pkg-choice-card {
-  border: 2px solid var(--border-subtle);
-  border-radius: var(--radius-md);
-  padding: 16px;
-  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 13px 14px;
+  background: #ffffff;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
@@ -1777,87 +1912,92 @@ function getWaConfirmationUrl() {
 }
 
 .pkg-choice-card:hover {
-  border-color: var(--color-accent-gold);
-  transform: translateY(-2px);
-  background: #ffffff;
+  border-color: #94a3b8;
+  background: #f8fafc;
+  transform: translateY(-1px);
 }
 
 .pkg-choice-card.selected {
-  border-color: var(--color-accent-gold);
-  background: #fffdf5;
-  box-shadow: 0 4px 12px rgba(229, 160, 36, 0.2);
+  border-color: #0d9488;
+  background: #f0fdfa;
+  box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.15);
 }
 
 .pkg-choice-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .pkg-choice-price {
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 800;
   color: #0f766e;
 }
 
 .pkg-choice-name {
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 800;
-  color: var(--color-primary-dark);
-  margin: 0 0 8px;
+  color: #0f172a;
+  margin: 0 0 6px;
 }
 
 .pkg-choice-specs {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 4px;
-  font-size: 11.5px;
-  color: #475569;
   margin-bottom: 8px;
+}
+
+.spec-pill {
+  font-size: 10.5px;
+  background: #f1f5f9;
+  padding: 2px 7px;
+  border-radius: 4px;
+  color: #475569;
   font-weight: 600;
 }
 
 .pkg-choice-desc {
   font-size: 11px;
-  color: var(--text-muted);
+  color: #64748b;
   margin: 0;
-  line-height: 1.4;
   margin-top: auto;
+  line-height: 1.4;
 }
 
-/* Venues Selection Grid */
 .venues-choice-grid {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 .venue-choice-box {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  padding: 12px 14px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-subtle);
-  background: #f8fafc;
+  padding: 10px 14px;
+  border-radius: 9px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .venue-choice-box:hover {
   border-color: #cbd5e1;
-  background: #f1f5f9;
+  background: #f8fafc;
 }
 
 .venue-choice-box.selected {
-  border-color: #0f766e;
+  border-color: #0d9488;
   background: #f0fdfa;
 }
 
 .venue-radio-indicator {
-  width: 18px;
-  height: 18px;
+  width: 17px;
+  height: 17px;
   border-radius: 50%;
   border: 2px solid #cbd5e1;
   margin-top: 2px;
@@ -1866,7 +2006,7 @@ function getWaConfirmationUrl() {
 }
 
 .venue-choice-box.selected .venue-radio-indicator {
-  border-color: #0f766e;
+  border-color: #0d9488;
 }
 
 .venue-choice-box.selected .venue-radio-indicator::after {
@@ -1874,10 +2014,10 @@ function getWaConfirmationUrl() {
   position: absolute;
   top: 3px;
   left: 3px;
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
-  background: #0f766e;
+  background: #0d9488;
 }
 
 .venue-choice-info {
@@ -1887,89 +2027,79 @@ function getWaConfirmationUrl() {
 }
 
 .venue-choice-title {
-  font-size: 13.5px;
-  color: var(--color-primary-dark);
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
 }
 
 .venue-choice-sub {
-  font-size: 12px;
+  font-size: 11.5px;
   color: #64748b;
 }
 
 .venue-choice-facilities {
-  font-size: 11.5px;
+  font-size: 11px;
   color: #0d9488;
   font-weight: 600;
-  margin-top: 2px;
+  margin-top: 1px;
 }
 
-/* Step 4 Price Box & Consents */
+/* =========================================================================
+   STEP 4: PRICE BANNER, BANK ACCOUNTS & CONSENTS
+   ========================================================================= */
 .price-banner-box {
-  background: linear-gradient(135deg, #093b44 0%, #0d525f 100%);
+  background: linear-gradient(135deg, #09343f 0%, #0d4d5d 100%);
   color: #ffffff;
-  border-radius: var(--radius-md);
-  padding: 20px 24px;
+  border-radius: 12px;
+  padding: 18px 22px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
-  box-shadow: 0 4px 15px rgba(9, 59, 68, 0.2);
+  box-shadow: 0 4px 14px rgba(9, 52, 63, 0.15);
 }
 
 .price-banner-left {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
 }
 
 .price-banner-label {
-  font-size: 12px;
-  color: #a4cdd5;
+  font-size: 11px;
+  color: #99f6e4;
   text-transform: uppercase;
   font-weight: 700;
   letter-spacing: 0.04em;
 }
 
 .price-banner-val {
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 800;
   color: #f7ca5e;
 }
 
 .price-banner-sub {
-  font-size: 13px;
+  font-size: 12.5px;
   color: #e2f0f3;
 }
 
 .price-venue-tag {
-  font-size: 11.5px;
-  color: #93c5fd;
-  margin-top: 4px;
-}
-
-.price-banner-right {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
-}
-
-.merchant-tag-sm {
   font-size: 11px;
-  color: #e2e8f0;
+  color: #bae6fd;
+  margin-top: 2px;
 }
 
-/* Bank Accounts Box */
 .bank-accounts-info-box {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: var(--radius-sm);
-  padding: 12px 16px;
+  border-radius: 9px;
+  padding: 11px 14px;
   margin-top: 14px;
 }
 
 .bank-acc-title {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 700;
   color: #334155;
   display: block;
@@ -1979,48 +2109,47 @@ function getWaConfirmationUrl() {
 .bank-chips-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
 }
 
 .bank-chip-item {
-  font-size: 12px;
+  font-size: 11.5px;
   background: #ffffff;
   padding: 4px 10px;
-  border-radius: 4px;
+  border-radius: 6px;
   border: 1px solid #cbd5e1;
 }
 
-/* Consent Rows */
 .consent-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
 }
 
 .consent-info strong {
-  font-size: 13px;
-  color: var(--text-main);
+  font-size: 12.5px;
+  color: #0f172a;
   display: block;
 }
 
 .consent-desc {
   font-size: 11.5px;
-  color: var(--text-muted);
+  color: #64748b;
   margin: 2px 0 0;
 }
 
 .consent-options {
   display: flex;
-  gap: 14px;
+  gap: 12px;
   flex-shrink: 0;
 }
 
 .radio-label {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12.5px;
+  gap: 5px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
 }
@@ -2028,230 +2157,149 @@ function getWaConfirmationUrl() {
 .checkbox-statement-card {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
+  gap: 10px;
   cursor: pointer;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  padding: 12px 14px;
 }
 
 .statement-check {
-  margin-top: 4px;
-  width: 18px;
-  height: 18px;
-  accent-color: #0f766e;
+  margin-top: 3px;
+  width: 17px;
+  height: 17px;
+  accent-color: #0d4d5d;
 }
 
 .statement-txt strong {
-  font-size: 13px;
-  color: var(--color-primary-dark);
+  font-size: 12.5px;
+  color: #0f172a;
 }
 
 .statement-txt ul {
-  margin: 6px 0 0;
-  padding-left: 18px;
-  font-size: 12px;
+  margin: 5px 0 0;
+  padding-left: 16px;
+  font-size: 11.5px;
   color: #475569;
   line-height: 1.5;
 }
 
-/* Wizard Footer */
+/* =========================================================================
+   WIZARD FOOTER ACTIONS
+   ========================================================================= */
 .wizard-footer {
-  padding: 16px 28px;
-  border-top: 1px solid var(--border-subtle);
+  padding: 14px 26px;
+  border-top: 1px solid #f1f5f9;
   display: flex;
   justify-content: space-between;
   align-items: center;
   background: #ffffff;
   flex-shrink: 0;
-  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.04);
 }
 
 .btn-next-step, .btn-submit-wizard {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   font-weight: 700;
+  padding: 10px 18px;
+  font-size: 13.5px;
 }
 
-/* Success View Styles */
+/* =========================================================================
+   SUCCESS & PAYMENT RESULTS VIEW
+   ========================================================================= */
 .success-view {
   overflow-y: auto;
   flex: 1;
   text-align: center;
-  padding: 32px 28px;
+  padding: 28px 24px;
 }
 
 .success-icon {
-  width: 64px;
-  height: 64px;
+  width: 58px;
+  height: 58px;
   border-radius: 50%;
   background: #dcfce7;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 16px;
+  margin: 0 auto 14px;
 }
 
 .success-title {
-  font-size: 20px;
+  font-size: 19px;
   font-weight: 800;
-  color: var(--color-primary-dark);
+  color: #09343f;
   margin-bottom: 6px;
 }
 
 .success-message {
-  font-size: 13.5px;
-  color: var(--text-muted);
-  max-width: 540px;
-  margin: 0 auto 20px;
+  font-size: 13px;
+  color: #64748b;
+  max-width: 520px;
+  margin: 0 auto 18px;
 }
 
 .account-created-box {
   background: #f0fdf4;
   border: 1px solid #bbf7d0;
-  border-radius: var(--radius-md);
-  padding: 16px 20px;
-  margin-bottom: 24px;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
   text-align: left;
 }
 
 .acc-badge {
-  font-size: 11px;
+  font-size: 10.5px;
   font-weight: 700;
   color: #15803d;
   text-transform: uppercase;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .acc-details {
   display: flex;
-  gap: 24px;
-  margin-bottom: 6px;
+  gap: 20px;
+  margin-bottom: 4px;
   flex-wrap: wrap;
 }
 
 .acc-item .lbl {
-  font-size: 12px;
+  font-size: 11.5px;
   color: #475569;
   display: block;
 }
 
 .acc-item .val {
-  font-size: 14px;
+  font-size: 13.5px;
   color: #1e293b;
 }
 
 .acc-hint {
-  font-size: 11.5px;
+  font-size: 11px;
   color: #166534;
 }
 
-/* QRIS Display Card */
-.qris-display-card {
-  max-width: 380px;
-  margin: 0 auto 24px;
-  border: 2px solid #e2e8f0;
-  border-radius: var(--radius-md);
-  padding: 20px;
-  background: #ffffff;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
-}
-
-.qris-card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 14px;
-  text-align: left;
-}
-
-.qris-merchant-title {
-  font-size: 12px;
-  font-weight: 800;
-  color: #1e293b;
-  margin: 2px 0 0;
-}
-
-.invoice-tag {
-  font-size: 11px;
-  font-weight: 700;
-  color: #64748b;
-  background: #f1f5f9;
-  padding: 2px 8px;
-  border-radius: 4px;
-}
-
-.qris-code-container {
-  background: #ffffff;
-  padding: 12px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  border: 1px dashed #cbd5e1;
-  border-radius: var(--radius-sm);
-  margin-bottom: 12px;
-}
-
-.generated-qr-image {
-  max-width: 220px;
-  width: 100%;
-  height: auto;
-}
-
-.qris-amount-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-top: 1px solid #f1f5f9;
-  padding-top: 10px;
-  margin-bottom: 6px;
-}
-
-.amount-lbl {
-  font-size: 12.5px;
-  color: #64748b;
-}
-
-.amount-val {
-  font-size: 18px;
-  font-weight: 800;
-  color: #0f766e;
-}
-
-.qris-instruction {
-  font-size: 11px;
-  color: #64748b;
-  line-height: 1.4;
-  margin: 0;
-}
-
-/* Success Action Buttons */
 .success-actions {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 9px;
   max-width: 380px;
   margin: 0 auto;
 }
 
-.btn-wa {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  background: #25d366;
-  color: #ffffff;
-  padding: 12px 18px;
-  border-radius: var(--radius-sm);
-  font-size: 13.5px;
-  font-weight: 700;
-  text-decoration: none;
-  transition: all 0.15s ease;
-}
-
-.btn-wa:hover {
-  background: #1ebc59;
-}
-
+/* =========================================================================
+   MOBILE RESPONSIVE
+   ========================================================================= */
 @media (max-width: 640px) {
+  .modal-dialog-wizard {
+    width: 100%;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+  }
   .wizard-stepper {
     padding: 10px 14px;
     gap: 4px;
@@ -2259,18 +2307,18 @@ function getWaConfirmationUrl() {
   .step-meta {
     display: none;
   }
-  .form-grid-3 {
+  .form-grid, .form-grid-3 {
     grid-template-columns: 1fr;
   }
-  .chips-grid-4 {
-    grid-template-columns: 1fr 1fr;
+  .segmented-control-4 {
+    grid-template-columns: repeat(2, 1fr);
   }
   .price-banner-box {
     flex-direction: column;
     align-items: flex-start;
   }
-  .price-banner-right {
-    align-items: flex-start;
+  .wizard-footer {
+    padding: 12px 16px;
   }
 }
 </style>

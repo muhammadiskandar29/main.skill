@@ -411,17 +411,20 @@ async function handleLoginSubmit() {
 
 <style scoped>
 /* =========================================================================
-   PAGE WRAPPER & AMBIENT BACKGROUND
+   PAGE WRAPPER & AMBIENT LIGHT BACKGROUND (PRISTINE & ELEGANT)
    ========================================================================= */
 .login-page-wrapper {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #071f26;
+  background-color: #f8fafc;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(240, 253, 250, 0.8) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(254, 243, 199, 0.4) 0px, transparent 50%);
   position: relative;
   overflow-x: hidden;
   font-family: var(--font-primary, 'Plus Jakarta Sans', sans-serif);
-  color: #ffffff;
+  color: #0f172a;
 }
 
 .ambient-mesh {
@@ -436,71 +439,71 @@ async function handleLoginSubmit() {
   position: absolute;
   inset: 0;
   background-image: 
-    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    linear-gradient(rgba(15, 23, 42, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 23, 42, 0.025) 1px, transparent 1px);
   background-size: 40px 40px;
 }
 
 .mesh-orb {
   position: absolute;
   border-radius: 50%;
-  filter: blur(90px);
-  opacity: 0.4;
+  filter: blur(100px);
 }
 
 .orb-teal {
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, #0e7490 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(13, 148, 136, 0.15) 0%, transparent 70%);
   top: -150px;
   left: -120px;
-  animation: orbDrift1 18s ease-in-out infinite alternate;
+  animation: orbDrift1 20s ease-in-out infinite alternate;
 }
 
 .orb-gold {
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, #d97706 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.12) 0%, transparent 70%);
   bottom: -150px;
   right: -80px;
-  animation: orbDrift2 20s ease-in-out infinite alternate;
+  animation: orbDrift2 22s ease-in-out infinite alternate;
 }
 
 .orb-blue {
   width: 450px;
   height: 450px;
-  background: radial-gradient(circle, #2563eb 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
   top: 35%;
   right: 25%;
-  animation: orbDrift3 16s ease-in-out infinite alternate;
+  animation: orbDrift3 18s ease-in-out infinite alternate;
 }
 
 @keyframes orbDrift1 {
   0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(80px, 100px) scale(1.1); }
+  100% { transform: translate(60px, 80px) scale(1.08); }
 }
 @keyframes orbDrift2 {
   0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(-80px, -70px) scale(1.15); }
+  100% { transform: translate(-60px, -50px) scale(1.1); }
 }
 @keyframes orbDrift3 {
   0% { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(-60px, 50px) scale(0.9); }
+  100% { transform: translate(-40px, 40px) scale(0.95); }
 }
 
 /* =========================================================================
-   1. RUNNING TICKER / MARQUEE BAR ("IKLAN BERJALAN")
+   1. RUNNING TICKER / MARQUEE BAR ("IKLAN BERJALAN" - LIGHT ELEGANT)
    ========================================================================= */
 .running-ticker-bar {
   position: relative;
   z-index: 10;
   display: flex;
   align-items: center;
-  background: linear-gradient(90deg, #09323c 0%, #0d4653 50%, #09323c 100%);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid #e2e8f0;
   height: 38px;
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
 }
 
 .ticker-badge {
@@ -508,28 +511,29 @@ async function handleLoginSubmit() {
   align-items: center;
   gap: 8px;
   padding: 0 16px;
-  background: #e5a024;
-  color: #05232a;
+  background: #0d4d5d;
+  color: #ffffff;
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.04em;
   height: 100%;
   white-space: nowrap;
   z-index: 3;
-  box-shadow: 4px 0 12px rgba(0, 0, 0, 0.25);
+  box-shadow: 2px 0 8px rgba(13, 77, 93, 0.15);
 }
 
 .ticker-pulse {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #b45309;
-  animation: pulseBadge 1.5s infinite;
+  background: #2dd4bf;
+  box-shadow: 0 0 6px #2dd4bf;
+  animation: pulseBadge 1.8s infinite;
 }
 
 @keyframes pulseBadge {
   0% { transform: scale(0.9); opacity: 1; }
-  50% { transform: scale(1.4); opacity: 0.4; }
+  50% { transform: scale(1.3); opacity: 0.6; }
   100% { transform: scale(0.9); opacity: 1; }
 }
 
@@ -544,7 +548,7 @@ async function handleLoginSubmit() {
 .ticker-track {
   display: flex;
   width: max-content;
-  animation: tickerScroll 35s linear infinite;
+  animation: tickerScroll 38s linear infinite;
 }
 
 .ticker-track:hover {
@@ -563,12 +567,12 @@ async function handleLoginSubmit() {
   align-items: center;
   gap: 6px;
   font-size: 12px;
-  color: #e0f2fe;
+  color: #475569;
   white-space: nowrap;
 }
 
 .ticker-item strong {
-  color: #fbbf24;
+  color: #0d4d5d;
   font-weight: 700;
 }
 
@@ -577,7 +581,7 @@ async function handleLoginSubmit() {
 }
 
 .ticker-sep {
-  color: rgba(255, 255, 255, 0.35);
+  color: #cbd5e1;
   font-size: 12px;
 }
 
@@ -587,15 +591,15 @@ async function handleLoginSubmit() {
 }
 
 /* =========================================================================
-   2. PORTAL HEADER
+   2. PORTAL HEADER (CLEAN FROSTED LIGHT)
    ========================================================================= */
 .portal-header {
   position: relative;
   z-index: 10;
-  padding: 12px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  background: rgba(7, 31, 38, 0.6);
-  backdrop-filter: blur(12px);
+  padding: 14px 0;
+  border-bottom: 1px solid #e2e8f0;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(14px);
 }
 
 .portal-header-container {
@@ -618,19 +622,18 @@ async function handleLoginSubmit() {
   height: 38px;
   width: auto;
   object-fit: contain;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
 }
 
 .logo-divider {
   width: 1px;
   height: 20px;
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: #cbd5e1;
 }
 
 .header-portal-label {
   font-size: 13px;
-  font-weight: 600;
-  color: #94a3b8;
+  font-weight: 700;
+  color: #475569;
   letter-spacing: 0.02em;
 }
 
@@ -638,22 +641,24 @@ async function handleLoginSubmit() {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(255, 255, 255, 0.08);
-  color: #e2e8f0;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  padding: 6px 14px;
+  background: #ffffff;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+  padding: 7px 16px;
   border-radius: 999px;
   font-size: 12.5px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   transition: all 0.2s ease;
 }
 
 .btn-back-clean:hover {
-  background: rgba(255, 255, 255, 0.16);
-  color: #ffffff;
-  border-color: rgba(255, 255, 255, 0.4);
+  background: #f8fafc;
+  color: #0d4d5d;
+  border-color: #cbd5e1;
   transform: translateX(-2px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 /* =========================================================================
@@ -666,7 +671,7 @@ async function handleLoginSubmit() {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px 20px;
+  padding: 36px 20px;
 }
 
 .portal-grid {
@@ -674,12 +679,12 @@ async function handleLoginSubmit() {
   max-width: 1180px;
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;
-  gap: 36px;
+  gap: 40px;
   align-items: center;
 }
 
 /* =========================================================================
-   LEFT PANEL: SHOWCASE & CAROUSEL
+   LEFT PANEL: SHOWCASE & CAROUSEL (LIGHT & CRISP)
    ========================================================================= */
 .showcase-panel {
   display: flex;
@@ -697,13 +702,13 @@ async function handleLoginSubmit() {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: rgba(13, 77, 93, 0.6);
-  border: 1px solid rgba(45, 212, 191, 0.35);
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
   padding: 5px 12px;
   border-radius: 999px;
   font-size: 11.5px;
   font-weight: 700;
-  color: #5eead4;
+  color: #0f766e;
   width: fit-content;
 }
 
@@ -711,15 +716,15 @@ async function handleLoginSubmit() {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #2dd4bf;
-  box-shadow: 0 0 8px #2dd4bf;
+  background: #0d9488;
+  box-shadow: 0 0 6px rgba(13, 148, 136, 0.4);
 }
 
 .showcase-title {
   font-size: 32px;
   font-weight: 800;
   line-height: 1.25;
-  color: #ffffff;
+  color: #09343f;
   margin: 0;
   letter-spacing: -0.02em;
 }
@@ -727,19 +732,19 @@ async function handleLoginSubmit() {
 .showcase-subtitle {
   font-size: 14px;
   line-height: 1.6;
-  color: #94a3b8;
+  color: #64748b;
   margin: 0;
   max-width: 520px;
 }
 
 /* Feature Slider Card */
 .feature-slider-card {
-  background: rgba(13, 77, 93, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid #e2e8f0;
   border-radius: 16px;
   padding: 18px 20px;
-  backdrop-filter: blur(16px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 30px -5px rgba(13, 77, 93, 0.07);
   transition: all 0.3s ease;
 }
 
@@ -748,14 +753,14 @@ async function handleLoginSubmit() {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid #f1f5f9;
   padding-bottom: 8px;
 }
 
 .slider-tag {
   font-size: 10.5px;
   font-weight: 800;
-  color: #fbbf24;
+  color: #0d9488;
   letter-spacing: 0.06em;
 }
 
@@ -768,7 +773,7 @@ async function handleLoginSubmit() {
   width: 8px;
   height: 8px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.25);
+  background: #cbd5e1;
   border: none;
   cursor: pointer;
   padding: 0;
@@ -777,8 +782,8 @@ async function handleLoginSubmit() {
 
 .dot.active {
   width: 22px;
-  background: #2dd4bf;
-  box-shadow: 0 0 8px rgba(45, 212, 191, 0.6);
+  background: #0d4d5d;
+  box-shadow: 0 0 6px rgba(13, 77, 93, 0.25);
 }
 
 .slider-body {
@@ -791,8 +796,9 @@ async function handleLoginSubmit() {
   width: 48px;
   height: 48px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: #f0fdfa;
+  border: 1px solid #ccfbf1;
+  color: #0d9488;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -810,14 +816,14 @@ async function handleLoginSubmit() {
 .slide-headline {
   font-size: 15px;
   font-weight: 700;
-  color: #ffffff;
+  color: #0f172a;
   margin: 0 0 5px 0;
 }
 
 .slide-desc {
   font-size: 12.5px;
   line-height: 1.5;
-  color: #cbd5e1;
+  color: #475569;
   margin: 0 0 8px 0;
 }
 
@@ -825,9 +831,9 @@ async function handleLoginSubmit() {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  background: rgba(45, 212, 191, 0.12);
-  color: #2dd4bf;
-  border: 1px solid rgba(45, 212, 191, 0.3);
+  background: #fefce8;
+  color: #854d0e;
+  border: 1px solid #fef08a;
   padding: 3px 10px;
   border-radius: 999px;
   font-size: 11px;
@@ -839,10 +845,11 @@ async function handleLoginSubmit() {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: rgba(5, 23, 29, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
   padding: 12px 18px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
 }
 
 .metric-box {
@@ -855,21 +862,21 @@ async function handleLoginSubmit() {
 .metric-val {
   font-size: 18px;
   font-weight: 800;
-  color: #ffffff;
+  color: #09343f;
   line-height: 1.1;
 }
 
 .metric-lbl {
   font-size: 10.5px;
   font-weight: 600;
-  color: #94a3b8;
+  color: #64748b;
   margin-top: 2px;
 }
 
 .metric-divider {
   width: 1px;
   height: 24px;
-  background-color: rgba(255, 255, 255, 0.1);
+  background-color: #f1f5f9;
 }
 
 /* Mini Testimonial */
@@ -877,10 +884,11 @@ async function handleLoginSubmit() {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
   padding: 10px 14px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
 }
 
 .parent-avatar {
@@ -888,7 +896,7 @@ async function handleLoginSubmit() {
 }
 
 .testimonial-body .stars {
-  color: #fbbf24;
+  color: #f59e0b;
   font-size: 11px;
   line-height: 1;
   letter-spacing: 2px;
@@ -896,7 +904,7 @@ async function handleLoginSubmit() {
 
 .testimonial-body .quote {
   font-size: 11.5px;
-  color: #cbd5e1;
+  color: #475569;
   margin: 3px 0 2px 0;
   font-style: italic;
   line-height: 1.4;
@@ -905,11 +913,11 @@ async function handleLoginSubmit() {
 .testimonial-body .author {
   font-size: 10.5px;
   font-weight: 700;
-  color: #5eead4;
+  color: #0f766e;
 }
 
 /* =========================================================================
-   RIGHT PANEL: COMPACT LOGIN CARD
+   RIGHT PANEL: COMPACT WHITE CARD (ULTRA ELEGANT & SHARP)
    ========================================================================= */
 .login-panel {
   display: flex;
@@ -922,10 +930,11 @@ async function handleLoginSubmit() {
   background: #ffffff;
   color: #0f172a;
   border-radius: 18px;
-  padding: 24px 26px 20px;
+  padding: 28px 28px 22px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
   box-shadow: 
-    0 20px 50px rgba(0, 0, 0, 0.45),
-    0 0 0 1px rgba(255, 255, 255, 0.1);
+    0 20px 45px -10px rgba(13, 77, 93, 0.09),
+    0 0 0 1px rgba(0, 0, 0, 0.01);
   position: relative;
   animation: cardIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -936,16 +945,16 @@ async function handleLoginSubmit() {
 }
 
 .card-head {
-  margin-bottom: 16px;
+  margin-bottom: 18px;
 }
 
 .security-chip {
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
-  color: #047857;
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  color: #0f766e;
   font-size: 10.5px;
   font-weight: 700;
   padding: 3px 10px;
@@ -995,7 +1004,7 @@ async function handleLoginSubmit() {
 .form-container {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .field-wrap {
@@ -1011,7 +1020,7 @@ async function handleLoginSubmit() {
 }
 
 .field-label {
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 700;
   color: #1e293b;
 }
@@ -1021,7 +1030,7 @@ async function handleLoginSubmit() {
   display: flex;
   align-items: center;
   border: 1.5px solid #cbd5e1;
-  border-radius: 8px;
+  border-radius: 9px;
   background: #ffffff;
   transition: all 0.2s ease;
 }
@@ -1045,10 +1054,10 @@ async function handleLoginSubmit() {
 
 .clean-input {
   width: 100%;
-  padding: 10px 12px 10px 38px;
+  padding: 11px 12px 11px 38px;
   border: none;
   background: transparent;
-  font-size: 13px;
+  font-size: 13.5px;
   font-family: inherit;
   color: #0f172a;
   outline: none;
@@ -1075,29 +1084,46 @@ async function handleLoginSubmit() {
   color: #0d4d5d;
 }
 
-/* Submit Action Button */
+/* Submit Action Button with subtle animated sheen */
 .btn-primary-action {
-  margin-top: 4px;
+  margin-top: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 11px 18px;
+  padding: 12px 18px;
   background: linear-gradient(135deg, #0d4d5d 0%, #156d82 50%, #09343f 100%);
   color: #ffffff;
   border: none;
   border-radius: 9px;
-  font-size: 13.5px;
+  font-size: 14px;
   font-weight: 700;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(13, 77, 93, 0.3);
+  box-shadow: 0 4px 14px rgba(13, 77, 93, 0.25);
   transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
 }
 
+.btn-primary-action::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  animation: btnSheen 4s infinite;
+}
+
+@keyframes btnSheen {
+  0% { left: -100%; }
+  25% { left: 200%; }
+  100% { left: 200%; }
+}
+
 .btn-primary-action:hover {
   transform: translateY(-1.5px);
-  box-shadow: 0 8px 20px rgba(13, 77, 93, 0.4);
+  box-shadow: 0 8px 22px rgba(13, 77, 93, 0.35);
   background: linear-gradient(135deg, #10596b 0%, #187a92 50%, #0d4d5d 100%);
 }
 
@@ -1111,6 +1137,7 @@ async function handleLoginSubmit() {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  z-index: 2;
 }
 
 .spinner-circle {
@@ -1128,14 +1155,14 @@ async function handleLoginSubmit() {
 
 /* Card Footer */
 .card-foot {
-  margin-top: 14px;
-  padding-top: 10px;
+  margin-top: 16px;
+  padding-top: 12px;
   border-top: 1px solid #f1f5f9;
   text-align: center;
 }
 
 .card-foot p {
-  font-size: 11.5px;
+  font-size: 12px;
   color: #64748b;
   margin: 0;
 }
@@ -1156,12 +1183,12 @@ async function handleLoginSubmit() {
    ========================================================================= */
 @media (max-width: 992px) {
   .portal-main-area {
-    padding: 20px 16px;
+    padding: 24px 16px;
   }
 
   .portal-grid {
     grid-template-columns: 1fr;
-    gap: 24px;
+    gap: 28px;
   }
 
   .showcase-panel {
@@ -1217,29 +1244,12 @@ async function handleLoginSubmit() {
   }
 
   .showcase-panel {
-    display: none; /* Hide large showcase on small mobile to give instant access to login */
+    display: none;
   }
 
   .login-card {
-    padding: 20px 18px 16px;
-    border-radius: 14px;
-  }
-
-  .fast-pills {
-    grid-template-columns: 1fr;
-    gap: 5px;
-  }
-
-  .demo-pill {
-    padding: 7px 10px;
-  }
-
-  .demo-pill strong {
-    font-size: 11.5px;
-  }
-
-  .demo-pill small {
-    font-size: 10px;
+    padding: 22px 18px 18px;
+    border-radius: 16px;
   }
 }
 </style>

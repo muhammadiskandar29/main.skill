@@ -139,24 +139,27 @@ function openRegister() {
 
 <style scoped>
 .modal-dialog-login {
-  max-width: 460px;
+  max-width: 440px;
   width: 92%;
-  padding: 32px 28px;
+  padding: 30px 28px 24px;
   background: #ffffff;
-  border-radius: var(--radius-lg, 16px);
-  box-shadow: 0 25px 50px -12px rgba(13, 77, 93, 0.25);
+  border-radius: 18px;
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  box-shadow: 
+    0 25px 50px -12px rgba(13, 77, 93, 0.14),
+    0 4px 16px rgba(0, 0, 0, 0.03);
   position: relative;
   animation: modalScaleUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes modalScaleUp {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from { opacity: 0; transform: scale(0.96) translateY(6px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 .login-header {
   position: relative;
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 }
 
 .brand-row {
@@ -173,24 +176,26 @@ function openRegister() {
 }
 
 .login-title {
-  font-size: 20px;
+  font-size: 19px;
   font-weight: 800;
-  color: var(--color-primary-dark, #09343f);
-  margin-bottom: 6px;
+  color: #09343f;
+  margin: 0 0 6px;
+  letter-spacing: -0.01em;
 }
 
 .login-desc {
   font-size: 13px;
-  color: var(--text-muted, #64748b);
+  color: #64748b;
   line-height: 1.5;
+  margin: 0;
 }
 
 .btn-close-login {
   position: absolute;
   top: -6px;
-  right: -4px;
-  background: #f1f5f9;
-  border: none;
+  right: -6px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -203,8 +208,9 @@ function openRegister() {
 }
 
 .btn-close-login:hover {
-  background: #e2e8f0;
+  background: #f1f5f9;
   color: #0f172a;
+  transform: rotate(90deg);
 }
 
 .login-alert.error {
@@ -215,8 +221,8 @@ function openRegister() {
   border: 1px solid #fecaca;
   color: #b91c1c;
   padding: 10px 14px;
-  border-radius: 8px;
-  font-size: 13px;
+  border-radius: 10px;
+  font-size: 12.5px;
   margin-bottom: 16px;
   line-height: 1.4;
 }
@@ -224,7 +230,7 @@ function openRegister() {
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 15px;
 }
 
 .form-group {
@@ -240,9 +246,9 @@ function openRegister() {
 }
 
 .form-label {
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 700;
-  color: var(--color-primary-dark, #09343f);
+  color: #1e293b;
 }
 
 .required {
@@ -272,18 +278,21 @@ function openRegister() {
 
 .form-input {
   width: 100%;
-  padding: 10px 14px;
+  padding: 11px 14px;
   border: 1.5px solid #cbd5e1;
-  border-radius: 8px;
-  font-size: 14px;
-  transition: border-color 0.2s ease;
+  border-radius: 9px;
+  font-size: 13.5px;
+  font-family: inherit;
+  transition: all 0.2s ease;
   background: #f8fafc;
+  color: #0f172a;
 }
 
 .form-input:focus {
   outline: none;
-  border-color: var(--color-primary, #0d4d5d);
+  border-color: #0d4d5d;
   background: #ffffff;
+  box-shadow: 0 0 0 3px rgba(13, 77, 93, 0.12);
 }
 
 .btn-toggle-eye {
@@ -294,6 +303,9 @@ function openRegister() {
   color: #94a3b8;
   cursor: pointer;
   padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .btn-toggle-eye:hover {
@@ -302,13 +314,49 @@ function openRegister() {
 
 .btn-submit-login {
   margin-top: 6px;
-  padding: 12px;
+  padding: 12px 18px;
   font-size: 14px;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+  background: linear-gradient(135deg, #0d4d5d 0%, #156d82 50%, #09343f 100%);
+  color: #ffffff;
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(13, 77, 93, 0.22);
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-submit-login::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+  animation: btnSheenModal 4s infinite;
+}
+
+@keyframes btnSheenModal {
+  0% { left: -100%; }
+  25% { left: 200%; }
+  100% { left: 200%; }
+}
+
+.btn-submit-login:hover:not(:disabled) {
+  transform: translateY(-1.5px);
+  box-shadow: 0 8px 22px rgba(13, 77, 93, 0.32);
+}
+
+.btn-submit-login:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 .login-footer {
@@ -319,17 +367,20 @@ function openRegister() {
 }
 
 .footer-txt {
-  font-size: 13px;
+  font-size: 12.5px;
   color: #64748b;
+  margin: 0;
 }
 
 .link-register {
-  color: var(--color-primary, #0d4d5d);
+  color: #0d4d5d;
   font-weight: 700;
   text-decoration: underline;
+  cursor: pointer;
+  margin-left: 4px;
 }
 
 .link-register:hover {
-  color: var(--color-accent-gold, #e5a024);
+  color: #e5a024;
 }
 </style>

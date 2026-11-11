@@ -357,6 +357,12 @@ function setSlide(idx) {
 }
 
 onMounted(() => {
+  // If user already has an active authenticated session, immediately redirect to portal!
+  if (store.authToken && store.currentUser && store.currentRole !== 'public') {
+    emit('login-success', store.currentUser);
+    return;
+  }
+
   slideInterval = setInterval(() => {
     currentSlideIdx.value = (currentSlideIdx.value + 1) % slides.length;
   }, 4500);

@@ -293,6 +293,11 @@ const selectedRegisterPackageId = ref('');
 const currentRoute = ref('home');
 
 function detectRoute() {
+  // If user is already authenticated and has a valid role, NEVER show login page!
+  if (store.authToken && store.currentUser && store.currentRole !== 'public') {
+    return 'home';
+  }
+
   const path = window.location.pathname.toLowerCase();
   const hash = window.location.hash.toLowerCase();
   if (path.endsWith('/login') || path === '/login' || hash === '#/login' || hash.startsWith('#/login')) {
@@ -303,17 +308,23 @@ function detectRoute() {
 
 function syncRoute() {
   currentRoute.value = detectRoute();
-  // Strict Auth Guard: If in portal mode without valid JWT auth, force to login
-  if (store.currentRole !== 'public' && (!store.authToken || !store.currentUser)) {
-    store.currentRole = 'public';
-    navigateToLogin();
-    return;
-  }
 
-  // If in authenticated portal mode, check if hash contains a specific menu
-  if (store.currentRole !== 'public') {
-    const hash = window.location.hash || '';
-    const match = hash.match(/#(?:(?:\/portal\/)|(?:\/))([a-z0-9_]+)/i);
+  // If in authenticated portal mode:
+  if (store.currentRole !== 'public' && store.authToken && store.currentUser) {
+    // If pathname was '/login' or hash was '#/login', clean it up to root portal URL immediately
+    const path = window.location.pathname.toLowerCase();
+    const hash = window.location.hash.toLowerCase();
+    const targetMenu = store.activePortalMenu || actions.getInitialPortalMenu(store.currentRole);
+
+    if (path === '/login' || path.endsWith('/login') || hash === '#/login' || hash.startsWith('#/login')) {
+      try {
+        window.history.replaceState(null, '', `/#/portal/${targetMenu}`);
+      } catch (e) {}
+    }
+
+    // Check if hash contains a specific menu
+    const currentHash = window.location.hash || '';
+    const match = currentHash.match(/#(?:(?:\/portal\/)|(?:\/))([a-z0-9_]+)/i);
     if (match && match[1]) {
       let menuId = match[1].toLowerCase();
       if (menuId === 'c_finance' || menuId === 'c_payments') menuId = 'c_billing';
@@ -328,6 +339,14 @@ function syncRoute() {
         store.activePortalMenu = actions.getInitialPortalMenu(store.currentRole);
       }
     }
+    return;
+  }
+
+  // Strict Auth Guard: If in portal mode without valid JWT auth, force to login
+  if (store.currentRole !== 'public' && (!store.authToken || !store.currentUser)) {
+    store.currentRole = 'public';
+    navigateToLogin();
+    return;
   }
 }
 
@@ -338,11 +357,9 @@ watch(
     if (!newMenu || store.currentRole === 'public') return;
     try {
       localStorage.setItem('mine_skills_active_portal_menu_v2', newMenu);
-      if (window.location.pathname !== '/login' && !window.location.hash.startsWith('#/login')) {
-        const expectedHash = `#/portal/${newMenu}`;
-        if (window.location.hash !== expectedHash) {
-          window.history.replaceState(null, '', expectedHash);
-        }
+      const targetUrl = `/#/portal/${newMenu}`;
+      if (window.location.pathname !== '/' || window.location.hash !== `#/portal/${newMenu}`) {
+        window.history.replaceState(null, '', targetUrl);
       }
     } catch (e) {}
   },
@@ -368,12 +385,7 @@ function navigateToHome() {
   currentRoute.value = 'home';
   store.currentRole = 'public';
   try {
-    const isVercelOrRoot = window.location.pathname === '/login';
-    if (isVercelOrRoot) {
-      window.history.pushState(null, '', '/');
-    } else if (window.location.hash.includes('login')) {
-      window.location.hash = '';
-    }
+    window.history.pushState(null, '', '/');
   } catch (e) {
     window.location.hash = '';
   }
@@ -386,11 +398,7 @@ function handleLoginSuccess(user) {
   const initialMenu = actions.getInitialPortalMenu(user.role);
   store.activePortalMenu = initialMenu;
   try {
-    if (window.location.pathname === '/login') {
-      window.history.pushState(null, '', `#/portal/${initialMenu}`);
-    } else {
-      window.location.hash = `#/portal/${initialMenu}`;
-    }
+    window.history.replaceState(null, '', `/#/portal/${initialMenu}`);
   } catch (e) {
     window.location.hash = `#/portal/${initialMenu}`;
   }
@@ -401,11 +409,7 @@ function handleRegistrationGoToPortal(user) {
   isRegisterOpen.value = false;
   currentRoute.value = 'home';
   try {
-    if (window.location.pathname === '/login') {
-      window.history.pushState(null, '', '#/portal/c_billing');
-    } else {
-      window.location.hash = '#/portal/c_billing';
-    }
+    window.history.replaceState(null, '', '/#/portal/c_billing');
   } catch (e) {
     window.location.hash = '#/portal/c_billing';
   }

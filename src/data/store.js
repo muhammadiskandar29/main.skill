@@ -914,7 +914,7 @@ export const actions = {
         throw new Error('Akun Anda dinonaktifkan sementara. Silakan hubungi tim administrasi manajemen.');
       }
       if (password !== '123' && localUser.password && localUser.password !== password) {
-        throw new Error('Kata sandi tidak sesuai. (Gunakan kata sandi default: 123)');
+        throw new Error('Kata sandi tidak sesuai. Silakan periksa kembali kata sandi Anda.');
       }
 
       // Generate signed JWT token

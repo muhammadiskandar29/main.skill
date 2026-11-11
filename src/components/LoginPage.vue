@@ -190,52 +190,10 @@
                   <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
                   <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
                 </svg>
-                <span>Autentikasi Aman Terenkripsi</span>
+                <span>Portal Resmi {{ store.brand?.name || 'mine.skills' }}</span>
               </div>
-              <h2 class="card-title">Masuk ke Portal</h2>
-              <p class="card-desc">Pilih otorisasi akun Anda untuk mengakses dashboard sistem.</p>
-            </div>
-
-            <!-- INTERACTIVE ROLE SWITCHER -->
-            <div class="role-selector" role="tablist">
-              <button 
-                type="button" 
-                class="role-btn" 
-                :class="{ active: activeRoleTab === 'customer' }"
-                @click="selectRoleTab('customer')"
-              >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="9" cy="7" r="4"></circle>
-                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                </svg>
-                <span class="btn-text">Wali Murid</span>
-              </button>
-              <button 
-                type="button" 
-                class="role-btn" 
-                :class="{ active: activeRoleTab === 'coach' }"
-                @click="selectRoleTab('coach')"
-              >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                  <circle cx="9" cy="7" r="4"></circle>
-                  <polyline points="16 11 18 13 22 9"></polyline>
-                </svg>
-                <span class="btn-text">Pelatih / Instruktur</span>
-              </button>
-              <button 
-                type="button" 
-                class="role-btn" 
-                :class="{ active: activeRoleTab === 'manajemen' }"
-                @click="selectRoleTab('manajemen')"
-              >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                </svg>
-                <span class="btn-text">Manajemen</span>
-              </button>
+              <h2 class="card-title">Masuk ke Akun</h2>
+              <p class="card-desc">Silakan masukkan email dan kata sandi Anda untuk mengakses portal.</p>
             </div>
 
             <!-- ERROR ALERT -->
@@ -255,8 +213,7 @@
               <!-- Email Input -->
               <div class="field-wrap">
                 <div class="field-label-row">
-                  <label class="field-label">Alamat Email Terdaftar</label>
-                  <span class="field-role-tag" :class="activeRoleTab">Akun {{ getRoleName(activeRoleTab) }}</span>
+                  <label class="field-label">Alamat Email</label>
                 </div>
                 <div class="input-shell" :class="{ focused: isEmailFocused }">
                   <svg class="field-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -280,7 +237,6 @@
               <div class="field-wrap">
                 <div class="field-label-row">
                   <label class="field-label">Kata Sandi</label>
-                  <span class="demo-tag">Default demo: <strong>123</strong></span>
                 </div>
                 <div class="input-shell" :class="{ focused: isPassFocused }">
                   <svg class="field-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -320,81 +276,16 @@
               <button type="submit" :disabled="isLoading" class="btn-primary-action">
                 <span v-if="isLoading" class="loading-state">
                   <span class="spinner-circle"></span>
-                  <span>Memverifikasi Akses JWT...</span>
+                  <span>Memverifikasi Akun...</span>
                 </span>
                 <span v-else class="ready-state">
-                  <span>Masuk Dashboard {{ getRoleName(activeRoleTab) }}</span>
+                  <span>Masuk ke Akun</span>
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                     <polyline points="9 18 15 12 9 6"></polyline>
                   </svg>
                 </span>
               </button>
             </form>
-
-            <!-- FAST 1-CLICK DEMO ACCOUNT SELECTOR -->
-            <div class="fast-demo-box">
-              <div class="fast-demo-title">
-                <span>Pilih Cepat Akun Demo (1-Klik)</span>
-              </div>
-              <div class="fast-pills">
-                <button 
-                  type="button" 
-                  class="demo-pill" 
-                  :class="{ active: activeRoleTab === 'customer' }"
-                  @click="selectRoleTab('customer')"
-                  title="Akses Demo Akun Wali Murid"
-                >
-                  <span class="pill-ico">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                      <circle cx="9" cy="7" r="4"></circle>
-                    </svg>
-                  </span>
-                  <div class="pill-meta">
-                    <strong>Bunda Sarah</strong>
-                    <small>Wali Murid</small>
-                  </div>
-                </button>
-
-                <button 
-                  type="button" 
-                  class="demo-pill" 
-                  :class="{ active: activeRoleTab === 'coach' }"
-                  @click="selectRoleTab('coach')"
-                  title="Akses Demo Akun Instruktur"
-                >
-                  <span class="pill-ico">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                      <circle cx="9" cy="7" r="4"></circle>
-                      <polyline points="16 11 18 13 22 9"></polyline>
-                    </svg>
-                  </span>
-                  <div class="pill-meta">
-                    <strong>Coach Adit</strong>
-                    <small>Instruktur</small>
-                  </div>
-                </button>
-
-                <button 
-                  type="button" 
-                  class="demo-pill" 
-                  :class="{ active: activeRoleTab === 'manajemen' }"
-                  @click="selectRoleTab('manajemen')"
-                  title="Akses Demo Akun Administrator"
-                >
-                  <span class="pill-ico">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                    </svg>
-                  </span>
-                  <div class="pill-meta">
-                    <strong>Admin Pusat</strong>
-                    <small>Manajemen</small>
-                  </div>
-                </button>
-              </div>
-            </div>
 
             <!-- CARD FOOTER -->
             <div class="card-foot">
@@ -422,21 +313,14 @@ import { store, actions } from '../data/store.js';
 
 const emit = defineEmits(['navigate-home', 'open-register', 'login-success']);
 
-const activeRoleTab = ref('manajemen');
-const email = ref('admin@mine.skills.id');
-const password = ref('123');
+const email = ref('');
+const password = ref('');
 const showPassword = ref(false);
 const isLoading = ref(false);
 const errorMessage = ref('');
 
 const isEmailFocused = ref(false);
 const isPassFocused = ref(false);
-
-const roleCredentials = {
-  customer: { email: 'sarah.ramadhani@gmail.com', pass: '123' },
-  coach: { email: 'adit.coach@mine.skills.id', pass: '123' },
-  manajemen: { email: 'admin@mine.skills.id', pass: '123' }
-};
 
 // Interactive Feature Slider Data
 const currentSlideIdx = ref(0);
@@ -480,9 +364,7 @@ onMounted(() => {
   try {
     const lastReg = localStorage.getItem('mineskills_last_registered_email');
     if (lastReg) {
-      activeRoleTab.value = 'customer';
       email.value = lastReg;
-      password.value = '123';
     }
   } catch (e) {}
 });
@@ -490,23 +372,6 @@ onMounted(() => {
 onUnmounted(() => {
   if (slideInterval) clearInterval(slideInterval);
 });
-
-function selectRoleTab(roleKey) {
-  activeRoleTab.value = roleKey;
-  errorMessage.value = '';
-  const creds = roleCredentials[roleKey];
-  if (creds) {
-    email.value = creds.email;
-    password.value = creds.pass;
-  }
-}
-
-function getRoleName(roleKey) {
-  if (roleKey === 'customer') return 'Wali Murid';
-  if (roleKey === 'coach') return 'Coach';
-  if (roleKey === 'manajemen') return 'Manajemen';
-  return 'Portal';
-}
 
 function goToHome() {
   emit('navigate-home');
@@ -1097,55 +962,6 @@ async function handleLoginSubmit() {
   line-height: 1.4;
 }
 
-/* Role Selector Segmented Controls */
-.role-selector {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
-  background: #f1f5f9;
-  padding: 4px;
-  border-radius: 10px;
-  margin-bottom: 16px;
-}
-
-.role-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
-  padding: 8px 4px;
-  border: 1px solid transparent;
-  border-radius: 8px;
-  background: transparent;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.role-btn:hover {
-  background: rgba(255, 255, 255, 0.7);
-}
-
-.role-btn.active {
-  background: #ffffff;
-  border-color: rgba(13, 77, 93, 0.15);
-  box-shadow: 0 2px 8px rgba(13, 77, 93, 0.12);
-}
-
-.btn-emoji {
-  font-size: 14px;
-}
-
-.btn-text {
-  font-size: 11.5px;
-  font-weight: 700;
-  color: #475569;
-  white-space: nowrap;
-}
-
-.role-btn.active .btn-text {
-  color: #0d4d5d;
-}
-
 /* Error Banner */
 .error-banner {
   display: flex;
@@ -1192,27 +1008,6 @@ async function handleLoginSubmit() {
   font-size: 11.5px;
   font-weight: 700;
   color: #1e293b;
-}
-
-.field-role-tag {
-  font-size: 9.5px;
-  font-weight: 700;
-  padding: 1px 7px;
-  border-radius: 999px;
-  text-transform: uppercase;
-}
-
-.field-role-tag.customer { background: #fae8ff; color: #a21caf; border: 1px solid #f0abfc; }
-.field-role-tag.coach { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
-.field-role-tag.manajemen { background: #fef3c7; color: #b45309; border: 1px solid #fde68a; }
-
-.demo-tag {
-  font-size: 10.5px;
-  color: #64748b;
-}
-
-.demo-tag strong {
-  color: #0d4d5d;
 }
 
 .input-shell {
@@ -1323,83 +1118,6 @@ async function handleLoginSubmit() {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
-}
-
-/* Fast 1-Click Demo Pills */
-.fast-demo-box {
-  margin-top: 14px;
-  padding-top: 12px;
-  border-top: 1px solid #f1f5f9;
-}
-
-.fast-demo-title {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 8px;
-}
-
-.fast-demo-title span {
-  font-size: 10.5px;
-  font-weight: 700;
-  color: #94a3b8;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.fast-pills {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
-}
-
-.demo-pill {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 7px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.15s ease;
-}
-
-.demo-pill:hover {
-  background: #ffffff;
-  border-color: #0d4d5d;
-  box-shadow: 0 2px 6px rgba(13, 77, 93, 0.08);
-}
-
-.demo-pill.active {
-  background: #ffffff;
-  border-color: #e5a024;
-  box-shadow: 0 0 0 1.5px #e5a024;
-}
-
-.pill-ico {
-  font-size: 14px;
-}
-
-.pill-meta {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.pill-meta strong {
-  font-size: 10.5px;
-  color: #1e293b;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.pill-meta small {
-  font-size: 9px;
-  color: #64748b;
-  white-space: nowrap;
 }
 
 /* Card Footer */

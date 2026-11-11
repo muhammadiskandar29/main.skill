@@ -50,7 +50,6 @@
         <div class="form-group">
           <div class="label-row">
             <label class="form-label">Kata Sandi <span class="required">*</span></label>
-            <span class="sub-hint">Default akun: <strong>123</strong></span>
           </div>
           <div class="input-icon-wrap">
             <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -87,52 +86,6 @@
         </button>
       </form>
 
-      <!-- Quick Helper: Akun Uji Coba Resmi -->
-      <div class="quick-login-box">
-        <span class="quick-title">Bantuan Akses Cepat (Akun Uji Coba):</span>
-        <div class="quick-chips">
-          <button 
-            type="button" 
-            class="quick-chip chip-cust" 
-            @click="fillQuick('sarah.ramadhani@gmail.com', '123')"
-            title="Akses Uji Coba Wali Murid"
-            style="display: inline-flex; align-items: center; gap: 6px;"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-              <circle cx="9" cy="7" r="4"></circle>
-            </svg>
-            <span>Wali Murid (Bunda Sarah)</span>
-          </button>
-          <button 
-            type="button" 
-            class="quick-chip chip-coach" 
-            @click="fillQuick('adit.coach@mine.skills.id', '123')"
-            title="Akses Uji Coba Instruktur"
-            style="display: inline-flex; align-items: center; gap: 6px;"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-              <circle cx="9" cy="7" r="4"></circle>
-              <polyline points="16 11 18 13 22 9"></polyline>
-            </svg>
-            <span>Instruktur (Coach Adit)</span>
-          </button>
-          <button 
-            type="button" 
-            class="quick-chip chip-admin" 
-            @click="fillQuick('admin@mine.skills.id', '123')"
-            title="Akses Uji Coba Administrator"
-            style="display: inline-flex; align-items: center; gap: 6px;"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-            </svg>
-            <span>Administrator (Manajemen)</span>
-          </button>
-        </div>
-      </div>
-
       <!-- Footer Info -->
       <div class="login-footer">
         <p class="footer-txt">
@@ -151,7 +104,7 @@ import { store, actions } from '../data/store.js';
 const emit = defineEmits(['close', 'open-register']);
 
 const email = ref('');
-const password = ref('123');
+const password = ref('');
 const showPassword = ref(false);
 const isLoading = ref(false);
 const errorMessage = ref('');
@@ -164,12 +117,6 @@ onMounted(() => {
     }
   } catch (e) {}
 });
-
-function fillQuick(e, p) {
-  email.value = e;
-  password.value = p;
-  errorMessage.value = '';
-}
 
 async function handleLogin() {
   errorMessage.value = '';
@@ -298,11 +245,6 @@ function openRegister() {
   color: var(--color-primary-dark, #09343f);
 }
 
-.sub-hint {
-  font-size: 11px;
-  color: #64748b;
-}
-
 .required {
   color: #dc2626;
 }
@@ -367,50 +309,6 @@ function openRegister() {
   align-items: center;
   justify-content: center;
   gap: 8px;
-}
-
-.quick-login-box {
-  margin-top: 20px;
-  padding: 14px;
-  background: #f8fafc;
-  border: 1px dashed #cbd5e1;
-  border-radius: 10px;
-}
-
-.quick-title {
-  display: block;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: #64748b;
-  margin-bottom: 10px;
-}
-
-.quick-chips {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.quick-chip {
-  text-align: left;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 12.5px;
-  font-weight: 600;
-  border: 1px solid #e2e8f0;
-  background: #ffffff;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  color: #334155;
-}
-
-.quick-chip:hover {
-  border-color: var(--color-primary, #0d4d5d);
-  background: #f0fdfa;
-  color: var(--color-primary-dark, #09343f);
-  transform: translateX(2px);
 }
 
 .login-footer {

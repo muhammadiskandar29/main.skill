@@ -276,7 +276,7 @@
 </template>
 
 <script setup>
-import { ref, computed, h, onMounted, onUnmounted } from 'vue';
+import { ref, computed, h, onMounted, onUnmounted, watch } from 'vue';
 import { store, actions } from './data/store.js';
 import HeaderNav from './components/HeaderNav.vue';
 import CompanyProfile from './components/CompanyProfile.vue';
@@ -307,8 +307,47 @@ function syncRoute() {
   if (store.currentRole !== 'public' && (!store.authToken || !store.currentUser)) {
     store.currentRole = 'public';
     navigateToLogin();
+    return;
+  }
+
+  // If in authenticated portal mode, check if hash contains a specific menu
+  if (store.currentRole !== 'public') {
+    const hash = window.location.hash || '';
+    const match = hash.match(/#(?:(?:\/portal\/)|(?:\/))([a-z0-9_]+)/i);
+    if (match && match[1]) {
+      let menuId = match[1].toLowerCase();
+      if (menuId === 'c_finance' || menuId === 'c_payments') menuId = 'c_billing';
+      if (actions.isMenuValidForRole(menuId, store.currentRole)) {
+        if (store.activePortalMenu !== menuId) {
+          store.activePortalMenu = menuId;
+        }
+      }
+    } else {
+      // Ensure current activePortalMenu matches this role
+      if (!actions.isMenuValidForRole(store.activePortalMenu, store.currentRole)) {
+        store.activePortalMenu = actions.getInitialPortalMenu(store.currentRole);
+      }
+    }
   }
 }
+
+// Watch activePortalMenu: keep in localStorage and sync with URL hash
+watch(
+  () => store.activePortalMenu,
+  (newMenu) => {
+    if (!newMenu || store.currentRole === 'public') return;
+    try {
+      localStorage.setItem('mine_skills_active_portal_menu_v2', newMenu);
+      if (window.location.pathname !== '/login' && !window.location.hash.startsWith('#/login')) {
+        const expectedHash = `#/portal/${newMenu}`;
+        if (window.location.hash !== expectedHash) {
+          window.history.replaceState(null, '', expectedHash);
+        }
+      }
+    } catch (e) {}
+  },
+  { immediate: true }
+);
 
 function navigateToLogin() {
   currentRoute.value = 'login';
@@ -344,14 +383,16 @@ function navigateToHome() {
 function handleLoginSuccess(user) {
   currentRoute.value = 'home';
   store.currentRole = user.role;
+  const initialMenu = actions.getInitialPortalMenu(user.role);
+  store.activePortalMenu = initialMenu;
   try {
     if (window.location.pathname === '/login') {
-      window.history.pushState(null, '', '/');
-    } else if (window.location.hash.includes('login')) {
-      window.location.hash = '';
+      window.history.pushState(null, '', `#/portal/${initialMenu}`);
+    } else {
+      window.location.hash = `#/portal/${initialMenu}`;
     }
   } catch (e) {
-    window.location.hash = '';
+    window.location.hash = `#/portal/${initialMenu}`;
   }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -361,15 +402,15 @@ function handleRegistrationGoToPortal(user) {
   currentRoute.value = 'home';
   try {
     if (window.location.pathname === '/login') {
-      window.history.pushState(null, '', '/');
-    } else if (window.location.hash.includes('login')) {
-      window.location.hash = '';
+      window.history.pushState(null, '', '#/portal/c_billing');
+    } else {
+      window.location.hash = '#/portal/c_billing';
     }
   } catch (e) {
-    window.location.hash = '';
+    window.location.hash = '#/portal/c_billing';
   }
   if (user) {
-    actions.directLoginUser(user, 'c_finance');
+    actions.directLoginUser(user, 'c_billing');
   }
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }

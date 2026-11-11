@@ -1,7 +1,7 @@
 <template>
   <div class="portal-coach">
     <!-- Active Sub-Menu: co_overview -->
-    <div v-if="activeMenu === 'co_overview'" class="portal-tab-content">
+    <div v-if="resolvedMenu === 'co_overview'" class="portal-tab-content">
       <!-- Coach Header Profile Card -->
       <div class="coach-hero-banner card-humanist">
         <div class="coach-profile-left">
@@ -76,7 +76,7 @@
     </div>
 
     <!-- Active Sub-Menu: co_input_progress (INPUT PERKEMBANGAN LATIHAN) -->
-    <div v-else-if="activeMenu === 'co_input_progress'" class="portal-tab-content">
+    <div v-else-if="resolvedMenu === 'co_input_progress'" class="portal-tab-content">
       <div class="page-top-bar">
         <div>
           <span class="badge-chip teal">Daily Assessment Tool</span>
@@ -273,7 +273,7 @@
     </div>
 
     <!-- Active Sub-Menu: co_schedule -->
-    <div v-else-if="activeMenu === 'co_schedule'" class="portal-tab-content">
+    <div v-else-if="resolvedMenu === 'co_schedule'" class="portal-tab-content">
       <div class="page-top-bar">
         <div>
           <span class="badge-chip gold">Agenda Mengajar</span>
@@ -307,7 +307,7 @@
     </div>
 
     <!-- Active Sub-Menu: co_attendance (PRESENSI KEHADIRAN COACH DENGAN GPS & MINI MAP) -->
-    <div v-else-if="activeMenu === 'co_attendance'" class="portal-tab-content">
+    <div v-else-if="resolvedMenu === 'co_attendance'" class="portal-tab-content">
       <div class="page-top-bar">
         <div>
           <span class="badge-chip gold">Sistem Presensi Geofence GPS</span>
@@ -567,7 +567,7 @@
     </div>
 
     <!-- Active Sub-Menu: co_students -->
-    <div v-else-if="activeMenu === 'co_students'" class="portal-tab-content">
+    <div v-else-if="resolvedMenu === 'co_students'" class="portal-tab-content">
       <div class="page-top-bar">
         <div>
           <span class="badge-chip teal">Daftar Bimbingan</span>
@@ -621,6 +621,13 @@ const props = defineProps({
     type: String,
     default: 'co_overview'
   }
+});
+
+const resolvedMenu = computed(() => {
+  const m = (props.activeMenu || '').toLowerCase();
+  const valid = ['co_overview', 'co_input_progress', 'co_schedule', 'co_attendance', 'co_students'];
+  if (valid.includes(m)) return m;
+  return 'co_overview';
 });
 
 defineEmits(['change-menu']);

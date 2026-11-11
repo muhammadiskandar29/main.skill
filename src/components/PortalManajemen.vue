@@ -14,7 +14,7 @@
     <!-- =========================================================================
          SUB-MENU 1: RINGKASAN EKSEKUTIF (m_overview)
          ========================================================================= -->
-    <div v-if="activeMenu === 'm_overview'" class="portal-tab-content">
+    <div v-if="resolvedMenu === 'm_overview'" class="portal-tab-content">
       <div class="page-top-bar">
         <div>
           <span class="badge-chip teal">Dashboard Manajemen</span>
@@ -194,7 +194,7 @@
     <!-- =========================================================================
          SUB-MENU 2: MASTER PROGRAM PELATIHAN (m_products)
          ========================================================================= -->
-    <div v-else-if="activeMenu === 'm_products'" class="portal-tab-content">
+    <div v-else-if="resolvedMenu === 'm_products'" class="portal-tab-content">
       <div class="page-top-bar">
         <div>
           <span class="badge-chip teal">Master Data Akademik</span>
@@ -272,7 +272,7 @@
     <!-- =========================================================================
          SUB-MENU: MASTER FASILITAS & LOKASI LATIHAN (m_locations)
          ========================================================================= -->
-    <div v-else-if="activeMenu === 'm_locations'" class="portal-tab-content">
+    <div v-else-if="resolvedMenu === 'm_locations'" class="portal-tab-content">
       <div class="page-top-bar">
         <div>
           <span class="badge-chip gold">Master Fasilitas & Geofence GPS</span>
@@ -427,7 +427,7 @@
     <!-- =========================================================================
          SUB-MENU 3: PAKET KURSUS & BIAYA (m_packages)
          ========================================================================= -->
-    <div v-else-if="activeMenu === 'm_packages'" class="portal-tab-content">
+    <div v-else-if="resolvedMenu === 'm_packages'" class="portal-tab-content">
       <div class="page-top-bar">
         <div>
           <span class="badge-chip gold">Struktur Tarif & Biaya</span>
@@ -495,7 +495,7 @@
     <!-- =========================================================================
          SUB-MENU 4: DAFTAR INSTRUKTUR (m_coaches)
          ========================================================================= -->
-    <div v-else-if="activeMenu === 'm_coaches'" class="portal-tab-content">
+    <div v-else-if="resolvedMenu === 'm_coaches'" class="portal-tab-content">
       <div class="page-top-bar">
         <div>
           <span class="badge-chip gold">Tenaga Pengajar</span>
@@ -562,7 +562,7 @@
     <!-- =========================================================================
          SUB-MENU 5: DATA SISWA & WALI (m_students)
          ========================================================================= -->
-    <div v-else-if="activeMenu === 'm_students'" class="portal-tab-content">
+    <div v-else-if="resolvedMenu === 'm_students'" class="portal-tab-content">
       <div class="page-top-bar">
         <div>
           <span class="badge-chip green">Data Akademik & Siswa</span>
@@ -723,7 +723,7 @@
          SUB-MENU 6: JADWAL & SESI LATIHAN     <!-- =========================================================================
          SUB-MENU 6: PLOTTING JADWAL & SESI LATIHAN (m_schedules) - FULL DYNAMIC
          ========================================================================= -->
-    <div v-else-if="activeMenu === 'm_schedules'" class="portal-tab-content">
+    <div v-else-if="resolvedMenu === 'm_schedules'" class="portal-tab-content">
       <!-- Top Bar Header -->
       <div class="page-top-bar sched-header-bar">
         <div>
@@ -1109,7 +1109,7 @@
     <!-- =========================================================================
          SUB-MENU: MONITORING KEHADIRAN COACH (m_attendance)
          ========================================================================= -->
-    <div v-else-if="activeMenu === 'm_attendance'" class="portal-tab-content">
+    <div v-else-if="resolvedMenu === 'm_attendance'" class="portal-tab-content">
       <div class="page-top-bar">
         <div>
           <span class="badge-chip gold">Audit Kehadiran Berbasis Geofence GPS</span>
@@ -1467,7 +1467,7 @@
     <!-- =========================================================================
          SUB-MENU 7: KEUANGAN & PEMBAYARAN (m_payments)
          ========================================================================= -->
-    <div v-else-if="activeMenu === 'm_payments'" class="portal-tab-content">
+    <div v-else-if="resolvedMenu === 'm_payments'" class="portal-tab-content">
       <div class="page-top-bar">
         <div>
           <span class="badge-chip gold">Sistem Keuangan & Billing</span>
@@ -2061,7 +2061,7 @@ function cekMutasiBankGmail() {
     <!-- =========================================================================
          SUB-MENU: PROFIL & WEBSITE CMS (m_website)
          ========================================================================= -->
-    <div v-else-if="activeMenu === 'm_website'" class="portal-tab-content">
+    <div v-else-if="resolvedMenu === 'm_website'" class="portal-tab-content">
       <div class="page-top-bar">
         <div>
           <span class="badge-chip teal">Pengaturan Brand & CMS</span>
@@ -2213,7 +2213,7 @@ function cekMutasiBankGmail() {
     <!-- =========================================================================
          SUB-MENU 8: PENGATURAN AKSES & RBAC (m_rbac)
          ========================================================================= -->
-    <div v-else-if="activeMenu === 'm_rbac'" class="portal-tab-content">
+    <div v-else-if="resolvedMenu === 'm_rbac'" class="portal-tab-content">
       <div class="page-top-bar">
         <div>
           <span class="badge-chip gold">Keamanan & Otorisasi</span>
@@ -3580,6 +3580,17 @@ const props = defineProps({
     type: String,
     default: 'm_overview'
   }
+});
+
+const resolvedMenu = computed(() => {
+  const m = (props.activeMenu || '').toLowerCase();
+  const valid = [
+    'm_overview', 'm_products', 'm_locations', 'm_packages',
+    'm_coaches', 'm_students', 'm_schedules', 'm_attendance',
+    'm_payments', 'm_website', 'm_rbac'
+  ];
+  if (valid.includes(m)) return m;
+  return 'm_overview';
 });
 
 defineEmits(['change-menu']);

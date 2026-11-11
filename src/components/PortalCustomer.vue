@@ -1,7 +1,7 @@
 <template>
   <div class="portal-customer">
     <!-- Active Sub-Menu: c_overview -->
-    <div v-if="activeMenu === 'c_overview'" class="portal-tab-content">
+    <div v-if="resolvedMenu === 'c_overview'" class="portal-tab-content">
       <!-- Student Profile Card Banner -->
       <div class="student-hero-banner card-humanist">
         <div class="student-hero-left">
@@ -366,7 +366,7 @@
     </div>
 
     <!-- Active Sub-Menu: c_progress (PERKEMBANGAN ANAK / SWIMMING REPORT) -->
-    <div v-else-if="activeMenu === 'c_progress'" class="portal-tab-content">
+    <div v-else-if="resolvedMenu === 'c_progress'" class="portal-tab-content">
       <div class="page-top-bar">
         <div>
           <span class="badge-chip teal">Raport Perkembangan Berkala</span>
@@ -490,7 +490,7 @@
     </div>
 
     <!-- Active Sub-Menu: c_schedule -->
-    <div v-else-if="activeMenu === 'c_schedule'" class="portal-tab-content">
+    <div v-else-if="resolvedMenu === 'c_schedule'" class="portal-tab-content">
       <div class="page-top-bar">
         <div>
           <span class="badge-chip gold">Jadwal Kelas</span>
@@ -534,7 +534,7 @@
     </div>
 
     <!-- Active Sub-Menu: c_certificates -->
-    <div v-else-if="activeMenu === 'c_certificates'" class="portal-tab-content">
+    <div v-else-if="resolvedMenu === 'c_certificates'" class="portal-tab-content">
       <div class="page-top-bar">
         <div>
           <span class="badge-chip green">Pencapaian & Kelulusan</span>
@@ -578,7 +578,7 @@
     </div>
 
     <!-- Active Sub-Menu: c_billing -->
-    <div v-else-if="activeMenu === 'c_billing'" class="portal-tab-content">
+    <div v-else-if="resolvedMenu === 'c_billing'" class="portal-tab-content">
       <div class="page-top-bar">
         <div>
           <span class="badge-chip teal">Administrasi & Tagihan</span>
@@ -1051,6 +1051,13 @@ const props = defineProps({
     type: String,
     default: 'c_overview'
   }
+});
+
+const resolvedMenu = computed(() => {
+  const m = (props.activeMenu || '').toLowerCase();
+  if (m === 'c_finance' || m === 'c_billing' || m === 'c_payments') return 'c_billing';
+  if (['c_overview', 'c_progress', 'c_schedule', 'c_certificates'].includes(m)) return m;
+  return 'c_overview';
 });
 
 defineEmits(['change-menu']);

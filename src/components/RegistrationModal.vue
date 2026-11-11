@@ -1283,7 +1283,7 @@ function goToCustomerPortal() {
     localStorage.setItem('mineskills_last_registered_email', registeredEmail);
   } catch (e) {}
 
-  actions.directLoginUser(registeredUser, 'c_finance');
+  actions.directLoginUser(registeredUser, 'c_billing');
   emit('go-to-portal', registeredUser);
   emit('close');
 }

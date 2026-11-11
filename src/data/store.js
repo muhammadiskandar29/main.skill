@@ -612,13 +612,72 @@ function loadSavedSession() {
 
 const savedSession = loadSavedSession();
 
+export const PORTAL_MENU_STORAGE_KEY = 'mine_skills_active_portal_menu_v2';
+
+export function resolveDefaultMenuForRole(role) {
+  if (role === 'customer') return 'c_overview';
+  if (role === 'coach') return 'co_overview';
+  if (role === 'manajemen') return 'm_overview';
+  return 'm_overview';
+}
+
+export function isMenuValidForRole(menu, role) {
+  if (!menu || !role) return false;
+  const clean = String(menu).toLowerCase();
+  if (role === 'customer') {
+    return ['c_overview', 'c_progress', 'c_schedule', 'c_certificates', 'c_billing', 'c_finance', 'c_payments'].includes(clean);
+  }
+  if (role === 'coach') {
+    return ['co_overview', 'co_schedule', 'co_input_progress', 'co_attendance', 'co_students'].includes(clean);
+  }
+  if (role === 'manajemen') {
+    return [
+      'm_overview', 'm_products', 'm_locations', 'm_packages',
+      'm_coaches', 'm_students', 'm_schedules', 'm_attendance',
+      'm_payments', 'm_website', 'm_rbac'
+    ].includes(clean);
+  }
+  return false;
+}
+
+export function getInitialPortalMenu(role) {
+  if (!role || role === 'public') return 'm_overview';
+
+  // 1. Try from URL hash (e.g. #/portal/m_payments or #/m_payments)
+  try {
+    const hash = (typeof window !== 'undefined' ? window.location.hash : '') || '';
+    const match = hash.match(/#(?:(?:\/portal\/)|(?:\/))([a-z0-9_]+)/i);
+    if (match && match[1]) {
+      let menuId = match[1].toLowerCase();
+      if (menuId === 'c_finance' || menuId === 'c_payments') menuId = 'c_billing';
+      if (isMenuValidForRole(menuId, role)) {
+        return menuId;
+      }
+    }
+  } catch (e) {}
+
+  // 2. Try from LocalStorage
+  try {
+    const saved = localStorage.getItem(PORTAL_MENU_STORAGE_KEY);
+    if (saved) {
+      let menuId = saved.trim().toLowerCase();
+      if (menuId === 'c_finance' || menuId === 'c_payments') menuId = 'c_billing';
+      if (isMenuValidForRole(menuId, role)) {
+        return menuId;
+      }
+    }
+  } catch (e) {}
+
+  return resolveDefaultMenuForRole(role);
+}
+
 // Create reactive store
 export const store = reactive({
   currentRole: savedSession.currentRole || 'public',
   currentUser: savedSession.currentUser || null,
   authToken: savedSession.authToken || null,
   activePublicPage: 'home', // 'home' | 'programs' | 'pricing' | 'coaches' | 'locations' | 'contact'
-  activePortalMenu: 'm_overview',
+  activePortalMenu: getInitialPortalMenu(savedSession.currentRole || 'public'),
   isLoading: false,
   isLoginModalOpen: false,
 
@@ -862,25 +921,38 @@ export const actions = {
       localStorage.removeItem(USER_KEY);
       localStorage.removeItem(STORAGE_KEY);
       localStorage.removeItem('mine_skills_auth_session_v3');
+      localStorage.removeItem(PORTAL_MENU_STORAGE_KEY);
+      if (typeof window !== 'undefined' && window.location.hash.startsWith('#/portal/')) {
+        window.history.replaceState(null, '', '/');
+      }
     } catch (e) {
       console.warn('Failed to clear session storage:', e);
     }
   },
 
   // Direct User Login (misal setelah registrasi sukses atau deep-link akun)
-  directLoginUser(user, targetMenu = 'c_finance') {
+  directLoginUser(user, targetMenu = 'c_billing') {
     if (!user) return;
     const token = generateToken(user);
     store.authToken = token;
     store.currentUser = user;
     store.currentRole = user.role || 'customer';
-    store.activePortalMenu = targetMenu;
+    let cleanMenu = (targetMenu || '').toLowerCase();
+    if (cleanMenu === 'c_finance' || cleanMenu === 'c_payments') cleanMenu = 'c_billing';
+    if (!isMenuValidForRole(cleanMenu, store.currentRole)) {
+      cleanMenu = resolveDefaultMenuForRole(store.currentRole);
+    }
+    store.activePortalMenu = cleanMenu;
     store.isLoginModalOpen = false;
     try {
       localStorage.setItem(TOKEN_KEY, token);
       localStorage.setItem(USER_KEY, JSON.stringify(user));
+      localStorage.setItem(PORTAL_MENU_STORAGE_KEY, cleanMenu);
       if (user.email) {
         localStorage.setItem('mineskills_last_registered_email', user.email);
+      }
+      if (typeof window !== 'undefined') {
+        window.history.replaceState(null, '', `#/portal/${cleanMenu}`);
       }
     } catch (e) {}
   },
@@ -898,10 +970,34 @@ export const actions = {
       throw new Error('Anda tidak memiliki hak akses untuk portal ini.');
     }
     store.currentRole = roleId;
-    if (roleId === 'customer') store.activePortalMenu = 'c_overview';
-    else if (roleId === 'coach') store.activePortalMenu = 'co_overview';
-    else if (roleId === 'manajemen') store.activePortalMenu = 'm_overview';
+    const defaultMenu = resolveDefaultMenuForRole(roleId);
+    store.activePortalMenu = defaultMenu;
+    try {
+      localStorage.setItem(PORTAL_MENU_STORAGE_KEY, defaultMenu);
+      if (typeof window !== 'undefined') {
+        window.history.replaceState(null, '', `#/portal/${defaultMenu}`);
+      }
+    } catch (e) {}
   },
+
+  // Set active portal menu with persistence and routing sync
+  setActivePortalMenu(menuId) {
+    if (!menuId) return;
+    let cleanMenu = String(menuId).toLowerCase();
+    if (cleanMenu === 'c_finance' || cleanMenu === 'c_payments') cleanMenu = 'c_billing';
+    store.activePortalMenu = cleanMenu;
+    try {
+      localStorage.setItem(PORTAL_MENU_STORAGE_KEY, cleanMenu);
+      if (typeof window !== 'undefined') {
+        window.history.replaceState(null, '', `#/portal/${cleanMenu}`);
+      }
+    } catch (e) {}
+  },
+
+  // Expose routing helpers on actions
+  isMenuValidForRole,
+  getInitialPortalMenu,
+  resolveDefaultMenuForRole,
 
   // Real Auth Login with JWT Token generation and active status verification
   async login(email, password) {
@@ -923,14 +1019,18 @@ export const actions = {
       store.currentUser = localUser;
       store.currentRole = localUser.role;
 
+      const targetMenu = getInitialPortalMenu(localUser.role);
+      store.activePortalMenu = targetMenu;
+
       try {
         localStorage.setItem(TOKEN_KEY, token);
         localStorage.setItem(USER_KEY, JSON.stringify(localUser));
+        localStorage.setItem(PORTAL_MENU_STORAGE_KEY, targetMenu);
+        if (typeof window !== 'undefined') {
+          window.history.replaceState(null, '', `#/portal/${targetMenu}`);
+        }
       } catch (e) {}
 
-      if (localUser.role === 'customer') store.activePortalMenu = 'c_overview';
-      else if (localUser.role === 'coach') store.activePortalMenu = 'co_overview';
-      else if (localUser.role === 'manajemen') store.activePortalMenu = 'm_overview';
       store.isLoginModalOpen = false;
       return localUser;
     }
@@ -948,14 +1048,18 @@ export const actions = {
       store.currentUser = user;
       store.currentRole = user.role;
 
+      const targetMenu = getInitialPortalMenu(user.role);
+      store.activePortalMenu = targetMenu;
+
       try {
         localStorage.setItem(TOKEN_KEY, token);
         localStorage.setItem(USER_KEY, JSON.stringify(user));
+        localStorage.setItem(PORTAL_MENU_STORAGE_KEY, targetMenu);
+        if (typeof window !== 'undefined') {
+          window.history.replaceState(null, '', `#/portal/${targetMenu}`);
+        }
       } catch (e) {}
 
-      if (user.role === 'customer') store.activePortalMenu = 'c_overview';
-      else if (user.role === 'coach') store.activePortalMenu = 'co_overview';
-      else if (user.role === 'manajemen') store.activePortalMenu = 'm_overview';
       store.isLoginModalOpen = false;
       return user;
     } catch (err) {

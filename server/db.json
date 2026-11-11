@@ -2,7 +2,7 @@
   "users": [
     {
       "id": "usr_admin_1",
-      "name": "Iskandar & Tim Manajemen",
+      "name": "Manajemen",
       "email": "admin@mine.skills.id",
       "password": "123",
       "role": "manajemen",

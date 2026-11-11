@@ -405,11 +405,6 @@
               </svg>
               <span>{{ isLocating ? 'Mendeteksi Koordinat GPS...' : 'Nyalakan GPS & Validasi Titik Lokasi' }}</span>
             </button>
-
-            <!-- Quick fallback for desktop testing -->
-            <button @click="useSimulatedVenueLocation" class="btn-text-sm" style="margin-top: 8px;">
-              Gunakan Titik Lokasi {{ selectedLocation?.name }} (Simulasi Tes)
-            </button>
           </div>
         </div>
 
@@ -819,7 +814,7 @@ function generateMapUrl(lat, lng) {
 function requestLocation() {
   locationError.value = '';
   if (!navigator.geolocation) {
-    locationError.value = 'Browser Anda tidak mendukung Geolocation GPS. Anda dapat menggunakan tombol simulasi lokasi untuk mencoba.';
+    locationError.value = 'Browser atau perangkat Anda tidak mendukung fitur Geolocation GPS.';
     return;
   }
 
@@ -849,9 +844,9 @@ function requestLocation() {
       isLocating.value = false;
       let msg = 'Gagal mendeteksi lokasi GPS.';
       if (err.code === 1) {
-        msg = 'Izin akses lokasi ditolak oleh browser. Mohon izinkan akses lokasi (GPS) pada browser Anda, atau klik tombol simulasi lokasi venue.';
+        msg = 'Izin akses lokasi ditolak oleh browser. Mohon izinkan akses lokasi (GPS) pada pengaturan browser/HP Anda.';
       } else if (err.code === 2) {
-        msg = 'Posisi tidak dapat ditemukan oleh perangkat.';
+        msg = 'Posisi GPS tidak dapat ditemukan oleh perangkat.';
       } else if (err.code === 3) {
         msg = 'Waktu permintaan lokasi GPS habis (timeout). Silakan coba lagi.';
       }
@@ -1934,6 +1929,20 @@ const coachAttendanceHistory = computed(() => {
   .att-hist-right {
     align-items: flex-start;
     margin-top: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-checkin-primary {
+    width: 100%;
+    justify-content: center;
+    padding: 14px 16px;
+    font-size: 14px;
+  }
+  .session-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
   }
 }
 </style>

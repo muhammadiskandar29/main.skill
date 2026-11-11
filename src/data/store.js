@@ -307,7 +307,7 @@ const initialTransactions = [
 const initialUsers = [
   {
     id: 'usr_admin_1',
-    name: 'Iskandar & Tim Manajemen',
+    name: 'Manajemen',
     email: 'admin@mine.skills.id',
     role: 'manajemen',
     phone: '085286274726'
@@ -674,12 +674,22 @@ export function getInitialPortalMenu(role) {
 // Create reactive store
 export const store = reactive({
   currentRole: savedSession.currentRole || 'public',
-  currentUser: savedSession.currentUser || null,
+  currentUser: (savedSession.currentUser?.name?.includes('Iskandar') ? { ...savedSession.currentUser, name: 'Manajemen' } : savedSession.currentUser) || null,
   authToken: savedSession.authToken || null,
   activePublicPage: 'home', // 'home' | 'programs' | 'pricing' | 'coaches' | 'locations' | 'contact'
   activePortalMenu: getInitialPortalMenu(savedSession.currentRole || 'public'),
   isLoading: false,
   isLoginModalOpen: false,
+
+  // Global In-App Alert / Notice Modal (Replaces native browser alert)
+  alertModal: {
+    isOpen: false,
+    title: 'Perhatian',
+    message: '',
+    type: 'warning', // 'warning' | 'error' | 'success' | 'info'
+    confirmText: 'Mengerti',
+    resolve: null
+  },
 
   products: loadLocalStore('products', initialProducts),
   packages: loadLocalStore('packages', initialPackages),
@@ -803,6 +813,44 @@ watch(
 );
 
 export const actions = {
+  // Global In-App Alert Modal
+  showAlert(options) {
+    let title = 'Perhatian';
+    let message = '';
+    let type = 'warning';
+    let confirmText = 'Mengerti';
+
+    if (typeof options === 'string') {
+      message = options;
+    } else if (options && typeof options === 'object') {
+      message = options.message || '';
+      type = options.type || 'warning';
+      confirmText = options.confirmText || 'Mengerti';
+      title = options.title || (type === 'error' ? 'Terjadi Kendala' : type === 'success' ? 'Berhasil' : 'Perhatian');
+    }
+
+    return new Promise((resolve) => {
+      store.alertModal = {
+        isOpen: true,
+        title,
+        message,
+        type,
+        confirmText,
+        resolve
+      };
+    });
+  },
+
+  closeAlert() {
+    if (store.alertModal && store.alertModal.resolve) {
+      store.alertModal.resolve(true);
+      store.alertModal.resolve = null;
+    }
+    if (store.alertModal) {
+      store.alertModal.isOpen = false;
+    }
+  },
+
   // Bootstrap data from backend database
   async init() {
     try {

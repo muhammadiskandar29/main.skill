@@ -569,7 +569,7 @@
               <span class="sig-title">Instruktur {{ activeProduct?.name || 'Program' }}</span>
             </div>
             <div class="sig-box">
-              <div class="sig-line">Iskandar & Tim Manajemen</div>
+              <div class="sig-line">Tim Manajemen</div>
               <span class="sig-title">Head of Academy mine.skills</span>
             </div>
           </div>
@@ -1067,7 +1067,11 @@ function downloadCustomerInvoice(trx) {
     const doc = generateInvoicePdf(trx, store.brand);
     doc.save(`Invoice_${trx.id}_LUNAS.pdf`);
   } catch (err) {
-    alert('Gagal mengunduh invoice: ' + err.message);
+    actions.showAlert({
+      title: 'Unduh Invoice',
+      message: 'Gagal mengunduh invoice: ' + err.message,
+      type: 'error'
+    });
   }
 }
 
@@ -1116,9 +1120,17 @@ async function handleSaveCustProfile() {
   try {
     await actions.updateStudent(studentData.value.id, custProfileForm.value);
     showEditCustProfileModal.value = false;
-    alert('Profil siswa dan kontak wali murid berhasil diperbarui.');
+    actions.showAlert({
+      title: 'Pembaruan Berhasil',
+      message: 'Profil siswa dan kontak wali murid berhasil diperbarui.',
+      type: 'success'
+    });
   } catch (err) {
-    alert(err.message || 'Gagal memperbarui profil');
+    actions.showAlert({
+      title: 'Gagal Memperbarui Profil',
+      message: err.message || 'Gagal memperbarui profil siswa.',
+      type: 'error'
+    });
   } finally {
     isSavingCustProfile.value = false;
   }
@@ -1191,7 +1203,11 @@ async function downloadQrisImage() {
     link.href = canvas.toDataURL('image/png');
     link.click();
   } catch (err) {
-    alert('Gagal mengunduh gambar QRIS: ' + err.message);
+    actions.showAlert({
+      title: 'Unduh Barcode',
+      message: 'Gagal mengunduh gambar QRIS: ' + err.message,
+      type: 'error'
+    });
   } finally {
     isDownloadingQris.value = false;
   }
@@ -2762,6 +2778,24 @@ function printReport() {
   }
   .assessment-indicators-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .quest-stations-row {
+    grid-template-columns: 1fr;
+  }
+  .tracker-steps-grid {
+    grid-template-columns: 1fr;
+  }
+  .student-avatar-box {
+    margin: 0 auto;
+  }
+  .student-hero-banner {
+    text-align: center;
+  }
+  .hero-badges-row {
+    justify-content: center;
   }
 }
 

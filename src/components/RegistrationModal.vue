@@ -1170,23 +1170,43 @@ onMounted(() => {
 function validateCurrentStep() {
   if (currentStep.value === 1) {
     if (!formData.value.studentName?.trim()) {
-      alert('Mohon isi nama lengkap ananda.');
+      actions.showAlert({
+        title: 'Data Belum Lengkap',
+        message: 'Mohon isi nama lengkap ananda terlebih dahulu.',
+        type: 'warning'
+      });
       return false;
     }
     if (!formData.value.studentAge || formData.value.studentAge < 3) {
-      alert('Mohon isi usia ananda yang valid.');
+      actions.showAlert({
+        title: 'Usia Tidak Valid',
+        message: 'Mohon masukkan usia ananda yang valid (minimal 3 tahun).',
+        type: 'warning'
+      });
       return false;
     }
     if (!formData.value.parentName?.trim()) {
-      alert('Mohon isi nama orang tua / wali.');
+      actions.showAlert({
+        title: 'Data Belum Lengkap',
+        message: 'Mohon isi nama lengkap orang tua / wali murid.',
+        type: 'warning'
+      });
       return false;
     }
     if (!formData.value.phone?.trim()) {
-      alert('Mohon isi nomor WhatsApp aktif orang tua.');
+      actions.showAlert({
+        title: 'Nomor WhatsApp Kosong',
+        message: 'Mohon masukkan nomor WhatsApp aktif orang tua untuk konfirmasi jadwal.',
+        type: 'warning'
+      });
       return false;
     }
     if (!formData.value.email?.trim() || !formData.value.email.includes('@')) {
-      alert('Mohon isi alamat email aktif untuk akun portal.');
+      actions.showAlert({
+        title: 'Email Tidak Valid',
+        message: 'Mohon masukkan alamat email aktif yang valid untuk akun login portal.',
+        type: 'warning'
+      });
       return false;
     }
     return true;
@@ -1268,7 +1288,11 @@ async function downloadQrisImage() {
     link.click();
   } catch (err) {
     console.error('Download QRIS error:', err);
-    alert('Gagal mendownload gambar QRIS. Silakan screenshot barcode ini.');
+    actions.showAlert({
+      title: 'Unduh Barcode',
+      message: 'Gagal mendownload gambar QRIS secara otomatis. Anda dapat melakukan tangkapan layar (screenshot) barcode ini.',
+      type: 'info'
+    });
   } finally {
     isDownloadingQris.value = false;
   }
@@ -1281,7 +1305,11 @@ async function handleStepSubmit() {
   }
 
   if (!formData.value.parentDeclaration) {
-    alert('Mohon centang pernyataan dan persetujuan orang tua/wali.');
+    actions.showAlert({
+      title: 'Persetujuan Diperlukan',
+      message: 'Mohon centang pernyataan dan persetujuan orang tua / wali murid sebelum melanjutkan.',
+      type: 'warning'
+    });
     return;
   }
 
@@ -1318,7 +1346,11 @@ async function handleStepSubmit() {
       });
     }
   } catch (err) {
-    alert(err.message || 'Gagal mengirim pendaftaran.');
+    actions.showAlert({
+      title: 'Pendaftaran Gagal',
+      message: err.message || 'Gagal mengirim pendaftaran. Silakan periksa kembali koneksi internet Anda.',
+      type: 'error'
+    });
   } finally {
     isSubmitting.value = false;
   }

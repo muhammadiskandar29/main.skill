@@ -539,17 +539,60 @@ body:has(.portal-layout) {
     height: auto;
     max-height: none;
     overflow: visible;
-  }
-  .portal-sidebar {
-    width: 100%;
-    height: auto;
-    border-right: none;
-    border-bottom: 1px solid var(--border-subtle);
-    padding: 12px 16px;
+    position: relative;
   }
   .portal-main {
-    padding: 16px;
+    padding: 16px 14px 90px;
     height: auto;
+    width: 100%;
+    min-width: 0;
   }
 }
+
+/* Global Mobile & Touch Usability Enhancements */
+.table-wrap,
+.table-responsive,
+.overflow-x-auto {
+  width: 100%;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 640px) {
+  /* Prevent horizontal cutoffs on small mobile devices (320px - 480px) */
+  .stats-grid,
+  .metric-cards,
+  .quick-stats-row {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
+    gap: 10px !important;
+  }
+
+  .portal-header-actions,
+  .section-toolbar {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+  }
+
+  .portal-header-actions button,
+  .section-toolbar button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* Make form inputs finger friendly */
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="password"],
+  input[type="number"],
+  input[type="date"],
+  select,
+  textarea {
+    font-size: 15px !important; /* Prevents auto-zoom on iOS Safari */
+    min-height: 42px;
+  }
+}
+
 

@@ -24,8 +24,40 @@
 
     <!-- VIEW B: RBAC PORTAL (CUSTOMER / COACH / MANAJEMEN) - STRICT AUTH GUARD -->
     <div v-else-if="store.authToken && store.currentUser" class="portal-layout">
+      <!-- Mobile Sticky Portal Top Bar (only visible on mobile screens <= 900px) -->
+      <div class="portal-mobile-topbar">
+        <div class="mobile-topbar-info">
+          <span class="mobile-role-tag">{{ currentRoleInfo.roleName }}</span>
+          <h4 class="mobile-active-menu-title">{{ currentActiveMenuTitle }}</h4>
+        </div>
+        <button 
+          type="button" 
+          @click="isMobileSidebarOpen = !isMobileSidebarOpen" 
+          class="btn-mobile-sidebar-toggle"
+          aria-label="Toggle Menu Navigasi"
+        >
+          <svg v-if="!isMobileSidebarOpen" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+          <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+          <span>{{ isMobileSidebarOpen ? 'Tutup' : 'Menu' }}</span>
+        </button>
+      </div>
+
+      <!-- Backdrop for Mobile Drawer -->
+      <div 
+        v-if="isMobileSidebarOpen" 
+        class="portal-mobile-backdrop" 
+        @click="isMobileSidebarOpen = false"
+      ></div>
+
       <!-- Dynamic RBAC Sidebar with Hierarchical Grouping for Management -->
-      <aside class="portal-sidebar">
+      <aside class="portal-sidebar" :class="{ 'mobile-open': isMobileSidebarOpen }">
         <!-- Role Identifier Box -->
         <div class="sidebar-role-badge">
           <span class="role-badge-label">Peran Aktif:</span>
@@ -44,7 +76,7 @@
           <button 
             class="sidebar-nav-item" 
             :class="{ active: store.activePortalMenu === 'm_overview' }"
-            @click="store.activePortalMenu = 'm_overview'"
+            @click="switchMenu('m_overview')"
           >
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="3" width="7" height="9" rx="1"></rect>
@@ -63,7 +95,7 @@
           <button 
             class="sidebar-nav-item" 
             :class="{ active: store.activePortalMenu === 'm_products' }"
-            @click="store.activePortalMenu = 'm_products'"
+            @click="switchMenu('m_products')"
           >
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
@@ -75,7 +107,7 @@
           <button 
             class="sidebar-nav-item" 
             :class="{ active: store.activePortalMenu === 'm_locations' }"
-            @click="store.activePortalMenu = 'm_locations'"
+            @click="switchMenu('m_locations')"
           >
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
@@ -87,7 +119,7 @@
           <button 
             class="sidebar-nav-item" 
             :class="{ active: store.activePortalMenu === 'm_packages' }"
-            @click="store.activePortalMenu = 'm_packages'"
+            @click="switchMenu('m_packages')"
           >
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
@@ -99,7 +131,7 @@
           <button 
             class="sidebar-nav-item" 
             :class="{ active: store.activePortalMenu === 'm_coaches' }"
-            @click="store.activePortalMenu = 'm_coaches'"
+            @click="switchMenu('m_coaches')"
           >
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -118,7 +150,7 @@
           <button 
             class="sidebar-nav-item" 
             :class="{ active: store.activePortalMenu === 'm_students' }"
-            @click="store.activePortalMenu = 'm_students'"
+            @click="switchMenu('m_students')"
           >
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
@@ -132,7 +164,7 @@
           <button 
             class="sidebar-nav-item" 
             :class="{ active: store.activePortalMenu === 'm_schedules' }"
-            @click="store.activePortalMenu = 'm_schedules'"
+            @click="switchMenu('m_schedules')"
           >
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
@@ -146,7 +178,7 @@
           <button 
             class="sidebar-nav-item" 
             :class="{ active: store.activePortalMenu === 'm_attendance' }"
-            @click="store.activePortalMenu = 'm_attendance'"
+            @click="switchMenu('m_attendance')"
           >
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10"></circle>
@@ -163,7 +195,7 @@
           <button 
             class="sidebar-nav-item" 
             :class="{ active: store.activePortalMenu === 'm_payments' }"
-            @click="store.activePortalMenu = 'm_payments'"
+            @click="switchMenu('m_payments')"
           >
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
@@ -175,7 +207,7 @@
           <button 
             class="sidebar-nav-item" 
             :class="{ active: store.activePortalMenu === 'm_website' }"
-            @click="store.activePortalMenu = 'm_website'"
+            @click="switchMenu('m_website')"
           >
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10"></circle>
@@ -188,7 +220,7 @@
           <button 
             class="sidebar-nav-item" 
             :class="{ active: store.activePortalMenu === 'm_rbac' }"
-            @click="store.activePortalMenu = 'm_rbac'"
+            @click="switchMenu('m_rbac')"
           >
             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
@@ -203,7 +235,7 @@
           <button 
             v-for="menu in allowedSidebarMenus" 
             :key="menu.id"
-            @click="store.activePortalMenu = menu.id"
+            @click="switchMenu(menu.id)"
             class="sidebar-nav-item"
             :class="{ active: store.activePortalMenu === menu.id }"
           >
@@ -257,6 +289,200 @@
       </main>
     </div>
 
+    <!-- Mobile Bottom Navigation Bar (Thumb Friendly for Smartphone Users) -->
+    <nav v-if="store.authToken && store.currentUser && store.currentRole !== 'public'" class="portal-mobile-bottom-nav">
+      <!-- Customer Bottom Nav -->
+      <template v-if="store.currentRole === 'customer'">
+        <button 
+          class="bottom-nav-item" 
+          :class="{ active: store.activePortalMenu === 'c_overview' }"
+          @click="switchMenu('c_overview')"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="9" rx="1"></rect>
+            <rect x="14" y="3" width="7" height="5" rx="1"></rect>
+            <rect x="14" y="12" width="7" height="9" rx="1"></rect>
+            <rect x="3" y="16" width="7" height="5" rx="1"></rect>
+          </svg>
+          <span>Ringkasan</span>
+        </button>
+        <button 
+          class="bottom-nav-item" 
+          :class="{ active: store.activePortalMenu === 'c_progress' }"
+          @click="switchMenu('c_progress')"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="20" x2="18" y2="10"></line>
+            <line x1="12" y1="20" x2="12" y2="4"></line>
+            <line x1="6" y1="20" x2="6" y2="14"></line>
+          </svg>
+          <span>Progress</span>
+        </button>
+        <button 
+          class="bottom-nav-item" 
+          :class="{ active: store.activePortalMenu === 'c_schedule' }"
+          @click="switchMenu('c_schedule')"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          <span>Jadwal</span>
+        </button>
+        <button 
+          class="bottom-nav-item" 
+          :class="{ active: store.activePortalMenu === 'c_billing' }"
+          @click="switchMenu('c_billing')"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+            <line x1="1" y1="10" x2="23" y2="10"></line>
+          </svg>
+          <span>Tagihan</span>
+        </button>
+        <button 
+          class="bottom-nav-item" 
+          :class="{ active: isMobileSidebarOpen }"
+          @click="isMobileSidebarOpen = !isMobileSidebarOpen"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+          <span>Semua Menu</span>
+        </button>
+      </template>
+
+      <!-- Coach Bottom Nav -->
+      <template v-else-if="store.currentRole === 'coach'">
+        <button 
+          class="bottom-nav-item" 
+          :class="{ active: store.activePortalMenu === 'co_overview' }"
+          @click="switchMenu('co_overview')"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="9" rx="1"></rect>
+            <rect x="14" y="3" width="7" height="5" rx="1"></rect>
+            <rect x="14" y="12" width="7" height="9" rx="1"></rect>
+            <rect x="3" y="16" width="7" height="5" rx="1"></rect>
+          </svg>
+          <span>Dashboard</span>
+        </button>
+        <button 
+          class="bottom-nav-item" 
+          :class="{ active: store.activePortalMenu === 'co_attendance' }"
+          @click="switchMenu('co_attendance')"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <span>Presensi</span>
+        </button>
+        <button 
+          class="bottom-nav-item" 
+          :class="{ active: store.activePortalMenu === 'co_schedule' }"
+          @click="switchMenu('co_schedule')"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          <span>Jadwal</span>
+        </button>
+        <button 
+          class="bottom-nav-item" 
+          :class="{ active: store.activePortalMenu === 'co_input_progress' }"
+          @click="switchMenu('co_input_progress')"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+          <span>Raport</span>
+        </button>
+        <button 
+          class="bottom-nav-item" 
+          :class="{ active: isMobileSidebarOpen }"
+          @click="isMobileSidebarOpen = !isMobileSidebarOpen"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+          <span>Menu</span>
+        </button>
+      </template>
+
+      <!-- Manajemen Bottom Nav -->
+      <template v-else-if="store.currentRole === 'manajemen'">
+        <button 
+          class="bottom-nav-item" 
+          :class="{ active: store.activePortalMenu === 'm_overview' }"
+          @click="switchMenu('m_overview')"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="9" rx="1"></rect>
+            <rect x="14" y="3" width="7" height="5" rx="1"></rect>
+            <rect x="14" y="12" width="7" height="9" rx="1"></rect>
+            <rect x="3" y="16" width="7" height="5" rx="1"></rect>
+          </svg>
+          <span>Overview</span>
+        </button>
+        <button 
+          class="bottom-nav-item" 
+          :class="{ active: store.activePortalMenu === 'm_students' }"
+          @click="switchMenu('m_students')"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+          </svg>
+          <span>Siswa</span>
+        </button>
+        <button 
+          class="bottom-nav-item" 
+          :class="{ active: store.activePortalMenu === 'm_payments' }"
+          @click="switchMenu('m_payments')"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+            <line x1="1" y1="10" x2="23" y2="10"></line>
+          </svg>
+          <span>Keuangan</span>
+        </button>
+        <button 
+          class="bottom-nav-item" 
+          :class="{ active: store.activePortalMenu === 'm_attendance' }"
+          @click="switchMenu('m_attendance')"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+          </svg>
+          <span>Presensi</span>
+        </button>
+        <button 
+          class="bottom-nav-item" 
+          :class="{ active: isMobileSidebarOpen }"
+          @click="isMobileSidebarOpen = !isMobileSidebarOpen"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+          <span>Semua Menu</span>
+        </button>
+      </template>
+    </nav>
+
     <!-- Real Authentication Login Modal -->
     <LoginModal 
       v-if="store.isLoginModalOpen" 
@@ -272,6 +498,9 @@
       @close="isRegisterOpen = false" 
       @go-to-portal="handleRegistrationGoToPortal"
     />
+
+    <!-- Global High-End Modal Alert (Replaces all Windows Alerts) -->
+    <AlertModal />
   </div>
 </template>
 
@@ -283,6 +512,7 @@ import CompanyProfile from './components/CompanyProfile.vue';
 import RegistrationModal from './components/RegistrationModal.vue';
 import LoginModal from './components/LoginModal.vue';
 import LoginPage from './components/LoginPage.vue';
+import AlertModal from './components/AlertModal.vue';
 import PortalCustomer from './components/PortalCustomer.vue';
 import PortalCoach from './components/PortalCoach.vue';
 import PortalManajemen from './components/PortalManajemen.vue';
@@ -537,6 +767,37 @@ const allowedSidebarMenus = computed(() => {
 
   return matrix.allowedMenus.map(mId => allMenusMap[mId]).filter(Boolean);
 });
+
+// Mobile Responsive Navigation State & Helpers
+const isMobileSidebarOpen = ref(false);
+
+const mgmtLabels = {
+  m_overview: 'Ringkasan Eksekutif',
+  m_products: 'Master Program',
+  m_locations: 'Master Lokasi & Geofence',
+  m_packages: 'Paket Kursus & Biaya',
+  m_coaches: 'Daftar Instruktur',
+  m_students: 'Data Siswa & Wali',
+  m_schedules: 'Jadwal & Sesi Latihan',
+  m_attendance: 'Monitoring Presensi',
+  m_payments: 'Keuangan & Mutasi',
+  m_website: 'Profil & CMS Web',
+  m_rbac: 'Pengaturan Akses'
+};
+
+const currentActiveMenuTitle = computed(() => {
+  const m = store.activePortalMenu;
+  if (!m) return 'Portal';
+  if (allMenusMap[m]) return allMenusMap[m].label;
+  if (mgmtLabels[m]) return mgmtLabels[m];
+  return 'Menu Portal';
+});
+
+function switchMenu(menuId) {
+  store.activePortalMenu = menuId;
+  isMobileSidebarOpen.value = false;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 </script>
 
 <style scoped>
@@ -815,7 +1076,153 @@ const allowedSidebarMenus = computed(() => {
   border-color: #dc2626;
 }
 
+/* Mobile Portal Topbar & Bottom Nav (Default: Hidden on Desktop) */
+.portal-mobile-topbar {
+  display: none;
+}
+
+.portal-mobile-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(2px);
+  z-index: 95;
+}
+
+.portal-mobile-bottom-nav {
+  display: none;
+}
+
 @media (max-width: 900px) {
-  .portal-sidebar { width: 100%; }
+  .portal-mobile-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 16px;
+    background: #ffffff;
+    border-bottom: 1px solid #e2e8f0;
+    position: sticky;
+    top: 0;
+    z-index: 90;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  }
+
+  .mobile-topbar-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .mobile-role-tag {
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-primary, #0d4d5d);
+  }
+
+  .mobile-active-menu-title {
+    font-size: 14px;
+    font-weight: 800;
+    color: #1e293b;
+    margin: 0;
+  }
+
+  .btn-mobile-sidebar-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 14px;
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #334155;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .btn-mobile-sidebar-toggle:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+
+  /* Off-canvas sidebar drawer on mobile */
+  .portal-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 290px;
+    max-width: 85vw;
+    height: 100vh;
+    background: #ffffff;
+    z-index: 100;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-y: auto;
+    padding: 20px 14px 90px;
+  }
+
+  .portal-sidebar.mobile-open {
+    transform: translateX(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .portal-mobile-bottom-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: #ffffff;
+    border-top: 1px solid #e2e8f0;
+    z-index: 85;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+    padding: 0 4px;
+  }
+
+  .bottom-nav-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    height: 100%;
+    border: none;
+    background: transparent;
+    color: #64748b;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    padding: 4px 2px;
+  }
+
+  .bottom-nav-item svg {
+    transition: transform 0.15s ease;
+  }
+
+  .bottom-nav-item:hover {
+    color: var(--color-primary, #0d4d5d);
+  }
+
+  .bottom-nav-item.active {
+    color: var(--color-primary, #0d4d5d);
+    font-weight: 800;
+  }
+
+  .bottom-nav-item.active svg {
+    stroke: var(--color-primary, #0d4d5d);
+    stroke-width: 2.5;
+    transform: scale(1.08);
+  }
 }
 </style>

@@ -1526,14 +1526,6 @@
               </p>
             </div>
           </div>
-          <button 
-            type="button" 
-            @click="paymentSubTab = 'webhook_simulator'"
-            class="btn-gold" 
-            style="padding: 8px 14px; font-size: 12px; white-space: nowrap; font-weight: 700;"
-          >
-            Uji Simulasi Mutasi
-          </button>
         </div>
 
         <div class="card-humanist table-wrap">
@@ -1580,14 +1572,6 @@
                         <polyline points="20 6 9 17 4 12"></polyline>
                       </svg>
                       <span>Lunas (Manual)</span>
-                    </button>
-                    <button 
-                      @click="handleSimulateMutation(trx.id)" 
-                      class="btn-gold-xs"
-                      style="padding: 5px 8px; font-size: 11px; font-weight: 700; white-space: nowrap;"
-                      title="Simulasikan Uang Masuk Mutasi Bank untuk Invoice Ini"
-                    >
-                      Uji Mutasi
                     </button>
                     <button 
                       type="button"
@@ -1758,23 +1742,6 @@
               </div>
             </div>
 
-            <!-- Optional Hidden Developer Mode for Debugging (Disabled & Collapsed) -->
-            <details style="margin-bottom: 18px; font-size: 11.5px; color: var(--text-subtle);">
-              <summary style="cursor: pointer; user-select: none; color: var(--text-muted); font-weight: 600;">
-                Mode Pengembang / Debug String Raw (Disabled)
-              </summary>
-              <div style="margin-top: 8px;">
-                <input 
-                  type="text" 
-                  :value="qrisMasterForm.rawQrisStatic" 
-                  disabled 
-                  readonly 
-                  class="form-input font-mono" 
-                  style="font-size: 11px; background: #f1f5f9; color: #64748b; cursor: not-allowed;" 
-                />
-              </div>
-            </details>
-
             <div style="display: flex; justify-content: flex-end; gap: 10px;">
               <button type="button" @click="cancelEditQrisMaster" class="btn-secondary">Batal</button>
               <button type="button" @click="saveQrisMaster" class="btn-primary">
@@ -1784,11 +1751,11 @@
           </div>
         </div>
 
-        <!-- Live Generator & Simulator Card -->
+        <!-- Live Generator & Preview Card -->
         <div class="card-humanist qris-generator-card">
           <div class="qris-grid">
             <div class="qris-form-side">
-              <h4 class="form-sec-title">Simulator & Preview QRIS Dinamis</h4>
+              <h4 class="form-sec-title">Preview & Penerbitan QRIS Dinamis</h4>
               <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">
                 Pilih nominal paket latihan atau ketik nominal bebas untuk menguji generator QR dinamis secara instan.
               </p>
@@ -1987,72 +1954,35 @@ function cekMutasiBankGmail() {
             </details>
           </div>
 
-          <!-- Right: Interactive Simulator Widget -->
-          <div class="card-humanist" style="padding: 20px; border: 2px solid #0284c7;">
+          <!-- Right: Production Live Status Card -->
+          <div class="card-humanist" style="padding: 22px; border: 1.5px solid #0d4d5d; background: #ffffff;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-              <h4 style="margin: 0; font-size: 15px; font-weight: 800; color: #0369a1; display: flex; align-items: center; gap: 8px;">
-                <span>Simulator Transaksi Mutasi Bank</span>
+              <h4 style="margin: 0; font-size: 15px; font-weight: 800; color: #0d4d5d; display: flex; align-items: center; gap: 8px;">
+                <span>Status Integrasi Auto-Verifikasi</span>
               </h4>
-              <span class="badge-chip gold" style="font-size: 10px;">Test Pipeline End-to-End</span>
+              <span class="badge-chip green" style="font-size: 10px;">Siap Produksi (LIVE)</span>
             </div>
-            <p style="font-size: 12px; color: #64748b; margin-bottom: 14px;">
-              Pilih invoice yang berstatus Menunggu Pembayaran di bawah, lalu klik tombol simulasi untuk menguji sistem auto-verify dan pengiriman WA PDF secara instan.
+            <p style="font-size: 12px; color: #64748b; margin-bottom: 16px; line-height: 1.5;">
+              Sistem telah terhubung dan aktif menerima notifikasi mutasi secara otomatis dari seluruh rekening perbankan resmi dan QRIS Dinamis ASPI.
             </p>
 
-            <div style="margin-bottom: 12px;">
-              <label style="font-size: 12px; font-weight: 700; color: #334155; display: block; margin-bottom: 4px;">Pilih Invoice Pending:</label>
-              <select v-model="selectedSimTrxId" class="form-input" style="font-size: 13px;">
-                <option value="">-- Pilih Invoice Menunggu Pembayaran --</option>
-                <option 
-                  v-for="t in (store.transactions || []).filter(x => !x.status?.includes('Lunas'))" 
-                  :key="t.id" 
-                  :value="t.id"
-                >
-                  {{ t.id }} — {{ t.studentName }} (Total: Rp {{ Number(t.totalAmount || t.amount).toLocaleString('id-ID') }})
-                </option>
-              </select>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
-              <div>
-                <label style="font-size: 12px; font-weight: 700; color: #334155; display: block; margin-bottom: 4px;">Bank Pengirim:</label>
-                <select v-model="simBank" class="form-input" style="font-size: 13px;">
-                  <option value="BCA">BCA (Bank Central Asia)</option>
-                  <option value="Mandiri">Bank Mandiri</option>
-                  <option value="BRI">Bank BRI</option>
-                  <option value="BNI">Bank BNI</option>
-                  <option value="QRIS">QRIS Dinamis ASPI</option>
-                </select>
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px;">
+              <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px;">
+                <span style="font-size: 11px; color: #64748b; display: block;">Protokol Rekonsiliasi:</span>
+                <strong style="font-size: 13px; color: #0f172a;">3-Digit Dynamic Code Verification</strong>
               </div>
-              <div>
-                <label style="font-size: 12px; font-weight: 700; color: #334155; display: block; margin-bottom: 4px;">Nama Pengirim / Catatan:</label>
-                <input v-model="simSender" type="text" class="form-input" placeholder="Contoh: Wali Murid Budi" style="font-size: 13px;" />
+              <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px;">
+                <span style="font-size: 11px; color: #64748b; display: block;">Disposisi Dokumen:</span>
+                <strong style="font-size: 13px; color: #0f172a;">Auto-Generated PDF Invoice & WhatsApp Dispatch</strong>
+              </div>
+              <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px 14px;">
+                <span style="font-size: 11px; color: #166534; display: block;">Gateway Mutasi Terdaftar:</span>
+                <strong style="font-size: 13px; color: #15803d;">BCA, Mandiri, BRI, BNI, BSI & QRIS Dinamis</strong>
               </div>
             </div>
 
-            <button 
-              type="button" 
-              @click="handleSimulateMutation(selectedSimTrxId)" 
-              :disabled="isSimulatingMutation || !selectedSimTrxId"
-              class="btn-gold full-width" 
-              style="padding: 11px; font-weight: 800; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px;"
-            >
-              <span v-if="isSimulatingMutation">Memproses & Mengirim WA Background...</span>
-              <span v-else>Jalankan Simulasi Uang Masuk Bank & Auto-Kirim WA</span>
-            </button>
-
-            <!-- Live Simulation Result Log Box -->
-            <div v-if="mutationSimResult" style="margin-top: 14px; padding: 12px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; font-size: 12px;">
-              <div style="font-weight: 800; color: #15803d; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
-                <span>✓ Status: Sinyal Mutasi Sukses Diproses!</span>
-              </div>
-              <div style="color: #166534; line-height: 1.45;">
-                {{ mutationSimResult.message }}
-              </div>
-              <div style="margin-top: 6px; font-size: 11px; color: #475569; border-top: 1px dashed #bbf7d0; padding-top: 6px; display: flex; gap: 12px;">
-                <span>PDF Generated: <strong>{{ mutationSimResult.pdfGenerated ? 'Ya (Official Stamp)' : 'Tidak' }}</strong></span>
-                <span>WA Dispatched: <strong>{{ mutationSimResult.whatsappDispatched ? 'Terkirim' : 'Terkirim (Background Queue)' }}</strong></span>
-              </div>
+            <div style="font-size: 11.5px; color: #64748b; line-height: 1.5; border-top: 1px dashed #e2e8f0; padding-top: 12px;">
+              💡 <em>Setiap dana masuk yang sesuai dengan nominal tagihan unik akan langsung diverifikasi lunas oleh robot perbankan dan kuitansi resmi langsung dikirimkan ke wali murid tanpa memerlukan campur tangan staf admin.</em>
             </div>
           </div>
         </div>
@@ -3812,7 +3742,7 @@ function addCurriculumLevel() {
 
 function removeCurriculumLevel(index) {
   if (productForm.value.levels.length <= 1) {
-    alert('Minimal harus ada 1 level kurikulum.');
+    actions.showAlert({ title: 'Kurikulum Program', message: 'Minimal harus ada 1 level kurikulum.', type: 'warning' });
     return;
   }
   productForm.value.levels.splice(index, 1);
@@ -3830,7 +3760,7 @@ async function handleProductImageUpload(e) {
     productForm.value.heroImage = url;
     showNotice('Gambar program berhasil diupload!');
   } catch (err) {
-    alert(err.message || 'Gagal upload gambar');
+    actions.showAlert({ title: 'Upload Gambar', message: err.message || 'Gagal upload gambar', type: 'error' });
   } finally {
     productUploading.value = false;
   }
@@ -3847,7 +3777,7 @@ async function handleSubmitProduct() {
     }
     showProductModal.value = false;
   } catch (err) {
-    alert(err.message || 'Gagal menyimpan program');
+    actions.showAlert({ title: 'Program Pelatihan', message: err.message || 'Gagal menyimpan program', type: 'error' });
   }
 }
 
@@ -3915,7 +3845,7 @@ function openEditLocationModal(loc) {
 
 function getCurrentLocationCoords() {
   if (!navigator.geolocation) {
-    alert('Browser tidak mendukung geolokasi GPS.');
+    actions.showAlert({ title: 'GPS Geolocation', message: 'Browser tidak mendukung fitur geolokasi GPS.', type: 'warning' });
     return;
   }
   navigator.geolocation.getCurrentPosition(
@@ -3925,7 +3855,7 @@ function getCurrentLocationCoords() {
       showNotice(`Koordinat GPS didapatkan: ${locationForm.value.latitude}, ${locationForm.value.longitude}`);
     },
     (err) => {
-      alert(`Gagal mengambil titik GPS: ${err.message}`);
+      actions.showAlert({ title: 'GPS Geolocation', message: `Gagal mengambil titik GPS: ${err.message}`, type: 'error' });
     },
     { enableHighAccuracy: true, timeout: 10000 }
   );
@@ -3942,7 +3872,7 @@ async function handleSubmitLocation() {
     }
     showLocationModal.value = false;
   } catch (err) {
-    alert(err.message || 'Gagal menyimpan data lokasi');
+    actions.showAlert({ title: 'Lokasi Fasilitas', message: err.message || 'Gagal menyimpan data lokasi', type: 'error' });
   }
 }
 
@@ -4020,7 +3950,7 @@ async function handleSaveWebsiteConfig() {
     });
     showNotice('Pengaturan profil brand dan konten website berhasil disimpan!');
   } catch (err) {
-    alert(err.message || 'Gagal menyimpan konfigurasi website');
+    actions.showAlert({ title: 'Pengaturan Website', message: err.message || 'Gagal menyimpan konfigurasi website', type: 'error' });
   }
 }
 
@@ -4097,7 +4027,7 @@ async function handleSubmitPackage() {
     }
     showPackageModal.value = false;
   } catch (err) {
-    alert(err.message || 'Gagal menyimpan paket');
+    actions.showAlert({ title: 'Paket Kursus', message: err.message || 'Gagal menyimpan paket', type: 'error' });
   }
 }
 
@@ -4164,7 +4094,7 @@ async function handleCoachImageUpload(e) {
     coachForm.value.avatar = url;
     showNotice('Foto instruktur berhasil diunggah!');
   } catch (err) {
-    alert(err.message || 'Gagal upload foto coach');
+    actions.showAlert({ title: 'Foto Instruktur', message: err.message || 'Gagal upload foto coach', type: 'error' });
   } finally {
     coachUploading.value = false;
   }
@@ -4181,7 +4111,7 @@ async function handleSubmitCoach() {
     }
     showCoachModal.value = false;
   } catch (err) {
-    alert(err.message || 'Gagal menyimpan instruktur');
+    actions.showAlert({ title: 'Data Instruktur', message: err.message || 'Gagal menyimpan instruktur', type: 'error' });
   }
 }
 
@@ -4320,7 +4250,7 @@ async function handleSubmitStudent() {
     }
     showStudentModal.value = false;
   } catch (err) {
-    alert(err.message || 'Gagal menyimpan siswa');
+    actions.showAlert({ title: 'Data Siswa', message: err.message || 'Gagal menyimpan siswa', type: 'error' });
   }
 }
 
@@ -4407,7 +4337,7 @@ async function handleSubmitRenew() {
     renewSuccessResult.value = res;
     showNotice(`Paket ${activeStudentForRenew.value.name} berhasil diperpanjang (+4 sesi) dan tagihan baru diterbitkan!`);
   } catch (err) {
-    alert(err.message || 'Gagal memperpanjang paket');
+    actions.showAlert({ title: 'Perpanjangan Paket', message: err.message || 'Gagal memperpanjang paket', type: 'error' });
   }
 }
 
@@ -4435,7 +4365,7 @@ async function handleSubmitSubstituteCoach() {
   if (!activeScheduleForSubstitute.value) return;
   const newCoach = (store.coaches || []).find(c => c.id === substituteForm.value.newCoachId);
   if (!newCoach) {
-    alert('Pilih coach pengganti yang valid');
+    actions.showAlert({ title: 'Ganti Coach', message: 'Pilih coach pengganti yang valid terlebih dahulu.', type: 'warning' });
     return;
   }
   try {
@@ -4447,7 +4377,7 @@ async function handleSubmitSubstituteCoach() {
     showSubstituteCoachModal.value = false;
     showNotice(`Coach sesi berhasil digantikan oleh ${newCoach.name}!`);
   } catch (err) {
-    alert(err.message || 'Gagal mengganti coach sesi');
+    actions.showAlert({ title: 'Ganti Coach', message: err.message || 'Gagal mengganti coach sesi', type: 'error' });
   }
 }
 
@@ -4484,7 +4414,7 @@ function handleEditFaq(f) {
 
 async function handleSaveFaq() {
   if (!faqForm.value.question.trim() || !faqForm.value.answer.trim()) {
-    alert('Pertanyaan dan jawaban FAQ wajib diisi.');
+    actions.showAlert({ title: 'Form FAQ', message: 'Pertanyaan dan jawaban FAQ wajib diisi.', type: 'warning' });
     return;
   }
   const payload = {
@@ -4504,7 +4434,7 @@ async function handleSaveFaq() {
     }
     resetFaqForm();
   } catch (err) {
-    alert(err.message || 'Gagal menyimpan FAQ');
+    actions.showAlert({ title: 'Simpan FAQ', message: err.message || 'Gagal menyimpan FAQ', type: 'error' });
   }
 }
 
@@ -4726,7 +4656,7 @@ function openAddSessionForCurrentStudent() {
 async function handleCreateSchedule() {
   try {
     if (!createScheduleForm.value.studentId) {
-      alert('Pilih siswa terlebih dahulu!');
+      actions.showAlert({ title: 'Plotting Jadwal', message: 'Pilih siswa terlebih dahulu!', type: 'warning' });
       return;
     }
     const created = await actions.addSchedule(createScheduleForm.value);
@@ -4739,7 +4669,7 @@ async function handleCreateSchedule() {
       if (refreshed) activeStudentForSchedules.value = refreshed;
     }
   } catch (err) {
-    alert(err.message || 'Gagal membuat jadwal sesi');
+    actions.showAlert({ title: 'Jadwal Sesi', message: err.message || 'Gagal membuat jadwal sesi', type: 'error' });
   }
 }
 
@@ -4783,7 +4713,7 @@ async function handleSaveAttendance() {
       if (refreshed) activeStudentForSchedules.value = refreshed;
     }
   } catch (err) {
-    alert(err.message || 'Gagal menyimpan presensi');
+    actions.showAlert({ title: 'Presensi Sesi', message: err.message || 'Gagal menyimpan presensi', type: 'error' });
   }
 }
 
@@ -4838,7 +4768,7 @@ async function handleSaveReschedule() {
       if (refreshed) activeStudentForSchedules.value = refreshed;
     }
   } catch (err) {
-    alert(err.message || 'Gagal reschedule');
+    actions.showAlert({ title: 'Reschedule Sesi', message: err.message || 'Gagal reschedule', type: 'error' });
   }
 }
 
@@ -4961,7 +4891,7 @@ async function handleQrisImageUpload(event) {
     showNotice('Gambar QRIS berhasil diunggah!');
   } catch (err) {
     console.error('QRIS Upload error:', err);
-    alert(err.message || 'Gagal mengunggah gambar QRIS');
+    actions.showAlert({ title: 'Master QRIS', message: err.message || 'Gagal mengunggah gambar QRIS', type: 'error' });
     qrisDetectStatus.value = '';
   } finally {
     isUploadingQrisImg.value = false;
@@ -4970,7 +4900,7 @@ async function handleQrisImageUpload(event) {
 
 async function saveQrisMaster() {
   if (!qrisMasterForm.merchantName.trim()) {
-    alert('Nama merchant tidak boleh kosong!');
+    actions.showAlert({ title: 'Master QRIS', message: 'Nama merchant tidak boleh kosong!', type: 'warning' });
     return;
   }
   await actions.updatePaymentConfig({
@@ -5041,7 +4971,7 @@ function openEditBankModal(bank) {
 
 async function saveBankAccount() {
   if (!bankForm.bankName.trim() || !bankForm.accountNumber.trim()) {
-    alert('Nama Bank dan Nomor Rekening wajib diisi!');
+    actions.showAlert({ title: 'Rekening Bank', message: 'Nama Bank dan Nomor Rekening wajib diisi!', type: 'warning' });
     return;
   }
   if (bankModalMode.value === 'create') {
@@ -5257,38 +5187,6 @@ const simBank = ref('BCA');
 const simSender = ref('');
 const isSimulatingMutation = ref(false);
 const mutationSimResult = ref(null);
-
-async function handleSimulateMutation(invoiceId = null) {
-  const targetId = invoiceId || selectedSimTrxId.value;
-  const trx = (store.transactions || []).find(t => t.id === targetId);
-  const amountToSim = trx ? (trx.totalAmount || trx.amount) : null;
-
-  if (!amountToSim) {
-    alert('Pilih invoice atau masukkan nominal yang ingin disimulasikan.');
-    return;
-  }
-
-  try {
-    isSimulatingMutation.value = true;
-    mutationSimResult.value = null;
-    const res = await actions.simulateBankMutation(
-      amountToSim, 
-      trx ? trx.id : null, 
-      simBank.value, 
-      simSender.value || (trx ? trx.parentName : 'Wali Murid')
-    );
-    mutationSimResult.value = res;
-    if (res.matched) {
-      showNotice(`Sistem Berhasil: Mutasi Rp ${amountToSim.toLocaleString('id-ID')} otomatis diverifikasi Lunas. Invoice PDF resmi ber-cap LUNAS dibuat dan dikirim ke WhatsApp.`);
-    } else {
-      showNotice(res.message || 'Simulasi diproses tapi tidak ada transaksi cocok.');
-    }
-  } catch (err) {
-    alert('Gagal menjalankan simulasi mutasi: ' + err.message);
-  } finally {
-    isSimulatingMutation.value = false;
-  }
-}
 
 onMounted(() => {
   initQrisMasterForm();
@@ -7733,5 +7631,26 @@ onMounted(() => {
   border-color: #86efac;
   color: #166534;
   transform: translateY(-1px);
+}
+
+@media (max-width: 640px) {
+  .section-toolbar,
+  .toolbar-actions,
+  .filter-actions-group {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 8px !important;
+  }
+
+  .btn-create,
+  .btn-filter,
+  .btn-action-primary {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  .modal-geo-summary {
+    grid-template-columns: 1fr !important;
+  }
 }
 </style>

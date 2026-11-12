@@ -1115,11 +1115,226 @@ export async function loginUser(email, password) {
     return { success: false, message: 'Akun Anda dinonaktifkan sementara. Silakan hubungi tim administrasi manajemen.' };
   }
 
-  if (password === '123' || user.password === password) {
+  const expectedPassword = user.password || '123';
+  if (password === expectedPassword) {
     return { success: true, user };
   }
 
-  return { success: false, message: 'Password salah (Gunakan default: 123).' };
+  return { success: false, message: 'Kata sandi salah. Silakan periksa kembali atau gunakan fitur Lupa Kata Sandi.' };
+}
+
+// -------------------------------------------------------------
+// Password Management & WhatsApp OTP Reset Model
+// -------------------------------------------------------------
+const passwordResetOtpStore = new Map();
+
+export async function requestPasswordResetOtp(identifier) {
+  const clean = String(identifier || '').trim().toLowerCase();
+  if (!clean) {
+    return { success: false, message: 'Harap masukkan alamat email atau nomor WhatsApp terdaftar.' };
+  }
+
+  const [users, coaches, students] = await Promise.all([
+    queryTable('users'),
+    queryTable('coaches'),
+    queryTable('students')
+  ]);
+
+  const numOnly = clean.replace(/[^0-9]/g, '');
+
+  let matchedUser = users.find(u => {
+    const uEmail = (u.email || '').trim().toLowerCase();
+    const uPhone = (u.phone || '').replace(/[^0-9]/g, '');
+    return uEmail === clean || (numOnly.length >= 8 && uPhone.includes(numOnly));
+  });
+
+  let matchedCoach = null;
+  let matchedStudent = null;
+
+  if (!matchedUser) {
+    matchedCoach = coaches.find(c => {
+      const cEmail = (c.email || '').trim().toLowerCase();
+      const cPhone = (c.phone || '').replace(/[^0-9]/g, '');
+      return cEmail === clean || (numOnly.length >= 8 && cPhone.includes(numOnly));
+    });
+    if (matchedCoach) {
+      matchedUser = users.find(u => u.id === `usr_${matchedCoach.id}` || u.coach_id === matchedCoach.id || (u.email && u.email.toLowerCase() === matchedCoach.email.toLowerCase()));
+      if (!matchedUser) {
+        matchedUser = {
+          id: `usr_${matchedCoach.id}`,
+          name: matchedCoach.name,
+          email: matchedCoach.email,
+          phone: matchedCoach.phone,
+          role: 'coach',
+          password: '123'
+        };
+        await upsertRecord('users', matchedUser.id, matchedUser);
+      }
+    }
+  }
+
+  if (!matchedUser) {
+    matchedStudent = students.find(s => {
+      const sEmail = (s.email || '').trim().toLowerCase();
+      const sPhone = (s.phone || '').replace(/[^0-9]/g, '');
+      return sEmail === clean || (numOnly.length >= 8 && sPhone.includes(numOnly));
+    });
+    if (matchedStudent) {
+      matchedUser = users.find(u => u.id === matchedStudent.userId || (u.email && u.email.toLowerCase() === matchedStudent.email.toLowerCase()));
+    }
+  }
+
+  if (!matchedUser) {
+    return {
+      success: false,
+      message: 'Akun dengan email atau nomor WhatsApp tersebut tidak ditemukan di sistem.'
+    };
+  }
+
+  let rawPhone = matchedUser.phone || matchedCoach?.phone || matchedStudent?.phone || '';
+  if (!rawPhone) {
+    const coachOfUser = coaches.find(c => c.userId === matchedUser.id || c.id === matchedUser.coach_id);
+    if (coachOfUser?.phone) rawPhone = coachOfUser.phone;
+    const studentOfUser = students.find(s => s.userId === matchedUser.id || s.email === matchedUser.email);
+    if (studentOfUser?.phone) rawPhone = studentOfUser.phone;
+  }
+
+  if (!rawPhone) {
+    return {
+      success: false,
+      message: 'Akun Anda belum memiliki nomor WhatsApp terdaftar. Silakan hubungi admin manajemen.'
+    };
+  }
+
+  let cleanPhone = String(rawPhone).replace(/[^0-9]/g, '');
+  if (cleanPhone.startsWith('0')) {
+    cleanPhone = '62' + cleanPhone.substring(1);
+  } else if (!cleanPhone.startsWith('62')) {
+    cleanPhone = '62' + cleanPhone;
+  }
+
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const expiresAt = Date.now() + 10 * 60 * 1000;
+
+  passwordResetOtpStore.set(matchedUser.id, {
+    otp,
+    expiresAt,
+    userId: matchedUser.id,
+    email: matchedUser.email,
+    phone: cleanPhone,
+    name: matchedUser.name
+  });
+
+  const waMessage = `Halo *${matchedUser.name}*,\n\nBerikut adalah *KODE VERIFIKASI PEMULIHAN KATA SANDI* akun *mine.skills* Anda:\n\n🔐 KODE OTP: *${otp}*\n\nKode ini berlaku selama 10 menit. Masukkan kode ini pada layar verifikasi untuk membuat kata sandi baru.\n\n_Demi keamanan akun Anda, jangan berikan kode ini kepada siapa pun._\n\nTerima kasih,\n*Tim mine.skills*`;
+
+  // Send via Fonnte if token available
+  const fonnteToken = process.env.FONNTE_TOKEN || '1SX6TAyvC7Kh18J7TQX6';
+  let fonnteSent = false;
+  try {
+    const fonnteRes = await fetch('https://api.fonnte.com/send', {
+      method: 'POST',
+      headers: {
+        'Authorization': fonnteToken,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        target: cleanPhone,
+        message: waMessage,
+        countryCode: '62'
+      })
+    });
+    const fonnteData = await fonnteRes.json();
+    if (fonnteData?.status) fonnteSent = true;
+  } catch (e) {
+    console.warn('[Neon DB] Fonnte OTP send error:', e.message);
+  }
+
+  const displayPhone = rawPhone.replace(/[^0-9]/g, '');
+  const maskedPhone = displayPhone.length > 7
+    ? displayPhone.slice(0, 4) + '****' + displayPhone.slice(-3)
+    : displayPhone;
+
+  const waUrl = `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(waMessage)}`;
+
+  return {
+    success: true,
+    userId: matchedUser.id,
+    maskedPhone,
+    cleanPhone,
+    waUrl,
+    otp,
+    fonnteSent,
+    message: `Kode verifikasi OTP berhasil dibuat untuk nomor WhatsApp (${maskedPhone}).`
+  };
+}
+
+export async function verifyAndResetPassword(userId, otp, newPassword) {
+  if (!userId || !otp || !newPassword) {
+    return { success: false, message: 'Data tidak lengkap. Mohon lengkapi semua kolom.' };
+  }
+
+  if (String(newPassword).length < 5) {
+    return { success: false, message: 'Kata sandi baru minimal 5 karakter.' };
+  }
+
+  const stored = passwordResetOtpStore.get(userId);
+  if (!stored) {
+    return { success: false, message: 'Sesi OTP tidak ditemukan atau sudah kedaluwarsa. Silakan minta kode baru.' };
+  }
+
+  if (Date.now() > stored.expiresAt) {
+    passwordResetOtpStore.delete(userId);
+    return { success: false, message: 'Kode OTP telah kedaluwarsa (lebih dari 10 menit). Silakan minta kode baru.' };
+  }
+
+  if (stored.otp !== String(otp).trim()) {
+    return { success: false, message: 'Kode OTP verifikasi salah. Mohon periksa kembali pesan WhatsApp Anda.' };
+  }
+
+  const users = await queryTable('users', 'WHERE id = $1', [userId]);
+  let user = users[0];
+  if (!user) {
+    user = { id: userId, email: stored.email, name: stored.name, role: 'customer' };
+  }
+
+  user.password = String(newPassword).trim();
+  await upsertRecord('users', user.id, user);
+
+  passwordResetOtpStore.delete(userId);
+
+  return {
+    success: true,
+    message: 'Kata sandi akun Anda berhasil diperbarui! Silakan masuk dengan kata sandi baru.'
+  };
+}
+
+export async function changeUserPassword(userId, oldPassword, newPassword) {
+  if (!userId || !oldPassword || !newPassword) {
+    return { success: false, message: 'Mohon isi semua field kata sandi.' };
+  }
+
+  if (String(newPassword).length < 5) {
+    return { success: false, message: 'Kata sandi baru minimal 5 karakter.' };
+  }
+
+  const users = await queryTable('users', 'WHERE id = $1', [userId]);
+  const user = users[0];
+  if (!user) {
+    return { success: false, message: 'User tidak ditemukan.' };
+  }
+
+  const currentPass = user.password || '123';
+  if (String(oldPassword).trim() !== currentPass) {
+    return { success: false, message: 'Kata sandi saat ini (lama) tidak cocok.' };
+  }
+
+  user.password = String(newPassword).trim();
+  await upsertRecord('users', user.id, user);
+
+  return {
+    success: true,
+    message: 'Kata sandi berhasil diubah! Gunakan kata sandi baru Anda untuk sesi login berikutnya.'
+  };
 }
 
 export async function getAllUsers() {

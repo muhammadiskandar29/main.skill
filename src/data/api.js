@@ -558,6 +558,42 @@ export async function apiUpdateRbacMatrix(matrix) {
   return json.data;
 }
 
+// -------------------------------------------------------------
+// Password Management & WhatsApp OTP Reset API
+// -------------------------------------------------------------
+export async function apiRequestPasswordResetOtp(identifier) {
+  const res = await fetch(`${API_BASE}/auth/forgot-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ identifier })
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Gagal meminta kode OTP');
+  return json;
+}
+
+export async function apiVerifyAndResetPassword(userId, otp, newPassword) {
+  const res = await fetch(`${API_BASE}/auth/verify-reset-otp`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId, otp, newPassword })
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Gagal memperbarui kata sandi');
+  return json;
+}
+
+export async function apiChangePassword(userId, oldPassword, newPassword) {
+  const res = await fetch(`${API_BASE}/auth/change-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ userId, oldPassword, newPassword })
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Gagal mengubah kata sandi');
+  return json;
+}
+
 
 
 

@@ -31,6 +31,9 @@ import {
   registerCustomerFlow,
   saveUploadedImage,
   loginUser,
+  requestPasswordResetOtp,
+  verifyAndResetPassword,
+  changeUserPassword,
   getAllUsers,
   createUser,
   updateUser,
@@ -507,6 +510,36 @@ export async function handleApiRequest(req, res) {
         return sendJson(res, 401, authResult);
       }
       return sendJson(res, 200, { success: true, data: authResult.user });
+    }
+
+    if (pathname === '/api/auth/forgot-password' && method === 'POST') {
+      const body = await parseJsonBody(req);
+      const { identifier } = body;
+      const result = await requestPasswordResetOtp(identifier);
+      if (!result.success) {
+        return sendJson(res, 400, result);
+      }
+      return sendJson(res, 200, result);
+    }
+
+    if (pathname === '/api/auth/verify-reset-otp' && method === 'POST') {
+      const body = await parseJsonBody(req);
+      const { userId, otp, newPassword } = body;
+      const result = await verifyAndResetPassword(userId, otp, newPassword);
+      if (!result.success) {
+        return sendJson(res, 400, result);
+      }
+      return sendJson(res, 200, result);
+    }
+
+    if (pathname === '/api/auth/change-password' && method === 'POST') {
+      const body = await parseJsonBody(req);
+      const { userId, oldPassword, newPassword } = body;
+      const result = await changeUserPassword(userId, oldPassword, newPassword);
+      if (!result.success) {
+        return sendJson(res, 400, result);
+      }
+      return sendJson(res, 200, result);
     }
 
     if (pathname === '/api/users') {

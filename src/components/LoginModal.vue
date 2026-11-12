@@ -48,8 +48,11 @@
         </div>
 
         <div class="form-group">
-          <div class="label-row">
+          <div class="label-row" style="display: flex; justify-content: space-between; align-items: center;">
             <label class="form-label">Kata Sandi <span class="required">*</span></label>
+            <button type="button" @click="openForgotPassword" class="btn-link-forgot" style="background: none; border: none; padding: 0; font-size: 12px; font-weight: 600; color: #0284c7; cursor: pointer; text-decoration: none;">
+              Lupa Kata Sandi?
+            </button>
           </div>
           <div class="input-icon-wrap">
             <svg class="input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -134,6 +137,11 @@ async function handleLogin() {
 function openRegister() {
   actions.closeLoginModal();
   emit('open-register');
+}
+
+function openForgotPassword() {
+  actions.closeLoginModal();
+  actions.openForgotPasswordModal(email.value);
 }
 </script>
 

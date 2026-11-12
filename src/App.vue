@@ -246,6 +246,13 @@
 
         <!-- Sidebar Footer -->
         <div class="sidebar-footer">
+          <button @click="actions.openChangePasswordModal()" class="btn-sidebar-home" title="Ganti Kata Sandi Akun" style="margin-bottom: 6px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+            <span>Ubah Kata Sandi</span>
+          </button>
           <button @click="viewWebsite" class="btn-sidebar-home" title="Lihat Tampilan Website Publik">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
@@ -501,6 +508,18 @@
 
     <!-- Global High-End Modal Alert (Replaces all Windows Alerts) -->
     <AlertModal />
+
+    <!-- Forgot Password Modal (WhatsApp OTP Verification & Reset) -->
+    <ForgotPasswordModal 
+      v-if="store.isForgotPasswordModalOpen" 
+      @close="actions.closeForgotPasswordModal()" 
+    />
+
+    <!-- Change Password Modal (For logged in users) -->
+    <ChangePasswordModal 
+      v-if="store.isChangePasswordModalOpen" 
+      @close="actions.closeChangePasswordModal()" 
+    />
   </div>
 </template>
 
@@ -512,6 +531,8 @@ import CompanyProfile from './components/CompanyProfile.vue';
 import RegistrationModal from './components/RegistrationModal.vue';
 import LoginModal from './components/LoginModal.vue';
 import LoginPage from './components/LoginPage.vue';
+import ForgotPasswordModal from './components/ForgotPasswordModal.vue';
+import ChangePasswordModal from './components/ChangePasswordModal.vue';
 import AlertModal from './components/AlertModal.vue';
 import PortalCustomer from './components/PortalCustomer.vue';
 import PortalCoach from './components/PortalCoach.vue';

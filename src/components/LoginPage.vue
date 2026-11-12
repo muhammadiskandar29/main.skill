@@ -235,8 +235,11 @@
 
               <!-- Password Input -->
               <div class="field-wrap">
-                <div class="field-label-row">
+                <div class="field-label-row" style="display: flex; justify-content: space-between; align-items: center;">
                   <label class="field-label">Kata Sandi</label>
+                  <button type="button" @click="actions.openForgotPasswordModal(email)" class="link-forgot-pw" style="background: none; border: none; padding: 0; font-size: 12px; font-weight: 600; color: #0284c7; cursor: pointer; text-decoration: none;">
+                    Lupa Kata Sandi?
+                  </button>
                 </div>
                 <div class="input-shell" :class="{ focused: isPassFocused }">
                   <svg class="field-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">

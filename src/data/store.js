@@ -53,7 +53,10 @@ import {
   apiDeleteTransaction,
   apiDeleteCoachAttendance,
   apiGetRbacMatrix,
-  apiUpdateRbacMatrix
+  apiUpdateRbacMatrix,
+  apiRequestPasswordResetOtp,
+  apiVerifyAndResetPassword,
+  apiChangePassword
 } from './api.js';
 
 const STORAGE_KEY = 'mine_skills_auth_session_v3';
@@ -751,6 +754,8 @@ export const store = reactive({
   activePortalMenu: getInitialPortalMenu(savedSession.currentRole || 'public'),
   isLoading: false,
   isLoginModalOpen: false,
+  isForgotPasswordModalOpen: false,
+  isChangePasswordModalOpen: false,
 
   // Global In-App Alert / Notice Modal (Replaces native browser alert)
   alertModal: {
@@ -1091,6 +1096,67 @@ export const actions = {
 
   closeLoginModal() {
     store.isLoginModalOpen = false;
+  },
+
+  openForgotPasswordModal() {
+    store.isLoginModalOpen = false;
+    store.isForgotPasswordModalOpen = true;
+  },
+
+  closeForgotPasswordModal() {
+    store.isForgotPasswordModalOpen = false;
+  },
+
+  openChangePasswordModal() {
+    store.isChangePasswordModalOpen = true;
+  },
+
+  closeChangePasswordModal() {
+    store.isChangePasswordModalOpen = false;
+  },
+
+  async requestPasswordResetOtp(identifier) {
+    try {
+      const res = await apiRequestPasswordResetOtp(identifier);
+      return res;
+    } catch (err) {
+      throw new Error(err.message || 'Gagal mengirim kode verifikasi OTP ke WhatsApp.');
+    }
+  },
+
+  async verifyAndResetPassword(userId, otp, newPassword) {
+    try {
+      const res = await apiVerifyAndResetPassword(userId, otp, newPassword);
+      const localUser = (store.users || []).find(u => u.id === userId);
+      if (localUser) {
+        localUser.password = newPassword;
+        persistLocalStore('users', store.users);
+      }
+      return res;
+    } catch (err) {
+      throw new Error(err.message || 'Gagal memperbarui kata sandi.');
+    }
+  },
+
+  async changePassword(oldPassword, newPassword) {
+    if (!store.currentUser?.id) {
+      throw new Error('Anda belum login.');
+    }
+    try {
+      const res = await apiChangePassword(store.currentUser.id, oldPassword, newPassword);
+      store.currentUser.password = newPassword;
+      const localUser = (store.users || []).find(u => u.id === store.currentUser.id);
+      if (localUser) {
+        localUser.password = newPassword;
+        persistLocalStore('users', store.users);
+      }
+      try {
+        localStorage.setItem(USER_KEY, JSON.stringify(store.currentUser));
+      } catch (e) {}
+      return res;
+    } catch (err) {
+      throw new Error(err.message || 'Gagal mengubah kata sandi.');
+    }
   },
 
   // Real JWT Logout

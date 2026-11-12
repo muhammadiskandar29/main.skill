@@ -10,6 +10,15 @@
             <div class="badge-chip gold">Instruktur mine.skills</div>
             <h2 class="coach-name">{{ currentCoach.name }}</h2>
             <p class="coach-meta">{{ currentCoach.specialty }}</p>
+            <div style="margin-top: 10px;">
+              <button @click="actions.openChangePasswordModal()" class="btn-coach-change-pw" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 12px; font-weight: 600; color: #334155; cursor: pointer; transition: all 0.2s;" title="Ganti kata sandi akun pelatih">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                <span>Ubah Kata Sandi</span>
+              </button>
+            </div>
           </div>
         </div>
 

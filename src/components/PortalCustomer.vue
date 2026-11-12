@@ -19,13 +19,20 @@
               <span class="dot">•</span>
               <span>Paket: {{ studentData.packageType }}</span>
             </p>
-            <div style="margin-top: 8px;">
+            <div style="margin-top: 8px; display: flex; gap: 8px; flex-wrap: wrap;">
               <button @click="openEditCustProfileModal" class="btn-edit-cust-profile" title="Ubah data profil siswa & kontak wali murid">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                   <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
                 </svg>
                 <span>Edit Profil Siswa & Wali</span>
+              </button>
+              <button @click="actions.openChangePasswordModal()" class="btn-edit-cust-profile" style="background: #f1f5f9; color: #334155; border-color: #cbd5e1;" title="Ganti kata sandi akun wali murid">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                </svg>
+                <span>Ubah Kata Sandi</span>
               </button>
             </div>
           </div>

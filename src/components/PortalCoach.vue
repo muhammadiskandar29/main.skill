@@ -15,16 +15,16 @@
 
         <div class="coach-profile-stats">
           <div class="stat-box">
-            <span class="stat-num">{{ activeStudentsCount }}</span>
+            <span class="stat-num">{{ coachStudents.length }}</span>
             <span class="stat-lbl">Murid Aktif</span>
           </div>
           <div class="stat-box">
-            <span class="stat-num">4</span>
+            <span class="stat-num">{{ todaySchedules.length }}</span>
             <span class="stat-lbl">Sesi Hari Ini</span>
           </div>
           <div class="stat-box">
-            <span class="stat-num">98%</span>
-            <span class="stat-lbl">Kelulusan Level</span>
+            <span class="stat-num">{{ completedSessionsCount }}</span>
+            <span class="stat-lbl">Sesi Selesai</span>
           </div>
         </div>
       </div>
@@ -47,30 +47,27 @@
       <!-- Today's Schedule -->
       <div class="today-schedule-section">
         <h3 class="section-heading">Jadwal Sesi Mengajar Hari Ini</h3>
-        <div class="session-slot-cards">
-          <div class="slot-card card-humanist">
-            <div class="slot-time">08.00 - 08.45 WIB</div>
+        <div v-if="todaySchedules.length > 0" class="session-slot-cards">
+          <div 
+            v-for="sch in todaySchedules" 
+            :key="sch.id" 
+            class="slot-card card-humanist"
+          >
+            <div class="slot-time">{{ sch.time || '08.00 - 08.45 WIB' }}</div>
             <div class="slot-details">
-              <span class="badge-chip teal">Group Class</span>
-              <h4 class="slot-title">Renang Level 1: Water Explorer</h4>
-              <p class="slot-loc">Kolam Graha Kresna Pratama • 4 Siswa</p>
+              <span class="badge-chip teal">{{ sch.classType || 'Sesi Latihan' }}</span>
+              <h4 class="slot-title">{{ sch.program }} - {{ sch.currentLevelTitle }}</h4>
+              <p class="slot-loc">{{ sch.location }} • {{ sch.studentName }}</p>
             </div>
-            <button @click="$emit('change-menu', 'co_input_progress')" class="btn-secondary btn-sm">
+            <button @click="openReportForStudent(sch.studentId)" class="btn-primary btn-sm">
               Input Raport
             </button>
           </div>
-
-          <div class="slot-card card-humanist active-slot">
-            <div class="slot-time">09.00 - 09.45 WIB</div>
-            <div class="slot-details">
-              <span class="badge-chip gold">Small Group</span>
-              <h4 class="slot-title">Renang Level 2: Breaststroke Hero</h4>
-              <p class="slot-loc">Kolam Graha Kresna Pratama • Kenzo & Danendra</p>
-            </div>
-            <button @click="$emit('change-menu', 'co_input_progress')" class="btn-primary btn-sm">
-              Input Raport
-            </button>
-          </div>
+        </div>
+        <div v-else class="empty-state-box card-humanist" style="text-align: center; padding: 36px 20px;">
+          <div style="font-size: 28px; margin-bottom: 8px;">📅</div>
+          <h4 style="font-size: 15px; font-weight: 700; color: var(--color-primary-dark); margin-bottom: 4px;">Belum Ada Jadwal Mengajar Hari Ini</h4>
+          <p style="font-size: 13px; color: var(--text-muted); margin: 0;">Saat ini belum ada sesi latihan yang ditugaskan manajemen untuk akun Anda hari ini.</p>
         </div>
       </div>
     </div>
@@ -110,11 +107,17 @@
               <!-- Pilih Siswa -->
               <div class="form-group full-width">
                 <label class="form-label">Pilih Siswa Didik <span class="required">*</span></label>
-                <select v-model="selectedStudentId" class="form-select" required>
-                  <option v-for="stu in store.students" :key="stu.id" :value="stu.id">
+                <select v-model="selectedStudentId" class="form-select" :disabled="coachStudents.length === 0" required>
+                  <option v-if="coachStudents.length === 0" value="" disabled selected>
+                    Belum ada siswa binaan yang ditugaskan kepada Anda
+                  </option>
+                  <option v-for="stu in coachStudents" :key="stu.id" :value="stu.id">
                     {{ stu.name }} ({{ stu.program || stu.productName }} - {{ stu.currentLevelTitle }})
                   </option>
                 </select>
+                <span v-if="coachStudents.length === 0" class="form-hint" style="color: #e53e3e;">
+                  Akun Anda belum memiliki siswa binaan. Pengisian raport hanya dapat dilakukan setelah manajemen menugaskan siswa ke Anda.
+                </span>
               </div>
 
               <!-- Level Siswa -->
@@ -219,7 +222,7 @@
             </div>
 
             <div class="form-actions">
-              <button type="submit" class="btn-primary">
+              <button type="submit" class="btn-primary" :disabled="coachStudents.length === 0">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
                   <polyline points="17 21 17 13 7 13 7 21"></polyline>
@@ -277,8 +280,8 @@
       <div class="page-top-bar">
         <div>
           <span class="badge-chip gold">Agenda Mengajar</span>
-          <h2 class="page-title">Jadwal Sesi Mingguan Coach Dimas</h2>
-          <p class="page-sub">Rincian alokasi jam mengajar di Kolam Graha Kresna Pratama.</p>
+          <h2 class="page-title">Jadwal Sesi Mengajar {{ currentCoach.name }}</h2>
+          <p class="page-sub">Rincian alokasi jadwal dan jam mengajar resmi Anda.</p>
         </div>
       </div>
 
@@ -288,18 +291,31 @@
             <tr>
               <th>Hari & Waktu</th>
               <th>Program & Level</th>
-              <th>Tipe Kelas</th>
-              <th>Siswa Terdaftar</th>
-              <th>Status Slot</th>
+              <th>Tipe Paket</th>
+              <th>Siswa Didik</th>
+              <th>Lokasi</th>
+              <th>Status</th>
+              <th>Aksi</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="sch in store.schedules" :key="sch.id">
+            <tr v-for="sch in coachSchedules" :key="sch.id">
               <td><strong>{{ sch.day }}</strong>, {{ sch.time }}</td>
-              <td>{{ sch.program }}</td>
+              <td>{{ sch.program }} - {{ sch.currentLevelTitle }}</td>
               <td><span class="badge-chip teal">{{ sch.classType }}</span></td>
-              <td>{{ sch.students.join(', ') }}</td>
-              <td>{{ sch.slotsFilled }}/{{ sch.slotsMax }} Terisi</td>
+              <td><strong>{{ sch.studentName }}</strong></td>
+              <td>{{ sch.location }}</td>
+              <td><span :class="['badge-chip mini', sch.status === 'Selesai' ? 'green' : 'gold']">{{ sch.status }}</span></td>
+              <td>
+                <button @click="openReportForStudent(sch.studentId)" class="btn-secondary btn-sm" style="padding: 4px 10px; font-size: 11px;">
+                  Input Raport
+                </button>
+              </td>
+            </tr>
+            <tr v-if="coachSchedules.length === 0">
+              <td colspan="7" style="text-align: center; padding: 36px; color: var(--text-muted);">
+                Belum ada jadwal mengajar yang dialokasikan manajemen untuk akun Anda saat ini.
+              </td>
             </tr>
           </tbody>
         </table>
@@ -571,8 +587,8 @@
         </div>
       </div>
 
-      <div class="students-grid">
-        <div v-for="stu in store.students" :key="stu.id" class="student-binaan-card card-humanist">
+      <div v-if="coachStudents.length > 0" class="students-grid">
+        <div v-for="stu in coachStudents" :key="stu.id" class="student-binaan-card card-humanist">
           <div class="binaan-header">
             <div>
               <h4 class="binaan-name">{{ stu.name }} ({{ stu.age }} th)</h4>
@@ -601,7 +617,20 @@
           <div class="binaan-progress">
             <span>Progress Paket: {{ stu.completedSessions }}/{{ stu.packageTotalSessions }} Sesi</span>
           </div>
+
+          <div style="margin-top: 14px;">
+            <button @click="openReportForStudent(stu.id)" class="btn-primary btn-sm full-width">
+              Input Raport Siswa Ini
+            </button>
+          </div>
         </div>
+      </div>
+      <div v-else class="empty-state-card card-humanist" style="text-align: center; padding: 48px 24px;">
+        <div style="font-size: 36px; margin-bottom: 12px;">👥</div>
+        <h4 style="font-size: 16px; font-weight: 700; color: var(--color-primary-dark); margin-bottom: 6px;">Belum Ada Siswa Binaan</h4>
+        <p style="font-size: 13.5px; color: var(--text-muted); margin: 0; max-width: 480px; margin: 0 auto;">
+          Saat ini belum ada siswa aktif yang dialokasikan oleh manajemen ke akun Anda. Siswa akan muncul di sini otomatis ketika manajemen memetakan siswa ke nama Anda.
+        </p>
       </div>
     </div>
   </div>
@@ -625,7 +654,7 @@ const resolvedMenu = computed(() => {
   return 'co_overview';
 });
 
-defineEmits(['change-menu']);
+const emit = defineEmits(['change-menu']);
 
 const currentCoach = computed(() => {
   // 1. Prioritaskan data user yang sedang aktif login (store.currentUser)
@@ -670,23 +699,84 @@ const currentCoach = computed(() => {
   };
 });
 
-const activeStudentsCount = computed(() => {
+// 1. Siswa binaan yang ter-assign ke coach ini secara real dari data students
+const coachStudents = computed(() => {
   const cId = currentCoach.value?.id;
   const cName = (currentCoach.value?.name || '').trim().toLowerCase();
-  const assigned = (store.students || []).filter(s => 
+  if (!cId && !cName) return [];
+  return (store.students || []).filter(s => 
     s.coachId === cId || 
     s.assignedCoachId === cId ||
     (s.assignedCoachName && s.assignedCoachName.trim().toLowerCase() === cName)
   );
-  return assigned.length;
 });
 
-const selectedStudentId = ref(store.students[0]?.id || 'stu_1');
+const activeStudentsCount = computed(() => coachStudents.value.length);
+
+// 2. Seluruh jadwal sesi latihan untuk coach ini (diambil dari memberSchedules siswa binaan)
+const coachSchedules = computed(() => {
+  const cId = currentCoach.value?.id;
+  const cName = (currentCoach.value?.name || '').trim().toLowerCase();
+  if (!cId && !cName) return [];
+  const list = [];
+  (store.students || []).forEach(stu => {
+    const isCoachForStudent = (stu.coachId === cId || stu.assignedCoachId === cId || (stu.assignedCoachName && stu.assignedCoachName.trim().toLowerCase() === cName));
+    (stu.memberSchedules || []).forEach(sch => {
+      const isCoachForSchedule = (sch.coachId === cId || (sch.coachName && sch.coachName.trim().toLowerCase() === cName) || (sch.coach && sch.coach.trim().toLowerCase() === cName));
+      if (isCoachForSchedule || (isCoachForStudent && !sch.coachName)) {
+        list.push({
+          ...sch,
+          studentId: stu.id,
+          studentName: stu.name,
+          program: stu.productName || stu.program || 'Skill Pelatihan',
+          classType: stu.packageName || 'Kelas Terjadwal',
+          currentLevelTitle: stu.currentLevelTitle || `Level ${stu.currentLevel || 1}`,
+          location: sch.location || stu.location || 'Fasilitas Latihan'
+        });
+      }
+    });
+  });
+  return list;
+});
+
+// 3. Jadwal sesi latihan hari ini (real dari jadwal coach)
+const todaySchedules = computed(() => {
+  const todayName = new Intl.DateTimeFormat('id-ID', { weekday: 'long' }).format(new Date());
+  return coachSchedules.value.filter(s => {
+    const isTodayDay = s.day && s.day.toLowerCase() === todayName.toLowerCase();
+    const isTodayStatus = s.status === 'Mendatang (Aktif)' || s.status === 'Terjadwal';
+    return isTodayDay || isTodayStatus;
+  });
+});
+
+// 4. Jumlah sesi selesai
+const completedSessionsCount = computed(() => {
+  return coachSchedules.value.filter(s => s.status === 'Selesai' || s.status === 'Hadir').length;
+});
+
+function openReportForStudent(stuId) {
+  if (stuId) {
+    selectedStudentId.value = stuId;
+  }
+  emit('change-menu', 'co_input_progress');
+}
+
+const selectedStudentId = ref('');
+watch(coachStudents, (students) => {
+  if (students && students.length > 0) {
+    if (!students.some(s => s.id === selectedStudentId.value)) {
+      selectedStudentId.value = students[0].id;
+    }
+  } else {
+    selectedStudentId.value = '';
+  }
+}, { immediate: true });
+
 const saveSuccess = ref(false);
 const copySuccess = ref(false);
 
 const selectedStudent = computed(() => {
-  return store.students.find(s => s.id === selectedStudentId.value) || store.students[0];
+  return coachStudents.value.find(s => s.id === selectedStudentId.value) || null;
 });
 
 const assessmentData = ref({
@@ -758,6 +848,11 @@ const directWaSendUrl = computed(() => {
 });
 
 async function handleSaveReport() {
+  if (!selectedStudentId.value || !selectedStudent.value) {
+    actions.showAlert({ title: 'Input Raport', message: 'Pilih siswa binaan terlebih dahulu atau tunggu alokasi siswa dari manajemen.', type: 'warning' });
+    return;
+  }
+
   const reportPayload = {
     studentId: selectedStudentId.value,
     studentName: selectedStudent.value?.name,

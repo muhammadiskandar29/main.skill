@@ -217,7 +217,7 @@
 
           <div class="coaches-preview-grid">
             <div 
-              v-for="coach in (store.coaches || []).slice(0, 3)" 
+              v-for="coach in (store.coaches || []).filter(c => c.status !== 'inactive')" 
               :key="coach.id" 
               class="coach-summary-card card-humanist"
             >
@@ -1453,7 +1453,7 @@ const faqItems = computed(() => {
 
 .coaches-preview-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 24px;
 }
 

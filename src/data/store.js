@@ -183,18 +183,8 @@ const initialPackages = [
 
 const initialCoaches = [
   {
-    id: 'coach_1',
-    name: 'Coach Adit',
-    email: 'adit.coach@mine.skills.id',
-    phone: '085286274726',
-    specialty: 'Renang Anak & Water Safety (Head Coach)',
-    bio: 'Berpengalaman lebih dari 8 tahun membina anak usia dini hingga remaja dalam penguasaan 4 gaya renang kompeten dan keselamatan air.',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240',
-    productIds: ['prod_swimming'],
-    activeStudentsCount: 14
-  },
-  {
     id: 'coach_2',
+    userId: 'usr_coach_2',
     name: 'Coach Sekar Ayu, S.Sn.',
     email: 'sekar.dance@mine.skills.id',
     phone: '081399887711',
@@ -203,6 +193,54 @@ const initialCoaches = [
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=240',
     productIds: ['prod_dance'],
     activeStudentsCount: 8
+  },
+  {
+    id: 'coach_1792917516003',
+    userId: 'usr_coach_1792917516003',
+    name: 'Coach Bayu Pratama, S.Pd.',
+    email: 'bayu.coach@mineskills.id',
+    phone: '081987654321',
+    specialty: 'Water Safety & Gaya Dada',
+    bio: 'Pelatih renang anak bersertifikat PRSI dengan pengalaman 6 tahun.',
+    avatar: '/images/coaches/coach-bayu.jpg',
+    productIds: ['prod_swimming'],
+    activeStudentsCount: 10
+  },
+  {
+    id: 'coach_1794446495449',
+    userId: 'usr_coach_1794446495449',
+    name: 'Aditya Saputra',
+    email: 'aditya@gmail.com',
+    phone: '08158341074',
+    specialty: 'Water confident basic freesyle, backstroke, breastsstroke',
+    bio: 'Mengajar renang kurang lebih 2 tahun',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240',
+    productIds: ['prod_swimming'],
+    activeStudentsCount: 6
+  },
+  {
+    id: 'coach_1794455384029',
+    userId: 'usr_coach_1794455384029',
+    name: 'test',
+    email: 'test@mail.com',
+    phone: '08783218738217',
+    specialty: 'dsa',
+    bio: 'Pelatih bersertifikasi profesional.',
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=240',
+    productIds: ['prod_swimming'],
+    activeStudentsCount: 5
+  },
+  {
+    id: 'coach_1794456121637',
+    userId: 'usr_coach_1794456121637',
+    name: 'jajang',
+    email: 'jajang@mail.com',
+    phone: '089321832917',
+    specialty: 'test',
+    bio: 'Pelatih bersertifikasi profesional.',
+    avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=240',
+    productIds: ['prod_dance', 'prod_1793069268552', 'prod_1792988036674'],
+    activeStudentsCount: 4
   }
 ];
 

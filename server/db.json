@@ -63,14 +63,14 @@
     {
       "id": "usr_coach_1792917516003",
       "name": "Coach Bayu Pratama, S.Pd.",
-      "email": "bayu.coach@mineskills.id",
-      "password": "123",
       "role": "coach",
+      "email": "bayu.coach@mineskills.id",
       "phone": "081987654321",
-      "avatar": "/images/coaches/coach-bayu.jpg",
-      "student_id": null,
+      "avatar": "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=240",
       "coach_id": "coach_1792917516003",
-      "created_at": "25/10/26, 15.38"
+      "password": "123",
+      "created_at": "25/10/26, 15.38",
+      "student_id": null
     }
   ],
   "products": [
@@ -352,54 +352,14 @@
       "name": "Coach Bayu Pratama, S.Pd.",
       "email": "bayu.coach@mineskills.id",
       "phone": "081987654321",
-      "avatar": "/images/coaches/coach-bayu.jpg",
+      "avatar": "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=240",
       "userId": "usr_coach_1792917516003",
       "specialty": "Water Safety & Gaya Dada",
       "created_at": "25/10/26, 15.38",
       "productIds": [
         "prod_swimming"
       ],
-      "activeStudentsCount": 0,
-      "mappedProducts": [
-        {
-          "id": "prod_swimming",
-          "name": "Skill Renang (Swimming Academy) mantap",
-          "slug": "swimming",
-          "levels": [
-            {
-              "focus": "Water Confidence & Basic Freestyle",
-              "title": "Water Explorer",
-              "challenge": "5 Meter Freestyle Challenge",
-              "levelNumber": 1
-            },
-            {
-              "focus": "Gaya Dada (Kaki, Tarikan & Nafas)",
-              "title": "Breaststroke Hero",
-              "challenge": "10 Meter Breaststroke Challenge",
-              "levelNumber": 2
-            },
-            {
-              "focus": "Gaya Punggung (Streamline & Ritme)",
-              "title": "Backstroke Master",
-              "challenge": "15 Meter Backstroke Challenge",
-              "levelNumber": 3
-            },
-            {
-              "focus": "Gaya Kupu-kupu (Dolphin Kick & Power)",
-              "title": "Butterfly Champion",
-              "challenge": "15-25 Meter Butterfly Challenge",
-              "levelNumber": 4
-            }
-          ],
-          "category": "Olahraga & Ketangkasan",
-          "featured": true,
-          "isActive": true,
-          "heroImage": "/images/swimming-hero.jpg",
-          "shortDesc": "Program renang berjenjang dari pengenalan air hingga penguasaan 4 gaya renang kompeten dengan kelas kecil & pengawasan intensif.",
-          "targetAge": "Usia 4 - 15 Tahun & Dewasa",
-          "created_at": "2026-10-01 08:00"
-        }
-      ]
+      "activeStudentsCount": 0
     },
     {
       "id": "coach_1794446495449",

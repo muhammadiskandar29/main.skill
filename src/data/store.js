@@ -202,7 +202,7 @@ const initialCoaches = [
     phone: '081987654321',
     specialty: 'Water Safety & Gaya Dada',
     bio: 'Pelatih renang anak bersertifikat PRSI dengan pengalaman 6 tahun.',
-    avatar: '/images/coaches/coach-bayu.jpg',
+    avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=240',
     productIds: ['prod_swimming'],
     activeStudentsCount: 0
   },

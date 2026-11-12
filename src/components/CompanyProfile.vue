@@ -219,20 +219,30 @@
             <div 
               v-for="coach in (store.coaches || []).filter(c => c.status !== 'inactive')" 
               :key="coach.id" 
-              class="coach-summary-card card-humanist"
+              class="coach-summary-card"
             >
-              <div class="coach-photo-wrap">
-                <img :src="coach.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240'" :alt="coach.name" class="coach-photo" />
-              </div>
-              <div class="coach-summary-body">
-                <h4 class="coach-summary-name">{{ coach.name }}</h4>
-                <span class="coach-summary-spec">{{ coach.specialty }}</span>
-                <p class="coach-summary-bio">{{ coach.bio }}</p>
-                <div class="coach-summary-meta">
-                  <span :class="['badge-chip', getCoachActiveStudentsCount(coach) > 0 ? 'teal' : 'gray']">
-                    {{ getCoachActiveStudentsCount(coach) > 0 ? `Membina ${getCoachActiveStudentsCount(coach)} Siswa` : 'Belum Ada Siswa Binaan' }}
-                  </span>
+              <div class="coach-card-head">
+                <div class="coach-photo-wrap">
+                  <img 
+                    :src="coach.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240'" 
+                    @error="handleCoachAvatarError($event)"
+                    :alt="coach.name" 
+                    class="coach-photo" 
+                  />
                 </div>
+                <div class="coach-head-meta">
+                  <h4 class="coach-summary-name" :title="coach.name">{{ coach.name }}</h4>
+                  <span class="coach-summary-spec" :title="coach.specialty">{{ coach.specialty || 'Instruktur Terverifikasi' }}</span>
+                </div>
+              </div>
+              <p class="coach-summary-bio">{{ coach.bio || 'Pelatih bersertifikasi resmi di mine.skills.' }}</p>
+              <div class="coach-summary-footer">
+                <span :class="['badge-chip mini', getCoachActiveStudentsCount(coach) > 0 ? 'teal' : 'gray']">
+                  {{ getCoachActiveStudentsCount(coach) > 0 ? `Membina ${getCoachActiveStudentsCount(coach)} Siswa` : 'Belum Ada Siswa Binaan' }}
+                </span>
+                <span v-if="coach.mappedProducts && coach.mappedProducts.length" class="coach-program-tag">
+                  {{ coach.mappedProducts[0].name }}
+                </span>
               </div>
             </div>
           </div>
@@ -532,7 +542,12 @@
           >
             <div class="c-dir-head">
               <div class="c-avatar-container">
-                <img :src="coach.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240'" :alt="coach.name" class="c-dir-avatar" />
+                <img 
+                  :src="coach.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240'" 
+                  @error="handleCoachAvatarError($event)"
+                  :alt="coach.name" 
+                  class="c-dir-avatar" 
+                />
               </div>
               <div class="c-dir-intro">
                 <h3 class="c-dir-name">{{ coach.name }}</h3>
@@ -900,6 +915,10 @@ function getCoachActiveStudentsCount(coach) {
     const isActive = s.status ? !s.status.toLowerCase().includes('selesai') && !s.status.toLowerCase().includes('nonaktif') : true;
     return isAssigned && isActive;
   }).length;
+}
+
+function handleCoachAvatarError(e) {
+  e.target.src = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240';
 }
 
 const selectedHeroImage = computed(() => {
@@ -1471,14 +1490,32 @@ const faqItems = computed(() => {
 
 .coaches-preview-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 24px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
 }
 
 .coach-summary-card {
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 16px;
   display: flex;
-  gap: 16px;
-  align-items: flex-start;
+  flex-direction: column;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.coach-summary-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-card);
+  border-color: var(--color-primary-light);
+}
+
+.coach-card-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
 }
 
 .coach-photo-wrap {
@@ -1487,49 +1524,73 @@ const faqItems = computed(() => {
 }
 
 .coach-photo {
-  width: 72px;
-  height: 72px;
-  border-radius: var(--radius-md);
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
   object-fit: cover;
-  border: 2px solid var(--border-subtle);
+  border: 2px solid #e2e8f0;
+  background-color: #f1f5f9;
 }
 
-.coach-verified-badge {
-  position: absolute;
-  bottom: -6px;
-  left: 50%;
-  transform: translateX(-50%);
-  background-color: var(--color-primary);
-  color: #ffffff;
-  font-size: 9px;
-  font-weight: 800;
-  padding: 2px 6px;
-  border-radius: 4px;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-  gap: 3px;
+.coach-head-meta {
+  min-width: 0;
+  flex: 1;
 }
 
 .coach-summary-name {
-  font-size: 15px;
-  font-weight: 800;
+  font-size: 14.5px;
+  font-weight: 700;
   color: var(--color-primary-dark);
+  margin: 0 0 2px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .coach-summary-spec {
   display: block;
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 600;
   color: var(--color-primary);
-  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .coach-summary-bio {
   font-size: 12px;
   color: var(--text-muted);
-  line-height: 1.4;
-  margin-bottom: 8px;
+  line-height: 1.45;
+  margin: 0 0 12px 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 35px;
+}
+
+.coach-summary-footer {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.coach-program-tag {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: #f1f5f9;
+  padding: 2px 8px;
+  border-radius: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 130px;
 }
 
 /* Trust Section */

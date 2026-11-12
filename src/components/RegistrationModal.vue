@@ -493,18 +493,15 @@
               <div class="form-grid">
                 <div class="form-group">
                   <label class="form-label">Hari yang Diinginkan <span class="required">*</span></label>
-                  <div class="segmented-control">
-                    <button 
-                      v-for="day in ['Sabtu', 'Minggu', 'Jumat']"
-                      :key="day"
-                      type="button" 
-                      class="segmented-btn"
-                      :class="{ active: formData.preferredDay === day }"
-                      @click="formData.preferredDay = day"
-                    >
-                      {{ day }}
-                    </button>
-                  </div>
+                  <select v-model="formData.preferredDay" class="form-select" required>
+                    <option value="Senin">Senin</option>
+                    <option value="Selasa">Selasa</option>
+                    <option value="Rabu">Rabu</option>
+                    <option value="Kamis">Kamis</option>
+                    <option value="Jumat">Jumat</option>
+                    <option value="Sabtu">Sabtu</option>
+                    <option value="Minggu">Minggu</option>
+                  </select>
                 </div>
 
                 <div class="form-group">

@@ -55,18 +55,38 @@
 
       <!-- Today's Schedule -->
       <div class="today-schedule-section">
-        <h3 class="section-heading">Jadwal Sesi Mengajar Hari Ini</h3>
+        <div class="flex-between items-center" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <div>
+            <h3 class="section-heading" style="margin: 0;">Jadwal Sesi Mengajar Hari Ini</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin: 3px 0 0;">Daftar sesi murid yang dijadwalkan untuk Anda bimbing pada hari ini.</p>
+          </div>
+          <span v-if="todaySchedules.length > 0" class="badge-chip teal">{{ todaySchedules.length }} Sesi Hari Ini</span>
+        </div>
+
         <div v-if="todaySchedules.length > 0" class="session-slot-cards">
           <div 
             v-for="sch in todaySchedules" 
             :key="sch.id" 
             class="slot-card card-humanist"
+            style="display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 18px;"
           >
-            <div class="slot-time">{{ sch.time || '08.00 - 08.45 WIB' }}</div>
-            <div class="slot-details">
-              <span class="badge-chip teal">{{ sch.classType || 'Sesi Latihan' }}</span>
-              <h4 class="slot-title">{{ sch.program }} - {{ sch.currentLevelTitle }}</h4>
-              <p class="slot-loc">{{ sch.location }} • {{ sch.studentName }}</p>
+            <div class="slot-time-col" style="min-width: 140px;">
+              <span class="badge-chip gold mini" style="font-weight: 700;">Sesi {{ sch.sessionNo }}</span>
+              <div class="slot-time" style="font-size: 15px; font-weight: 800; color: var(--color-primary-dark); margin-top: 4px;">{{ sch.time || '08.00 - 08.45 WIB' }}</div>
+              <div style="font-size: 11.5px; color: var(--text-muted); margin-top: 2px;">{{ formatScheduleDate(sch.date) }}</div>
+            </div>
+            <div class="slot-details" style="flex: 1;">
+              <div style="display: flex; gap: 6px; align-items: center; margin-bottom: 4px; flex-wrap: wrap;">
+                <span class="badge-chip teal mini">{{ sch.classType || 'Sesi Latihan' }}</span>
+                <span v-if="sch.status === 'Reschedule'" class="badge-chip gold mini">Reschedule</span>
+                <span v-if="sch.isSubstitute" class="badge-chip blue mini" :title="`Pelatih utama: ${sch.assignedCoachName}`">
+                  Sesi Pengganti
+                </span>
+              </div>
+              <h4 class="slot-title" style="margin: 0 0 3px; font-size: 14.5px;">{{ sch.program }} — {{ sch.currentLevelTitle }}</h4>
+              <p class="slot-loc" style="margin: 0; font-size: 12.5px; color: var(--text-subtle);">
+                📍 {{ sch.location }} • Murid: <strong>{{ sch.studentName }}</strong>
+              </p>
             </div>
             <button @click="openReportForStudent(sch.studentId)" class="btn-primary btn-sm">
               Input Raport
@@ -76,7 +96,7 @@
         <div v-else class="empty-state-box card-humanist" style="text-align: center; padding: 36px 20px;">
           <div style="font-size: 28px; margin-bottom: 8px;">📅</div>
           <h4 style="font-size: 15px; font-weight: 700; color: var(--color-primary-dark); margin-bottom: 4px;">Belum Ada Jadwal Mengajar Hari Ini</h4>
-          <p style="font-size: 13px; color: var(--text-muted); margin: 0;">Saat ini belum ada sesi latihan yang ditugaskan manajemen untuk akun Anda hari ini.</p>
+          <p style="font-size: 13px; color: var(--text-muted); margin: 0;">Saat ini tidak ada sesi bimbingan siswa yang dialokasikan untuk Anda pada hari ini. Jadwal sesi mendatang dapat dilihat di menu <strong>Jadwal Mengajar</strong>.</p>
         </div>
       </div>
     </div>
@@ -298,10 +318,11 @@
         <table class="simple-table">
           <thead>
             <tr>
-              <th>Hari & Waktu</th>
+              <th>Sesi & Pertemuan</th>
+              <th>Hari & Jam</th>
+              <th>Siswa Didik</th>
               <th>Program & Level</th>
               <th>Tipe Paket</th>
-              <th>Siswa Didik</th>
               <th>Lokasi</th>
               <th>Status</th>
               <th>Aksi</th>
@@ -309,12 +330,35 @@
           </thead>
           <tbody>
             <tr v-for="sch in coachSchedules" :key="sch.id">
-              <td><strong>{{ sch.day }}</strong>, {{ sch.time }}</td>
-              <td>{{ sch.program }} - {{ sch.currentLevelTitle }}</td>
-              <td><span class="badge-chip teal">{{ sch.classType }}</span></td>
-              <td><strong>{{ sch.studentName }}</strong></td>
-              <td>{{ sch.location }}</td>
-              <td><span :class="['badge-chip mini', sch.status === 'Selesai' ? 'green' : 'gold']">{{ sch.status }}</span></td>
+              <td>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span class="badge-chip gold mini" style="font-weight: 700;">Sesi {{ sch.sessionNo }}</span>
+                  <span style="font-size: 12px; font-weight: 600; color: var(--text-subtle);">{{ formatScheduleDate(sch.date) }}</span>
+                </div>
+              </td>
+              <td>
+                <strong>{{ sch.day }}</strong>
+                <div style="font-size: 12px; color: var(--text-muted);">{{ sch.time }}</div>
+              </td>
+              <td>
+                <strong>{{ sch.studentName }}</strong>
+                <div v-if="sch.isSubstitute" style="margin-top: 3px;">
+                  <span class="badge-chip blue mini" style="font-size: 10px; padding: 2px 6px;" :title="`Pelatih utama: ${sch.assignedCoachName}`">
+                    Pengganti (Utama: {{ sch.assignedCoachName || 'Lainnya' }})
+                  </span>
+                </div>
+              </td>
+              <td>
+                <div>{{ sch.program }}</div>
+                <div style="font-size: 11px; color: var(--text-muted);">{{ sch.currentLevelTitle }}</div>
+              </td>
+              <td><span class="badge-chip teal mini">{{ sch.classType }}</span></td>
+              <td><span style="font-size: 12.5px;">{{ sch.location }}</span></td>
+              <td>
+                <span :class="['badge-chip mini', sch.status === 'Selesai' ? 'green' : (sch.status === 'Reschedule' ? 'gold' : 'blue')]">
+                  {{ sch.status }}
+                </span>
+              </td>
               <td>
                 <button @click="openReportForStudent(sch.studentId)" class="btn-secondary btn-sm" style="padding: 4px 10px; font-size: 11px;">
                   Input Raport
@@ -322,7 +366,7 @@
               </td>
             </tr>
             <tr v-if="coachSchedules.length === 0">
-              <td colspan="7" style="text-align: center; padding: 36px; color: var(--text-muted);">
+              <td colspan="8" style="text-align: center; padding: 36px; color: var(--text-muted);">
                 Belum ada jadwal mengajar yang dialokasikan manajemen untuk akun Anda saat ini.
               </td>
             </tr>
@@ -561,27 +605,38 @@
         </div>
       </div>
 
-      <!-- Card 3: Presensi Siswa Binaan Sesi Ini -->
+      <!-- Card 3: Daftar Siswa Sesi Mengajar Hari Ini -->
       <div class="student-attendance-section card-humanist" style="margin-top: 24px;">
-        <div class="section-top-row">
+        <div class="section-top-row" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
           <div>
-            <h3 class="section-title">Presensi Siswa Binaan Sesi Ini</h3>
-            <p class="section-sub">Tandai kehadiran murid sebelum memulai sesi pemanasan.</p>
+            <h3 class="section-title" style="margin: 0;">Daftar Siswa Bimbingan Sesi Hari Ini</h3>
+            <p class="section-sub" style="margin: 3px 0 0;">Presensi dan evaluasi siswa yang dijadwalkan latihan bersama Anda hari ini.</p>
           </div>
+          <span v-if="todaySchedules.length > 0" class="badge-chip teal">{{ todaySchedules.length }} Murid Hari Ini</span>
         </div>
 
-        <div class="attendance-card">
-          <div v-for="stu in store.students" :key="stu.id" class="attendance-row">
+        <div v-if="todaySchedules.length > 0" class="attendance-card">
+          <div v-for="sch in todaySchedules" :key="sch.id" class="attendance-row" style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-bottom: 1px solid #f1f5f9;">
             <div class="att-student-info">
-              <strong>{{ stu.name }}</strong>
-              <span>{{ stu.program || stu.productName }} • {{ stu.currentLevelTitle }}</span>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <strong>{{ sch.studentName }}</strong>
+                <span class="badge-chip gold mini">Sesi {{ sch.sessionNo }}</span>
+                <span v-if="sch.isSubstitute" class="badge-chip blue mini">Sesi Pengganti</span>
+                <span v-if="sch.status === 'Reschedule'" class="badge-chip gold mini">Reschedule</span>
+              </div>
+              <span style="font-size: 12px; color: var(--text-muted); display: block; margin-top: 2px;">
+                {{ sch.program }} • {{ sch.currentLevelTitle }} ({{ sch.time }}) — 📍 {{ sch.location }}
+              </span>
             </div>
-            <div class="att-status-buttons">
-              <button class="att-btn active">Hadir</button>
-              <button class="att-btn">Izin</button>
-              <button class="att-btn">Sakit</button>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <button @click="openReportForStudent(sch.studentId)" class="btn-primary btn-sm">
+                Buka Form Raport
+              </button>
             </div>
           </div>
+        </div>
+        <div v-else class="empty-state-box" style="padding: 24px; text-align: center; color: var(--text-muted);">
+          <p style="margin: 0;">Tidak ada jadwal bimbingan siswa untuk hari ini. Presensi mengajar terikat langsung dengan jadwal sesi aktif Anda.</p>
         </div>
       </div>
     </div>
@@ -722,6 +777,27 @@ const coachStudents = computed(() => {
 
 const activeStudentsCount = computed(() => coachStudents.value.length);
 
+// Helper: Format tanggal sesi
+function formatScheduleDate(dateVal) {
+  if (!dateVal) return '-';
+  if (typeof dateVal === 'string') {
+    const trimmed = dateVal.trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+      const parts = trimmed.split('-');
+      const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+      return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+    return trimmed;
+  }
+  try {
+    const d = new Date(dateVal);
+    if (!isNaN(d.getTime())) {
+      return d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+  } catch (e) {}
+  return String(dateVal);
+}
+
 // 2. Seluruh jadwal sesi latihan untuk coach ini (diambil dari memberSchedules siswa binaan)
 const coachSchedules = computed(() => {
   const cId = currentCoach.value?.id;
@@ -733,28 +809,70 @@ const coachSchedules = computed(() => {
     (stu.memberSchedules || []).forEach(sch => {
       const isCoachForSchedule = (sch.coachId === cId || (sch.coachName && sch.coachName.trim().toLowerCase() === cName) || (sch.coach && sch.coach.trim().toLowerCase() === cName));
       if (isCoachForSchedule || (isCoachForStudent && !sch.coachName)) {
+        const isSubstitute = Boolean(sch.isSubstitute || (sch.coachName && stu.assignedCoachName && sch.coachName.trim().toLowerCase() !== stu.assignedCoachName.trim().toLowerCase()));
         list.push({
           ...sch,
+          sessionNo: sch.sessionNo || 1,
           studentId: stu.id,
           studentName: stu.name,
           program: stu.productName || stu.program || 'Skill Pelatihan',
           classType: stu.packageName || 'Kelas Terjadwal',
           currentLevelTitle: stu.currentLevelTitle || `Level ${stu.currentLevel || 1}`,
-          location: sch.location || stu.location || 'Fasilitas Latihan'
+          location: sch.location || stu.location || 'Fasilitas Latihan',
+          isSubstitute,
+          assignedCoachName: stu.assignedCoachName || ''
         });
       }
     });
   });
+
+  // Urutkan berdasarkan siswa dan nomor sesi secara rapi
+  list.sort((a, b) => {
+    if (a.studentName !== b.studentName) return a.studentName.localeCompare(b.studentName);
+    return (a.sessionNo || 0) - (b.sessionNo || 0);
+  });
+
   return list;
 });
 
-// 3. Jadwal sesi latihan hari ini (real dari jadwal coach)
+// 3. Jadwal sesi latihan hari ini (real dari jadwal coach yang jatuh pada hari ini)
 const todaySchedules = computed(() => {
-  const todayName = new Intl.DateTimeFormat('id-ID', { weekday: 'long' }).format(new Date());
+  const now = new Date();
+  const todayYMD = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const todayDayName = new Intl.DateTimeFormat('id-ID', { weekday: 'long' }).format(now).toLowerCase();
+  const todayShortStr = now.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }).toLowerCase();
+  const todayShort2Str = now.toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }).toLowerCase();
+
   return coachSchedules.value.filter(s => {
-    const isTodayDay = s.day && s.day.toLowerCase() === todayName.toLowerCase();
-    const isTodayStatus = s.status === 'Mendatang (Aktif)' || s.status === 'Terjadwal';
-    return isTodayDay || isTodayStatus;
+    // Sesi yang sudah selesai atau dibatalkan tidak masuk jadwal mengajar hari ini
+    if (s.status === 'Selesai' || s.status === 'Batal' || s.status === 'Nonaktif') return false;
+
+    // 1. Cek kecocokan tanggal spesifik kalender (jika ada)
+    if (s.date) {
+      const dStr = String(s.date).trim().toLowerCase();
+      // Cocok YYYY-MM-DD
+      if (dStr === todayYMD || (/^\d{4}-\d{2}-\d{2}/.test(dStr) && dStr.substring(0, 10) === todayYMD)) {
+        return true;
+      }
+      // Cocok format Indonesia (12 Nov 2026 atau 12 November 2026)
+      if (dStr === todayShortStr || dStr === todayShort2Str) {
+        return true;
+      }
+      // Parseable standard Date
+      const parsed = new Date(s.date);
+      if (!isNaN(parsed.getTime()) && parsed.getFullYear() > 2020) {
+        const isSameDay = parsed.getDate() === now.getDate() &&
+                          parsed.getMonth() === now.getMonth() &&
+                          parsed.getFullYear() === now.getFullYear();
+        if (isSameDay) return true;
+        // Tanggal kalender sudah ditentukan dan bukan hari ini
+        return false;
+      }
+    }
+
+    // 2. Fallback hanya jika tanggal belum disetel / generic (misal "Sesi 1"):
+    const isTodayDay = s.day && s.day.toLowerCase() === todayDayName;
+    return isTodayDay && (s.status === 'Mendatang (Aktif)' || s.status === 'Reschedule');
   });
 });
 

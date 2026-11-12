@@ -5,7 +5,7 @@
       <!-- Coach Header Profile Card -->
       <div class="coach-hero-banner card-humanist">
         <div class="coach-profile-left">
-          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=160" alt="Coach Avatar" class="coach-avatar" />
+          <img :src="currentCoach.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=160'" alt="Coach Avatar" class="coach-avatar" />
           <div class="coach-info">
             <div class="badge-chip gold">Instruktur mine.skills</div>
             <h2 class="coach-name">{{ currentCoach.name }}</h2>
@@ -15,7 +15,7 @@
 
         <div class="coach-profile-stats">
           <div class="stat-box">
-            <span class="stat-num">14</span>
+            <span class="stat-num">{{ activeStudentsCount }}</span>
             <span class="stat-lbl">Murid Aktif</span>
           </div>
           <div class="stat-box">
@@ -628,12 +628,56 @@ const resolvedMenu = computed(() => {
 defineEmits(['change-menu']);
 
 const currentCoach = computed(() => {
-  return store.mockUsers.find(u => u.role === 'coach') || {
+  // 1. Prioritaskan data user yang sedang aktif login (store.currentUser)
+  if (store.currentUser && (store.currentUser.role === 'coach' || store.currentRole === 'coach')) {
+    const curEmail = (store.currentUser.email || '').trim().toLowerCase();
+    const curId = store.currentUser.id;
+    const curCoachId = store.currentUser.coach_id;
+
+    // Cari profil detail coach di master store.coaches
+    const matchedCoach = (store.coaches || []).find(c => 
+      (c.email || '').trim().toLowerCase() === curEmail ||
+      c.id === curCoachId ||
+      c.userId === curId ||
+      `usr_${c.id}` === curId
+    );
+
+    if (matchedCoach) {
+      return {
+        ...matchedCoach,
+        id: matchedCoach.id,
+        name: matchedCoach.name || store.currentUser.name,
+        specialty: matchedCoach.specialty || 'Instruktur Keahlian mine.skills',
+        avatar: matchedCoach.avatar || store.currentUser.avatar
+      };
+    }
+
+    return {
+      id: curCoachId || curId,
+      name: store.currentUser.name || 'Coach',
+      specialty: 'Instruktur Keahlian mine.skills',
+      email: store.currentUser.email,
+      avatar: store.currentUser.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240'
+    };
+  }
+
+  // Fallback default jika belum login
+  return (store.coaches || [])[0] || {
     id: 'coach_1',
     name: 'Coach Adit',
     specialty: 'Renang Anak & Water Safety',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240'
   };
+});
+
+const activeStudentsCount = computed(() => {
+  const cId = currentCoach.value?.id;
+  const cName = (currentCoach.value?.name || '').trim().toLowerCase();
+  const assigned = (store.students || []).filter(s => 
+    s.coachId === cId || 
+    (s.assignedCoachName && s.assignedCoachName.trim().toLowerCase() === cName)
+  );
+  return assigned.length || currentCoach.value?.activeStudentsCount || (store.students || []).length || 0;
 });
 
 const selectedStudentId = ref(store.students[0]?.id || 'stu_1');
@@ -651,9 +695,15 @@ const assessmentData = ref({
   mainExercise: 'Gerakan meluncur gaya dada & kombinasi ayunan tangan nafas teratur',
   cooldown: 'bubbling & starfish',
   coachNotes: 'Ananda hari ini sangat aktif dan percaya diri. Gerakan meluncur gaya dada sudah mencapai jarak 8 meter tanpa henti.',
-  coachName: 'Coach Adit',
+  coachName: currentCoach.value?.name || 'Coach',
   promoteLevel: false
 });
+
+watch(currentCoach, (c) => {
+  if (c && c.name) {
+    assessmentData.value.coachName = c.name;
+  }
+}, { immediate: true });
 
 watch(selectedStudent, (newStu) => {
   if (newStu) {
@@ -670,7 +720,7 @@ const formattedOutputText = computed(() => {
   const mainEx = assessmentData.value.mainExercise || '';
   const cooldown = assessmentData.value.cooldown || 'bubbling & starfish';
   const notes = assessmentData.value.coachNotes || '';
-  const coach = assessmentData.value.coachName || 'Coach Adit';
+  const coach = currentCoach.value?.name || assessmentData.value.coachName || 'Coach';
 
   return `Nama siswa : ${stuName}
 Level : ${lvl}
@@ -716,7 +766,7 @@ async function handleSaveReport() {
     mainExercise: assessmentData.value.mainExercise,
     cooldown: assessmentData.value.cooldown,
     coachNotes: assessmentData.value.coachNotes,
-    coachName: assessmentData.value.coachName || 'Coach Adit',
+    coachName: currentCoach.value?.name || assessmentData.value.coachName || 'Coach',
     promoteLevel: assessmentData.value.promoteLevel
   };
 

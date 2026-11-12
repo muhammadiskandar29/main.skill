@@ -2138,6 +2138,117 @@ function cekMutasiBankGmail() {
             </div>
           </div>
         </div>
+
+        <!-- PROMO BANNER CMS MANAGEMENT CARD -->
+        <div class="card-humanist website-config-card" style="grid-column: 1 / -1; margin-top: 10px;">
+          <form @submit.prevent="handleSavePromoBanner">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+              <div>
+                <span class="badge-chip gold mini">Flyer & Lightbox Promo</span>
+                <h3 class="form-section-title" style="margin: 4px 0 0 0;">Poster Pop-up Promo Beranda Website</h3>
+                <p style="font-size: 12.5px; color: var(--text-muted); margin: 2px 0 0 0;">
+                  Poster ini otomatis muncul setiap kali pengunjung membuka atau me-refresh beranda website publik. Pengunjung yang mengklik poster/tombol akan langsung diarahkan ke nomor WhatsApp Admin resmi.
+                </p>
+              </div>
+
+              <!-- Status Switch -->
+              <div style="display: flex; align-items: center; gap: 10px; background: #f8fafc; padding: 6px 14px; border-radius: 30px; border: 1px solid #e2e8f0;">
+                <label style="font-size: 13px; font-weight: 700; color: #334155; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                  <input type="checkbox" v-model="promoBannerForm.isActive" style="width: 18px; height: 18px; cursor: pointer;" />
+                  <span>{{ promoBannerForm.isActive ? 'Status: AKTIF (Pop-up Ditampilkan)' : 'Status: NONAKTIF (Disembunyikan)' }}</span>
+                </label>
+              </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 340px; gap: 24px; align-items: start;">
+              <!-- Left Column: Settings -->
+              <div>
+                <div class="form-group">
+                  <label class="form-label">Judul / Headline Promo <span class="required">*</span></label>
+                  <input v-model="promoBannerForm.title" type="text" class="form-input" placeholder="Contoh: Promo Spesial Pendaftaran Semester Baru" required />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Upload File Gambar Poster <span class="required">*</span></label>
+                  <div style="display: flex; gap: 10px; align-items: center;">
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      @change="handlePromoFileChange" 
+                      class="form-input" 
+                      style="padding: 6px;" 
+                      :disabled="isUploadingPromo"
+                    />
+                    <span v-if="isUploadingPromo" style="font-size: 12px; color: var(--color-primary); font-weight: 600; white-space: nowrap;">
+                      Mengunggah...
+                    </span>
+                  </div>
+                  <span style="font-size: 11.5px; color: var(--text-muted); display: block; margin-top: 4px;">
+                    Rekomendasi rasio poster: 4:5 atau 1:1 (portrait / kotak), format JPG/PNG/WebP, maksimal 3MB.
+                  </span>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Atau Masukkan URL Gambar Poster</label>
+                  <input v-model="promoBannerForm.imageUrl" type="url" class="form-input" placeholder="https://..." />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Label Tombol CTA WhatsApp</label>
+                  <input v-model="promoBannerForm.ctaText" type="text" class="form-input" placeholder="Contoh: Klaim Promo via WhatsApp" />
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">Pesan WhatsApp Otomatis ke Admin</label>
+                  <textarea 
+                    v-model="promoBannerForm.whatsappMessage" 
+                    class="form-textarea" 
+                    rows="3" 
+                    placeholder="Tulis pesan otomatis yang akan dikirim calon siswa ke WhatsApp Admin..."
+                  ></textarea>
+                  <span style="font-size: 11.5px; color: var(--text-muted); display: block; margin-top: 3px;">
+                    Nomor tujuan WhatsApp: <strong>{{ store.brand?.callCenter || '085286274726' }}</strong> (sesuai nomor kontak resmi brand).
+                  </span>
+                </div>
+
+                <div style="margin-top: 16px;">
+                  <button type="submit" class="btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>Simpan Pengaturan Poster Promo</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Right Column: Live Poster Preview -->
+              <div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 16px; padding: 16px; text-align: center;">
+                <span style="font-size: 12px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 10px;">
+                  Live Preview Poster Pop-up
+                </span>
+
+                <div v-if="promoBannerForm.imageUrl" style="border-radius: 12px; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.12); background: #0f172a; margin-bottom: 12px;">
+                  <img :src="promoBannerForm.imageUrl" alt="Preview Poster Promo" style="width: 100%; height: auto; max-height: 320px; object-fit: cover; display: block;" />
+                  <div style="padding: 10px; background: #ffffff; text-align: left;">
+                    <strong style="font-size: 13px; color: #0f172a; display: block; line-height: 1.3;">{{ promoBannerForm.title || 'Judul Promo' }}</strong>
+                    <div style="margin-top: 6px; padding: 6px 10px; background: #25d366; color: #ffffff; border-radius: 6px; font-size: 11px; font-weight: 700; text-align: center;">
+                      {{ promoBannerForm.ctaText || 'Klaim Promo via WhatsApp' }}
+                    </div>
+                  </div>
+                </div>
+
+                <div v-else style="padding: 40px 16px; color: #94a3b8;">
+                  <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
+                  <p style="font-size: 12.5px; margin: 0;">Belum ada gambar poster. Unggah poster untuk melihat preview.</p>
+                </div>
+
+                <div style="font-size: 11px; color: #64748b;">
+                  * Ketika pengunjung mengklik poster ini di beranda, WhatsApp Admin akan otomatis terbuka.
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
 
@@ -3951,6 +4062,63 @@ async function handleSaveWebsiteConfig() {
     showNotice('Pengaturan profil brand dan konten website berhasil disimpan!');
   } catch (err) {
     actions.showAlert({ title: 'Pengaturan Website', message: err.message || 'Gagal menyimpan konfigurasi website', type: 'error' });
+  }
+}
+
+// -------------------------------------------------------------
+// PROMO BANNER CMS STATE & HANDLERS
+// -------------------------------------------------------------
+const promoBannerForm = ref({
+  isActive: store.promoBanner?.isActive ?? true,
+  title: store.promoBanner?.title || 'Promo Spesial Pendaftaran Siswa Baru',
+  imageUrl: store.promoBanner?.imageUrl || '',
+  whatsappMessage: store.promoBanner?.whatsappMessage || 'Halo Admin mine.skills, saya melihat poster promo di website dan ingin menanyakan info pendaftaran serta diskon khusus. Mohon infonya ya!',
+  ctaText: store.promoBanner?.ctaText || 'Hubungi WhatsApp Admin Sekarang'
+});
+
+const isUploadingPromo = ref(false);
+
+watch(
+  () => store.promoBanner,
+  (p) => {
+    if (p) {
+      promoBannerForm.value.isActive = p.isActive ?? true;
+      promoBannerForm.value.title = p.title || '';
+      promoBannerForm.value.imageUrl = p.imageUrl || '';
+      promoBannerForm.value.whatsappMessage = p.whatsappMessage || '';
+      promoBannerForm.value.ctaText = p.ctaText || '';
+    }
+  },
+  { deep: true }
+);
+
+async function handlePromoFileChange(e) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  try {
+    isUploadingPromo.value = true;
+    const url = await actions.uploadImage(file, 'promo');
+    promoBannerForm.value.imageUrl = url;
+    showNotice('Poster promo berhasil diunggah!');
+  } catch (err) {
+    actions.showAlert({ title: 'Upload Poster', message: err.message || 'Gagal upload poster promo', type: 'error' });
+  } finally {
+    isUploadingPromo.value = false;
+  }
+}
+
+async function handleSavePromoBanner() {
+  try {
+    await actions.updatePromoBanner({
+      isActive: Boolean(promoBannerForm.value.isActive),
+      title: promoBannerForm.value.title,
+      imageUrl: promoBannerForm.value.imageUrl,
+      whatsappMessage: promoBannerForm.value.whatsappMessage,
+      ctaText: promoBannerForm.value.ctaText
+    });
+    showNotice('Pengaturan poster promo pop-up berhasil disimpan!');
+  } catch (err) {
+    actions.showAlert({ title: 'Poster Promo', message: err.message || 'Gagal menyimpan pengaturan poster promo', type: 'error' });
   }
 }
 

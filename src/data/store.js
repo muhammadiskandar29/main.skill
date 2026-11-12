@@ -40,6 +40,8 @@ import {
   apiUpdateBrandConfig,
   apiGetHeroConfig,
   apiUpdateHeroConfig,
+  apiGetPromoBanner,
+  apiUpdatePromoBanner,
   apiGetUsers,
   apiCreateUser,
   apiUpdateUser,
@@ -513,6 +515,14 @@ const initialPaymentConfig = {
   ]
 };
 
+const initialPromoBanner = {
+  isActive: true,
+  title: 'Promo Spesial Pendaftaran Siswa Baru',
+  imageUrl: 'https://images.unsplash.com/photo-1530549387789-4c1017266635?auto=format&fit=crop&q=80&w=800',
+  whatsappMessage: 'Halo Admin mine.skills, saya melihat poster promo di website dan ingin menanyakan info pendaftaran serta diskon khusus. Boleh minta info detailnya?',
+  ctaText: 'Hubungi WhatsApp Admin Sekarang'
+};
+
 const initialRbacMatrix = {
   customer: {
     roleName: 'Customer (Orang Tua / Siswa)',
@@ -779,6 +789,7 @@ export const store = reactive({
 
   brand: loadLocalStore('brand', initialBrand),
   hero: loadLocalStore('hero', initialHero),
+  promoBanner: loadLocalStore('promoBanner', initialPromoBanner),
   paymentConfig: loadLocalStore('paymentConfig', initialPaymentConfig),
   rbacMatrix: initialRbacMatrix,
 
@@ -995,6 +1006,13 @@ export const actions = {
             ...data.hero
           };
           persistLocalStore('hero', store.hero);
+        }
+        if (data.promoBanner) {
+          store.promoBanner = {
+            ...store.promoBanner,
+            ...data.promoBanner
+          };
+          persistLocalStore('promoBanner', store.promoBanner);
         }
         if (data.rbacMatrix) {
           store.rbacMatrix = {
@@ -2812,6 +2830,19 @@ export const actions = {
     }
 
     return store.hero;
+  },
+
+  async updatePromoBanner(patch) {
+    store.promoBanner = { ...store.promoBanner, ...patch };
+    persistLocalStore('promoBanner', store.promoBanner);
+
+    try {
+      await apiUpdatePromoBanner(patch);
+    } catch (err) {
+      console.warn('[Store] apiUpdatePromoBanner background sync warning:', err.message);
+    }
+
+    return store.promoBanner;
   },
 
   // -------------------------------------------------------------

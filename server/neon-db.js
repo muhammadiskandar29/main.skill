@@ -109,6 +109,7 @@ export async function getById(table, id) {
     const settingKey = id === 'payment_config' ? 'paymentConfig' :
                        id === 'brand_config' ? 'brand' :
                        id === 'hero_config' ? 'hero' :
+                       id === 'promo_banner' ? 'promoBanner' :
                        id === 'rbac_matrix' ? 'rbacMatrix' : id;
     return fallback[settingKey] || null;
   }
@@ -126,6 +127,7 @@ export async function upsertRecord(table, id, data) {
       const settingKey = id === 'payment_config' ? 'paymentConfig' :
                          id === 'brand_config' ? 'brand' :
                          id === 'hero_config' ? 'hero' :
+                         id === 'promo_banner' ? 'promoBanner' :
                          id === 'rbac_matrix' ? 'rbacMatrix' : id;
       db[settingKey] = data;
     } else {
@@ -171,6 +173,7 @@ export async function deleteRecord(table, id) {
       const settingKey = id === 'payment_config' ? 'paymentConfig' :
                          id === 'brand_config' ? 'brand' :
                          id === 'hero_config' ? 'hero' :
+                         id === 'promo_banner' ? 'promoBanner' :
                          id === 'rbac_matrix' ? 'rbacMatrix' : id;
       delete db[settingKey];
     } else {
@@ -1757,6 +1760,41 @@ export async function updateHeroConfig(patch) {
 }
 
 // -------------------------------------------------------------
+// Website Pop-up Promo Poster (Lightbox Banner) CRUD
+// -------------------------------------------------------------
+let inMemoryPromoBanner = {
+  isActive: true,
+  title: 'Promo Spesial Pendaftaran Siswa Baru',
+  imageUrl: 'https://images.unsplash.com/photo-1530549387789-4c1017266635?auto=format&fit=crop&q=80&w=800',
+  whatsappMessage: 'Halo Admin mine.skills, saya melihat poster promo di website dan ingin menanyakan info pendaftaran serta diskon khusus. Boleh minta info detailnya?',
+  ctaText: 'Hubungi WhatsApp Admin Sekarang'
+};
+
+export async function getPromoBanner() {
+  await ensureAppSettingsTable();
+  const cfg = await getById('app_settings', 'promo_banner');
+  if (cfg) {
+    inMemoryPromoBanner = { ...inMemoryPromoBanner, ...cfg };
+    return inMemoryPromoBanner;
+  }
+  const fallback = readJsonFallback();
+  if (fallback.promoBanner) {
+    inMemoryPromoBanner = { ...inMemoryPromoBanner, ...fallback.promoBanner };
+    return inMemoryPromoBanner;
+  }
+  return inMemoryPromoBanner;
+}
+
+export async function updatePromoBanner(patch) {
+  await ensureAppSettingsTable();
+  const current = await getPromoBanner();
+  const updated = { ...current, ...patch };
+  inMemoryPromoBanner = updated;
+  await upsertRecord('app_settings', 'promo_banner', updated);
+  return updated;
+}
+
+// -------------------------------------------------------------
 // USER MANAGEMENT CRUD
 // -------------------------------------------------------------
 export async function createUser(payload) {
@@ -1938,7 +1976,7 @@ export async function updateRbacMatrix(matrix) {
 }
 
 export async function getBootstrapData() {
-  const [products, coaches, packages, students, transactions, users, locations, coachAttendances, paymentConfig, brand, hero, faqs, rbacMatrix] = await Promise.all([
+  const [products, coaches, packages, students, transactions, users, locations, coachAttendances, paymentConfig, brand, hero, promoBanner, faqs, rbacMatrix] = await Promise.all([
     getAllProducts(),
     getAllCoaches(),
     getAllPackages(),
@@ -1950,6 +1988,7 @@ export async function getBootstrapData() {
     getPaymentConfig(),
     getBrandConfig(),
     getHeroConfig(),
+    getPromoBanner(),
     getAllFaqs(),
     getRbacMatrix()
   ]);
@@ -1966,6 +2005,7 @@ export async function getBootstrapData() {
     paymentConfig,
     brand,
     hero,
+    promoBanner,
     faqs,
     rbacMatrix
   };

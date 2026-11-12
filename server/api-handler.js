@@ -55,6 +55,8 @@ import {
   updateBrandConfig,
   getHeroConfig,
   updateHeroConfig,
+  getPromoBanner,
+  updatePromoBanner,
   getAllFaqs,
   createFaq,
   updateFaq,
@@ -675,6 +677,18 @@ export async function handleApiRequest(req, res) {
       if (method === 'PUT' || method === 'POST') {
         const body = await parseJsonBody(req);
         const updated = await updateHeroConfig(body);
+        return sendJson(res, 200, { success: true, data: updated });
+      }
+    }
+
+    if (pathname === '/api/settings/promo-banner') {
+      if (method === 'GET') {
+        const promo = await getPromoBanner();
+        return sendJson(res, 200, { success: true, data: promo });
+      }
+      if (method === 'PUT' || method === 'POST') {
+        const body = await parseJsonBody(req);
+        const updated = await updatePromoBanner(body);
         return sendJson(res, 200, { success: true, data: updated });
       }
     }

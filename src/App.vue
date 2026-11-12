@@ -520,6 +520,12 @@
       v-if="store.isChangePasswordModalOpen" 
       @close="actions.closeChangePasswordModal()" 
     />
+
+    <!-- Public Website Promo Poster Pop-up Modal -->
+    <PromoModal 
+      v-if="store.currentRole === 'public' && isPromoModalOpen && store.promoBanner?.isActive && store.promoBanner?.imageUrl" 
+      @close="isPromoModalOpen = false" 
+    />
   </div>
 </template>
 
@@ -533,12 +539,14 @@ import LoginModal from './components/LoginModal.vue';
 import LoginPage from './components/LoginPage.vue';
 import ForgotPasswordModal from './components/ForgotPasswordModal.vue';
 import ChangePasswordModal from './components/ChangePasswordModal.vue';
+import PromoModal from './components/PromoModal.vue';
 import AlertModal from './components/AlertModal.vue';
 import PortalCustomer from './components/PortalCustomer.vue';
 import PortalCoach from './components/PortalCoach.vue';
 import PortalManajemen from './components/PortalManajemen.vue';
 
 const isRegisterOpen = ref(false);
+const isPromoModalOpen = ref(true);
 const selectedRegisterProductId = ref('');
 const selectedRegisterPackageId = ref('');
 const currentRoute = ref('home');

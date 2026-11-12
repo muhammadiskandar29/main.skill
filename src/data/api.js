@@ -422,6 +422,24 @@ export async function apiUpdateHeroConfig(heroData) {
   return json.data;
 }
 
+// Pop-up Promo Poster Banner CMS
+export async function apiGetPromoBanner() {
+  const res = await fetch(`${API_BASE}/settings/promo-banner`);
+  const json = await res.json();
+  return json.data;
+}
+
+export async function apiUpdatePromoBanner(promoData) {
+  const res = await fetch(`${API_BASE}/settings/promo-banner`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(promoData)
+  });
+  const json = await res.json();
+  if (!res.ok || !json.success) throw new Error(json.message || 'Gagal update promo banner');
+  return json.data;
+}
+
 // Users CRUD
 export async function apiGetUsers() {
   const res = await fetch(`${API_BASE}/users`);

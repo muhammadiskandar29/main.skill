@@ -1093,7 +1093,7 @@ function switchMenu(menuId) {
   display: none;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .portal-mobile-topbar {
     display: flex;
     align-items: center;
@@ -1148,7 +1148,7 @@ function switchMenu(menuId) {
     color: #0f172a;
   }
 
-  /* Off-canvas sidebar drawer on mobile */
+  /* Off-canvas sidebar drawer on mobile & tablet */
   .portal-sidebar {
     position: fixed;
     top: 0;
@@ -1162,7 +1162,9 @@ function switchMenu(menuId) {
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
     transform: translateX(-100%);
     transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow-x: hidden;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     padding: 20px 14px 90px;
   }
 

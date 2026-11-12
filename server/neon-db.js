@@ -437,6 +437,13 @@ export async function createCoach(payload) {
       created_at: new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
     };
     await upsertRecord('users', userId, newUser);
+  } else {
+    existingUser.role = 'coach';
+    existingUser.coach_id = coachId;
+    if (payload.name) existingUser.name = payload.name.trim();
+    if (payload.phone) existingUser.phone = payload.phone.trim();
+    if (payload.avatar) existingUser.avatar = payload.avatar;
+    await upsertRecord('users', existingUser.id, existingUser);
   }
 
   const newCoach = {
@@ -1063,10 +1070,36 @@ export async function processBankMutationAutoVerify({ amount, bank, senderName, 
 export async function loginUser(email, password) {
   const cleanEmail = email?.trim().toLowerCase();
   const users = await queryTable('users', `WHERE LOWER(data->>'email') = LOWER($1)`, [cleanEmail]);
-  const user = users[0];
+  let user = users[0];
+
+  const coaches = await queryTable('coaches', `WHERE LOWER(data->>'email') = LOWER($1)`, [cleanEmail]);
+  const coach = coaches[0];
 
   if (!user) {
-    return { success: false, message: 'Email tidak ditemukan.' };
+    if (coach) {
+      user = {
+        id: `usr_${coach.id}`,
+        name: coach.name,
+        email: cleanEmail,
+        password: '123',
+        role: 'coach',
+        phone: coach.phone || '',
+        avatar: coach.avatar || '',
+        student_id: null,
+        coach_id: coach.id,
+        created_at: new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
+      };
+      await upsertRecord('users', user.id, user);
+    } else {
+      return { success: false, message: 'Email tidak ditemukan.' };
+    }
+  }
+
+  // Jika akun ini terdaftar sebagai Coach, pastikan rolenya mutlak 'coach'
+  if (coach && user.role !== 'coach') {
+    user.role = 'coach';
+    user.coach_id = coach.id;
+    await upsertRecord('users', user.id, user);
   }
 
   if (user.status === 'inactive' || user.status === 'Nonaktif' || user.status === 'Nonaktif / Diberhentikan') {

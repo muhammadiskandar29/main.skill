@@ -449,17 +449,21 @@ button {
 .modal-quest-dialog { max-width: 520px; }
 
 /* ==========================================================================
-   Portal Layout - Single Clean Scrollbar Architecture
+   Portal Layout - Fully Scrollable & Touch-Friendly Architecture (Desktop, Tablet, Mobile)
    ========================================================================== */
 .app-container.portal-mode {
   height: 100vh;
   max-height: 100vh;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 body:has(.portal-layout) {
-  overflow: hidden !important;
-  height: 100vh !important;
+  overflow-x: auto;
+  overflow-y: auto;
+  height: 100vh;
+  -webkit-overflow-scrolling: touch;
 }
 
 .portal-layout {
@@ -468,7 +472,9 @@ body:has(.portal-layout) {
   min-height: 0;
   height: 100%;
   max-height: 100%;
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   background-color: #f1f5f4;
 }
 
@@ -481,7 +487,9 @@ body:has(.portal-layout) {
   display: flex;
   flex-direction: column;
   flex-shrink: 0;
+  overflow-x: hidden;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .portal-main {
@@ -489,15 +497,34 @@ body:has(.portal-layout) {
   height: 100%;
   min-height: 0;
   padding: 28px 36px;
-  overflow-y: auto;
+  overflow-x: auto !important;
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y;
   background-color: #f7faf9;
+}
+
+/* Ensure all portal content containers have full fluid scrollability */
+.portal-manajemen,
+.portal-coach,
+.portal-customer,
+.portal-tab-content {
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Modern sleek single scrollbar */
 .portal-sidebar::-webkit-scrollbar,
 .portal-main::-webkit-scrollbar,
 .modal-body::-webkit-scrollbar,
-.modal-dialog::-webkit-scrollbar {
+.modal-dialog::-webkit-scrollbar,
+.portal-manajemen::-webkit-scrollbar,
+.portal-coach::-webkit-scrollbar,
+.portal-customer::-webkit-scrollbar,
+.portal-tab-content::-webkit-scrollbar {
   width: 7px;
   height: 7px;
 }
@@ -505,14 +532,22 @@ body:has(.portal-layout) {
 .portal-sidebar::-webkit-scrollbar-track,
 .portal-main::-webkit-scrollbar-track,
 .modal-body::-webkit-scrollbar-track,
-.modal-dialog::-webkit-scrollbar-track {
+.modal-dialog::-webkit-scrollbar-track,
+.portal-manajemen::-webkit-scrollbar-track,
+.portal-coach::-webkit-scrollbar-track,
+.portal-customer::-webkit-scrollbar-track,
+.portal-tab-content::-webkit-scrollbar-track {
   background: transparent;
 }
 
 .portal-sidebar::-webkit-scrollbar-thumb,
 .portal-main::-webkit-scrollbar-thumb,
 .modal-body::-webkit-scrollbar-thumb,
-.modal-dialog::-webkit-scrollbar-thumb {
+.modal-dialog::-webkit-scrollbar-thumb,
+.portal-manajemen::-webkit-scrollbar-thumb,
+.portal-coach::-webkit-scrollbar-thumb,
+.portal-customer::-webkit-scrollbar-thumb,
+.portal-tab-content::-webkit-scrollbar-thumb {
   background: rgba(13, 77, 93, 0.22);
   border-radius: var(--radius-full);
 }
@@ -520,32 +555,48 @@ body:has(.portal-layout) {
 .portal-sidebar::-webkit-scrollbar-thumb:hover,
 .portal-main::-webkit-scrollbar-thumb:hover,
 .modal-body::-webkit-scrollbar-thumb:hover,
-.modal-dialog::-webkit-scrollbar-thumb:hover {
+.modal-dialog::-webkit-scrollbar-thumb:hover,
+.portal-manajemen::-webkit-scrollbar-thumb:hover,
+.portal-coach::-webkit-scrollbar-thumb:hover,
+.portal-customer::-webkit-scrollbar-thumb:hover,
+.portal-tab-content::-webkit-scrollbar-thumb:hover {
   background: rgba(13, 77, 93, 0.42);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .app-container.portal-mode {
-    height: auto;
-    max-height: none;
-    overflow: visible;
+    height: auto !important;
+    min-height: 100vh;
+    max-height: none !important;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
   }
   body:has(.portal-layout) {
-    overflow: auto !important;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
     height: auto !important;
+    min-height: 100vh !important;
+    -webkit-overflow-scrolling: touch;
   }
   .portal-layout {
     flex-direction: column;
-    height: auto;
-    max-height: none;
-    overflow: visible;
+    height: auto !important;
+    min-height: 100vh;
+    max-height: none !important;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
     position: relative;
+    -webkit-overflow-scrolling: touch;
   }
   .portal-main {
     padding: 16px 14px 90px;
-    height: auto;
+    height: auto !important;
     width: 100%;
     min-width: 0;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch;
   }
 }
 

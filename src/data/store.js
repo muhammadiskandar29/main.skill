@@ -317,7 +317,24 @@ const initialUsers = [
     name: 'Coach Adit',
     email: 'adit.coach@mine.skills.id',
     role: 'coach',
-    phone: '085286274726'
+    phone: '085286274726',
+    coach_id: 'coach_1'
+  },
+  {
+    id: 'usr_coach_2',
+    name: 'Coach Sekar Ayu, S.Sn.',
+    email: 'sekar.dance@mine.skills.id',
+    role: 'coach',
+    phone: '081399887711',
+    coach_id: 'coach_2'
+  },
+  {
+    id: 'usr_coach_dimas',
+    name: 'Coach Dimas Prasetyo, S.Or.',
+    email: 'dimas.coach@mine.skills.id',
+    role: 'coach',
+    phone: '085712349012',
+    coach_id: 'coach_1'
   },
   {
     id: 'usr_cust_1',
@@ -597,6 +614,22 @@ function loadSavedSession() {
       localStorage.removeItem(USER_KEY);
       localStorage.removeItem(STORAGE_KEY);
       return { currentRole: 'public', currentUser: null, authToken: null };
+    }
+
+    // Role Guard: Jika akun ini terdaftar sebagai Coach, pastikan rolenya mutlak 'coach' (bukan customer)
+    const storedCoaches = loadLocalStore('coaches', initialCoaches);
+    const userEmail = (user.email || '').trim().toLowerCase();
+    const matchedCoach = (storedCoaches || []).find(c => 
+      (c.email || '').trim().toLowerCase() === userEmail ||
+      c.userId === user.id ||
+      c.id === user.coach_id
+    );
+    if (matchedCoach && user.role !== 'coach') {
+      user.role = 'coach';
+      user.coach_id = matchedCoach.id;
+      try {
+        localStorage.setItem(USER_KEY, JSON.stringify(user));
+      } catch (e) {}
     }
 
     return {
@@ -928,6 +961,70 @@ export const actions = {
           persistLocalStore('rbacMatrix', store.rbacMatrix);
         }
 
+        // Auto-reconciliation: Pastikan seluruh Coach memiliki akun user dengan role: 'coach'
+        if (Array.isArray(store.coaches) && Array.isArray(store.users)) {
+          let usersChanged = false;
+          store.coaches.forEach(coach => {
+            const coachEmail = (coach.email || '').trim().toLowerCase();
+            let matchedUser = store.users.find(u => 
+              (u.email || '').trim().toLowerCase() === coachEmail || 
+              u.id === `usr_${coach.id}` || 
+              u.id === coach.userId || 
+              u.coach_id === coach.id
+            );
+            if (matchedUser) {
+              if (matchedUser.role !== 'coach') {
+                matchedUser.role = 'coach';
+                usersChanged = true;
+              }
+              if (!matchedUser.coach_id) {
+                matchedUser.coach_id = coach.id;
+                usersChanged = true;
+              }
+            } else {
+              store.users.push({
+                id: coach.userId || `usr_${coach.id}`,
+                name: coach.name,
+                email: coach.email,
+                role: 'coach',
+                coach_id: coach.id,
+                password: '123',
+                phone: coach.phone || '',
+                avatar: coach.avatar || '',
+                status: 'active',
+                created_at: new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
+              });
+              usersChanged = true;
+            }
+          });
+          if (usersChanged) {
+            persistLocalStore('users', store.users);
+          }
+
+          // Jika session login saat ini adalah coach yang sebelumnya salah terdeteksi sebagai customer, perbaiki!
+          if (store.currentUser) {
+            const curEmail = (store.currentUser.email || '').trim().toLowerCase();
+            const coachMatch = store.coaches.find(c => 
+              (c.email || '').trim().toLowerCase() === curEmail || 
+              c.userId === store.currentUser.id || 
+              c.id === store.currentUser.coach_id
+            );
+            if (coachMatch && store.currentUser.role !== 'coach') {
+              store.currentUser.role = 'coach';
+              store.currentUser.coach_id = coachMatch.id;
+              store.currentRole = 'coach';
+              store.activePortalMenu = 'co_overview';
+              try {
+                localStorage.setItem(USER_KEY, JSON.stringify(store.currentUser));
+                localStorage.setItem(PORTAL_MENU_STORAGE_KEY, 'co_overview');
+                if (typeof window !== 'undefined' && window.location.hash.includes('c_')) {
+                  window.history.replaceState(null, '', '#/portal/co_overview');
+                }
+              } catch (e) {}
+            }
+          }
+        }
+
         // Strict Auth Guard Check on bootstrap
         if (store.currentRole !== 'public') {
           if (!store.authToken || !store.currentUser) {
@@ -1051,8 +1148,34 @@ export const actions = {
   async login(email, password) {
     const cleanEmail = (email || '').trim().toLowerCase();
     
+    // Pastikan jika email ini milik coach di store.coaches, rolenya mutlak 'coach'
+    const matchedCoach = (store.coaches || []).find(c => (c.email || '').trim().toLowerCase() === cleanEmail);
+
     // 1. Check in local store users first
-    const localUser = (store.users || []).find(u => (u.email || '').toLowerCase() === cleanEmail);
+    let localUser = (store.users || []).find(u => (u.email || '').toLowerCase() === cleanEmail);
+
+    if (matchedCoach) {
+      if (localUser) {
+        localUser.role = 'coach';
+        localUser.coach_id = matchedCoach.id;
+        persistLocalStore('users', store.users);
+      } else {
+        localUser = {
+          id: matchedCoach.userId || `usr_${matchedCoach.id}`,
+          name: matchedCoach.name,
+          email: matchedCoach.email,
+          role: 'coach',
+          coach_id: matchedCoach.id,
+          password: '123',
+          phone: matchedCoach.phone || '',
+          avatar: matchedCoach.avatar || '',
+          status: 'active'
+        };
+        store.users = [...(store.users || []), localUser];
+        persistLocalStore('users', store.users);
+      }
+    }
+
     if (localUser) {
       if (localUser.status === 'inactive' || localUser.status === 'Nonaktif' || localUser.status === 'Nonaktif / Diberhentikan') {
         throw new Error('Akun Anda dinonaktifkan sementara. Silakan hubungi tim administrasi manajemen.');
@@ -1088,6 +1211,11 @@ export const actions = {
       const user = await apiLogin(email, password);
       if (user.status === 'inactive' || user.status === 'Nonaktif' || user.status === 'Nonaktif / Diberhentikan') {
         throw new Error('Akun Anda dinonaktifkan sementara. Silakan hubungi tim administrasi manajemen.');
+      }
+
+      if (matchedCoach || (store.coaches || []).some(c => (c.email || '').trim().toLowerCase() === cleanEmail)) {
+        user.role = 'coach';
+        if (matchedCoach) user.coach_id = matchedCoach.id;
       }
 
       // Generate signed JWT token
@@ -1379,16 +1507,28 @@ export const actions = {
     store.coaches = [...(store.coaches || []), newCoach];
     persistLocalStore('coaches', store.coaches);
 
-    // Auto-create login user in store.users
+    // Auto-create or force update login user in store.users
     const userEmail = newCoach.email.toLowerCase();
-    const existingUser = (store.users || []).find(u => u.email.toLowerCase() === userEmail);
-    if (!existingUser) {
+    let existingUser = (store.users || []).find(u => (u.email || '').toLowerCase() === userEmail || u.id === `usr_${id}` || u.coach_id === id);
+    if (existingUser) {
+      existingUser.name = newCoach.name;
+      existingUser.role = 'coach'; // Pastikan mutlak menjadi coach
+      existingUser.coach_id = id;
+      if (newCoach.phone) existingUser.phone = newCoach.phone;
+      if (newCoach.avatar) existingUser.avatar = newCoach.avatar;
+      persistLocalStore('users', store.users);
+    } else {
       const newUser = {
         id: `usr_${id}`,
         name: newCoach.name,
         email: userEmail,
         role: 'coach',
-        password: '123'
+        coach_id: id,
+        password: '123',
+        phone: newCoach.phone || '',
+        avatar: newCoach.avatar || '',
+        status: 'active',
+        created_at: new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
       };
       store.users = [...(store.users || []), newUser];
       persistLocalStore('users', store.users);
@@ -1397,6 +1537,18 @@ export const actions = {
     apiCreateCoach(newCoach).catch(err => {
       console.warn('[Store] apiCreateCoach background sync warning:', err.message);
     });
+
+    apiCreateUser({
+      id: `usr_${id}`,
+      name: newCoach.name,
+      email: userEmail,
+      role: 'coach',
+      coach_id: id,
+      password: '123',
+      phone: newCoach.phone || '',
+      avatar: newCoach.avatar || '',
+      status: 'active'
+    }).catch(() => {});
 
     return newCoach;
   },
@@ -1409,10 +1561,19 @@ export const actions = {
       persistLocalStore('coaches', store.coaches);
 
       // Update linked user
-      const user = (store.users || []).find(u => u.id === `usr_${id}` || (oldEmail && u.email === oldEmail));
+      const user = (store.users || []).find(u => 
+        u.id === `usr_${id}` || 
+        u.coach_id === id ||
+        (oldEmail && (u.email || '').toLowerCase() === oldEmail.toLowerCase()) ||
+        (patch.email && (u.email || '').toLowerCase() === patch.email.toLowerCase())
+      );
       if (user) {
         if (patch.name) user.name = patch.name;
         if (patch.email) user.email = patch.email.toLowerCase();
+        if (patch.phone) user.phone = patch.phone;
+        if (patch.avatar) user.avatar = patch.avatar;
+        user.role = 'coach';
+        user.coach_id = id;
         persistLocalStore('users', store.users);
       }
     }
@@ -2135,6 +2296,31 @@ export const actions = {
       created_at: new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
     };
 
+    // Jika role yang didaftarkan adalah 'coach', pastikan masuk juga ke store.coaches
+    if (newUser.role === 'coach') {
+      const coachExists = (store.coaches || []).some(c => (c.email || '').trim().toLowerCase() === newUser.email);
+      if (!coachExists) {
+        const coachId = `coach_${Date.now()}`;
+        newUser.coach_id = coachId;
+        const newCoachEntry = {
+          id: coachId,
+          userId: newUser.id,
+          name: newUser.name,
+          email: newUser.email,
+          phone: newUser.phone,
+          specialty: 'Instruktur Keahlian',
+          bio: 'Pelatih bersertifikasi profesional.',
+          avatar: newUser.avatar,
+          productIds: [(store.products[0]?.id || 'prod_swimming')],
+          activeStudentsCount: 0,
+          created_at: new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
+        };
+        store.coaches = [...(store.coaches || []), newCoachEntry];
+        persistLocalStore('coaches', store.coaches);
+        apiCreateCoach(newCoachEntry).catch(() => {});
+      }
+    }
+
     if (!Array.isArray(store.users)) store.users = [];
     store.users.push(newUser);
     persistLocalStore('users', store.users);
@@ -2156,6 +2342,32 @@ export const actions = {
     const user = (store.users || []).find(u => u.id === id);
     if (user) {
       Object.assign(user, patch);
+      
+      // Jika role diubah menjadi coach, pastikan tercatat di store.coaches
+      if (user.role === 'coach') {
+        const coachExists = (store.coaches || []).some(c => (c.email || '').trim().toLowerCase() === (user.email || '').trim().toLowerCase());
+        if (!coachExists) {
+          const coachId = `coach_${Date.now()}`;
+          user.coach_id = coachId;
+          const newCoachEntry = {
+            id: coachId,
+            userId: user.id,
+            name: user.name,
+            email: user.email,
+            phone: user.phone || '',
+            specialty: 'Instruktur Keahlian',
+            bio: 'Pelatih bersertifikasi profesional.',
+            avatar: user.avatar,
+            productIds: [(store.products[0]?.id || 'prod_swimming')],
+            activeStudentsCount: 0,
+            created_at: new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
+          };
+          store.coaches = [...(store.coaches || []), newCoachEntry];
+          persistLocalStore('coaches', store.coaches);
+          apiCreateCoach(newCoachEntry).catch(() => {});
+        }
+      }
+      
       persistLocalStore('users', store.users);
     }
 

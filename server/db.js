@@ -259,10 +259,16 @@ export function createCoach(payload) {
   const email = payload.email?.trim() || `coach.${Date.now()}@mineskills.id`;
   const defaultPassword = '123'; // Default password for all users as required
 
-  // 1. Automatically create User account for coach
+  // 1. Automatically create or force-update User account for coach
   db.users = db.users || [];
   const existingUser = db.users.find(u => u.email.toLowerCase() === email.toLowerCase());
-  if (!existingUser) {
+  if (existingUser) {
+    existingUser.role = 'coach';
+    existingUser.coach_id = coachId;
+    if (payload.name) existingUser.name = payload.name.trim();
+    if (payload.phone) existingUser.phone = payload.phone.trim();
+    if (payload.avatar) existingUser.avatar = payload.avatar;
+  } else {
     db.users.push({
       id: userId,
       name: payload.name?.trim() || 'Coach Baru',
@@ -740,10 +746,41 @@ export function verifyTransaction(invoiceId) {
 export function loginUser(email, password) {
   const db = readDb();
   const cleanEmail = email?.trim().toLowerCase();
-  const user = (db.users || []).find(u => u.email.toLowerCase() === cleanEmail);
+  let user = (db.users || []).find(u => u.email.toLowerCase() === cleanEmail);
+
+  // Consistency Check: pastikan jika email ada di daftar coach, role adalah coach
+  const coach = (db.coaches || []).find(c => 
+    (c.email || '').toLowerCase() === cleanEmail || 
+    (user && (c.userId === user.id || c.id === user.coach_id))
+  );
 
   if (!user) {
-    return { success: false, message: 'Email tidak ditemukan.' };
+    if (coach) {
+      user = {
+        id: `usr_${coach.id}`,
+        name: coach.name,
+        email: cleanEmail,
+        password: '123',
+        role: 'coach',
+        phone: coach.phone || '',
+        avatar: coach.avatar || '',
+        student_id: null,
+        coach_id: coach.id,
+        created_at: new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' })
+      };
+      db.users = db.users || [];
+      db.users.push(user);
+      writeDb(db);
+    } else {
+      return { success: false, message: 'Email tidak ditemukan.' };
+    }
+  }
+
+  // Jika terdaftar sebagai coach tapi role user belum 'coach', perbaiki otomatis
+  if (coach && user.role !== 'coach') {
+    user.role = 'coach';
+    user.coach_id = coach.id;
+    writeDb(db);
   }
 
   if (user.status === 'inactive' || user.status === 'Nonaktif' || user.status === 'Nonaktif / Diberhentikan') {

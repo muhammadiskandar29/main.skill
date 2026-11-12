@@ -4630,8 +4630,8 @@ function openCreateScheduleModal(prefillStudentId = null) {
     date: dateStr,
     day: 'Sabtu',
     time: '09.00 - 09.45 WIB',
-    coachName: stu?.assignedCoachName || store.coaches[0]?.name || 'Coach Dimas Prasetyo, S.Or.',
-    location: stu?.location || 'Kolam Renang Graha Kresna Pratama',
+    coachName: stu?.assignedCoachName || (store.coaches[0]?.name || 'Belum Ditugaskan'),
+    location: stu?.location || (store.locations[0]?.name || 'Lokasi Fasilitas'),
     status: 'Terjadwal',
     notes: `Sesi latihan ke-${existingCount + 1}`
   };

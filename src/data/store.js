@@ -345,7 +345,7 @@ const initialTransactions = [
 const initialUsers = [
   {
     id: 'usr_admin_1',
-    name: 'Manajemen',
+    name: 'Tim Manajemen',
     email: 'admin@mine.skills.id',
     role: 'manajemen',
     phone: '085286274726'
@@ -745,7 +745,7 @@ export function getInitialPortalMenu(role) {
 // Create reactive store
 export const store = reactive({
   currentRole: savedSession.currentRole || 'public',
-  currentUser: (savedSession.currentUser?.name?.includes('Iskandar') ? { ...savedSession.currentUser, name: 'Manajemen' } : savedSession.currentUser) || null,
+  currentUser: (savedSession.currentUser?.name?.includes('Iskandar') ? { ...savedSession.currentUser, name: 'Tim Manajemen' } : savedSession.currentUser) || null,
   authToken: savedSession.authToken || null,
   activePublicPage: 'home', // 'home' | 'programs' | 'pricing' | 'coaches' | 'locations' | 'contact'
   activePortalMenu: getInitialPortalMenu(savedSession.currentRole || 'public'),
@@ -1746,7 +1746,7 @@ export const actions = {
         date: `Sesi ${i}`,
         day: studentDay,
         time: studentTime,
-        coachName: assignedCoach?.name || 'Coach Dimas Prasetyo, S.Or.',
+        coachName: assignedCoach?.name || (store.coaches?.[0]?.name || 'Belum Ditugaskan'),
         location: studentLocation,
         status: i === 1 ? 'Mendatang (Aktif)' : 'Terjadwal',
         notes: `Sesi latihan ke-${i}`
@@ -1986,8 +1986,8 @@ export const actions = {
       date: scheduleData.date || new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
       day: scheduleData.day || 'Sabtu',
       time: scheduleData.time || '08.00 - 08.45 WIB',
-      coachName: scheduleData.coachName || student?.assignedCoachName || 'Coach Dimas Prasetyo, S.Or.',
-      location: scheduleData.location || student?.location || 'Kolam Graha Kresna Pratama',
+      coachName: scheduleData.coachName || student?.assignedCoachName || (store.coaches?.[0]?.name || 'Belum Ditugaskan'),
+      location: scheduleData.location || student?.location || (store.locations?.[0]?.name || 'Lokasi Latihan'),
       status: scheduleData.status || 'Terjadwal',
       notes: scheduleData.notes || `Sesi latihan ke-${(student?.memberSchedules?.length || 0) + 1}`
     };
@@ -2178,7 +2178,7 @@ export const actions = {
         day: dayName,
         time: timeSlot,
         location: locName,
-        coachName: coach?.name || 'Coach Adit',
+        coachName: coach?.name || student.assignedCoachName || (store.coaches?.[0]?.name || 'Belum Ditugaskan'),
         productName: student.productName || 'Skill Renang',
         status: i === 1 ? 'Mendatang (Aktif)' : 'Terjadwal'
       };
@@ -2521,7 +2521,7 @@ export const actions = {
       mainExercise: reportData.mainExercise || reportData.focus || '',
       cooldown: reportData.cooldown || 'bubbling & starfish',
       coachNotes: reportData.coachNotes || '',
-      coachName: reportData.coachName || 'Coach Adit',
+      coachName: reportData.coachName || (store.currentUser?.name || 'Coach'),
       score1: reportData.score1 || 'Baik',
       score2: reportData.score2 || 'Baik',
       score3: reportData.score3 || 'Baik'
@@ -2544,7 +2544,7 @@ export const actions = {
     const fallbackRecord = {
       id: `att_${Date.now()}`,
       coachId: payload.coachId || 'coach_1',
-      coachName: payload.coachName || 'Coach Adit',
+      coachName: payload.coachName || (store.currentUser?.name || 'Coach'),
       coachAvatar: payload.coachAvatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240',
       date: payload.date || new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
       time: payload.time || new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }) + ' WIB',
@@ -2625,7 +2625,7 @@ export const actions = {
     } else if (template === 'invoice') {
       message = `Yth. Bapak/Ibu ${lead.parentName},\n\nBerikut rincian tagihan pendaftaran *${store.brand.name}* ananda *${lead.studentName}*:\n\n• Paket: ${lead.packageType || lead.packageName}\n• Metode Bayar: QRIS / Transfer Bank Resmi\n\nKata sandi default login portal: *123*. Terima kasih.`;
     } else if (template === 'renewal') {
-      message = `Yth. Bapak/Ibu ${lead.parentName},\n\nSiswa ananda *${lead.studentName}* telah menyelesaikan seluruh sesi bimbingan pada paket sebelumnya dengan pencapaian yang baik.\n\n[DETAIL PERPANJANGAN PAKET]\n• Program: ${lead.productName || lead.program || 'Skill Renang'}\n• Paket: ${lead.packageName || lead.packageType || 'Small Group'}\n• Total Sesi: 4 Sesi Pertemuan Lanjutan\n• Pelatih Pendamping: ${lead.assignedCoachName || 'Coach Adit'}\n\nJadwal sesi lanjutan telah diperbarui di sistem. Silakan masuk ke portal siswa untuk melihat rincian jadwal dan QRIS resmi.\n\nTerima kasih atas kepercayaan Bapak/Ibu bersama *${store.brand.name}*.`;
+      message = `Yth. Bapak/Ibu ${lead.parentName},\n\nSiswa ananda *${lead.studentName}* telah menyelesaikan seluruh sesi bimbingan pada paket sebelumnya dengan pencapaian yang baik.\n\n[DETAIL PERPANJANGAN PAKET]\n• Program: ${lead.productName || lead.program || 'Skill Renang'}\n• Paket: ${lead.packageName || lead.packageType || 'Small Group'}\n• Total Sesi: 4 Sesi Pertemuan Lanjutan\n• Pelatih Pendamping: ${lead.assignedCoachName || (store.coaches?.[0]?.name || 'Coach Pembina')}\n\nJadwal sesi lanjutan telah diperbarui di sistem. Silakan masuk ke portal siswa untuk melihat rincian jadwal dan QRIS resmi.\n\nTerima kasih atas kepercayaan Bapak/Ibu bersama *${store.brand.name}*.`;
     }
 
     return `https://web.whatsapp.com/send?phone=${targetPhone}&text=${encodeURIComponent(message)}`;

@@ -339,7 +339,12 @@
           </div>
           <div class="quick-details">
             <h4 class="quick-title">Jadwal Sesi Selanjutnya</h4>
-            <p class="quick-desc">Sabtu, 09.00 WIB bersama {{ studentData.coachName }} di Kolam Graha Kresna Pratama.</p>
+            <p class="quick-desc" v-if="nextSchedule">
+              {{ nextSchedule.day }}, {{ nextSchedule.time }} bersama {{ nextSchedule.coachName || studentData.assignedCoachName || 'Coach' }} di {{ nextSchedule.location || studentData.location }}.
+            </p>
+            <p class="quick-desc" v-else>
+              Belum ada jadwal sesi latihan aktif saat ini.
+            </p>
           </div>
           <svg class="chevron-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <polyline points="9 18 15 12 9 6"></polyline>
@@ -1253,21 +1258,21 @@ const studentData = computed(() => {
     const foundName = (store.students || []).find(s => s.parentName?.toLowerCase() === store.currentUser.name.toLowerCase() || s.name?.toLowerCase() === store.currentUser.name.toLowerCase());
     if (foundName) return foundName;
   }
-  return (store.students || [])[0] || {
-    name: 'Kenzo Al-Fatih',
-    age: 7,
-    parentName: 'Bunda Sarah',
-    program: 'Skill Renang',
-    packageType: 'Small Group',
-    currentLevel: 2,
-    currentLevelTitle: 'Level 2: Breaststroke Hero',
-    targetChallenge: '10 Meter Breaststroke Challenge Mandiri',
-    overallProgress: 75,
-    completedSessions: 3,
-    packageTotalSessions: 4,
-    coachName: 'Coach Dimas Prasetyo, S.Or.',
-    assignedCoachName: 'Coach Dimas Prasetyo, S.Or.',
-    location: 'Kolam Graha Kresna Pratama',
+  return (store.students || []).find(s => s.userId === store.currentUser?.id) || {
+    name: store.currentUser?.name || 'Siswa Didik',
+    age: '-',
+    parentName: store.currentUser?.name || 'Wali Murid',
+    program: store.products[0]?.name || 'Program Belum Dipilih',
+    packageType: 'Belum Terdaftar',
+    currentLevel: 1,
+    currentLevelTitle: 'Belum Terdaftar Program',
+    targetChallenge: 'Silakan hubungi admin atau daftar paket baru',
+    overallProgress: 0,
+    completedSessions: 0,
+    packageTotalSessions: 0,
+    coachName: 'Belum Ditugaskan',
+    assignedCoachName: 'Belum Ditugaskan',
+    location: store.locations[0]?.name || 'Lokasi Latihan',
     memberSchedules: [],
     sessionReports: []
   };
@@ -1309,8 +1314,13 @@ const currentStudentLevel = computed(() => {
 });
 
 const latestReport = computed(() => {
-  const reports = studentData.value.sessionReports || [];
+  const reports = studentData.value?.sessionReports || [];
   return reports.length ? reports[reports.length - 1] : null;
+});
+
+const nextSchedule = computed(() => {
+  const schedules = studentData.value?.memberSchedules || [];
+  return schedules.find(s => s.status === 'Mendatang (Aktif)' || s.status === 'Terjadwal') || null;
 });
 
 const reversedReports = computed(() => {

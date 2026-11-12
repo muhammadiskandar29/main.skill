@@ -2,15 +2,15 @@
   "users": [
     {
       "id": "usr_admin_1",
-      "name": "Manajemen",
-      "email": "admin@mine.skills.id",
-      "password": "123",
+      "name": "Tim Manajemen",
       "role": "manajemen",
-      "phone": "085286274720",
+      "email": "admin@mine.skills.id",
+      "phone": "085286274726",
       "avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=160",
-      "student_id": null,
       "coach_id": null,
-      "created_at": "2026-10-01 08:00"
+      "password": "123",
+      "created_at": "2026-10-01 08:00",
+      "student_id": null
     },
     {
       "id": "usr_coach_1",

@@ -675,9 +675,10 @@ const activeStudentsCount = computed(() => {
   const cName = (currentCoach.value?.name || '').trim().toLowerCase();
   const assigned = (store.students || []).filter(s => 
     s.coachId === cId || 
+    s.assignedCoachId === cId ||
     (s.assignedCoachName && s.assignedCoachName.trim().toLowerCase() === cName)
   );
-  return assigned.length || currentCoach.value?.activeStudentsCount || (store.students || []).length || 0;
+  return assigned.length;
 });
 
 const selectedStudentId = ref(store.students[0]?.id || 'stu_1');

@@ -192,7 +192,7 @@ const initialCoaches = [
     bio: 'Lulusan Institut Kesenian Jakarta dengan metode pengajaran gerak berirama yang melatih kelenturan motorik, percaya diri, dan estetika panggung.',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=240',
     productIds: ['prod_dance'],
-    activeStudentsCount: 8
+    activeStudentsCount: 0
   },
   {
     id: 'coach_1792917516003',
@@ -204,7 +204,7 @@ const initialCoaches = [
     bio: 'Pelatih renang anak bersertifikat PRSI dengan pengalaman 6 tahun.',
     avatar: '/images/coaches/coach-bayu.jpg',
     productIds: ['prod_swimming'],
-    activeStudentsCount: 10
+    activeStudentsCount: 0
   },
   {
     id: 'coach_1794446495449',
@@ -216,7 +216,7 @@ const initialCoaches = [
     bio: 'Mengajar renang kurang lebih 2 tahun',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240',
     productIds: ['prod_swimming'],
-    activeStudentsCount: 6
+    activeStudentsCount: 0
   },
   {
     id: 'coach_1794455384029',
@@ -228,7 +228,7 @@ const initialCoaches = [
     bio: 'Pelatih bersertifikasi profesional.',
     avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=240',
     productIds: ['prod_swimming'],
-    activeStudentsCount: 5
+    activeStudentsCount: 0
   },
   {
     id: 'coach_1794456121637',
@@ -240,7 +240,7 @@ const initialCoaches = [
     bio: 'Pelatih bersertifikasi profesional.',
     avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=240',
     productIds: ['prod_dance', 'prod_1793069268552', 'prod_1792988036674'],
-    activeStudentsCount: 4
+    activeStudentsCount: 0
   }
 ];
 

@@ -242,11 +242,20 @@ export function deletePackage(id) {
 export function getAllCoaches() {
   const db = readDb();
   const products = db.products || [];
+  const students = db.students || [];
 
   return (db.coaches || []).map(coach => {
     const mappedProducts = products.filter(p => Array.isArray(coach.productIds) && coach.productIds.includes(p.id));
+    const activeStudents = students.filter(s => {
+      const isAssigned = (s.assignedCoachId && s.assignedCoachId === coach.id) ||
+                         (s.coachId && s.coachId === coach.id) ||
+                         (s.assignedCoachName && coach.name && s.assignedCoachName.trim().toLowerCase() === coach.name.trim().toLowerCase());
+      const isActive = s.status ? !s.status.toLowerCase().includes('selesai') && !s.status.toLowerCase().includes('nonaktif') : true;
+      return isAssigned && isActive;
+    });
     return {
       ...coach,
+      activeStudentsCount: activeStudents.length,
       mappedProducts
     };
   });

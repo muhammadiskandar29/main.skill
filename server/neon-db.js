@@ -399,15 +399,24 @@ export async function deletePackage(id) {
 // Coaches Model
 // -------------------------------------------------------------
 export async function getAllCoaches() {
-  const [coaches, products] = await Promise.all([
+  const [coaches, products, students] = await Promise.all([
     queryTable('coaches'),
-    queryTable('products')
+    queryTable('products'),
+    queryTable('students')
   ]);
 
   return coaches.map(coach => {
     const mappedProducts = products.filter(p => Array.isArray(coach.productIds) && coach.productIds.includes(p.id));
+    const activeStudents = (students || []).filter(s => {
+      const isAssigned = (s.assignedCoachId && s.assignedCoachId === coach.id) ||
+                         (s.coachId && s.coachId === coach.id) ||
+                         (s.assignedCoachName && coach.name && s.assignedCoachName.trim().toLowerCase() === coach.name.trim().toLowerCase());
+      const isActive = s.status ? !s.status.toLowerCase().includes('selesai') && !s.status.toLowerCase().includes('nonaktif') : true;
+      return isAssigned && isActive;
+    });
     return {
       ...coach,
+      activeStudentsCount: activeStudents.length,
       mappedProducts
     };
   });

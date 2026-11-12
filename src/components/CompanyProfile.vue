@@ -229,7 +229,9 @@
                 <span class="coach-summary-spec">{{ coach.specialty }}</span>
                 <p class="coach-summary-bio">{{ coach.bio }}</p>
                 <div class="coach-summary-meta">
-                  <span class="badge-chip teal">Membina {{ coach.activeStudentsCount || 10 }}+ Siswa</span>
+                  <span :class="['badge-chip', getCoachActiveStudentsCount(coach) > 0 ? 'teal' : 'gray']">
+                    {{ getCoachActiveStudentsCount(coach) > 0 ? `Membina ${getCoachActiveStudentsCount(coach)} Siswa` : 'Belum Ada Siswa Binaan' }}
+                  </span>
                 </div>
               </div>
             </div>
@@ -535,7 +537,10 @@
               <div class="c-dir-intro">
                 <h3 class="c-dir-name">{{ coach.name }}</h3>
                 <span class="c-dir-spec">{{ coach.specialty }}</span>
-                <span class="c-dir-exp">Pengalaman: 5+ Tahun • Membina {{ coach.activeStudentsCount || 12 }} Siswa</span>
+                <span class="c-dir-exp">
+                  {{ coach.specialty || 'Instruktur Resmi' }} • 
+                  {{ getCoachActiveStudentsCount(coach) > 0 ? `Membina ${getCoachActiveStudentsCount(coach)} Siswa` : 'Belum Ada Siswa Binaan' }}
+                </span>
               </div>
             </div>
 
@@ -882,6 +887,19 @@ const filteredPricingPackages = computed(() => {
 
 function getCoachesForProgram(progId) {
   return (store.coaches || []).filter(c => Array.isArray(c.productIds) && c.productIds.includes(progId));
+}
+
+function getCoachActiveStudentsCount(coach) {
+  if (!coach) return 0;
+  const cId = coach.id;
+  const cName = (coach.name || '').trim().toLowerCase();
+  return (store.students || []).filter(s => {
+    const isAssigned = (s.assignedCoachId && s.assignedCoachId === cId) ||
+                       (s.coachId && s.coachId === cId) ||
+                       (s.assignedCoachName && s.assignedCoachName.trim().toLowerCase() === cName);
+    const isActive = s.status ? !s.status.toLowerCase().includes('selesai') && !s.status.toLowerCase().includes('nonaktif') : true;
+    return isAssigned && isActive;
+  }).length;
 }
 
 const selectedHeroImage = computed(() => {

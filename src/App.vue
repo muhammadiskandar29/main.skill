@@ -489,45 +489,46 @@
         </button>
       </template>
     </nav>
-
-    <!-- Real Authentication Login Modal -->
-    <LoginModal 
-      v-if="store.isLoginModalOpen" 
-      @close="actions.closeLoginModal()" 
-      @open-register="handleOpenRegister" 
-    />
-
-    <!-- Registration Modal -->
-    <RegistrationModal 
-      v-if="isRegisterOpen" 
-      :initial-product-id="selectedRegisterProductId"
-      :initial-package-id="selectedRegisterPackageId"
-      @close="isRegisterOpen = false" 
-      @go-to-portal="handleRegistrationGoToPortal"
-    />
-
-    <!-- Global High-End Modal Alert (Replaces all Windows Alerts) -->
-    <AlertModal />
-
-    <!-- Forgot Password Modal (WhatsApp OTP Verification & Reset) -->
-    <ForgotPasswordModal 
-      v-if="store.isForgotPasswordModalOpen" 
-      @close="actions.closeForgotPasswordModal()" 
-    />
-
-    <!-- Change Password Modal (For logged in users) -->
-    <ChangePasswordModal 
-      v-if="store.isChangePasswordModalOpen" 
-      @close="actions.closeChangePasswordModal()" 
-    />
-
-    <!-- Public Website Promo Poster Pop-up Modal -->
-    <PromoModal 
-      v-if="store.currentRole === 'public' && isPromoModalOpen && store.promoBanner?.isActive !== false" 
-      @close="isPromoModalOpen = false" 
-      @open-register="isPromoModalOpen = false; isRegisterOpen = true"
-    />
   </div>
+
+  <!-- GLOBAL SYSTEM MODALS (ACCESSIBLE FROM /login, HOME, & ALL PORTALS) -->
+  <!-- Real Authentication Login Modal -->
+  <LoginModal 
+    v-if="store.isLoginModalOpen" 
+    @close="actions.closeLoginModal()" 
+    @open-register="handleOpenRegister" 
+  />
+
+  <!-- Registration Modal -->
+  <RegistrationModal 
+    v-if="isRegisterOpen" 
+    :initial-product-id="selectedRegisterProductId"
+    :initial-package-id="selectedRegisterPackageId"
+    @close="isRegisterOpen = false" 
+    @go-to-portal="handleRegistrationGoToPortal"
+  />
+
+  <!-- Global High-End Modal Alert (Replaces all Windows Alerts) -->
+  <AlertModal />
+
+  <!-- Forgot Password Modal (WhatsApp OTP Verification & Reset) -->
+  <ForgotPasswordModal 
+    v-if="store.isForgotPasswordModalOpen" 
+    @close="actions.closeForgotPasswordModal()" 
+  />
+
+  <!-- Change Password Modal (For logged in users) -->
+  <ChangePasswordModal 
+    v-if="store.isChangePasswordModalOpen" 
+    @close="actions.closeChangePasswordModal()" 
+  />
+
+  <!-- Public Website Promo Poster Pop-up Modal -->
+  <PromoModal 
+    v-if="store.currentRole === 'public' && isPromoModalOpen && store.promoBanner?.isActive !== false" 
+    @close="isPromoModalOpen = false" 
+    @open-register="isPromoModalOpen = false; isRegisterOpen = true"
+  />
 </template>
 
 <script setup>

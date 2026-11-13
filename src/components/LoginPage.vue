@@ -112,88 +112,6 @@
                     <p class="poster-subtext">Metode belajar interaktif dengan instruktur bersertifikasi dan bimbingan penuh kasih sayang.</p>
                   </div>
                 </div>
-
-                <!-- Floating Animated Badge 1: Promo Spesial Rp 350.000 -->
-                <div class="floating-fun-badge badge-top-left" @click="handleRegisterClick">
-                  <div class="badge-icon-box gold">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-                    </svg>
-                  </div>
-                  <div class="badge-texts">
-                    <span class="badge-title">PROMO KELAS GROUP</span>
-                    <strong class="badge-price">Cuma Rp 350.000!</strong>
-                  </div>
-                </div>
-
-                <!-- Floating Animated Badge 2: Rasio Ramah Anak -->
-                <div class="floating-fun-badge badge-top-right">
-                  <div class="badge-icon-box teal">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                    </svg>
-                  </div>
-                  <div class="badge-texts">
-                    <span class="badge-title">Rasio Eksklusif</span>
-                    <strong class="badge-sub">Maks 3-4 Anak / Sesi</strong>
-                  </div>
-                </div>
-
-                <!-- Floating Animated Badge 3: Reward & Bintang -->
-                <div class="floating-fun-badge badge-bottom-right">
-                  <div class="badge-icon-box blue">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                      <circle cx="12" cy="8" r="6"></circle>
-                      <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"></path>
-                    </svg>
-                  </div>
-                  <div class="badge-texts">
-                    <span class="badge-title">E-Raport & Medali</span>
-                    <strong class="badge-sub">Apresiasi Setiap Level</strong>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- THREE INFORMATIVE PILLARS -->
-            <div class="cheerful-pillars-grid">
-              <div class="cheerful-pillar-box">
-                <div class="pillar-icon-wrap mint">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                    <line x1="9" y1="9" x2="9.01" y2="9"></line>
-                    <line x1="15" y1="9" x2="15.01" y2="9"></line>
-                  </svg>
-                </div>
-                <div class="pillar-texts">
-                  <strong>Belajar Sambil Bermain</strong>
-                  <span>Suasana ceria, bebas rasa takut & ramah anak</span>
-                </div>
-              </div>
-
-              <div class="cheerful-pillar-box">
-                <div class="pillar-icon-wrap warm">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                  </svg>
-                </div>
-                <div class="pillar-texts">
-                  <strong>Pelatih Sabar & Positif</strong>
-                  <span>Pendampingan hangat & perhatian penuh</span>
-                </div>
-              </div>
-
-              <div class="cheerful-pillar-box">
-                <div class="pillar-icon-wrap sky">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
-                  </svg>
-                </div>
-                <div class="pillar-texts">
-                  <strong>Bintang & Sertifikat</strong>
-                  <span>Apresiasi setiap pencapaian & kelulusan</span>
-                </div>
               </div>
             </div>
 
@@ -201,17 +119,18 @@
             <div class="invite-register-bar">
               <div class="invite-text-col">
                 <span class="invite-title">Yuk, Mulai Petualangan Seru Ananda!</span>
-                <span class="invite-sub">Pilih jadwal fleksibel (Senin – Minggu) & konsultasi gratis bersama tim kami.</span>
+                <span class="invite-sub">Pilih jadwal fleksibel (Senin – Minggu) & konsultasi kebutuhan ananda.</span>
               </div>
               <button 
                 type="button" 
                 class="btn-open-reg-modal" 
-                @click="handleRegisterClick"
+                @click="emit('open-register')"
               >
                 <span>Daftar Sekarang</span>
               </button>
             </div>
-          </div></section>
+          </div>
+        </section>
 
         <!-- RIGHT PANEL: COMPACT, BALANCED, ULTRA-RESPONSIVE LOGIN CARD -->
         <section class="login-panel">
@@ -822,11 +741,11 @@ async function handleLoginSubmit() {
 .visual-poster-card {
   position: relative;
   width: 100%;
-  height: 310px;
-  border-radius: 24px;
+  height: 380px;
+  border-radius: 26px;
   overflow: hidden;
   box-shadow: 
-    0 20px 45px -10px rgba(13, 77, 93, 0.25),
+    0 24px 50px -10px rgba(13, 77, 93, 0.28),
     0 0 0 1px rgba(255, 255, 255, 0.7);
   border: 2px solid #e0f2fe;
   background: #09343f;
@@ -836,13 +755,13 @@ async function handleLoginSubmit() {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 30%;
+  object-position: center 25%;
   display: block;
   transition: transform 10s ease;
 }
 
 .visual-poster-card:hover .kids-main-poster {
-  transform: scale(1.05);
+  transform: scale(1.04);
 }
 
 .poster-bottom-gradient {
@@ -850,13 +769,13 @@ async function handleLoginSubmit() {
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(9, 52, 63, 0.1) 0%,
-    rgba(9, 52, 63, 0.5) 55%,
+    rgba(9, 52, 63, 0) 0%,
+    rgba(9, 52, 63, 0.35) 50%,
     rgba(9, 52, 63, 0.92) 100%
   );
   display: flex;
   align-items: flex-end;
-  padding: 18px 20px;
+  padding: 22px 24px;
   z-index: 2;
 }
 
@@ -870,205 +789,30 @@ async function handleLoginSubmit() {
   align-self: flex-start;
   background: #14b8a6;
   color: #ffffff;
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 800;
   letter-spacing: 0.08em;
-  padding: 3px 10px;
+  padding: 4px 12px;
   border-radius: 999px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
   text-transform: uppercase;
   box-shadow: 0 2px 8px rgba(20, 184, 166, 0.4);
 }
 
 .poster-headline {
-  font-size: 16.5px;
+  font-size: 18px;
   font-weight: 800;
   color: #ffffff;
-  margin: 0 0 4px;
+  margin: 0 0 5px;
   line-height: 1.3;
 }
 
 .poster-subtext {
-  font-size: 11.5px;
+  font-size: 12.5px;
   color: #e2e8f0;
   margin: 0;
-  line-height: 1.4;
-  max-width: 440px;
-}
-
-/* Floating Levitating Badges */
-.floating-fun-badge {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(226, 232, 240, 0.95);
-  padding: 8px 14px;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px -4px rgba(13, 77, 93, 0.22);
-  z-index: 5;
-  cursor: pointer;
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.floating-fun-badge:hover {
-  transform: translateY(-3px) scale(1.03);
-  box-shadow: 0 14px 30px -4px rgba(13, 77, 93, 0.3);
-}
-
-.badge-top-left {
-  top: 14px;
-  left: 14px;
-  animation: floatTL 4.5s ease-in-out infinite;
-}
-
-.badge-top-right {
-  top: 14px;
-  right: 14px;
-  animation: floatTR 5s ease-in-out infinite 0.6s;
-}
-
-.badge-bottom-right {
-  bottom: 84px;
-  right: 14px;
-  animation: floatBR 4.8s ease-in-out infinite 1.2s;
-}
-
-@keyframes floatTL {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
-}
-
-@keyframes floatTR {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(6px); }
-}
-
-@keyframes floatBR {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
-}
-
-.badge-icon-box {
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.badge-icon-box.gold {
-  background: #fefce8;
-  color: #d97706;
-  border: 1px solid #fef08a;
-}
-
-.badge-icon-box.teal {
-  background: #f0fdfa;
-  color: #0f766e;
-  border: 1px solid #99f6e4;
-}
-
-.badge-icon-box.blue {
-  background: #f0f9ff;
-  color: #0284c7;
-  border: 1px solid #bae6fd;
-}
-
-.badge-texts {
-  display: flex;
-  flex-direction: column;
-}
-
-.badge-title {
-  font-size: 9.5px;
-  font-weight: 700;
-  color: #64748b;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.badge-price {
-  font-size: 13px;
-  font-weight: 900;
-  color: #ea580c;
-  line-height: 1.1;
-}
-
-.badge-sub {
-  font-size: 11.5px;
-  font-weight: 800;
-  color: #09343f;
-  line-height: 1.1;
-}
-
-/* Three Cheerful Pillars */
-.cheerful-pillars-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
-  margin-top: 12px;
-}
-
-.cheerful-pillar-box {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 10px 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
-}
-
-.pillar-icon-wrap {
-  width: 32px;
-  height: 32px;
-  border-radius: 9px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.pillar-icon-wrap.mint {
-  background: #f0fdfa;
-  color: #0f766e;
-  border: 1px solid #99f6e4;
-}
-
-.pillar-icon-wrap.warm {
-  background: #fff7ed;
-  color: #c2410c;
-  border: 1px solid #ffedd5;
-}
-
-.pillar-icon-wrap.sky {
-  background: #f0f9ff;
-  color: #0369a1;
-  border: 1px solid #bae6fd;
-}
-
-.pillar-texts {
-  display: flex;
-  flex-direction: column;
-}
-
-.pillar-texts strong {
-  font-size: 11px;
-  font-weight: 800;
-  color: #09343f;
-  line-height: 1.2;
-}
-
-.pillar-texts span {
-  font-size: 9.5px;
-  color: #64748b;
-  line-height: 1.2;
+  line-height: 1.45;
+  max-width: 460px;
 }
 
 /* Bottom Invite Register Banner */
@@ -1125,15 +869,6 @@ async function handleLoginSubmit() {
 @media (max-width: 900px) {
   .visual-poster-card {
     height: 240px;
-  }
-  .floating-fun-badge {
-    padding: 6px 10px;
-  }
-  .badge-bottom-right {
-    display: none;
-  }
-  .cheerful-pillars-grid {
-    grid-template-columns: 1fr;
   }
   .invite-register-bar {
     flex-direction: column;

@@ -2295,6 +2295,14 @@ export const actions = {
       }
     }
 
+    if (Array.isArray(store.schedules)) {
+      const globalSch = store.schedules.find(s => s.id === scheduleId);
+      if (globalSch) {
+        Object.assign(globalSch, patch);
+        persistLocalStore('schedules', store.schedules);
+      }
+    }
+
     if (targetStudent) {
       const completedCount = targetStudent.memberSchedules.filter(s => s.status === 'Selesai' || s.status === 'Hadir').length;
       targetStudent.completedSessions = completedCount;

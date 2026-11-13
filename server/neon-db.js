@@ -797,6 +797,7 @@ export async function updateStudentSchedule(scheduleId, patch) {
       student.sessionsCompletedWithCoach = completedCount;
       const total = student.packageTotalSessions || studentSchedules.length || 4;
       student.overallProgress = Math.round((completedCount / total) * 100);
+      student.memberSchedules = studentSchedules;
       await upsertRecord('students', student.id, student);
     }
   }

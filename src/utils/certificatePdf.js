@@ -1,13 +1,14 @@
 import { jsPDF } from 'jspdf';
 
 /**
- * Generate official mine.skills Certificate PDF based on the official template image
+ * Render official mine.skills Certificate on a high-resolution 2048x1364 canvas
+ * based on the official background template
  * @param {Object} studentData - Student record
  * @param {Object} activeProduct - Enrolled product details
  * @param {Number} currentLevel - Active or achieved level
- * @returns {Promise<void>}
+ * @returns {Promise<HTMLCanvasElement>}
  */
-export async function downloadCertificatePdf(studentData = {}, activeProduct = null, currentLevel = 1) {
+export async function renderCertificateCanvas(studentData = {}, activeProduct = null, currentLevel = 1) {
   const canvas = document.createElement('canvas');
   canvas.width = 2048;
   canvas.height = 1364;
@@ -93,7 +94,21 @@ export async function downloadCertificatePdf(studentData = {}, activeProduct = n
   ctx.font = '500 18px "Plus Jakarta Sans", Arial, sans-serif';
   ctx.fillText(`${certReg} • Diterbitkan Resmi pada ${dateStr}`, 1024, 1315);
 
-  // 7. Generate PDF with jsPDF
+  return canvas;
+}
+
+/**
+ * Generate official mine.skills Certificate PDF based on the official template image
+ * @param {Object} studentData - Student record
+ * @param {Object} activeProduct - Enrolled product details
+ * @param {Number} currentLevel - Active or achieved level
+ * @returns {Promise<void>}
+ */
+export async function downloadCertificatePdf(studentData = {}, activeProduct = null, currentLevel = 1) {
+  const canvas = await renderCertificateCanvas(studentData, activeProduct, currentLevel);
+  const studentName = (studentData.name || 'NAMA SISWA').toUpperCase();
+
+  // Generate PDF with jsPDF
   const doc = new jsPDF({
     orientation: 'landscape',
     unit: 'mm',
@@ -107,3 +122,20 @@ export async function downloadCertificatePdf(studentData = {}, activeProduct = n
   doc.save(cleanFilename);
 }
 
+/**
+ * Download certificate as high-resolution PNG image
+ * @param {Object} studentData
+ * @param {Object} activeProduct
+ * @param {Number} currentLevel
+ * @returns {Promise<void>}
+ */
+export async function downloadCertificateImage(studentData = {}, activeProduct = null, currentLevel = 1) {
+  const canvas = await renderCertificateCanvas(studentData, activeProduct, currentLevel);
+  const studentName = (studentData.name || 'NAMA SISWA').toUpperCase();
+  const cleanFilename = `Sertifikat_${studentName.replace(/[^A-Za-z0-9]/g, '_')}_Level_${currentLevel}.png`;
+
+  const link = document.createElement('a');
+  link.download = cleanFilename;
+  link.href = canvas.toDataURL('image/png', 1.0);
+  link.click();
+}

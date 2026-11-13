@@ -361,6 +361,22 @@
             <polyline points="9 18 15 12 9 6"></polyline>
           </svg>
         </div>
+
+        <div class="quick-card card-humanist" @click="$emit('change-menu', 'c_certificates')">
+          <div class="quick-icon teal">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="8" r="7"></circle>
+              <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+            </svg>
+          </div>
+          <div class="quick-details">
+            <h4 class="quick-title">Sertifikat & Pencapaian Resmi</h4>
+            <p class="quick-desc">Lihat dan unduh sertifikat level ananda resmi berstandar mine.skills.</p>
+          </div>
+          <svg class="chevron-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </div>
       </div>
 
       <!-- Recent Coach Note Card -->
@@ -570,7 +586,21 @@
               <polyline points="7 10 12 15 17 10"></polyline>
               <line x1="12" y1="15" x2="12" y2="3"></line>
             </svg>
-            <span>{{ isDownloadingCert ? 'Menyiapkan PDF...' : 'Unduh Sertifikat Resmi (PDF)' }}</span>
+            <span>{{ isDownloadingCert ? 'Menyiapkan PDF...' : 'Unduh PDF' }}</span>
+          </button>
+          <button 
+            type="button" 
+            class="btn-secondary" 
+            @click="handleDownloadCertificateImage" 
+            :disabled="isDownloadingCertImage"
+            style="display: inline-flex; align-items: center; gap: 8px; font-weight: 700; padding: 10px 18px; border-radius: 8px; cursor: pointer; background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534;"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <circle cx="8.5" cy="8.5" r="1.5"></circle>
+              <polyline points="21 15 16 10 5 21"></polyline>
+            </svg>
+            <span>{{ isDownloadingCertImage ? 'Menyiapkan Gambar...' : 'Simpan Gambar (PNG)' }}</span>
           </button>
           <button 
             type="button" 
@@ -1109,7 +1139,7 @@ import QRCode from 'qrcode';
 import html2canvas from 'html2canvas';
 import { convertStaticQrisToDynamic } from '../utils/qris.js';
 import { generateInvoicePdf } from '../utils/invoicePdf.js';
-import { downloadCertificatePdf } from '../utils/certificatePdf.js';
+import { downloadCertificatePdf, downloadCertificateImage } from '../utils/certificatePdf.js';
 
 const props = defineProps({
   activeMenu: {
@@ -1438,11 +1468,18 @@ const latestSessionButtonLabel = computed(() => {
   return 'Sesi Terkini';
 });
 
+function parseSessionNo(val, fallbackIdx = 0) {
+  if (val === undefined || val === null) return fallbackIdx + 1;
+  if (typeof val === 'number') return val;
+  const digits = String(val).match(/\d+/);
+  return digits ? parseInt(digits[0], 10) : (fallbackIdx + 1);
+}
+
 const sortedMemberSchedules = computed(() => {
   const list = [...(studentData.value?.memberSchedules || [])];
   return list.sort((a, b) => {
-    const numA = parseInt(a.sessionNo, 10) || 0;
-    const numB = parseInt(b.sessionNo, 10) || 0;
+    const numA = parseSessionNo(a.sessionNo ?? a.sessionNumber ?? a.session, 0);
+    const numB = parseSessionNo(b.sessionNo ?? b.sessionNumber ?? b.session, 0);
     return numA - numB;
   });
 });
@@ -1451,15 +1488,28 @@ function formatScheduleDate(dateVal) {
   if (!dateVal) return '-';
   if (typeof dateVal === 'string') {
     const trimmed = dateVal.trim();
-    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
-      const parts = trimmed.split('-');
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-      const day = parseInt(parts[2], 10);
-      const month = months[parseInt(parts[1], 10) - 1] || parts[1];
-      const year = parts[0];
-      return `${day < 10 ? '0' + day : day} ${month} ${year}`;
+    // 1. If already human-formatted like "19 Nov 2026" or "20 November 2026", keep clean
+    if (/^\d{1,2}\s+[A-Za-z]{3,}\s+\d{4}$/.test(trimmed)) {
+      return trimmed;
     }
-    return trimmed;
+    // 2. YYYY-MM-DD or YYYY-MM-DDTHH:mm:ss
+    const isoMatch = trimmed.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/);
+    if (isoMatch) {
+      const year = isoMatch[1];
+      const monthIdx = parseInt(isoMatch[2], 10) - 1;
+      const day = parseInt(isoMatch[3], 10);
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+      return `${day < 10 ? '0' + day : day} ${months[monthIdx] || isoMatch[2]} ${year}`;
+    }
+    // 3. DD/MM/YYYY or DD-MM-YYYY
+    const dmyMatch = trimmed.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})/);
+    if (dmyMatch) {
+      const day = parseInt(dmyMatch[1], 10);
+      const monthIdx = parseInt(dmyMatch[2], 10) - 1;
+      const year = dmyMatch[3];
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+      return `${day < 10 ? '0' + day : day} ${months[monthIdx] || dmyMatch[2]} ${year}`;
+    }
   }
   try {
     const d = new Date(dateVal);
@@ -1471,7 +1521,7 @@ function formatScheduleDate(dateVal) {
       return `${day < 10 ? '0' + day : day} ${month} ${year}`;
     }
   } catch (e) {}
-  return dateVal;
+  return String(dateVal);
 }
 
 const radarBaseline = computed(() => {
@@ -1564,6 +1614,7 @@ const studentPredikat = computed(() => {
 });
 
 const isDownloadingCert = ref(false);
+const isDownloadingCertImage = ref(false);
 
 const certRegistrationId = computed(() => {
   const rawId = String(studentData.value?.id || '0891').replace(/\D/g, '').slice(-4) || '0891';
@@ -1589,6 +1640,22 @@ async function handleDownloadCertificate() {
     });
   } finally {
     isDownloadingCert.value = false;
+  }
+}
+
+async function handleDownloadCertificateImage() {
+  try {
+    isDownloadingCertImage.value = true;
+    await downloadCertificateImage(studentData.value, activeProduct.value, currentStudentLevel.value);
+  } catch (err) {
+    console.error('Download certificate image error:', err);
+    actions.showAlert({
+      title: 'Simpan Gambar Sertifikat',
+      message: 'Gagal mengunduh gambar sertifikat: ' + (err.message || 'Terjadi kesalahan sistem'),
+      type: 'error'
+    });
+  } finally {
+    isDownloadingCertImage.value = false;
   }
 }
 

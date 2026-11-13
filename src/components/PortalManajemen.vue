@@ -962,7 +962,7 @@
                 <div class="sched-session-cell">
                   <span class="session-number-pill">Sesi #{{ sch.sessionNo }}</span>
                   <div class="session-day-date">
-                    <strong>{{ sch.day }}</strong>, {{ sch.date }}
+                    <strong>{{ sch.day }}</strong>, {{ formatScheduleDate(sch.date) }}
                   </div>
                   <div class="session-time-pill">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -2940,14 +2940,14 @@ function cekMutasiBankGmail() {
           <!-- Sessions List -->
           <div class="schedules-list-wrap">
             <div 
-              v-for="sch in (activeStudentForSchedules?.memberSchedules || [])" 
+              v-for="sch in sortedActiveStudentSchedules" 
               :key="sch.id" 
               class="schedule-session-item card-humanist"
             >
               <div class="sch-left">
                 <span class="badge-chip teal">Sesi {{ sch.sessionNo }}</span>
                 <div class="sch-date-info">
-                  <strong>{{ sch.day }}, {{ sch.date }}</strong>
+                  <strong>{{ sch.day }}, {{ formatScheduleDate(sch.date) }}</strong>
                   <span class="font-mono text-xs">{{ sch.time }}</span>
                 </div>
               </div>
@@ -4768,6 +4768,38 @@ const activeStudentProgressPercent = computed(() => {
   return Math.round((activeStudentCompletedCount.value / list.length) * 100);
 });
 
+const sortedActiveStudentSchedules = computed(() => {
+  const list = [...(activeStudentForSchedules.value?.memberSchedules || [])];
+  return list.sort((a, b) => (parseInt(a.sessionNo, 10) || 0) - (parseInt(b.sessionNo, 10) || 0));
+});
+
+function formatScheduleDate(dateVal) {
+  if (!dateVal) return '-';
+  if (typeof dateVal === 'string') {
+    const trimmed = dateVal.trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+      const parts = trimmed.split('-');
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+      const day = parseInt(parts[2], 10);
+      const month = months[parseInt(parts[1], 10) - 1] || parts[1];
+      const year = parts[0];
+      return `${day < 10 ? '0' + day : day} ${month} ${year}`;
+    }
+    return trimmed;
+  }
+  try {
+    const d = new Date(dateVal);
+    if (!isNaN(d.getTime())) {
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+      const day = d.getDate();
+      const month = months[d.getMonth()];
+      const year = d.getFullYear();
+      return `${day < 10 ? '0' + day : day} ${month} ${year}`;
+    }
+  } catch (e) {}
+  return dateVal;
+}
+
 // -------------------------------------------------------------
 // MODAL 7: CREATE / PLOT NEW SESSION
 // -------------------------------------------------------------
@@ -4915,12 +4947,13 @@ function openRescheduleModal(sch) {
 async function handleSaveReschedule() {
   if (!activeScheduleForReschedule.value) return;
   try {
+    const formattedDate = formatScheduleDate(rescheduleForm.value.date);
     const noteText = rescheduleForm.value.reason 
       ? `Reschedule: ${rescheduleForm.value.reason}` 
-      : `Jadwal diubah ke ${rescheduleForm.value.day}, ${rescheduleForm.value.date}`;
+      : `Jadwal diubah ke ${rescheduleForm.value.day}, ${formattedDate}`;
       
     await actions.updateSchedule(activeScheduleForReschedule.value.id, {
-      date: rescheduleForm.value.date,
+      date: formattedDate,
       day: rescheduleForm.value.day,
       time: rescheduleForm.value.time,
       coachName: rescheduleForm.value.coachName,

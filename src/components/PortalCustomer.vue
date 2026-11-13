@@ -136,7 +136,7 @@
                     ✓ Lulus Standar
                   </span>
                   <span v-else-if="currentStudentLevel === lvl.levelNumber" class="text-gold font-bold">
-                    Sedang Ditempuh (75%)
+                    {{ currentLevelProgressText }}
                   </span>
                   <span v-else class="text-muted">
                     Belum Terbuka
@@ -156,11 +156,15 @@
           <div>
             <div class="flex items-center gap-2">
               <span class="badge-chip teal">Evaluasi 5 Pilar Kompetensi</span>
-              <span class="badge-chip green">Pertumbuhan +{{ overallGrowthPct }}% Sejak Sesi 1</span>
+              <span class="badge-chip" :class="completedSessionsCount > 0 ? 'green' : 'gold'">
+                {{ completedSessionsCount > 0 ? `Pertumbuhan +${overallGrowthPct}% Sejak Sesi 1` : 'Tahap Orientasi & Pembinaan Awal' }}
+              </span>
             </div>
             <h3 class="radar-card-title">Radar Spider-Web Kemampuan Ananda</h3>
             <p class="radar-card-sub">
-              Grafik pentagon visual: perbandingan penguasaan teknik ananda saat sesi pertama (baseline) vs sesi terkini.
+              {{ completedSessionsCount > 0 
+                ? 'Grafik pentagon visual: perbandingan penguasaan teknik ananda saat sesi pertama (baseline) vs sesi terkini.' 
+                : 'Grafik pentagon visual indikator kompetensi ananda. Evaluasi diperbarui secara berkala oleh coach setelah sesi latihan berlangsung.' }}
             </p>
           </div>
 
@@ -185,7 +189,7 @@
               :class="{ active: radarMode === 'current' }"
               @click="radarMode = 'current'"
             >
-              Sesi 3 (Terkini)
+              {{ latestSessionButtonLabel }}
             </button>
           </div>
         </div>
@@ -257,11 +261,11 @@
               <div class="radar-legend-bar">
                 <div class="legend-item" v-if="radarMode === 'compare' || radarMode === 'baseline'">
                   <span class="legend-dot baseline"></span>
-                  <span>Sesi 1 (Awal Masuk: Rata-rata 50)</span>
+                  <span>Sesi 1 (Awal Masuk: Rata-rata {{ baselineAverageScore }})</span>
                 </div>
                 <div class="legend-item" v-if="radarMode === 'compare' || radarMode === 'current'">
                   <span class="legend-dot current"></span>
-                  <strong>Sesi Terkini (Rata-rata {{ overallAverageScore }})</strong>
+                  <strong>{{ completedSessionsCount > 0 ? `Sesi Terkini (Rata-rata ${overallAverageScore})` : `Tahap Orientasi (Rata-rata ${overallAverageScore})` }}</strong>
                 </div>
               </div>
             </div>
@@ -275,12 +279,12 @@
                 <div class="kpi-val-row">
                   <strong class="kpi-num">{{ overallAverageScore }}</strong>
                   <span class="kpi-denom">/ 100</span>
-                  <span class="kpi-grade-badge">Predikat: Mahir & Mandiri</span>
+                  <span class="kpi-grade-badge">{{ studentPredikat }}</span>
                 </div>
               </div>
               <div class="kpi-growth-box">
                 <span class="kpi-grow-lbl">Pertumbuhan:</span>
-                <strong class="kpi-grow-num">+{{ overallGrowthPct }}%</strong>
+                <strong class="kpi-grow-num">{{ completedSessionsCount > 0 ? `+${overallGrowthPct}%` : '0%' }}</strong>
               </div>
             </div>
 
@@ -513,15 +517,15 @@
 
       <div class="schedule-list-grid">
         <div 
-          v-for="sch in (studentData.memberSchedules || [])" 
-          :key="sch.sessionNo" 
+          v-for="sch in sortedMemberSchedules" 
+          :key="sch.id || sch.sessionNo" 
           class="schedule-card card-humanist"
         >
           <div class="sch-badge-row">
-            <span class="badge-chip" :class="sch.status.includes('Selesai') ? 'green' : (sch.status.includes('Mendatang') ? 'teal' : 'gold')">
+            <span class="badge-chip" :class="sch.status.includes('Selesai') ? 'green' : (sch.status.includes('Mendatang') ? 'teal' : (sch.status === 'Reschedule' ? 'gold' : 'blue'))">
               Sesi Ke-{{ sch.sessionNo }} ({{ sch.status }})
             </span>
-            <span class="sch-date">{{ sch.date }}</span>
+            <span class="sch-date">{{ formatScheduleDate(sch.date) }}</span>
           </div>
           <h3 class="sch-time">{{ sch.time }}</h3>
           <p class="sch-program">{{ studentData.program }} • {{ studentData.packageType }}</p>
@@ -551,39 +555,87 @@
         <div>
           <span class="badge-chip green">Pencapaian & Kelulusan</span>
           <h2 class="page-title">Sertifikat Resmi mine.skills</h2>
-          <p class="page-sub">Apresiasi dan bukti pencapaian tantangan level ananda.</p>
+          <p class="page-sub">Apresiasi dan bukti pencapaian tantangan level ananda berstandar kurikulum resmi.</p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+          <button 
+            type="button" 
+            class="btn-primary" 
+            @click="handleDownloadCertificate" 
+            :disabled="isDownloadingCert"
+            style="display: inline-flex; align-items: center; gap: 8px; font-weight: 700; padding: 10px 18px; border-radius: 8px; cursor: pointer;"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>{{ isDownloadingCert ? 'Menyiapkan PDF...' : 'Unduh Sertifikat Resmi (PDF)' }}</span>
+          </button>
+          <button 
+            type="button" 
+            class="btn-secondary" 
+            @click="printReport"
+            style="display: inline-flex; align-items: center; gap: 8px; font-weight: 700; padding: 10px 18px; border-radius: 8px; cursor: pointer;"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 6 2 18 2 18 9"></polyline>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+              <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
+            <span>Cetak</span>
+          </button>
         </div>
       </div>
 
-      <div class="cert-card card-humanist">
-        <div class="cert-border-inner">
-          <div class="cert-header">
-            <span class="cert-org">mine.skills academy</span>
-            <h3 class="cert-title">SERTIFIKAT KELULUSAN LEVEL</h3>
-            <span class="cert-id">No. Registrasi: CERT-MS-2026-0891</span>
+      <!-- Real Visual Certificate Canvas Wrapper -->
+      <div class="official-cert-card card-humanist">
+        <div class="official-cert-stage">
+          <img src="/images/certificate-bg.jpg" alt="Template Sertifikat Resmi mine.skills" class="cert-template-img" />
+
+          <!-- Dynamic Overlays -->
+          <!-- 1. Student Name in Golden Pill Box -->
+          <div class="cert-overlay-name">
+            {{ (studentData.name || 'Nama Siswa').toUpperCase() }}
           </div>
 
-          <div class="cert-body">
-            <p class="cert-given">Diberikan secara resmi kepada:</p>
-            <h2 class="cert-student">{{ studentData.name }}</h2>
-            <p class="cert-desc">
-              Telah berhasil menyelesaikan seluruh indikator kompetensi dan lulus tantangan mandiri pada:
-            </p>
-            <div class="cert-level-badge">
-              <strong>LEVEL {{ currentStudentLevel }}: {{ (activeProductLevels.find(l => l.levelNumber === currentStudentLevel)?.title || studentData.currentLevelTitle || 'KOMPETENSI TERUJI').toUpperCase() }}</strong>
-              <span>{{ activeProductLevels.find(l => l.levelNumber === currentStudentLevel)?.challenge || studentData.targetChallenge || 'Tantangan Kelulusan Mandiri' }}</span>
-            </div>
+          <!-- 2. Program & Level in Ribbon -->
+          <div class="cert-overlay-ribbon">
+            {{ (activeProduct?.name || studentData.program || 'mine.swimming').toUpperCase() }} — {{ (activeProductLevels.find(l => l.levelNumber === currentStudentLevel)?.title || studentData.currentLevelTitle || 'Water Explorer').toUpperCase() }}
           </div>
 
-          <div class="cert-footer">
-            <div class="sig-box">
-              <div class="sig-line">{{ studentData.assignedCoachName || studentData.coachName || 'Coach Pembina' }}</div>
-              <span class="sig-title">Instruktur {{ activeProduct?.name || 'Program' }}</span>
-            </div>
-            <div class="sig-box">
-              <div class="sig-line">Tim Manajemen</div>
-              <span class="sig-title">Head of Academy mine.skills</span>
-            </div>
+          <!-- 3. Coach Signature -->
+          <div class="cert-overlay-coach">
+            {{ studentData.assignedCoachName || studentData.coachName || 'Coach Pembina' }}
+          </div>
+
+          <!-- 4. Management Signature -->
+          <div class="cert-overlay-mgmt">
+            Tim Manajemen mine.skills
+          </div>
+
+          <!-- 5. Metadata Watermark at Bottom -->
+          <div class="cert-overlay-meta">
+            {{ certRegistrationId }} • Diterbitkan Resmi pada {{ currentFormattedDate }}
+          </div>
+        </div>
+
+        <div class="cert-info-bar">
+          <div class="cert-info-item">
+            <span class="info-lbl">Siswa Berprestasi</span>
+            <strong class="info-val">{{ studentData.name }}</strong>
+          </div>
+          <div class="cert-info-item">
+            <span class="info-lbl">Program & Level</span>
+            <strong class="info-val">{{ activeProduct?.name || studentData.program }} (Level {{ currentStudentLevel }})</strong>
+          </div>
+          <div class="cert-info-item">
+            <span class="info-lbl">Instruktur Pembina</span>
+            <strong class="info-val">{{ studentData.assignedCoachName || studentData.coachName || 'Coach' }}</strong>
+          </div>
+          <div class="cert-info-item">
+            <span class="info-lbl">Status Verifikasi</span>
+            <span class="badge-chip green mini">✓ Terverifikasi Manajemen</span>
           </div>
         </div>
       </div>
@@ -1057,6 +1109,7 @@ import QRCode from 'qrcode';
 import html2canvas from 'html2canvas';
 import { convertStaticQrisToDynamic } from '../utils/qris.js';
 import { generateInvoicePdf } from '../utils/invoicePdf.js';
+import { downloadCertificatePdf } from '../utils/certificatePdf.js';
 
 const props = defineProps({
   activeMenu: {
@@ -1352,25 +1405,192 @@ const radarPillars = computed(() => {
   ];
 });
 
+const completedSessionsCount = computed(() => {
+  if (Array.isArray(studentData.value?.memberSchedules)) {
+    return studentData.value.memberSchedules.filter(s => s.status === 'Selesai' || s.status === 'Hadir').length;
+  }
+  return studentData.value?.completedSessions || 0;
+});
+
+const totalSessionsCount = computed(() => {
+  if (Array.isArray(studentData.value?.memberSchedules) && studentData.value.memberSchedules.length > 0) {
+    return studentData.value.memberSchedules.length;
+  }
+  return studentData.value?.packageTotalSessions || 4;
+});
+
+const progressPercent = computed(() => {
+  if (totalSessionsCount.value === 0) return 0;
+  return Math.round((completedSessionsCount.value / totalSessionsCount.value) * 100);
+});
+
+const currentLevelProgressText = computed(() => {
+  if (completedSessionsCount.value === 0) {
+    return `Sedang Ditempuh (0/${totalSessionsCount.value} Sesi • 0%)`;
+  }
+  return `Sedang Ditempuh (${completedSessionsCount.value}/${totalSessionsCount.value} Sesi • ${progressPercent.value}%)`;
+});
+
+const latestSessionButtonLabel = computed(() => {
+  if (completedSessionsCount.value > 0) {
+    return `Sesi ${completedSessionsCount.value} (Terkini)`;
+  }
+  return 'Sesi Terkini';
+});
+
+const sortedMemberSchedules = computed(() => {
+  const list = [...(studentData.value?.memberSchedules || [])];
+  return list.sort((a, b) => {
+    const numA = parseInt(a.sessionNo, 10) || 0;
+    const numB = parseInt(b.sessionNo, 10) || 0;
+    return numA - numB;
+  });
+});
+
+function formatScheduleDate(dateVal) {
+  if (!dateVal) return '-';
+  if (typeof dateVal === 'string') {
+    const trimmed = dateVal.trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+      const parts = trimmed.split('-');
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+      const day = parseInt(parts[2], 10);
+      const month = months[parseInt(parts[1], 10) - 1] || parts[1];
+      const year = parts[0];
+      return `${day < 10 ? '0' + day : day} ${month} ${year}`;
+    }
+    return trimmed;
+  }
+  try {
+    const d = new Date(dateVal);
+    if (!isNaN(d.getTime())) {
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+      const day = d.getDate();
+      const month = months[d.getMonth()];
+      const year = d.getFullYear();
+      return `${day < 10 ? '0' + day : day} ${month} ${year}`;
+    }
+  } catch (e) {}
+  return dateVal;
+}
+
 const radarBaseline = computed(() => {
-  return studentData.value.radarSkills?.baseline || {
-    waterConfidence: 55,
-    breathControl: 45,
-    strokeTechnique: 40,
+  if (studentData.value?.radarSkills?.baseline) {
+    return studentData.value.radarSkills.baseline;
+  }
+  return {
+    waterConfidence: 50,
+    breathControl: 50,
+    strokeTechnique: 50,
     bodyBalance: 50,
-    disciplineFocus: 60
+    disciplineFocus: 50
   };
 });
 
 const radarCurrent = computed(() => {
-  return studentData.value.radarSkills?.current || {
-    waterConfidence: 92,
-    breathControl: 85,
-    strokeTechnique: 88,
-    bodyBalance: 90,
-    disciplineFocus: 85
-  };
+  if (studentData.value?.radarSkills?.current) {
+    return studentData.value.radarSkills.current;
+  }
+  const count = completedSessionsCount.value;
+  if (count === 0) {
+    return {
+      waterConfidence: 50,
+      breathControl: 50,
+      strokeTechnique: 50,
+      bodyBalance: 50,
+      disciplineFocus: 50
+    };
+  } else if (count === 1) {
+    return {
+      waterConfidence: 65,
+      breathControl: 60,
+      strokeTechnique: 58,
+      bodyBalance: 62,
+      disciplineFocus: 65
+    };
+  } else if (count === 2) {
+    return {
+      waterConfidence: 78,
+      breathControl: 72,
+      strokeTechnique: 70,
+      bodyBalance: 75,
+      disciplineFocus: 75
+    };
+  } else if (count === 3) {
+    return {
+      waterConfidence: 88,
+      breathControl: 82,
+      strokeTechnique: 85,
+      bodyBalance: 86,
+      disciplineFocus: 84
+    };
+  } else {
+    return {
+      waterConfidence: 92,
+      breathControl: 85,
+      strokeTechnique: 88,
+      bodyBalance: 90,
+      disciplineFocus: 85
+    };
+  }
 });
+
+const baselineAverageScore = computed(() => {
+  const keys = ['waterConfidence', 'breathControl', 'strokeTechnique', 'bodyBalance', 'disciplineFocus'];
+  const total = keys.reduce((sum, k) => sum + (radarBaseline.value[k] || 0), 0);
+  return Math.round(total / keys.length);
+});
+
+const overallAverageScore = computed(() => {
+  const keys = ['waterConfidence', 'breathControl', 'strokeTechnique', 'bodyBalance', 'disciplineFocus'];
+  const total = keys.reduce((sum, k) => sum + (radarCurrent.value[k] || 0), 0);
+  return Math.round(total / keys.length);
+});
+
+const overallGrowthPct = computed(() => {
+  if (completedSessionsCount.value === 0) return 0;
+  const baseAvg = baselineAverageScore.value || 50;
+  const currAvg = overallAverageScore.value;
+  return Math.max(0, Math.round(((currAvg - baseAvg) / baseAvg) * 100));
+});
+
+const studentPredikat = computed(() => {
+  if (completedSessionsCount.value === 0) return 'Predikat: Orientasi & Pembinaan Awal';
+  const avg = overallAverageScore.value;
+  if (avg >= 88) return 'Predikat: Mahir & Mandiri';
+  if (avg >= 75) return 'Predikat: Terampil & Mandiri';
+  if (avg >= 65) return 'Predikat: Berkembang Baik';
+  return 'Predikat: Adaptasi Awal';
+});
+
+const isDownloadingCert = ref(false);
+
+const certRegistrationId = computed(() => {
+  const rawId = String(studentData.value?.id || '0891').replace(/\D/g, '').slice(-4) || '0891';
+  return studentData.value?.certificateId || `No: CERT/MS/${new Date().getFullYear()}/${rawId}`;
+});
+
+const currentFormattedDate = computed(() => {
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+  const now = new Date();
+  return `${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+});
+
+async function handleDownloadCertificate() {
+  try {
+    isDownloadingCert.value = true;
+    await downloadCertificatePdf(studentData.value, activeProduct.value, currentStudentLevel.value);
+  } catch (err) {
+    console.error('Download certificate error:', err);
+    actions.showAlert({
+      title: 'Unduh Sertifikat',
+      message: 'Gagal mengunduh sertifikat: ' + (err.message || 'Terjadi kesalahan sistem'),
+      type: 'error'
+    });
+  } finally {
+    isDownloadingCert.value = false;
+  }
+}
 
 // SVG Pentagon Math constants
 const cx = 180;
@@ -1434,18 +1654,7 @@ const labelPositions = computed(() => {
   });
 });
 
-const overallAverageScore = computed(() => {
-  const keys = ['waterConfidence', 'breathControl', 'strokeTechnique', 'bodyBalance', 'disciplineFocus'];
-  const total = keys.reduce((sum, k) => sum + (radarCurrent.value[k] || 0), 0);
-  return Math.round(total / keys.length);
-});
 
-const overallGrowthPct = computed(() => {
-  const keys = ['waterConfidence', 'breathControl', 'strokeTechnique', 'bodyBalance', 'disciplineFocus'];
-  const baseAvg = keys.reduce((sum, k) => sum + (radarBaseline.value[k] || 0), 0) / keys.length;
-  const currAvg = overallAverageScore.value;
-  return Math.round(((currAvg - baseAvg) / baseAvg) * 100);
-});
 
 function openQuestModal(lvl) {
   selectedQuestLevel.value = lvl;
@@ -1935,103 +2144,145 @@ function printReport() {
   margin-right: 6px;
 }
 
-/* Certificate */
-.cert-card {
-  padding: 32px;
-  background-color: #fffefb;
-  border: 2px solid #e5a024;
+/* Official Certificate Stage */
+.official-cert-card {
+  padding: 24px;
+  background: #ffffff;
+  border-radius: var(--radius-lg, 16px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
-.cert-border-inner {
-  border: 1.5px solid #d4af37;
-  padding: 32px;
-  text-align: center;
+.official-cert-stage {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  aspect-ratio: 1024 / 682;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(13, 77, 93, 0.15);
+  background: #f8fafc;
 }
 
-.cert-org {
-  font-size: 12px;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--color-primary);
-  font-weight: 800;
-}
-
-.cert-title {
-  font-size: 26px;
-  font-weight: 800;
-  color: var(--color-primary-dark);
-  letter-spacing: 0.05em;
-  margin: 6px 0;
-}
-
-.cert-id {
-  font-size: 11px;
-  font-family: monospace;
-  color: var(--text-subtle);
-}
-
-.cert-body {
-  margin: 28px 0;
-}
-
-.cert-given {
-  font-size: 13px;
-  color: var(--text-muted);
-}
-
-.cert-student {
-  font-size: 32px;
-  font-weight: 800;
-  color: #122428;
-  margin: 8px 0;
-}
-
-.cert-desc {
-  font-size: 13.5px;
-  color: var(--text-muted);
-  max-width: 480px;
-  margin: 0 auto 16px;
-}
-
-.cert-level-badge {
-  background-color: var(--color-primary-soft);
-  display: inline-block;
-  padding: 12px 24px;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--color-primary);
-}
-
-.cert-level-badge strong {
+.cert-template-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   display: block;
-  font-size: 16px;
-  color: var(--color-primary);
 }
 
-.cert-level-badge span {
-  font-size: 12px;
-  color: var(--text-muted);
-}
-
-.cert-footer {
-  display: flex;
-  justify-content: space-around;
-  margin-top: 40px;
-}
-
-.sig-box {
+.cert-overlay-name {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60%;
   text-align: center;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 800;
+  font-size: clamp(14px, 2.7vw, 28px);
+  color: #0a424e;
+  letter-spacing: 0.5px;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.sig-line {
-  border-top: 1px solid #122428;
-  padding-top: 6px;
+.cert-overlay-ribbon {
+  position: absolute;
+  top: 63.5%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 58%;
+  background: #0d4d5d;
+  color: #ffffff;
+  padding: 4px 12px;
+  border-radius: 6px;
+  text-align: center;
+  font-weight: 800;
+  font-size: clamp(9px, 1.4vw, 15px);
+  letter-spacing: 0.8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.cert-overlay-coach {
+  position: absolute;
+  top: 85.5%;
+  left: 29.8%;
+  transform: translate(-50%, -100%);
+  width: 25%;
+  text-align: center;
   font-weight: 700;
-  font-size: 13px;
+  font-size: clamp(8px, 1.3vw, 14px);
+  color: #0a424e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
 }
 
-.sig-title {
+.cert-overlay-mgmt {
+  position: absolute;
+  top: 85.5%;
+  left: 71.8%;
+  transform: translate(-50%, -100%);
+  width: 25%;
+  text-align: center;
+  font-weight: 700;
+  font-size: clamp(8px, 1.3vw, 14px);
+  color: #0a424e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+
+.cert-overlay-meta {
+  position: absolute;
+  bottom: 2%;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  font-size: clamp(7px, 0.9vw, 10px);
+  color: #527982;
+  font-weight: 500;
+  pointer-events: none;
+}
+
+.cert-info-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-top: 24px;
+  padding: 16px 20px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.cert-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cert-info-item .info-lbl {
   font-size: 11px;
-  color: var(--text-subtle);
+  text-transform: uppercase;
+  color: var(--text-muted);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.cert-info-item .info-val {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #1e293b;
 }
 
 /* Billing */

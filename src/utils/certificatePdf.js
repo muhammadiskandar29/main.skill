@@ -106,3 +106,4 @@ export async function downloadCertificatePdf(studentData = {}, activeProduct = n
   const cleanFilename = `Sertifikat_${studentName.replace(/[^A-Za-z0-9]/g, '_')}_Level_${currentLevel}.pdf`;
   doc.save(cleanFilename);
 }
+

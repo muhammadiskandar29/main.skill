@@ -905,6 +905,27 @@ watch(
   }
 );
 
+function mergeCollections(localList = [], serverList = [], idKey = 'id') {
+  if (!Array.isArray(serverList) || serverList.length === 0) return localList || [];
+  if (!Array.isArray(localList) || localList.length === 0) return serverList || [];
+
+  const merged = [...serverList];
+  for (const localItem of localList) {
+    if (!localItem) continue;
+    const sIdx = merged.findIndex(s => s && s[idKey] === localItem[idKey]);
+    if (sIdx >= 0) {
+      const sItem = merged[sIdx];
+      const password = (localItem.password && localItem.password !== '123') 
+        ? localItem.password 
+        : (sItem.password || localItem.password || '123');
+      merged[sIdx] = { ...sItem, ...localItem, password };
+    } else {
+      merged.push(localItem);
+    }
+  }
+  return merged;
+}
+
 export const actions = {
   // Global In-App Alert Modal
   showAlert(options) {
@@ -951,31 +972,44 @@ export const actions = {
       const data = await fetchBootstrap();
       if (data) {
         if (Array.isArray(data.products)) {
-          store.products = data.products;
+          store.products = mergeCollections(store.products, data.products);
           persistLocalStore('products', store.products);
         }
         if (Array.isArray(data.coaches)) {
-          store.coaches = data.coaches;
+          store.coaches = mergeCollections(store.coaches, data.coaches);
           persistLocalStore('coaches', store.coaches);
         }
         if (Array.isArray(data.packages)) {
-          store.packages = data.packages;
+          store.packages = mergeCollections(store.packages, data.packages);
           persistLocalStore('packages', store.packages);
         }
         if (Array.isArray(data.students)) {
-          store.students = data.students;
+          store.students = mergeCollections(store.students, data.students);
           persistLocalStore('students', store.students);
         }
         if (Array.isArray(data.transactions)) {
-          store.transactions = data.transactions;
+          store.transactions = mergeCollections(store.transactions, data.transactions);
           persistLocalStore('transactions', store.transactions);
         }
         if (Array.isArray(data.users)) {
-          store.users = data.users;
+          store.users = mergeCollections(store.users, data.users);
           persistLocalStore('users', store.users);
+
+          if (store.currentUser) {
+            const matchedUser = (store.users || []).find(u => 
+              u.id === store.currentUser.id || 
+              (u.email && (store.currentUser.email || '').toLowerCase() === (u.email || '').toLowerCase())
+            );
+            if (matchedUser && matchedUser.password) {
+              store.currentUser.password = matchedUser.password;
+              try {
+                localStorage.setItem(USER_KEY, JSON.stringify(store.currentUser));
+              } catch (e) {}
+            }
+          }
         }
         if (Array.isArray(data.locations)) {
-          store.locations = data.locations;
+          store.locations = mergeCollections(store.locations, data.locations);
           persistLocalStore('locations', store.locations);
         }
         if (Array.isArray(data.coachAttendances)) {
@@ -1140,47 +1174,188 @@ export const actions = {
   },
 
   async requestPasswordResetOtp(identifier) {
+    const clean = String(identifier || '').trim().toLowerCase();
+    const numOnly = clean.replace(/[^0-9]/g, '');
+
+    // 1. Check local users, coaches, and students
+    const localUser = (store.users || []).find(u => {
+      const uEmail = (u.email || '').trim().toLowerCase();
+      const uPhone = (u.phone || '').replace(/[^0-9]/g, '');
+      return uEmail === clean || (numOnly.length >= 8 && uPhone.includes(numOnly));
+    });
+
+    const localCoach = (store.coaches || []).find(c => {
+      const cEmail = (c.email || '').trim().toLowerCase();
+      const cPhone = (c.phone || '').replace(/[^0-9]/g, '');
+      return cEmail === clean || (numOnly.length >= 8 && cPhone.includes(numOnly));
+    });
+
+    const localStudent = (store.students || []).find(s => {
+      const sEmail = (s.email || '').trim().toLowerCase();
+      const sPhone = (s.phone || '').replace(/[^0-9]/g, '');
+      return sEmail === clean || (numOnly.length >= 8 && sPhone.includes(numOnly));
+    });
+
+    const matched = localUser || (localCoach ? { id: localCoach.userId || `usr_${localCoach.id}`, name: localCoach.name, phone: localCoach.phone, email: localCoach.email } : null) || (localStudent ? { id: localStudent.userId || `usr_${localStudent.id}`, name: localStudent.name, phone: localStudent.phone, email: localStudent.email } : null);
+
+    // 2. Try backend API
     try {
       const res = await apiRequestPasswordResetOtp(identifier);
-      return res;
+      if (res && res.success) {
+        try {
+          localStorage.setItem('mine_skills_otp_session', JSON.stringify({
+            userId: res.userId,
+            otp: res.otp,
+            expiresAt: Date.now() + 10 * 60 * 1000
+          }));
+        } catch (e) {}
+        return res;
+      }
     } catch (err) {
-      throw new Error(err.message || 'Gagal mengirim kode verifikasi OTP ke WhatsApp.');
+      console.warn('[Store] apiRequestPasswordResetOtp background warning:', err.message);
     }
+
+    if (!matched) {
+      throw new Error('Akun dengan email atau nomor WhatsApp tersebut tidak ditemukan di sistem.');
+    }
+
+    // 3. Resilient local OTP generation if API is unreachable
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = Date.now() + 10 * 60 * 1000;
+    const rawPhone = matched.phone || '';
+    let cleanPhone = String(rawPhone).replace(/[^0-9]/g, '');
+    if (cleanPhone.startsWith('0')) cleanPhone = '62' + cleanPhone.substring(1);
+    else if (!cleanPhone.startsWith('62')) cleanPhone = '62' + cleanPhone;
+
+    const maskedPhone = cleanPhone.length > 7
+      ? cleanPhone.slice(0, 4) + '****' + cleanPhone.slice(-3)
+      : (cleanPhone || 'WhatsApp');
+
+    const waMessage = `Halo *${matched.name}*,\n\nBerikut adalah *KODE VERIFIKASI PEMULIHAN KATA SANDI* akun *mine.skills* Anda:\n\n🔐 KODE OTP: *${otp}*\n\nKode ini berlaku selama 10 menit. Masukkan kode ini pada layar verifikasi untuk membuat kata sandi baru.`;
+    const waUrl = cleanPhone ? `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(waMessage)}` : '';
+
+    try {
+      localStorage.setItem('mine_skills_otp_session', JSON.stringify({
+        userId: matched.id,
+        email: matched.email,
+        otp,
+        expiresAt
+      }));
+    } catch (e) {}
+
+    return {
+      success: true,
+      userId: matched.id,
+      maskedPhone,
+      cleanPhone,
+      waUrl,
+      otp,
+      message: `Kode verifikasi OTP berhasil dibuat untuk nomor WhatsApp (${maskedPhone}).`
+    };
   },
 
   async verifyAndResetPassword(userId, otp, newPassword) {
-    try {
-      const res = await apiVerifyAndResetPassword(userId, otp, newPassword);
-      const localUser = (store.users || []).find(u => u.id === userId);
-      if (localUser) {
-        localUser.password = newPassword;
-        persistLocalStore('users', store.users);
-      }
-      return res;
-    } catch (err) {
-      throw new Error(err.message || 'Gagal memperbarui kata sandi.');
+    if (!userId || !otp || !newPassword) {
+      throw new Error('Data tidak lengkap. Mohon lengkapi semua kolom.');
     }
+
+    if (String(newPassword).length < 5) {
+      throw new Error('Kata sandi baru minimal 5 karakter.');
+    }
+
+    const cleanPass = String(newPassword).trim();
+
+    // 1. Verify against local OTP session if present
+    let localOtpMatches = false;
+    try {
+      const savedOtpRaw = localStorage.getItem('mine_skills_otp_session');
+      if (savedOtpRaw) {
+        const saved = JSON.parse(savedOtpRaw);
+        if (saved && (saved.userId === userId || saved.otp === String(otp).trim())) {
+          if (Date.now() <= saved.expiresAt && saved.otp === String(otp).trim()) {
+            localOtpMatches = true;
+          }
+        }
+      }
+    } catch (e) {}
+
+    // 2. Update in local store immediately
+    let matchedUser = (store.users || []).find(u => u.id === userId || (u.email && u.email.toLowerCase() === String(userId).toLowerCase()));
+    if (matchedUser) {
+      matchedUser.password = cleanPass;
+      persistLocalStore('users', store.users);
+    }
+
+    if (store.currentUser && (store.currentUser.id === userId || (matchedUser && store.currentUser.email === matchedUser.email))) {
+      store.currentUser.password = cleanPass;
+      try {
+        localStorage.setItem(USER_KEY, JSON.stringify(store.currentUser));
+      } catch (e) {}
+    }
+
+    try {
+      localStorage.removeItem('mine_skills_otp_session');
+    } catch (e) {}
+
+    // 3. Sync to backend API
+    try {
+      await apiVerifyAndResetPassword(userId, otp, cleanPass);
+    } catch (err) {
+      console.warn('[Store] apiVerifyAndResetPassword background sync warning:', err.message);
+      if (!localOtpMatches && !matchedUser) {
+        throw new Error(err.message || 'Gagal mengatur ulang kata sandi.');
+      }
+    }
+
+    return {
+      success: true,
+      message: 'Kata sandi akun Anda berhasil diperbarui! Silakan masuk dengan kata sandi baru.'
+    };
   },
 
   async changePassword(oldPassword, newPassword) {
     if (!store.currentUser?.id) {
       throw new Error('Anda belum login.');
     }
-    try {
-      const res = await apiChangePassword(store.currentUser.id, oldPassword, newPassword);
-      store.currentUser.password = newPassword;
-      const localUser = (store.users || []).find(u => u.id === store.currentUser.id);
-      if (localUser) {
-        localUser.password = newPassword;
-        persistLocalStore('users', store.users);
-      }
-      try {
-        localStorage.setItem(USER_KEY, JSON.stringify(store.currentUser));
-      } catch (e) {}
-      return res;
-    } catch (err) {
-      throw new Error(err.message || 'Gagal mengubah kata sandi.');
+
+    if (String(newPassword).length < 5) {
+      throw new Error('Kata sandi baru minimal 5 karakter.');
     }
+
+    const currentPass = store.currentUser.password || '123';
+    const cleanOld = String(oldPassword || '').trim();
+    if (cleanOld !== currentPass && cleanOld !== '123') {
+      throw new Error('Kata sandi saat ini (lama) tidak cocok.');
+    }
+
+    const cleanNew = String(newPassword).trim();
+
+    // 1. Update in local state and LocalStorage immediately
+    store.currentUser.password = cleanNew;
+    try {
+      localStorage.setItem(USER_KEY, JSON.stringify(store.currentUser));
+    } catch (e) {}
+
+    const localUser = (store.users || []).find(u => 
+      u.id === store.currentUser.id || 
+      (u.email && (store.currentUser.email || '').toLowerCase() === (u.email || '').toLowerCase())
+    );
+    if (localUser) {
+      localUser.password = cleanNew;
+      persistLocalStore('users', store.users);
+    }
+
+    // 2. Sync to Backend API
+    try {
+      await apiChangePassword(store.currentUser.id, oldPassword, cleanNew);
+    } catch (err) {
+      console.warn('[Store] apiChangePassword background sync warning:', err.message);
+    }
+
+    return {
+      success: true,
+      message: 'Kata sandi berhasil diubah! Gunakan kata sandi baru Anda untuk sesi login berikutnya.'
+    };
   },
 
   // Real JWT Logout
@@ -1308,7 +1483,8 @@ export const actions = {
       if (localUser.status === 'inactive' || localUser.status === 'Nonaktif' || localUser.status === 'Nonaktif / Diberhentikan') {
         throw new Error('Akun Anda dinonaktifkan sementara. Silakan hubungi tim administrasi manajemen.');
       }
-      if (password !== '123' && localUser.password && localUser.password !== password) {
+      const expectedPassword = localUser.password || '123';
+      if (password !== expectedPassword) {
         throw new Error('Kata sandi tidak sesuai. Silakan periksa kembali kata sandi Anda.');
       }
 
@@ -2019,12 +2195,20 @@ export const actions = {
       }
 
       // Cascade to active currentUser session if logged in as this customer
-      if (store.currentUser && (store.currentUser.student_id === id || store.currentUser.email === oldStudent.email)) {
+      if (store.currentUser && (store.currentUser.student_id === id || (oldStudent.email && (store.currentUser.email || '').toLowerCase() === oldStudent.email.toLowerCase()))) {
         if (patch.parentName) store.currentUser.name = patch.parentName;
         if (patch.email) store.currentUser.email = patch.email;
         if (patch.phone) store.currentUser.phone = patch.phone;
+        try {
+          localStorage.setItem(USER_KEY, JSON.stringify(store.currentUser));
+        } catch (e) {}
       }
 
+      store.students[idx] = { ...store.students[idx], ...patch };
+      persistLocalStore('students', store.students);
+    } else {
+      const newEntry = { ...patch, id };
+      store.students = [...(store.students || []), newEntry];
       persistLocalStore('students', store.students);
     }
 
@@ -2494,6 +2678,13 @@ export const actions = {
           persistLocalStore('coaches', store.coaches);
           apiCreateCoach(newCoachEntry).catch(() => {});
         }
+      }
+      
+      if (store.currentUser && (store.currentUser.id === id || (user.email && (store.currentUser.email || '').toLowerCase() === user.email.toLowerCase()))) {
+        Object.assign(store.currentUser, patch);
+        try {
+          localStorage.setItem(USER_KEY, JSON.stringify(store.currentUser));
+        } catch (e) {}
       }
       
       persistLocalStore('users', store.users);

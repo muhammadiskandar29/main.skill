@@ -8,7 +8,7 @@
       "phone": "085286274726",
       "avatar": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=160",
       "coach_id": null,
-      "password": "newpass123",
+      "password": "123",
       "created_at": "2026-10-01 08:00",
       "student_id": null
     },
@@ -27,14 +27,14 @@
     {
       "id": "usr_coach_2",
       "name": "Coach Sekar Ayu, S.Sn.",
-      "email": "sekar.dance@mine.skills.id",
-      "password": "123",
       "role": "coach",
+      "email": "sekar.dance@mine.skills.id",
       "phone": "081399887711",
       "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=160",
-      "student_id": null,
       "coach_id": "coach_2",
-      "created_at": "2026-10-01 09:00"
+      "password": "123",
+      "created_at": "2026-10-01 09:00",
+      "student_id": null
     },
     {
       "id": "usr_cust_1",

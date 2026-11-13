@@ -176,7 +176,10 @@
                 <span class="badge-chip green">{{ stu.status }}</span>
               </td>
               <td class="text-right">
-                <div style="display: inline-flex; gap: 6px;">
+                <div style="display: inline-flex; gap: 6px; align-items: center;">
+                  <button @click="openViewStudentModal(stu)" class="btn-info-xs" title="Lihat Detail Profil Siswa" style="padding: 3px 8px; font-size: 11px; font-weight: 700; background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; border-radius: 4px; cursor: pointer;">
+                    👁️ Detail
+                  </button>
                   <button @click="openEditStudentModal(stu)" class="btn-secondary-xs" title="Edit Data Siswa & Wali">
                     Edit
                   </button>
@@ -1596,59 +1599,69 @@
                   </span>
                 </td>
                 <td class="text-right">
-                  <div v-if="!trx.status?.includes('Lunas')" style="display: inline-flex; gap: 6px; align-items: center;">
+                  <div style="display: inline-flex; gap: 6px; align-items: center; justify-content: flex-end;">
                     <button 
-                      @click="handleVerifyPayment(trx.id)" 
-                      class="btn-primary-xs btn-verify-glow"
-                      title="Verifikasi Lunas Manual"
+                      @click="openViewTransactionModal(trx)" 
+                      class="btn-info-xs" 
+                      title="Lihat Rincian Tagihan & Invoice"
+                      style="padding: 4px 8px; font-size: 11px; font-weight: 700; background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;"
                     >
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <polyline points="20 6 9 17 4 12"></polyline>
+                      <span>👁️ Detail</span>
+                    </button>
+                    <div v-if="!trx.status?.includes('Lunas')" style="display: inline-flex; gap: 6px; align-items: center;">
+                      <button 
+                        @click="handleVerifyPayment(trx.id)" 
+                        class="btn-primary-xs btn-verify-glow"
+                        title="Verifikasi Lunas Manual"
+                      >
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        <span>Lunas (Manual)</span>
+                      </button>
+                      <button 
+                        type="button"
+                        @click="handleDeleteTransaction(trx)" 
+                        class="btn-danger-xs"
+                        style="padding: 5px 8px; font-size: 11px;"
+                        title="Hapus Invoice"
+                      >
+                        Hapus
+                      </button>
+                    </div>
+                    <div v-else class="paid-action-buttons">
+                      <span class="status-lunas-badge" style="font-size: 11.5px;">Lunas</span>
+                    <button 
+                      @click="downloadInvoice(trx)" 
+                      class="btn-invoice-action pdf" 
+                      title="Unduh Invoice PDF Ber-Cap LUNAS"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
                       </svg>
-                      <span>Lunas (Manual)</span>
+                      <span>PDF</span>
+                    </button>
+                    <button 
+                      @click="sendInvoiceWa(trx)" 
+                      class="btn-invoice-action wa" 
+                      title="Kirim Tanda Terima Resmi ke WhatsApp Wali Murid"
+                    >
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                      </svg>
+                      <span>WA</span>
                     </button>
                     <button 
                       type="button"
                       @click="handleDeleteTransaction(trx)" 
                       class="btn-danger-xs"
-                      style="padding: 5px 8px; font-size: 11px;"
+                      style="padding: 4px 8px; font-size: 11px;"
                       title="Hapus Invoice"
                     >
                       Hapus
                     </button>
                   </div>
-                  <div v-else class="paid-action-buttons">
-                    <span class="status-lunas-badge" style="font-size: 11.5px;">Lunas</span>
-                  <button 
-                    @click="downloadInvoice(trx)" 
-                    class="btn-invoice-action pdf" 
-                    title="Unduh Invoice PDF Ber-Cap LUNAS"
-                  >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                      <polyline points="14 2 14 8 20 8"></polyline>
-                    </svg>
-                    <span>PDF</span>
-                  </button>
-                  <button 
-                    @click="sendInvoiceWa(trx)" 
-                    class="btn-invoice-action wa" 
-                    title="Kirim Tanda Terima Resmi ke WhatsApp Wali Murid"
-                  >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-                    </svg>
-                    <span>WA</span>
-                  </button>
-                  <button 
-                    type="button"
-                    @click="handleDeleteTransaction(trx)" 
-                    class="btn-danger-xs"
-                    style="padding: 4px 8px; font-size: 11px;"
-                    title="Hapus Invoice"
-                  >
-                    Hapus
-                  </button>
                 </div>
               </td>
             </tr>
@@ -3902,6 +3915,115 @@ function cekMutasiBankGmail() {
       </div>
     </div>
 
+    <!-- 15. VIEW DETAIL TAGIHAN / INVOICE MODAL -->
+    <div v-if="showViewTransactionModal && activeViewTransaction" class="modal-backdrop" @click.self="showViewTransactionModal = false">
+      <div class="modal-dialog" style="max-width: 600px; max-height: 90vh; display: flex; flex-direction: column;">
+        <div class="modal-header">
+          <div class="modal-header-info">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="badge-chip font-mono">{{ activeViewTransaction.id }}</span>
+              <span class="badge-chip" :class="activeViewTransaction.status?.includes('Lunas') ? 'green' : 'gold'">
+                {{ activeViewTransaction.status }}
+              </span>
+            </div>
+            <h3 class="modal-title" style="margin-top: 4px;">Detail Tagihan & Pembayaran</h3>
+          </div>
+          <button type="button" class="btn-close" @click="showViewTransactionModal = false">✕</button>
+        </div>
+
+        <div class="modal-body" style="overflow-y: auto; padding: 20px;">
+          <!-- Card Siswa & Wali Murid -->
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
+              <div>
+                <div style="font-size: 15px; font-weight: 800; color: #0f172a;">{{ activeViewTransaction.studentName }}</div>
+                <div style="font-size: 12.5px; color: #64748b; margin-top: 2px;">
+                  Wali Murid: <strong>{{ activeViewTransaction.parentName }}</strong>
+                </div>
+              </div>
+              <div v-if="activeViewTransaction.phone">
+                <a 
+                  :href="'https://api.whatsapp.com/send?phone=' + cleanPhone(activeViewTransaction.phone)" 
+                  target="_blank" 
+                  class="btn-whatsapp-pill"
+                  style="display: inline-flex; align-items: center; gap: 5px; background: #22c55e; color: #fff; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 20px; text-decoration: none;"
+                >
+                  <span>💬 WhatsApp Wali</span>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rincian Biaya -->
+          <div style="background: #fff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0;">
+              <span style="font-size: 13px; color: #64748b;">Paket Pelatihan</span>
+              <strong style="font-size: 13.5px; color: #0f172a;">{{ activeViewTransaction.packageName || 'Small Group Class (4 Sesi)' }}</strong>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dashed #e2e8f0; font-size: 12.5px;">
+              <span style="color: #64748b;">Nominal Pokok</span>
+              <span>Rp {{ Number(activeViewTransaction.baseAmount || activeViewTransaction.amount).toLocaleString('id-ID') }}</span>
+            </div>
+            <div v-if="activeViewTransaction.uniqueCode" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px dashed #e2e8f0; font-size: 12.5px;">
+              <span style="color: #64748b;">Kode Unik Pembayaran</span>
+              <span style="color: #b45309; font-weight: 700;">+ Rp {{ activeViewTransaction.uniqueCode }}</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 10px;">
+              <strong style="font-size: 14px; color: #0f172a;">Total Tagihan</strong>
+              <strong style="font-size: 17px; color: var(--color-primary);">{{ activeViewTransaction.formattedAmount || ('Rp ' + Number(activeViewTransaction.amount || 0).toLocaleString('id-ID')) }}</strong>
+            </div>
+          </div>
+
+          <!-- Metode Bayar & Status -->
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 12.5px;">
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px;">
+              <span style="color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 700;">Metode Bayar</span>
+              <div style="font-weight: 700; color: #0f172a; margin-top: 2px;">{{ activeViewTransaction.paymentMethodName || 'QRIS Dinamis' }}</div>
+            </div>
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px;">
+              <span style="color: #64748b; font-size: 11px; text-transform: uppercase; font-weight: 700;">Tanggal Diterbitkan</span>
+              <div style="font-weight: 700; color: #0f172a; margin-top: 2px;">{{ activeViewTransaction.createdAt || activeViewTransaction.date || 'Hari Ini' }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer" style="padding: 14px 20px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <div style="display: flex; gap: 8px;">
+            <button 
+              v-if="!activeViewTransaction.status?.includes('Lunas')"
+              type="button" 
+              class="btn-primary-xs" 
+              @click="showViewTransactionModal = false; handleVerifyPayment(activeViewTransaction.id)"
+              style="padding: 6px 12px; font-size: 12px; font-weight: 700;"
+            >
+              Verifikasi Lunas (Manual)
+            </button>
+            <button 
+              v-if="activeViewTransaction.status?.includes('Lunas')"
+              type="button" 
+              class="btn-invoice-action pdf" 
+              @click="downloadInvoice(activeViewTransaction)"
+              style="padding: 6px 12px; font-size: 12px;"
+            >
+              Unduh PDF
+            </button>
+            <button 
+              v-if="activeViewTransaction.status?.includes('Lunas')"
+              type="button" 
+              class="btn-invoice-action wa" 
+              @click="sendInvoiceWa(activeViewTransaction)"
+              style="padding: 6px 12px; font-size: 12px;"
+            >
+              Kirim ke WA
+            </button>
+          </div>
+          <button type="button" @click="showViewTransactionModal = false" class="btn-secondary" style="padding: 6px 16px;">
+            Tutup
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- 12. GLOBAL CUSTOM CONFIRMATION MODAL (SAFE FOR ALL BROWSERS & WEBVIEWS) -->
     <div v-if="confirmDialog.show" class="modal-backdrop" style="z-index: 99999;" @click.self="handleConfirmDialogChoice(false)">
       <div class="modal-dialog modal-sm" style="max-width: 440px;">
@@ -5667,6 +5789,14 @@ async function generateQrisPreview() {
   } catch (err) {
     console.warn('QRIS generation error:', err);
   }
+}
+
+const showViewTransactionModal = ref(false);
+const activeViewTransaction = ref(null);
+
+function openViewTransactionModal(trx) {
+  activeViewTransaction.value = trx;
+  showViewTransactionModal.value = true;
 }
 
 async function handleVerifyPayment(invoiceId) {

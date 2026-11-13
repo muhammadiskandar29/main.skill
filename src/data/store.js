@@ -1232,7 +1232,7 @@ export const actions = {
       : (cleanPhone || 'WhatsApp');
 
     const waMessage = `Halo *${matched.name}*,\n\nBerikut adalah *KODE VERIFIKASI PEMULIHAN KATA SANDI* akun *mine.skills* Anda:\n\n🔐 KODE OTP: *${otp}*\n\nKode ini berlaku selama 10 menit. Masukkan kode ini pada layar verifikasi untuk membuat kata sandi baru.`;
-    const waUrl = cleanPhone ? `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(waMessage)}` : '';
+    const waUrl = cleanPhone ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(waMessage)}` : '';
 
     try {
       localStorage.setItem('mine_skills_otp_session', JSON.stringify({
@@ -2909,7 +2909,7 @@ export const actions = {
       message = `Yth. Bapak/Ibu ${lead.parentName},\n\nSiswa ananda *${lead.studentName}* telah menyelesaikan seluruh sesi bimbingan pada paket sebelumnya dengan pencapaian yang baik.\n\n[DETAIL PERPANJANGAN PAKET]\n• Program: ${lead.productName || lead.program || 'Skill Renang'}\n• Paket: ${lead.packageName || lead.packageType || 'Small Group'}\n• Total Sesi: 4 Sesi Pertemuan Lanjutan\n• Pelatih Pendamping: ${lead.assignedCoachName || (store.coaches?.[0]?.name || 'Coach Pembina')}\n\nJadwal sesi lanjutan telah diperbarui di sistem. Silakan masuk ke portal siswa untuk melihat rincian jadwal dan QRIS resmi.\n\nTerima kasih atas kepercayaan Bapak/Ibu bersama *${store.brand.name}*.`;
     }
 
-    return `https://web.whatsapp.com/send?phone=${targetPhone}&text=${encodeURIComponent(message)}`;
+    return `https://api.whatsapp.com/send?phone=${targetPhone}&text=${encodeURIComponent(message)}`;
   },
 
   // -------------------------------------------------------------

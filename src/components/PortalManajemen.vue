@@ -675,6 +675,14 @@
               <td class="text-right">
                 <div class="table-actions-cluster" style="display: flex; justify-content: flex-end; align-items: center; gap: 5px; flex-wrap: wrap;">
                   <button 
+                    @click="openViewStudentModal(stu)" 
+                    class="btn-info-xs" 
+                    title="Lihat Detail Lengkap Profil, Asesmen & Status 4 Sesi"
+                    style="padding: 4px 8px; font-size: 11px; font-weight: 700; background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;"
+                  >
+                    <span>👁️ Detail</span>
+                  </button>
+                  <button 
                     @click="openRenewModal(stu)" 
                     class="btn-success-xs" 
                     title="Perpanjang 4 Sesi & Terbitkan Tagihan Baru"
@@ -985,7 +993,7 @@
                     <span>Wali: {{ sch.parentName }}</span>
                   </div>
                   <div v-if="sch.phone" class="phone-wa-row">
-                    <a :href="'https://wa.me/' + cleanPhone(sch.phone)" target="_blank" class="sched-wa-link" title="Chat WhatsApp Wali">
+                    <a :href="'https://api.whatsapp.com/send?phone=' + cleanPhone(sch.phone)" target="_blank" class="sched-wa-link" title="Chat WhatsApp Wali">
                       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline; vertical-align:middle; margin-right:3px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
                       <span>{{ sch.phone }}</span>
                     </a>
@@ -1017,7 +1025,7 @@
                 </div>
               </td>
 
-              <!-- Kolom 5: Status Presensi -->
+              <!-- Kolom 5: Status Presensi & Remarks Reschedule -->
               <td>
                 <span 
                   class="sched-status-badge" 
@@ -1031,23 +1039,49 @@
                   <span class="status-dot"></span>
                   <span class="status-text">{{ sch.status === 'Terjadwal' ? 'Mendatang' : sch.status }}</span>
                 </span>
+                <!-- Remarks Reschedule Khusus -->
+                <div v-if="sch.status === 'Reschedule' || sch.rescheduledFrom" class="sched-reschedule-box" style="margin-top: 6px; font-size: 11px; color: #92400e; background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 4px 6px; line-height: 1.35;">
+                  <div style="font-weight: 700; color: #b45309;">
+                    🔄 Reschedule Sesi #{{ sch.sessionNo }}
+                  </div>
+                  <div v-if="sch.originalDate" style="font-size: 10px; color: #78350f; margin-top: 2px;">
+                    Semula: {{ sch.originalDay ? sch.originalDay + ', ' : '' }}{{ sch.originalDate }} ({{ sch.originalTime || sch.time }})
+                  </div>
+                  <div style="font-size: 10px; color: #92400e; margin-top: 1px; font-style: italic;">
+                    Ket: {{ sch.rescheduleReason || sch.notes || 'Penyesuaian jadwal' }}
+                  </div>
+                </div>
               </td>
 
-              <!-- Kolom 6: Evaluasi & Catatan -->
+              <!-- Kolom 6: Evaluasi & Catatan (Clean & Clickable) -->
               <td>
-                <div class="sched-eval-cell">
+                <div class="sched-eval-cell" @click="openViewScheduleModal(sch)" style="cursor: pointer;" title="Klik untuk lihat rincian evaluasi & raport">
                   <div v-if="sch.rating" class="eval-stars" title="Rating Penilaian Coach">
                     {{ '★'.repeat(sch.rating) }}
                   </div>
                   <p class="eval-notes-snippet" :title="sch.notes">
                     {{ sch.notes || 'Belum ada catatan evaluasi' }}
                   </p>
+                  <span style="font-size: 10px; color: #0284c7; font-weight: 700; display: inline-block; margin-top: 2px;">Lihat Detail ↗</span>
                 </div>
               </td>
 
               <!-- Kolom 7: Aksi Operasional -->
               <td class="text-right">
                 <div class="sched-actions-stack">
+                  <button 
+                    @click="openViewScheduleModal(sch)" 
+                    class="btn-sched-action"
+                    style="background: #e0f2fe; color: #0369a1; border: 1px solid #bae6fd; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 4px;"
+                    title="Lihat Detail Lengkap Sesi & Status"
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <span>View Detail</span>
+                  </button>
+
                   <button 
                     @click="openAttendanceModal(sch)" 
                     class="btn-sched-action primary"
@@ -3575,6 +3609,299 @@ function cekMutasiBankGmail() {
       </div>
     </div>
 
+    <!-- 13. VIEW DETAIL JADWAL SESI & AUDIT RESCHEDULE MODAL -->
+    <div v-if="showViewScheduleModal && activeViewSchedule" class="modal-backdrop" @click.self="showViewScheduleModal = false">
+      <div class="modal-dialog" style="max-width: 640px; max-height: 90vh; display: flex; flex-direction: column;">
+        <div class="modal-header">
+          <div class="modal-header-info">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="badge-chip gold">Sesi Ke-{{ activeViewSchedule.sessionNo }}</span>
+              <span 
+                class="badge-chip"
+                :class="{
+                  'green': activeViewSchedule.status === 'Selesai' || activeViewSchedule.status === 'Hadir',
+                  'teal': activeViewSchedule.status === 'Terjadwal',
+                  'gold': activeViewSchedule.status === 'Reschedule',
+                  'gray': activeViewSchedule.status === 'Izin' || activeViewSchedule.status === 'Izin/Sakit'
+                }"
+              >
+                {{ activeViewSchedule.status }}
+              </span>
+            </div>
+            <h3 class="modal-title" style="margin-top: 4px;">Detail Sesi Latihan — {{ activeViewSchedule.studentName }}</h3>
+          </div>
+          <button type="button" class="btn-close" @click="showViewScheduleModal = false">✕</button>
+        </div>
+
+        <div class="modal-body" style="overflow-y: auto; padding: 20px;">
+          <!-- Card Info Siswa & Kontak -->
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px;">
+              <div>
+                <div style="font-size: 15px; font-weight: 800; color: #0f172a;">{{ activeViewSchedule.studentName }}</div>
+                <div style="font-size: 12.5px; color: #64748b; margin-top: 2px;">
+                  Wali Murid: <strong>{{ activeViewSchedule.parentName }}</strong>
+                </div>
+              </div>
+              <div v-if="activeViewSchedule.phone">
+                <a 
+                  :href="'https://api.whatsapp.com/send?phone=' + cleanPhone(activeViewSchedule.phone)" 
+                  target="_blank" 
+                  class="btn-whatsapp-pill"
+                  style="display: inline-flex; align-items: center; gap: 5px; background: #22c55e; color: #fff; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 20px; text-decoration: none;"
+                >
+                  <span>💬 Chat WA Wali</span>
+                </a>
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-top: 12px; padding-top: 10px; border-top: 1px solid #e2e8f0; font-size: 12px;">
+              <div>
+                <span style="color: #64748b;">Program Keahlian:</span>
+                <div style="font-weight: 700; color: #0f172a;">{{ activeViewSchedule.programName || 'Skill Renang' }}</div>
+              </div>
+              <div>
+                <span style="color: #64748b;">Lokasi Kolam:</span>
+                <div style="font-weight: 700; color: #0f172a;">📍 {{ activeViewSchedule.location || 'Kolam Renang Resmi' }}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card Jadwal & Coach -->
+          <div style="background: #fff; border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div>
+                <span style="font-size: 11.5px; color: #64748b; text-transform: uppercase; font-weight: 700;">Waktu Latihan</span>
+                <div style="font-size: 14px; font-weight: 800; color: #0f172a; margin-top: 2px;">
+                  {{ activeViewSchedule.day }}, {{ formatScheduleDate(activeViewSchedule.date) }}
+                </div>
+                <div style="font-size: 12.5px; color: #0284c7; font-weight: 700; margin-top: 2px;">
+                  ⏰ {{ activeViewSchedule.time }}
+                </div>
+              </div>
+              <div>
+                <span style="font-size: 11.5px; color: #64748b; text-transform: uppercase; font-weight: 700;">Pelatih Pendamping</span>
+                <div style="font-size: 14px; font-weight: 800; color: #0f172a; margin-top: 2px;">
+                  🏊 {{ activeViewSchedule.coachName }}
+                </div>
+                <div v-if="activeViewSchedule.isSubstitute" style="font-size: 11px; color: #d97706; font-weight: 700; margin-top: 2px;">
+                  (Instruktur Pengganti — Pelatih Utama: {{ activeViewSchedule.originalCoachName }})
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card Audit Reschedule (Khusus jika status Reschedule atau ada data reschedule) -->
+          <div v-if="activeViewSchedule.status === 'Reschedule' || activeViewSchedule.rescheduledFrom || activeViewSchedule.originalDate" style="background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;">
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 800; color: #92400e; margin-bottom: 8px;">
+              <span>🔄 Catatan & Riwayat Reschedule</span>
+            </div>
+            <div style="font-size: 12.5px; line-height: 1.6; color: #78350f;">
+              <div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed #fde68a;">
+                <span>Jadwal Semula:</span>
+                <strong>{{ activeViewSchedule.originalDay ? activeViewSchedule.originalDay + ', ' : '' }}{{ activeViewSchedule.originalDate || '-' }} ({{ activeViewSchedule.originalTime || activeViewSchedule.time }})</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed #fde68a;">
+                <span>Jadwal Baru:</span>
+                <strong style="color: #b45309;">{{ activeViewSchedule.day }}, {{ formatScheduleDate(activeViewSchedule.date) }} ({{ activeViewSchedule.time }})</strong>
+              </div>
+              <div style="padding: 6px 0 2px 0;">
+                <span style="color: #92400e; font-weight: 700;">Alasan Reschedule:</span>
+                <p style="margin: 4px 0 0 0; background: #fff; padding: 6px 10px; border-radius: 6px; border: 1px solid #fde68a; font-style: italic;">
+                  {{ activeViewSchedule.rescheduleReason || activeViewSchedule.notes || 'Penyesuaian jadwal latihan ananda' }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card Evaluasi / Raport -->
+          <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 14px 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <span style="font-size: 12px; font-weight: 800; color: #166534; text-transform: uppercase;">Evaluasi Pelatih</span>
+              <span v-if="activeViewSchedule.rating" style="font-size: 14px; color: #eab308;">
+                {{ '★'.repeat(activeViewSchedule.rating) }}
+              </span>
+            </div>
+            <p style="font-size: 13px; color: #14532d; line-height: 1.5; margin: 0; background: #fff; padding: 10px 12px; border-radius: 8px; border: 1px solid #dcfce7;">
+              {{ activeViewSchedule.notes || 'Belum ada catatan evaluasi dari pelatih untuk sesi ini.' }}
+            </p>
+          </div>
+        </div>
+
+        <div class="modal-footer" style="padding: 14px 20px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <div style="display: flex; gap: 8px;">
+            <button 
+              type="button" 
+              class="btn-primary-xs" 
+              @click="showViewScheduleModal = false; openAttendanceModal(activeViewSchedule)"
+              style="padding: 6px 12px; font-size: 12px; font-weight: 700;"
+            >
+              Presensi & Nilai
+            </button>
+            <button 
+              type="button" 
+              class="btn-secondary-xs" 
+              @click="showViewScheduleModal = false; openRescheduleModal(activeViewSchedule)"
+              style="padding: 6px 12px; font-size: 12px; font-weight: 600;"
+            >
+              Reschedule
+            </button>
+          </div>
+          <button type="button" @click="showViewScheduleModal = false" class="btn-secondary" style="padding: 6px 16px;">
+            Tutup
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 14. VIEW DETAIL SISWA & 4 SESI OVERVIEW MODAL -->
+    <div v-if="showViewStudentModal && activeViewStudent" class="modal-backdrop" @click.self="showViewStudentModal = false">
+      <div class="modal-dialog" style="max-width: 720px; max-height: 90vh; display: flex; flex-direction: column;">
+        <div class="modal-header">
+          <div class="modal-header-info">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span class="badge-chip" :class="activeViewStudent.status === 'inactive' ? 'gray' : 'green'">
+                {{ activeViewStudent.status === 'inactive' ? 'Siswa Nonaktif' : 'Siswa Aktif' }}
+              </span>
+              <span class="badge-chip teal">{{ activeViewStudent.productName || activeViewStudent.program }}</span>
+            </div>
+            <h3 class="modal-title" style="margin-top: 4px;">Detail Lengkap Siswa — {{ activeViewStudent.name }}</h3>
+          </div>
+          <button type="button" class="btn-close" @click="showViewStudentModal = false">✕</button>
+        </div>
+
+        <div class="modal-body" style="overflow-y: auto; padding: 20px;">
+          <!-- Biodata Header -->
+          <div style="display: flex; gap: 16px; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+            <div style="width: 56px; height: 56px; border-radius: 50%; background: #0284c7; color: #fff; font-size: 22px; font-weight: 800; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              {{ (activeViewStudent.name || 'S')[0] }}
+            </div>
+            <div style="flex: 1;">
+              <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                <h4 style="margin: 0; font-size: 17px; font-weight: 800; color: #0f172a;">{{ activeViewStudent.name }}</h4>
+                <span v-if="activeViewStudent.nickname" class="badge-chip gold mini">{{ activeViewStudent.nickname }}</span>
+              </div>
+              <div style="font-size: 12.5px; color: #64748b; margin-top: 4px;">
+                Usia: <strong>{{ activeViewStudent.age }} Tahun</strong> • Terdaftar: <strong>{{ activeViewStudent.joinedDate }}</strong>
+              </div>
+            </div>
+            <div v-if="activeViewStudent.phone">
+              <a 
+                :href="'https://api.whatsapp.com/send?phone=' + cleanPhone(activeViewStudent.phone)" 
+                target="_blank" 
+                class="btn-whatsapp-pill"
+                style="display: inline-flex; align-items: center; gap: 5px; background: #22c55e; color: #fff; font-size: 12px; font-weight: 700; padding: 8px 14px; border-radius: 20px; text-decoration: none;"
+              >
+                <span>💬 WhatsApp</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Grid Data Kontak & Program -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 16px;">
+            <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px;">
+              <span style="font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700;">Wali Murid</span>
+              <div style="font-size: 13.5px; font-weight: 700; color: #0f172a; margin-top: 2px;">{{ activeViewStudent.parentName }}</div>
+              <div style="font-size: 12px; color: #0284c7; margin-top: 2px;">{{ activeViewStudent.phone }}</div>
+            </div>
+            <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px;">
+              <span style="font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700;">Paket & Durasi</span>
+              <div style="font-size: 13.5px; font-weight: 700; color: #0f172a; margin-top: 2px;">{{ activeViewStudent.packageName || 'Small Group' }}</div>
+              <div style="font-size: 12px; color: #16a34a; font-weight: 700; margin-top: 2px;">4 Sesi Pertemuan</div>
+            </div>
+            <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px;">
+              <span style="font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700;">Pelatih Pendamping</span>
+              <div style="font-size: 13.5px; font-weight: 700; color: #0f172a; margin-top: 2px;">🏊 {{ activeViewStudent.assignedCoachName || 'Belum di-assign' }}</div>
+              <div style="font-size: 12px; color: #64748b; margin-top: 2px;">📍 {{ activeViewStudent.location ? activeViewStudent.location.split(',')[0] : 'Venue Resmi' }}</div>
+            </div>
+          </div>
+
+          <!-- Catatan Asesmen & Kesehatan -->
+          <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px; margin-bottom: 16px;">
+            <div style="font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px;">Kondisi Fisik / Catatan Khusus:</div>
+            <p style="font-size: 12.5px; color: #475569; margin: 0; line-height: 1.5;">
+              {{ activeViewStudent.healthNotes || activeViewStudent.healthCondition || activeViewStudent.notes || 'Tidak ada catatan kondisi khusus / riwayat alergi.' }}
+            </p>
+          </div>
+
+          <!-- Daftar 4 Sesi Latihan Siswa -->
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+              <h5 style="margin: 0; font-size: 13.5px; font-weight: 800; color: #0f172a;">Jadwal 4 Sesi Latihan Ananda</h5>
+              <span style="font-size: 12px; color: #64748b;">
+                Terselesaikan: <strong>{{ activeViewStudent.completedSessions || 0 }}</strong> dari {{ (activeViewStudent.memberSchedules || []).length || 4 }} Sesi
+              </span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <div 
+                v-for="(sch, sIdx) in (activeViewStudent.memberSchedules || [])" 
+                :key="sch.id || sIdx"
+                style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;"
+              >
+                <div>
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <strong style="font-size: 13px; color: #0f172a;">Sesi #{{ sch.sessionNo || (sIdx + 1) }}</strong>
+                    <span 
+                      class="badge-chip mini" 
+                      :class="{
+                        'green': sch.status === 'Selesai' || sch.status === 'Hadir',
+                        'teal': sch.status === 'Terjadwal',
+                        'gold': sch.status === 'Reschedule',
+                        'gray': sch.status === 'Izin' || sch.status === 'Izin/Sakit'
+                      }"
+                    >
+                      {{ sch.status }}
+                    </span>
+                  </div>
+                  <div style="font-size: 12px; color: #475569; margin-top: 2px;">
+                    {{ sch.day }}, {{ formatScheduleDate(sch.date) }} • {{ sch.time }}
+                  </div>
+                  <div v-if="sch.status === 'Reschedule' && sch.originalDate" style="font-size: 11px; color: #b45309; margin-top: 2px;">
+                    🔄 Semula: {{ sch.originalDay ? sch.originalDay + ', ' : '' }}{{ sch.originalDate }}
+                  </div>
+                </div>
+                <div style="font-size: 12px; text-align: right;">
+                  <div style="font-weight: 700; color: #0f172a;">🏊 {{ sch.coachName || activeViewStudent.assignedCoachName }}</div>
+                  <div v-if="sch.rating" style="color: #eab308; font-size: 11px;">{{ '★'.repeat(sch.rating) }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer" style="padding: 14px 20px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <div style="display: flex; gap: 8px;">
+            <button 
+              type="button" 
+              class="btn-success-xs" 
+              @click="showViewStudentModal = false; openRenewModal(activeViewStudent)"
+              style="padding: 6px 12px; font-size: 12px; font-weight: 700;"
+            >
+              Perpanjang Paket
+            </button>
+            <button 
+              type="button" 
+              class="btn-primary-xs" 
+              @click="showViewStudentModal = false; openStudentSchedulesModal(activeViewStudent)"
+              style="padding: 6px 12px; font-size: 12px; font-weight: 700;"
+            >
+              Atur Jadwal 4 Sesi
+            </button>
+            <button 
+              type="button" 
+              class="btn-secondary-xs" 
+              @click="showViewStudentModal = false; openEditStudentModal(activeViewStudent)"
+              style="padding: 6px 12px; font-size: 12px; font-weight: 600;"
+            >
+              Edit Profil
+            </button>
+          </div>
+          <button type="button" @click="showViewStudentModal = false" class="btn-secondary" style="padding: 6px 16px;">
+            Tutup
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- 12. GLOBAL CUSTOM CONFIRMATION MODAL (SAFE FOR ALL BROWSERS & WEBVIEWS) -->
     <div v-if="confirmDialog.show" class="modal-backdrop" style="z-index: 99999;" @click.self="handleConfirmDialogChoice(false)">
       <div class="modal-dialog modal-sm" style="max-width: 440px;">
@@ -4306,6 +4633,14 @@ async function handleToggleCoach(id) {
 // -------------------------------------------------------------
 // STUDENT & GUARDIAN CRUD
 // -------------------------------------------------------------
+const showViewStudentModal = ref(false);
+const activeViewStudent = ref(null);
+
+function openViewStudentModal(stu) {
+  activeViewStudent.value = stu;
+  showViewStudentModal.value = true;
+}
+
 const showStudentModal = ref(false);
 const isEditStudent = ref(false);
 const editingStudentId = ref(null);
@@ -4918,8 +5253,16 @@ async function handleSaveAttendance() {
 }
 
 // -------------------------------------------------------------
-// MODAL 9: RESCHEDULE SESSION
+// MODAL 9: RESCHEDULE SESSION & SCHEDULE VIEW
 // -------------------------------------------------------------
+const showViewScheduleModal = ref(false);
+const activeViewSchedule = ref(null);
+
+function openViewScheduleModal(sch) {
+  activeViewSchedule.value = sch;
+  showViewScheduleModal.value = true;
+}
+
 const showRescheduleModal = ref(false);
 const activeScheduleForReschedule = ref(null);
 const rescheduleForm = ref({
@@ -4948,9 +5291,12 @@ async function handleSaveReschedule() {
   if (!activeScheduleForReschedule.value) return;
   try {
     const formattedDate = formatScheduleDate(rescheduleForm.value.date);
-    const noteText = rescheduleForm.value.reason 
-      ? `Reschedule: ${rescheduleForm.value.reason}` 
-      : `Jadwal diubah ke ${rescheduleForm.value.day}, ${formattedDate}`;
+    const origDate = activeScheduleForReschedule.value.originalDate || activeScheduleForReschedule.value.date;
+    const origDay = activeScheduleForReschedule.value.originalDay || activeScheduleForReschedule.value.day;
+    const origTime = activeScheduleForReschedule.value.originalTime || activeScheduleForReschedule.value.time;
+    const origCoach = activeScheduleForReschedule.value.originalCoachName || activeScheduleForReschedule.value.coachName;
+    const reasonText = rescheduleForm.value.reason?.trim() || 'Penyesuaian jadwal latihan';
+    const noteText = `Reschedule Sesi #${activeScheduleForReschedule.value.sessionNo}: Semula ${origDay ? origDay + ', ' : ''}${origDate} (${origTime}) → Diubah ke ${rescheduleForm.value.day}, ${formattedDate} (${rescheduleForm.value.time}). Catatan: ${reasonText}`;
       
     await actions.updateSchedule(activeScheduleForReschedule.value.id, {
       date: formattedDate,
@@ -4959,6 +5305,14 @@ async function handleSaveReschedule() {
       coachName: rescheduleForm.value.coachName,
       location: rescheduleForm.value.location,
       status: 'Reschedule',
+      originalDate: origDate,
+      originalDay: origDay,
+      originalTime: origTime,
+      originalCoachName: origCoach,
+      rescheduledFrom: `${origDay ? origDay + ', ' : ''}${origDate} (${origTime})`,
+      rescheduledTo: `${rescheduleForm.value.day}, ${formattedDate} (${rescheduleForm.value.time})`,
+      rescheduleReason: reasonText,
+      rescheduledAt: new Date().toISOString(),
       notes: noteText
     });
     showNotice(`Sesi ${activeScheduleForReschedule.value.sessionNo} berhasil di-reschedule!`);

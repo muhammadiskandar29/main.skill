@@ -971,7 +971,7 @@ async function copyOutputText() {
 const directWaSendUrl = computed(() => {
   const phone = selectedStudent.value?.phone || store.brand.callCenter;
   const cleanPhone = actions.cleanWaNumber(phone);
-  return `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(formattedOutputText.value)}`;
+  return `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(formattedOutputText.value)}`;
 });
 
 async function handleSaveReport() {

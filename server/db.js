@@ -911,7 +911,7 @@ export function requestPasswordResetOtp(identifier) {
     ? displayPhone.slice(0, 4) + '****' + displayPhone.slice(-3)
     : displayPhone;
 
-  const waUrl = `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(waMessage)}`;
+  const waUrl = `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(waMessage)}`;
 
   return {
     success: true,

@@ -574,11 +574,8 @@
             </div>
 
             <div class="c-dir-footer">
-              <a :href="buildCoachWaUrl(coach)" target="_blank" class="btn-whatsapp full-width">
-                <span>Konsultasi dengan {{ coach.name.split(',')[0] }}</span>
-              </a>
-              <button @click="$emit('open-register')" class="btn-secondary full-width" style="margin-top: 8px;">
-                <span>Daftar & Pilih Coach Ini</span>
+              <button @click="$emit('open-register')" class="btn-primary full-width">
+                <span>Daftar Kelas Resmi</span>
               </button>
             </div>
           </div>
@@ -818,15 +815,7 @@
             </ul>
           </div>
 
-          <!-- Col 3: Programs Directory -->
-          <div class="footer-nav-col">
-            <h5 class="footer-col-title">Program Terdaftar</h5>
-            <ul class="footer-links">
-              <li v-for="p in store.products" :key="p.id">
-                <button @click="selectProgramAndGoPricing(p.id)">{{ p.name }}</button>
-              </li>
-            </ul>
-          </div>
+
 
           <!-- Col 4: Portal & Layanan Siswa -->
           <div class="footer-nav-col">
@@ -928,13 +917,13 @@ const selectedHeroImage = computed(() => {
 const directWaUrl = computed(() => {
   const cleanPhone = actions.cleanWaNumber(store.brand.callCenter);
   const msg = `Halo Tim Konsultan ${store.brand.name},\nSaya tertarik untuk mengetahui informasi pendaftaran program dan ketersediaan jadwal kelas kecil. Terima kasih.`;
-  return `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(msg)}`;
+  return `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(msg)}`;
 });
 
 function buildCoachWaUrl(coach) {
   const cleanPhone = actions.cleanWaNumber(coach.phone || store.brand.callCenter);
-  const msg = `Halo ${coach.name},\nSaya tertarik berkonsultasi mengenai bimbingan kelas latihan di ${store.brand.name}. Mohon informasi ketersediaan jadwalnya. Terima kasih.`;
-  return `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(msg)}`;
+  const msg = `Halo Tim Konsultan ${store.brand.name},\nSaya tertarik mendaftar program bimbingan resmi mine.skills. Mohon informasi ketersediaan jadwalnya. Terima kasih.`;
+  return `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(msg)}`;
 }
 
 const faqItems = computed(() => {

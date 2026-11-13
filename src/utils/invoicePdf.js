@@ -346,5 +346,5 @@ Hormat kami,
 Layanan Pelanggan: ${brand.callCenter || '0852-8627-4726'}
 Situs Resmi: https://main-skill.vercel.app/`;
 
-  return `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`;
+  return `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(message)}`;
 }

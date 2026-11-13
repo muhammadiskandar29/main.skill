@@ -8,46 +8,7 @@
       <div class="mesh-grid"></div>
     </div>
 
-    <!-- 1. IKLAN BERJALAN / RUNNING NEWS TICKER (SMOOTH INFINITE MARQUEE) -->
-    <div class="running-ticker-bar">
-      <div class="ticker-badge">
-        <span class="ticker-pulse"></span>
-        <span class="ticker-badge-text">PENGUMUMAN RESMI</span>
-      </div>
-      <div class="ticker-track-wrap">
-        <div class="ticker-track">
-          <div class="ticker-group">
-            <span class="ticker-item"><strong class="ticker-tag">[ Akademi Renang ]</strong> Pembukaan Pendaftaran Semester Baru — Rasio Eksklusif 1 Instruktur : 3 Siswa</span>
-            <span class="ticker-sep">•</span>
-            <span class="ticker-item"><strong class="ticker-tag">[ Registrasi Awal ]</strong> Potongan Biaya Program untuk Pendaftaran Periode Berjalan</span>
-            <span class="ticker-sep">•</span>
-            <span class="ticker-item"><strong class="ticker-tag">[ Seni Tari & Gerak ]</strong> Kurikulum Olah Tubuh, Keluwesan, dan Koreografi Terstruktur</span>
-            <span class="ticker-sep">•</span>
-            <span class="ticker-item"><strong class="ticker-tag">[ Evaluasi Digital ]</strong> Pemantauan Kemampuan Siswa & Validasi Presensi Geofencing Instruktur Real-Time</span>
-            <span class="ticker-sep">•</span>
-            <span class="ticker-item"><strong class="ticker-tag">[ Akreditasi Mutu ]</strong> Indeks Kepuasan 99.4% Dipercaya Lebih dari 1.200 Wali Murid</span>
-            <span class="ticker-sep">•</span>
-            <span class="ticker-item"><strong class="ticker-tag">[ Layanan Informasi ]</strong> Layanan Konsultasi Akademik WhatsApp: 0852-8627-4726</span>
-            <span class="ticker-sep">•</span>
-          </div>
-          <!-- Duplicate for seamless loop -->
-          <div class="ticker-group" aria-hidden="true">
-            <span class="ticker-item"><strong class="ticker-tag">[ Akademi Renang ]</strong> Pembukaan Pendaftaran Semester Baru — Rasio Eksklusif 1 Instruktur : 3 Siswa</span>
-            <span class="ticker-sep">•</span>
-            <span class="ticker-item"><strong class="ticker-tag">[ Registrasi Awal ]</strong> Potongan Biaya Program untuk Pendaftaran Periode Berjalan</span>
-            <span class="ticker-sep">•</span>
-            <span class="ticker-item"><strong class="ticker-tag">[ Seni Tari & Gerak ]</strong> Kurikulum Olah Tubuh, Keluwesan, dan Koreografi Terstruktur</span>
-            <span class="ticker-sep">•</span>
-            <span class="ticker-item"><strong class="ticker-tag">[ Evaluasi Digital ]</strong> Pemantauan Kemampuan Siswa & Validasi Presensi Geofencing Instruktur Real-Time</span>
-            <span class="ticker-sep">•</span>
-            <span class="ticker-item"><strong class="ticker-tag">[ Akreditasi Mutu ]</strong> Indeks Kepuasan 99.4% Dipercaya Lebih dari 1.200 Wali Murid</span>
-            <span class="ticker-sep">•</span>
-            <span class="ticker-item"><strong class="ticker-tag">[ Layanan Informasi ]</strong> Layanan Konsultasi Akademik WhatsApp: 0852-8627-4726</span>
-            <span class="ticker-sep">•</span>
-          </div>
-        </div>
-      </div>
-    </div>
+
 
     <!-- 2. COMPACT HEADER BAR -->
     <header class="portal-header">

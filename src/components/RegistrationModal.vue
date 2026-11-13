@@ -1386,7 +1386,7 @@ function getWaConfirmationUrl() {
   if (!registrationResult.value) return '#';
   const cleanPhone = actions.cleanWaNumber(store.brand.callCenter);
   const msg = `Halo Admin ${store.brand.name},\nSaya (${formData.value.parentName}) telah menyelesaikan pendaftaran siswa untuk ananda *${formData.value.studentName}* (${formData.value.studentAge} th).\n\n[ RINCIAN PENDAFTARAN ]\n• No. Invoice: ${registrationResult.value.transaction.id}\n• Paket: ${registrationResult.value.transaction.packageName}\n• Lokasi: ${formData.value.location}\n• Jadwal: ${formData.value.preferredDay} (${formData.value.preferredTime})\n• Total Tagihan: ${registrationResult.value.transaction.formattedAmount}\n• Akun Portal: ${registrationResult.value.user.email} (Kata Sandi: 123)\n\nTerima kasih.`;
-  return `https://web.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(msg)}`;
+  return `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(msg)}`;
 }
 </script>
 

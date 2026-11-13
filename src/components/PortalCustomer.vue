@@ -561,6 +561,18 @@
           <div class="sch-preparation">
             <strong>Aturan Izin:</strong> Konfirmasi berhalangan hadir wajib disampaikan maksimal 24 jam sebelum sesi dimulai agar hak sesi pengganti (make-up class) tidak hangus.
           </div>
+          <!-- Catatan Khusus Jika Sesi di-Reschedule -->
+          <div v-if="sch.status === 'Reschedule' || sch.rescheduledFrom || sch.originalDate" class="sch-reschedule-box" style="margin-top: 10px; background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #92400e;">
+            <div style="font-weight: 800; display: flex; align-items: center; gap: 6px;">
+              <span>🔄 Catatan Reschedule Sesi</span>
+            </div>
+            <div v-if="sch.originalDate" style="font-size: 11.5px; color: #78350f; margin-top: 3px;">
+              Jadwal Semula: <strong>{{ sch.originalDay ? sch.originalDay + ', ' : '' }}{{ sch.originalDate }} ({{ sch.originalTime || sch.time }})</strong>
+            </div>
+            <div style="font-size: 11px; color: #b45309; margin-top: 3px; font-style: italic;">
+              Keterangan: {{ sch.rescheduleReason || sch.notes || 'Penyesuaian jadwal latihan ananda' }}
+            </div>
+          </div>
         </div>
       </div>
     </div>

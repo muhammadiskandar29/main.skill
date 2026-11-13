@@ -523,8 +523,9 @@
 
     <!-- Public Website Promo Poster Pop-up Modal -->
     <PromoModal 
-      v-if="store.currentRole === 'public' && isPromoModalOpen && store.promoBanner?.isActive && store.promoBanner?.imageUrl" 
+      v-if="store.currentRole === 'public' && isPromoModalOpen && store.promoBanner?.isActive !== false" 
       @close="isPromoModalOpen = false" 
+      @open-register="isPromoModalOpen = false; isRegisterOpen = true"
     />
   </div>
 </template>

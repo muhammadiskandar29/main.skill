@@ -524,7 +524,7 @@ const initialPromoBanner = {
   discountedPrice: 'Rp 350.000',
   quotaText: 'Khusus untuk 50 Peserta Pertama!',
   childImageUrl: 'https://images.unsplash.com/photo-1530549387789-4c1017266635?auto=format&fit=crop&q=80&w=400',
-  imageUrl: 'https://images.unsplash.com/photo-1530549387789-4c1017266635?auto=format&fit=crop&q=80&w=800',
+  imageUrl: '/images/promo/promo-spesial-group.png',
   whatsappMessage: 'Halo Admin mine.skills, saya melihat Promo Spesial Kelas Group (Rp 350.000) di website dan ingin mendaftar untuk anak saya. Mohon info ketersediaan slotnya ya!',
   ctaText: 'DAFTAR SEKARANG!'
 };

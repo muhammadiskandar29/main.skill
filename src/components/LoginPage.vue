@@ -77,104 +77,89 @@
     <main class="portal-main-area">
       <div class="portal-grid">
         
-        <!-- LEFT PANEL: INTERACTIVE BRAND SHOWCASE & CAROUSEL -->
+        <!-- LEFT PANEL: ANIMATED INFORMATIVE ACADEMY SHOWCASE -->
         <section class="showcase-panel">
           <div class="showcase-content">
             <!-- Top Tag -->
             <div class="showcase-badge">
               <span class="badge-dot"></span>
-              <span>Platform Manajemen Akademi & Kursus Anak</span>
+              <span>Lembaga Peningkatan Skill Terpadu & Terstruktur</span>
             </div>
 
             <h1 class="showcase-title">
-              Membangun Potensi & Prestasi Anak Sejak Dini.
+              Membangun Potensi & Karakter Unggul Sejak Dini.
             </h1>
             <p class="showcase-subtitle">
-              Satu portal terintegrasi untuk Wali Murid memantau perkembangan, Pelatih mencatat presensi, dan Manajemen mengelola operasional secara transparan.
+              Satu portal terintegrasi untuk Wali Murid memantau perkembangan, Pelatih mencatat presensi tervalidasi GPS, dan Manajemen mengelola operasional secara transparan.
             </p>
 
-            <!-- INTERACTIVE SHOWCASE SLIDER -->
-            <div class="feature-slider-card">
-              <div class="slider-header">
-                <span class="slider-tag">{{ activeSlide.category }}</span>
-                <div class="slider-dots">
-                  <button 
-                    v-for="(slide, idx) in slides" 
-                    :key="idx" 
-                    class="dot" 
-                    :class="{ active: currentSlideIdx === idx }"
-                    @click="setSlide(idx)"
-                    :title="slide.title"
-                  ></button>
+            <!-- VIBRANT ANIMATED ACADEMY VISUAL STAGE -->
+            <div class="academy-visual-stage">
+              <div class="stage-banner-card">
+                <img 
+                  src="https://images.unsplash.com/photo-1530549387789-4c1017266635?auto=format&fit=crop&q=80&w=900" 
+                  alt="Aktivitas Pelatihan mine.skills" 
+                  class="stage-main-img" 
+                />
+                <div class="stage-gradient-overlay"></div>
+                <div class="stage-overlay-content">
+                  <span class="stage-academy-tag">AKADEMI RESMI MINE.SKILLS</span>
+                  <h3 class="stage-headline">Kurikulum Bertahap & Bimbingan Berkelanjutan</h3>
+                  <p class="stage-subtext">Metode belajar terarah yang melatih kemandirian, ketangkasan motorik, dan pencapaian target siswa.</p>
                 </div>
               </div>
 
-              <div class="slider-body">
-                <div class="slider-icon-box">
-                  <svg v-if="activeSlide.type === 'swimming'" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M2 20c1.25-.5 2.5-.5 3.75 0 1.25.5 2.5.5 3.75 0 1.25-.5 2.5-.5 3.75 0 1.25.5 2.5.5 3.75 0 1.25-.5 2.5-.5 3.75 0 1.25.5 2.5.5 3.75 0"></path>
-                    <path d="M2 16c1.25-.5 2.5-.5 3.75 0 1.25.5 2.5.5 3.75 0 1.25-.5 2.5-.5 3.75 0 1.25.5 2.5.5 3.75 0 1.25-.5 2.5-.5 3.75 0 1.25.5 2.5.5 3.75 0"></path>
-                    <circle cx="16" cy="7" r="2.5"></circle>
-                    <path d="M9 13l3.5-3.5L16 11l3-2"></path>
-                  </svg>
-                  <svg v-else-if="activeSlide.type === 'dance'" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 2a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"></path>
-                    <path d="M9 10l-3 4 3 2-2 6"></path>
-                    <path d="M15 10l3 4-3 2 2 6"></path>
-                  </svg>
-                  <svg v-else width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="18" y1="20" x2="18" y2="10"></line>
-                    <line x1="12" y1="20" x2="12" y2="4"></line>
-                    <line x1="6" y1="20" x2="6" y2="14"></line>
+              <!-- Floating Animated Badge 1: GPS Geofence -->
+              <div class="floating-pill-card pill-top-right">
+                <div class="pill-icon-wrap teal">
+                  <div class="pulsing-radar-dot"></div>
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
                   </svg>
                 </div>
-                <div class="slider-text">
-                  <h3 class="slide-headline">{{ activeSlide.title }}</h3>
-                  <p class="slide-desc">{{ activeSlide.desc }}</p>
-                  <div class="slide-highlight-pill">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                      <polyline points="20 6 9 17 4 12"></polyline>
-                    </svg>
-                    <span>{{ activeSlide.highlight }}</span>
-                  </div>
+                <div class="pill-text-col">
+                  <strong>Presensi GPS Geofence</strong>
+                  <span>Pelatih terverifikasi di lokasi kolam</span>
                 </div>
               </div>
-            </div>
 
-            <!-- MINI METRICS STATS BAR -->
-            <div class="metrics-row">
-              <div class="metric-box">
-                <span class="metric-val">1,500+</span>
-                <span class="metric-lbl">Siswa Aktif</span>
-              </div>
-              <div class="metric-divider"></div>
-              <div class="metric-box">
-                <span class="metric-val">40+</span>
-                <span class="metric-lbl">Instruktur Resmi</span>
-              </div>
-              <div class="metric-divider"></div>
-              <div class="metric-box">
-                <span class="metric-val">15+</span>
-                <span class="metric-lbl">Fasilitas Lokasi</span>
-              </div>
-              <div class="metric-divider"></div>
-              <div class="metric-box">
-                <span class="metric-val">99.4%</span>
-                <span class="metric-lbl">Indeks Kepuasan</span>
-              </div>
-            </div>
-
-            <!-- MINI TESTIMONIAL CHIP -->
-            <div class="mini-testimonial">
-              <div class="parent-avatar font-bold" style="background: var(--color-primary-soft); color: var(--color-primary); font-size: 13px;">SR</div>
-              <div class="testimonial-body">
-                <div class="stars" style="display: flex; gap: 3px; color: #f59e0b;">
-                  <svg v-for="s in 5" :key="s" width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+              <!-- Floating Animated Badge 2: Level Milestone -->
+              <div class="floating-pill-card pill-bottom-left">
+                <div class="pill-icon-wrap gold">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
                     <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
                   </svg>
                 </div>
-                <p class="quote">"Raport digital & presensi tervalidasi pelatih membuat jadwal latihan anak terpantau secara teratur dan transparan."</p>
-                <span class="author">— Bunda Sarah, Wali Murid Kenzo</span>
+                <div class="pill-text-col">
+                  <strong>Milestone Level 1 – 4</strong>
+                  <span>Tantangan teknik terukur & berjenjang</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- THREE PILLARS OF EXCELLENCE -->
+            <div class="pillars-grid">
+              <div class="pillar-item">
+                <div class="pillar-icon">🎯</div>
+                <div class="pillar-text">
+                  <strong>Rasio Eksklusif 1 : 3-4</strong>
+                  <span>Pengawasan intensif & keselamatan utama</span>
+                </div>
+              </div>
+              <div class="pillar-item">
+                <div class="pillar-icon">🎖️</div>
+                <div class="pillar-text">
+                  <strong>Pelatih Bersertifikasi</strong>
+                  <span>Instruktur profesional berlisensi resmi</span>
+                </div>
+              </div>
+              <div class="pillar-item">
+                <div class="pillar-icon">📱</div>
+                <div class="pillar-text">
+                  <strong>E-Raport Digital</strong>
+                  <span>Akses raport & evaluasi real-time</span>
+                </div>
               </div>
             </div>
           </div>
@@ -325,39 +310,9 @@ const errorMessage = ref('');
 const isEmailFocused = ref(false);
 const isPassFocused = ref(false);
 
-// Interactive Feature Slider Data
-const currentSlideIdx = ref(0);
-const slides = [
-  {
-    category: 'AKADEMI RENANG',
-    type: 'swimming',
-    title: 'Kurikulum Bertingkat Level 1 - 4 & Rasio Terbatas',
-    desc: 'Metode pengajaran aman & terukur dengan instruktur bersertifikasi PRSI / Swimming Instructor Indonesia.',
-    highlight: 'Rasio Eksklusif 1 Instruktur Maksimal 3 Siswa'
-  },
-  {
-    category: 'SENI TARI & GERAK',
-    type: 'dance',
-    title: 'Pengembangan Motorik, Postur Tubuh, & Eksplorasi Gerak',
-    desc: 'Kelas tari anak mulai usia dini untuk melatih keluwesan, disiplin ritme, dan kepercayaan diri di atas panggung.',
-    highlight: 'Pentas Seni Tahunan & Uji Sertifikasi Gerak'
-  },
-  {
-    category: 'EVALUASI DIGITAL & PRESENSI',
-    type: 'analytics',
-    title: 'Pemantauan Perkembangan Siswa Secara Berkala',
-    desc: 'Setiap latihan tervalidasi dengan presensi GPS pelatih dan laporan evaluasi digital berkala yang dapat diunduh resmi.',
-    highlight: 'Faktur Resmi Berstempel LUNAS & E-Raport PDF'
-  }
-];
 
-const activeSlide = computed(() => slides[currentSlideIdx.value]);
 
-let slideInterval = null;
 
-function setSlide(idx) {
-  currentSlideIdx.value = idx;
-}
 
 onMounted(() => {
   // If user already has an active authenticated session, immediately redirect to portal!
@@ -366,9 +321,7 @@ onMounted(() => {
     return;
   }
 
-  slideInterval = setInterval(() => {
-    currentSlideIdx.value = (currentSlideIdx.value + 1) % slides.length;
-  }, 4500);
+  
 
   try {
     const lastReg = localStorage.getItem('mineskills_last_registered_email');
@@ -379,7 +332,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-  if (slideInterval) clearInterval(slideInterval);
+  
 });
 
 function goToHome() {
@@ -740,183 +693,241 @@ async function handleLoginSubmit() {
   max-width: 520px;
 }
 
-/* Feature Slider Card */
-.feature-slider-card {
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
+
+/* =========================================================================
+   VIBRANT ANIMATED ACADEMY VISUAL STAGE & PILLARS
+   ========================================================================= */
+.academy-visual-stage {
+  position: relative;
+  width: 100%;
+  margin-top: 6px;
+  border-radius: 18px;
+}
+
+.stage-banner-card {
+  position: relative;
+  width: 100%;
+  height: 230px;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 16px 36px -10px rgba(13, 77, 93, 0.22);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.stage-main-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 12s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.stage-banner-card:hover .stage-main-img {
+  transform: scale(1.06);
+}
+
+.stage-gradient-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(9, 52, 63, 0.2) 0%,
+    rgba(9, 52, 63, 0.72) 65%,
+    rgba(9, 52, 63, 0.94) 100%
+  );
+}
+
+.stage-overlay-content {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
   padding: 18px 20px;
-  backdrop-filter: blur(12px);
-  box-shadow: 0 10px 30px -5px rgba(13, 77, 93, 0.07);
-  transition: all 0.3s ease;
+  color: #ffffff;
+  z-index: 2;
 }
 
-.slider-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-  border-bottom: 1px solid #f1f5f9;
-  padding-bottom: 8px;
-}
-
-.slider-tag {
-  font-size: 10.5px;
+.stage-academy-tag {
+  display: inline-block;
+  background: rgba(20, 184, 166, 0.9);
+  backdrop-filter: blur(8px);
+  color: #ffffff;
+  font-size: 10px;
   font-weight: 800;
-  color: #0d9488;
-  letter-spacing: 0.06em;
-}
-
-.slider-dots {
-  display: flex;
-  gap: 6px;
-}
-
-.dot {
-  width: 8px;
-  height: 8px;
+  letter-spacing: 0.08em;
+  padding: 3px 10px;
   border-radius: 999px;
-  background: #cbd5e1;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  transition: all 0.25s ease;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(13, 148, 136, 0.4);
 }
 
-.dot.active {
-  width: 22px;
-  background: #0d4d5d;
-  box-shadow: 0 0 6px rgba(13, 77, 93, 0.25);
+.stage-headline {
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
 }
 
-.slider-body {
+.stage-subtext {
+  font-size: 11.5px;
+  color: rgba(241, 245, 249, 0.92);
+  margin: 0;
+  line-height: 1.4;
+  max-width: 440px;
+}
+
+/* Floating Badges with gentle floating keyframes */
+.floating-pill-card {
+  position: absolute;
   display: flex;
-  align-items: flex-start;
-  gap: 16px;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  padding: 8px 14px;
+  border-radius: 14px;
+  box-shadow: 0 10px 24px -4px rgba(13, 77, 93, 0.16);
+  z-index: 5;
+  transition: transform 0.25s ease;
 }
 
-.slider-icon-box {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: #f0fdfa;
-  border: 1px solid #ccfbf1;
-  color: #0d9488;
+.floating-pill-card:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+
+.pill-top-right {
+  top: -14px;
+  right: -10px;
+  animation: floatTopRight 4.5s ease-in-out infinite;
+}
+
+.pill-bottom-left {
+  bottom: -16px;
+  left: 12px;
+  animation: floatBottomLeft 5s ease-in-out infinite 0.5s;
+}
+
+@keyframes floatTopRight {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+@keyframes floatBottomLeft {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
+}
+
+.pill-icon-wrap {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.big-icon {
-  font-size: 26px;
+.pill-icon-wrap.teal {
+  background: #f0fdfa;
+  border: 1px solid #99f6e4;
+  color: #0f766e;
 }
 
-.slider-text {
-  flex: 1;
-}
-
-.slide-headline {
-  font-size: 15px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0 0 5px 0;
-}
-
-.slide-desc {
-  font-size: 12.5px;
-  line-height: 1.5;
-  color: #475569;
-  margin: 0 0 8px 0;
-}
-
-.slide-highlight-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+.pill-icon-wrap.gold {
   background: #fefce8;
-  color: #854d0e;
   border: 1px solid #fef08a;
-  padding: 3px 10px;
+  color: #ca8a04;
+}
+
+.pulsing-radar-dot {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 7px;
+  height: 7px;
   border-radius: 999px;
-  font-size: 11px;
-  font-weight: 700;
+  background: #10b981;
+  box-shadow: 0 0 0 rgba(16, 185, 129, 0.7);
+  animation: radarPulse 2s infinite;
 }
 
-/* Metrics Row */
-.metrics-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
-  padding: 12px 18px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+@keyframes radarPulse {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
 }
 
-.metric-box {
+.pill-text-col {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
 }
 
-.metric-val {
-  font-size: 18px;
-  font-weight: 800;
-  color: #09343f;
-  line-height: 1.1;
+.pill-text-col strong {
+  font-size: 11.5px;
+  color: #0f172a;
+  line-height: 1.2;
 }
 
-.metric-lbl {
-  font-size: 10.5px;
-  font-weight: 600;
+.pill-text-col span {
+  font-size: 10px;
   color: #64748b;
-  margin-top: 2px;
+  line-height: 1.2;
 }
 
-.metric-divider {
-  width: 1px;
-  height: 24px;
-  background-color: #f1f5f9;
+/* Three Pillars Grid */
+.pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 14px;
 }
 
-/* Mini Testimonial */
-.mini-testimonial {
+.pillar-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: rgba(255, 255, 255, 0.9);
+  gap: 9px;
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(8px);
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  padding: 10px 14px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+  padding: 10px 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+  transition: all 0.25s ease;
 }
 
-.parent-avatar {
-  font-size: 24px;
+.pillar-item:hover {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px -2px rgba(13, 77, 93, 0.08);
 }
 
-.testimonial-body .stars {
-  color: #f59e0b;
-  font-size: 11px;
-  line-height: 1;
-  letter-spacing: 2px;
+.pillar-icon {
+  font-size: 20px;
+  flex-shrink: 0;
 }
 
-.testimonial-body .quote {
+.pillar-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.pillar-text strong {
   font-size: 11.5px;
-  color: #475569;
-  margin: 3px 0 2px 0;
-  font-style: italic;
-  line-height: 1.4;
+  font-weight: 700;
+  color: #09343f;
+  line-height: 1.2;
 }
 
-.testimonial-body .author {
-  font-size: 10.5px;
-  font-weight: 700;
-  color: #0f766e;
+.pillar-text span {
+  font-size: 9.5px;
+  color: #64748b;
+  line-height: 1.2;
 }
 
 /* =========================================================================

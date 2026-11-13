@@ -70,7 +70,7 @@ export function generateInvoicePdf(trx, brand = {}) {
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(8.2);
   doc.setTextColor(13, 77, 93);
-  const sloganLines = doc.splitTextToSize('Platform Peningkatan Skill Terpadu & Terstruktur (Akademi Resmi)', maxCenterTextWidth);
+  const sloganLines = doc.splitTextToSize('Lembaga Peningkatan Skill Terpadu & Terstruktur (Akademi Resmi)', maxCenterTextWidth);
   doc.text(sloganLines, textStartX, 26);
 
   // Address & Contacts (Wrapped rapi di bawah slogan)
@@ -284,8 +284,7 @@ export function generateInvoicePdf(trx, brand = {}) {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(8);
   doc.setTextColor(71, 85, 105);
-  doc.text(`${dynamicCity}, ` + (new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })), signX, legalY + 6, { align: 'center' });
-  doc.text('Departemen Keuangan & Billing', signX, legalY + 10.5, { align: 'center' });
+  doc.text(`${dynamicCity}, ` + (new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })), signX, legalY + 8, { align: 'center' });
 
   doc.setFont('helvetica', 'bold');
   doc.setTextColor(13, 77, 93);

@@ -108,6 +108,7 @@
         <template v-else>
           <div class="logged-in-container">
             <button 
+              v-if="store.currentRole === 'manajemen'"
               @click="viewPublicSite" 
               class="btn-website-pill" 
               title="Lihat Beranda Website Publik"
@@ -162,6 +163,7 @@
 
                   <div class="popover-actions">
                     <button 
+                      v-if="store.currentRole === 'manajemen'"
                       @click="viewPublicSite(); isUserMenuOpen = false" 
                       class="popover-item"
                     >

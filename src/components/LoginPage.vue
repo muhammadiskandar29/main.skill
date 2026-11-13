@@ -93,105 +93,77 @@
               Satu portal terintegrasi untuk Wali Murid memantau perkembangan, Pelatih mencatat presensi tervalidasi GPS, dan Manajemen mengelola operasional secara transparan.
             </p>
 
-            <!-- CHEERFUL & INFORMATIVE KIDS ACADEMY SHOWCASE -->
-            <div class="kids-showcase-stage">
-              <!-- Floating Animated Bubbles Background -->
-              <div class="bubbles-ambient" aria-hidden="true">
-                <span class="bubble b1"></span>
-                <span class="bubble b2"></span>
-                <span class="bubble b3"></span>
-                <span class="bubble b4"></span>
-                <span class="bubble b5"></span>
-                <span class="bubble b6"></span>
-              </div>
-
-              <!-- Top Category Tabs (Interactive / Auto-cycle) -->
-              <div class="kids-tabs-bar">
-                <button 
-                  v-for="(slide, sIdx) in funSlides" 
-                  :key="slide.id" 
-                  type="button" 
-                  class="kids-tab-pill" 
-                  :class="{ active: currentFunSlide === sIdx }"
-                  @click="setFunSlide(sIdx)"
-                >
-                  <component :is="slide.iconSvg" />
-                  <span>{{ slide.tabTitle }}</span>
-                </button>
-              </div>
-
-              <!-- Active Slide Card (Fun, Playful & Informative) -->
-              <transition name="slide-card-fade" mode="out-in">
-                <div :key="currentFunSlide" class="fun-slide-card" :class="funSlides[currentFunSlide].themeClass">
-                  <!-- Tag Chip -->
-                  <div class="slide-badge-row">
-                    <span class="slide-tag-chip">{{ funSlides[currentFunSlide].badge }}</span>
-                    <span v-if="funSlides[currentFunSlide].highlightPill" class="slide-promo-chip">
-                      {{ funSlides[currentFunSlide].highlightPill }}
-                    </span>
-                  </div>
-
-                  <!-- Headline & Description -->
-                  <h3 class="fun-slide-title">{{ funSlides[currentFunSlide].headline }}</h3>
-                  <p class="fun-slide-desc">{{ funSlides[currentFunSlide].description }}</p>
-
-                  <!-- 3 Feature Points with Playful Check Icons -->
-                  <div class="fun-perks-list">
-                    <div 
-                      v-for="(perk, pIdx) in funSlides[currentFunSlide].perks" 
-                      :key="pIdx" 
-                      class="perk-item"
-                    >
-                      <div class="perk-icon-circle">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
-                          <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                      </div>
-                      <span>{{ perk }}</span>
-                    </div>
-                  </div>
-
-                  <!-- Bottom Card Action Row -->
-                  <div class="slide-card-footer">
-                    <span class="slide-footer-hint">{{ funSlides[currentFunSlide].footerHint }}</span>
-                    <button 
-                      type="button" 
-                      class="btn-slide-action" 
-                      @click="handleRegisterClick"
-                      :title="funSlides[currentFunSlide].ctaText"
-                    >
-                      <span>{{ funSlides[currentFunSlide].ctaText }}</span>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                        <line x1="5" y1="12" x2="19" y2="12"></line>
-                        <polyline points="12 5 19 12 12 19"></polyline>
-                      </svg>
-                    </button>
+            <!-- VIBRANT 3D KIDS ACADEMY VISUAL STAGE -->
+            <div class="kids-visual-stage">
+              <!-- Main 3D Illustration Card -->
+              <div class="visual-poster-card">
+                <img 
+                  src="/images/kids-swimming-hero.jpg" 
+                  alt="Petualangan Renang Anak mine.skills" 
+                  class="kids-main-poster"
+                  loading="eager"
+                />
+                
+                <!-- Gentle Gradient Bottom Overlay -->
+                <div class="poster-bottom-gradient">
+                  <div class="poster-text-overlay">
+                    <span class="poster-tag">AKADEMI RENANG ANAK CERIA</span>
+                    <h3 class="poster-headline">Bebas Takut Air, Percaya Diri & Terlatih Sejak Dini</h3>
+                    <p class="poster-subtext">Metode belajar interaktif dengan instruktur bersertifikasi dan bimbingan penuh kasih sayang.</p>
                   </div>
                 </div>
-              </transition>
 
-              <!-- Dots Navigator -->
-              <div class="slide-dots-row">
-                <button 
-                  v-for="(slide, dIdx) in funSlides" 
-                  :key="dIdx" 
-                  type="button" 
-                  class="slide-dot" 
-                  :class="{ active: currentFunSlide === dIdx }" 
-                  @click="setFunSlide(dIdx)"
-                  :aria-label="'Buka slide ' + (dIdx + 1)"
-                ></button>
+                <!-- Floating Animated Badge 1: Promo Spesial Rp 350.000 -->
+                <div class="floating-fun-badge badge-top-left" @click="handleRegisterClick">
+                  <div class="badge-icon-box gold">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
+                  </div>
+                  <div class="badge-texts">
+                    <span class="badge-title">PROMO KELAS GROUP</span>
+                    <strong class="badge-price">Cuma Rp 350.000!</strong>
+                  </div>
+                </div>
+
+                <!-- Floating Animated Badge 2: Rasio Ramah Anak -->
+                <div class="floating-fun-badge badge-top-right">
+                  <div class="badge-icon-box teal">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                  </div>
+                  <div class="badge-texts">
+                    <span class="badge-title">Rasio Eksklusif</span>
+                    <strong class="badge-sub">Maks 3-4 Anak / Sesi</strong>
+                  </div>
+                </div>
+
+                <!-- Floating Animated Badge 3: Reward & Bintang -->
+                <div class="floating-fun-badge badge-bottom-right">
+                  <div class="badge-icon-box blue">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <circle cx="12" cy="8" r="6"></circle>
+                      <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"></path>
+                    </svg>
+                  </div>
+                  <div class="badge-texts">
+                    <span class="badge-title">E-Raport & Medali</span>
+                    <strong class="badge-sub">Apresiasi Setiap Level</strong>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <!-- THREE INFORMATIVE PILLARS (CHILDREN & PARENTS FIRST) -->
+            <!-- THREE INFORMATIVE PILLARS -->
             <div class="cheerful-pillars-grid">
               <div class="cheerful-pillar-box">
                 <div class="pillar-icon-wrap mint">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"></path>
-                    <path d="M12 6a4 4 0 0 0-4 4h2a2 2 0 0 1 4 0 2 2 0 0 1-2 2v2h2v-1.1a4 4 0 0 0 2-3.4 4 4 0 0 0-4-3.5z"></path>
-                    <circle cx="12" cy="17" r="1"></circle>
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                    <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                    <line x1="15" y1="9" x2="15.01" y2="9"></line>
                   </svg>
                 </div>
                 <div class="pillar-texts">
@@ -208,20 +180,19 @@
                 </div>
                 <div class="pillar-texts">
                   <strong>Pelatih Sabar & Positif</strong>
-                  <span>Pendampingan hangat & perhatian intensif</span>
+                  <span>Pendampingan hangat & perhatian penuh</span>
                 </div>
               </div>
 
               <div class="cheerful-pillar-box">
                 <div class="pillar-icon-wrap sky">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="8" r="6"></circle>
-                    <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"></path>
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path>
                   </svg>
                 </div>
                 <div class="pillar-texts">
                   <strong>Bintang & Sertifikat</strong>
-                  <span>Apresiasi setiap pencapaian & kelulusan level</span>
+                  <span>Apresiasi setiap pencapaian & kelulusan</span>
                 </div>
               </div>
             </div>
@@ -230,7 +201,7 @@
             <div class="invite-register-bar">
               <div class="invite-text-col">
                 <span class="invite-title">Yuk, Mulai Petualangan Seru Ananda!</span>
-                <span class="invite-sub">Pilih jadwal fleksibel (Senin – Minggu) & konsultasi kebutuhan ananda.</span>
+                <span class="invite-sub">Pilih jadwal fleksibel (Senin – Minggu) & konsultasi gratis bersama tim kami.</span>
               </div>
               <button 
                 type="button" 
@@ -840,275 +811,199 @@ async function handleLoginSubmit() {
 
 
 /* =========================================================================
-   CHEERFUL & INFORMATIVE KIDS SHOWCASE & PROMO STAGE
+   VIBRANT 3D KIDS ACADEMY VISUAL STAGE & FLOATING BADGES
    ========================================================================= */
-.kids-showcase-stage {
+.kids-visual-stage {
   position: relative;
   width: 100%;
-  background: linear-gradient(145deg, #ffffff 0%, #f0fdfa 100%);
-  border: 1.5px solid #ccfbf1;
-  border-radius: 22px;
-  padding: 16px 18px 14px;
-  box-shadow: 
-    0 16px 36px -8px rgba(13, 148, 136, 0.12),
-    0 0 0 1px rgba(255, 255, 255, 0.8);
-  overflow: hidden;
   margin-top: 10px;
 }
 
-/* Floating Animated Bubbles Background */
-.bubbles-ambient {
+.visual-poster-card {
+  position: relative;
+  width: 100%;
+  height: 310px;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 
+    0 20px 45px -10px rgba(13, 77, 93, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.7);
+  border: 2px solid #e0f2fe;
+  background: #09343f;
+}
+
+.kids-main-poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 30%;
+  display: block;
+  transition: transform 10s ease;
+}
+
+.visual-poster-card:hover .kids-main-poster {
+  transform: scale(1.05);
+}
+
+.poster-bottom-gradient {
   position: absolute;
   inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-  z-index: 1;
-}
-
-.bubble {
-  position: absolute;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(45, 212, 191, 0.25));
-  border: 1px solid rgba(45, 212, 191, 0.4);
-  box-shadow: inset 0 0 4px rgba(255, 255, 255, 0.6);
-  animation: floatUp 8s ease-in-out infinite;
-}
-
-.b1 { width: 22px; height: 22px; left: 8%; bottom: -30px; animation-duration: 7s; }
-.b2 { width: 14px; height: 14px; left: 24%; bottom: -20px; animation-duration: 9s; animation-delay: 2s; }
-.b3 { width: 30px; height: 30px; right: 14%; bottom: -35px; animation-duration: 8.5s; animation-delay: 1s; }
-.b4 { width: 18px; height: 18px; right: 32%; bottom: -25px; animation-duration: 10s; animation-delay: 3.5s; }
-.b5 { width: 12px; height: 12px; left: 52%; bottom: -20px; animation-duration: 6.5s; animation-delay: 4.5s; }
-.b6 { width: 20px; height: 20px; right: 4%; bottom: -30px; animation-duration: 11s; animation-delay: 0.5s; }
-
-@keyframes floatUp {
-  0% {
-    transform: translateY(0) translateX(0) scale(0.9);
-    opacity: 0;
-  }
-  20% {
-    opacity: 0.85;
-  }
-  80% {
-    opacity: 0.7;
-  }
-  100% {
-    transform: translateY(-260px) translateX(15px) scale(1.15);
-    opacity: 0;
-  }
-}
-
-/* Category Tabs Bar */
-.kids-tabs-bar {
-  position: relative;
-  z-index: 3;
+  background: linear-gradient(
+    180deg,
+    rgba(9, 52, 63, 0.1) 0%,
+    rgba(9, 52, 63, 0.5) 55%,
+    rgba(9, 52, 63, 0.92) 100%
+  );
   display: flex;
-  gap: 6px;
-  margin-bottom: 12px;
+  align-items: flex-end;
+  padding: 18px 20px;
+  z-index: 2;
 }
 
-.kids-tab-pill {
-  flex: 1;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(6px);
-  border: 1px solid #e2e8f0;
-  color: #475569;
-  font-size: 11.5px;
-  font-weight: 700;
-  padding: 6px 10px;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.22s ease;
+.poster-text-overlay {
+  display: flex;
+  flex-direction: column;
 }
 
-.kids-tab-pill:hover {
-  background: #ffffff;
-  color: #0d4d5d;
-  border-color: #99f6e4;
-}
-
-.kids-tab-pill.active {
-  background: #0d4d5d;
+.poster-tag {
+  display: inline-block;
+  align-self: flex-start;
+  background: #14b8a6;
   color: #ffffff;
-  border-color: #0d4d5d;
-  box-shadow: 0 4px 12px rgba(13, 77, 93, 0.25);
-}
-
-/* Slide Card Content */
-.fun-slide-card {
-  position: relative;
-  z-index: 3;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 16px 18px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.03);
-}
-
-.fun-slide-card.theme-promo {
-  border-left: 4px solid #f59e0b;
-}
-
-.fun-slide-card.theme-fun {
-  border-left: 4px solid #0d9488;
-}
-
-.fun-slide-card.theme-reward {
-  border-left: 4px solid #0284c7;
-}
-
-.slide-badge-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 3px 10px;
+  border-radius: 999px;
   margin-bottom: 6px;
+  text-transform: uppercase;
+  box-shadow: 0 2px 8px rgba(20, 184, 166, 0.4);
 }
 
-.slide-tag-chip {
-  background: #f0fdfa;
-  border: 1px solid #ccfbf1;
-  color: #0f766e;
-  font-size: 10px;
+.poster-headline {
+  font-size: 16.5px;
   font-weight: 800;
-  padding: 2px 8px;
-  border-radius: 999px;
-  letter-spacing: 0.04em;
-}
-
-.slide-promo-chip {
-  background: #fefce8;
-  border: 1px solid #fef08a;
-  color: #854d0e;
-  font-size: 10px;
-  font-weight: 800;
-  padding: 2px 8px;
-  border-radius: 999px;
-}
-
-.fun-slide-title {
+  color: #ffffff;
   margin: 0 0 4px;
-  font-size: 16px;
-  font-weight: 800;
-  color: #09343f;
   line-height: 1.3;
 }
 
-.fun-slide-desc {
-  margin: 0 0 10px;
+.poster-subtext {
   font-size: 11.5px;
-  color: #64748b;
+  color: #e2e8f0;
+  margin: 0;
   line-height: 1.4;
+  max-width: 440px;
 }
 
-.fun-perks-list {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  margin-bottom: 12px;
-}
-
-.perk-item {
+/* Floating Levitating Badges */
+.floating-fun-badge {
+  position: absolute;
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 11.5px;
-  color: #334155;
-  font-weight: 600;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.95);
+  padding: 8px 14px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px -4px rgba(13, 77, 93, 0.22);
+  z-index: 5;
+  cursor: pointer;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
 
-.perk-icon-circle {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: #ccfbf1;
-  color: #0f766e;
+.floating-fun-badge:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 14px 30px -4px rgba(13, 77, 93, 0.3);
+}
+
+.badge-top-left {
+  top: 14px;
+  left: 14px;
+  animation: floatTL 4.5s ease-in-out infinite;
+}
+
+.badge-top-right {
+  top: 14px;
+  right: 14px;
+  animation: floatTR 5s ease-in-out infinite 0.6s;
+}
+
+.badge-bottom-right {
+  bottom: 84px;
+  right: 14px;
+  animation: floatBR 4.8s ease-in-out infinite 1.2s;
+}
+
+@keyframes floatTL {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes floatTR {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(6px); }
+}
+
+@keyframes floatBR {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.badge-icon-box {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.slide-card-footer {
+.badge-icon-box.gold {
+  background: #fefce8;
+  color: #d97706;
+  border: 1px solid #fef08a;
+}
+
+.badge-icon-box.teal {
+  background: #f0fdfa;
+  color: #0f766e;
+  border: 1px solid #99f6e4;
+}
+
+.badge-icon-box.blue {
+  background: #f0f9ff;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+}
+
+.badge-texts {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding-top: 10px;
-  border-top: 1px solid #f1f5f9;
+  flex-direction: column;
 }
 
-.slide-footer-hint {
-  font-size: 10.5px;
-  color: #0d9488;
+.badge-title {
+  font-size: 9.5px;
   font-weight: 700;
+  color: #64748b;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
 
-.btn-slide-action {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: #0d4d5d;
-  color: #ffffff;
-  border: none;
+.badge-price {
+  font-size: 13px;
+  font-weight: 900;
+  color: #ea580c;
+  line-height: 1.1;
+}
+
+.badge-sub {
   font-size: 11.5px;
   font-weight: 800;
-  padding: 6px 14px;
-  border-radius: 999px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-
-.btn-slide-action:hover {
-  background: #09343f;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(13, 77, 93, 0.3);
-}
-
-/* Dots Row */
-.slide-dots-row {
-  position: relative;
-  z-index: 3;
-  display: flex;
-  justify-content: center;
-  gap: 6px;
-  margin-top: 10px;
-}
-
-.slide-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: #cbd5e1;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  transition: all 0.25s ease;
-}
-
-.slide-dot.active {
-  width: 22px;
-  background: #0d4d5d;
-}
-
-/* Slide Transition */
-.slide-card-fade-enter-active,
-.slide-card-fade-leave-active {
-  transition: opacity 0.22s ease, transform 0.22s ease;
-}
-
-.slide-card-fade-enter-from {
-  opacity: 0;
-  transform: translateY(6px);
-}
-
-.slide-card-fade-leave-to {
-  opacity: 0;
-  transform: translateY(-6px);
+  color: #09343f;
+  line-height: 1.1;
 }
 
 /* Three Cheerful Pillars */
@@ -1116,7 +1011,7 @@ async function handleLoginSubmit() {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 8px;
-  margin-top: 10px;
+  margin-top: 12px;
 }
 
 .cheerful-pillar-box {
@@ -1126,14 +1021,14 @@ async function handleLoginSubmit() {
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  padding: 8px 10px;
+  padding: 10px 10px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
 }
 
 .pillar-icon-wrap {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1185,8 +1080,8 @@ async function handleLoginSubmit() {
   margin-top: 10px;
   background: linear-gradient(135deg, #09343f 0%, #0d4d5d 100%);
   color: #ffffff;
-  padding: 10px 14px;
-  border-radius: 12px;
+  padding: 12px 16px;
+  border-radius: 14px;
   box-shadow: 0 6px 16px -3px rgba(9, 52, 63, 0.25);
 }
 
@@ -1196,14 +1091,14 @@ async function handleLoginSubmit() {
 }
 
 .invite-title {
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 800;
   color: #ffffff;
   line-height: 1.25;
 }
 
 .invite-sub {
-  font-size: 9.5px;
+  font-size: 10px;
   color: #99f6e4;
   margin-top: 2px;
 }
@@ -1212,9 +1107,9 @@ async function handleLoginSubmit() {
   background: #14b8a6;
   color: #ffffff;
   border: none;
-  font-size: 11px;
+  font-size: 11.5px;
   font-weight: 800;
-  padding: 6px 14px;
+  padding: 7px 16px;
   border-radius: 999px;
   cursor: pointer;
   white-space: nowrap;
@@ -1228,6 +1123,15 @@ async function handleLoginSubmit() {
 }
 
 @media (max-width: 900px) {
+  .visual-poster-card {
+    height: 240px;
+  }
+  .floating-fun-badge {
+    padding: 6px 10px;
+  }
+  .badge-bottom-right {
+    display: none;
+  }
   .cheerful-pillars-grid {
     grid-template-columns: 1fr;
   }

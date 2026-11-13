@@ -93,297 +93,151 @@
               Satu portal terintegrasi untuk Wali Murid memantau perkembangan, Pelatih mencatat presensi tervalidasi GPS, dan Manajemen mengelola operasional secara transparan.
             </p>
 
-            <!-- LIVE INTERACTIVE TRANSPARENCY & TRUST CONSOLE -->
-            <div class="sim-console-card">
-              <!-- Console Top Header -->
-              <div class="console-top-bar">
-                <div class="live-status-chip">
-                  <span class="live-pulse-dot"></span>
-                  <span class="live-status-text">SISTEM PEMANTAUAN RESMI & TERVALIDASI</span>
-                </div>
-                <div class="sim-tabs-nav">
-                  <button 
-                    type="button" 
-                    class="sim-tab-btn" 
-                    :class="{ active: activeSimTab === 'gps' }" 
-                    @click="setSimTab('gps')"
-                    title="Simulasi Presensi GPS Geofence"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                      <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path>
-                      <circle cx="12" cy="10" r="3"></circle>
-                    </svg>
-                    <span>Presensi GPS</span>
-                  </button>
-                  <button 
-                    type="button" 
-                    class="sim-tab-btn" 
-                    :class="{ active: activeSimTab === 'raport' }" 
-                    @click="setSimTab('raport')"
-                    title="Simulasi E-Raport Digital"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                      <line x1="18" y1="20" x2="18" y2="10"></line>
-                      <line x1="12" y1="20" x2="12" y2="4"></line>
-                      <line x1="6" y1="20" x2="6" y2="14"></line>
-                    </svg>
-                    <span>E-Raport</span>
-                  </button>
-                  <button 
-                    type="button" 
-                    class="sim-tab-btn" 
-                    :class="{ active: activeSimTab === 'safety' }" 
-                    @click="setSimTab('safety')"
-                    title="Simulasi Rasio & Keselamatan"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                    </svg>
-                    <span>Rasio 1:3</span>
-                  </button>
-                </div>
+            <!-- CHEERFUL & INFORMATIVE KIDS ACADEMY SHOWCASE -->
+            <div class="kids-showcase-stage">
+              <!-- Floating Animated Bubbles Background -->
+              <div class="bubbles-ambient" aria-hidden="true">
+                <span class="bubble b1"></span>
+                <span class="bubble b2"></span>
+                <span class="bubble b3"></span>
+                <span class="bubble b4"></span>
+                <span class="bubble b5"></span>
+                <span class="bubble b6"></span>
               </div>
 
-              <!-- Console Screen Area -->
-              <div class="sim-screen-body">
-                <!-- TAB 1: GPS GEOFENCE RADAR SIMULATOR -->
-                <transition name="screen-fade" mode="out-in">
-                  <div v-if="activeSimTab === 'gps'" key="gps" class="screen-view gps-view">
-                    <div class="radar-visual-col">
-                      <div class="radar-circle-wrap">
-                        <div class="radar-grid-ring ring-3"></div>
-                        <div class="radar-grid-ring ring-2"></div>
-                        <div class="radar-grid-ring ring-1"></div>
-                        <div class="radar-sweep-beam"></div>
-                        <div class="radar-pulse-wave"></div>
-                        <div class="radar-center-marker">
-                          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2a8 8 0 0 0-8 8c0 5.25 8 12 8 12s8-6.75 8-12a8 8 0 0 0-8-8z"></path>
-                          </svg>
-                        </div>
-                      </div>
-                      <span class="radar-caption">Radius Geofence: 15 Meter</span>
-                    </div>
-
-                    <div class="telemetry-col">
-                      <div class="telemetry-badge">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                          <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        <span>GPS Tervalidasi di Tepi Kolam</span>
-                      </div>
-                      <h4 class="telemetry-coach">Coach Adit, S.Pd.</h4>
-                      <p class="telemetry-detail">Lisensi PRSI No. 412/PRSI/2024 • Kolam Graha Kresna Pratama</p>
-                      
-                      <div class="telemetry-meta-row">
-                        <div class="meta-cell">
-                          <span class="meta-label">Status Presensi</span>
-                          <span class="meta-val green">Hadir Tepat Waktu (07:48 WIB)</span>
-                        </div>
-                        <div class="meta-cell">
-                          <span class="meta-label">Akurasi Satelit</span>
-                          <span class="meta-val">±8m (Radius Valid)</span>
-                        </div>
-                      </div>
-                      <div class="security-lock-note">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                        </svg>
-                        <span>Sistem anti-manipulasi: Pelatih wajib berada di lokasi sebelum jam sesi.</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- TAB 2: E-RAPORT DIGITAL & METRICS SIMULATOR -->
-                  <div v-else-if="activeSimTab === 'raport'" key="raport" class="screen-view raport-view">
-                    <div class="raport-student-header">
-                      <div class="student-avatar-box">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
-                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                          <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                      </div>
-                      <div class="student-info-col">
-                        <div class="student-name-row">
-                          <strong>Kenzo Al-Fatih (7 Th)</strong>
-                          <span class="level-chip">Level 1: Water Explorer</span>
-                        </div>
-                        <span class="session-counter">Evaluasi Berkala: Sesi 3 dari 4 Selesai</span>
-                      </div>
-                    </div>
-
-                    <div class="skills-progress-bars">
-                      <div class="skill-bar-item">
-                        <div class="skill-label-row">
-                          <span>Kenyamanan Air & Selam Dasar</span>
-                          <strong class="green">100% (Tuntas)</strong>
-                        </div>
-                        <div class="bar-track">
-                          <div class="bar-fill w-100"></div>
-                        </div>
-                      </div>
-                      <div class="skill-bar-item">
-                        <div class="skill-label-row">
-                          <span>Meluncur (Streamline) & Kicking</span>
-                          <strong class="blue">85% (Optimal)</strong>
-                        </div>
-                        <div class="bar-track">
-                          <div class="bar-fill w-85"></div>
-                        </div>
-                      </div>
-                      <div class="skill-bar-item">
-                        <div class="skill-label-row">
-                          <span>Pengaturan Nafas Ritmis</span>
-                          <strong class="amber">70% (Proses Latihan)</strong>
-                        </div>
-                        <div class="bar-track">
-                          <div class="bar-fill w-70"></div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="coach-note-box">
-                      <span class="note-quote">"Kemandirian & adaptasi ananda sangat baik, siap untuk sertifikasi level berikutnya."</span>
-                      <span class="raport-sync-tag">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                          <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        Tersinkron otomatis ke WhatsApp & portal orang tua
-                      </span>
-                    </div>
-                  </div>
-
-                  <!-- TAB 3: SAFETY & STRICT RATIO SIMULATOR -->
-                  <div v-else key="safety" class="screen-view safety-view">
-                    <div class="ratio-banner">
-                      <div class="ratio-big-badge">
-                        <span class="ratio-num">1 : 3</span>
-                        <span class="ratio-sub">Rasio Maksimal</span>
-                      </div>
-                      <div class="ratio-text-col">
-                        <h4>Fokus Penuh pada Keselamatan Ananda</h4>
-                        <p>1 Pelatih hanya membina maksimal 3 siswa per sesi untuk memastikan pengawasan 100% tanpa risiko luput.</p>
-                      </div>
-                    </div>
-
-                    <div class="capacity-slots-row">
-                      <div class="slot-box filled">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                          <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                        <span>Siswa 1</span>
-                      </div>
-                      <div class="slot-box filled">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                          <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                        <span>Siswa 2</span>
-                      </div>
-                      <div class="slot-box filled">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                          <circle cx="12" cy="7" r="4"></circle>
-                        </svg>
-                        <span>Siswa 3</span>
-                      </div>
-                      <div class="slot-box locked">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-                          <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-                        </svg>
-                        <span>Slot Dikunci</span>
-                      </div>
-                    </div>
-
-                    <div class="safety-points-grid">
-                      <div class="safety-point">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                          <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        <span>Instruktur Tersertifikasi CPR & P3K Air</span>
-                      </div>
-                      <div class="safety-point">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                          <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg>
-                        <span>Jadwal Fleksibel: Garansi Reschedule jika Sakit</span>
-                      </div>
-                    </div>
-                  </div>
-                </transition>
+              <!-- Top Category Tabs (Interactive / Auto-cycle) -->
+              <div class="kids-tabs-bar">
+                <button 
+                  v-for="(slide, sIdx) in funSlides" 
+                  :key="slide.id" 
+                  type="button" 
+                  class="kids-tab-pill" 
+                  :class="{ active: currentFunSlide === sIdx }"
+                  @click="setFunSlide(sIdx)"
+                >
+                  <component :is="slide.iconSvg" />
+                  <span>{{ slide.tabTitle }}</span>
+                </button>
               </div>
 
-              <!-- Animated Auto-cycle Progress Line -->
-              <div class="sim-cycle-timer-track">
-                <div class="sim-cycle-timer-fill"></div>
+              <!-- Active Slide Card (Fun, Playful & Informative) -->
+              <transition name="slide-card-fade" mode="out-in">
+                <div :key="currentFunSlide" class="fun-slide-card" :class="funSlides[currentFunSlide].themeClass">
+                  <!-- Tag Chip -->
+                  <div class="slide-badge-row">
+                    <span class="slide-tag-chip">{{ funSlides[currentFunSlide].badge }}</span>
+                    <span v-if="funSlides[currentFunSlide].highlightPill" class="slide-promo-chip">
+                      {{ funSlides[currentFunSlide].highlightPill }}
+                    </span>
+                  </div>
+
+                  <!-- Headline & Description -->
+                  <h3 class="fun-slide-title">{{ funSlides[currentFunSlide].headline }}</h3>
+                  <p class="fun-slide-desc">{{ funSlides[currentFunSlide].description }}</p>
+
+                  <!-- 3 Feature Points with Playful Check Icons -->
+                  <div class="fun-perks-list">
+                    <div 
+                      v-for="(perk, pIdx) in funSlides[currentFunSlide].perks" 
+                      :key="pIdx" 
+                      class="perk-item"
+                    >
+                      <div class="perk-icon-circle">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                          <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                      </div>
+                      <span>{{ perk }}</span>
+                    </div>
+                  </div>
+
+                  <!-- Bottom Card Action Row -->
+                  <div class="slide-card-footer">
+                    <span class="slide-footer-hint">{{ funSlides[currentFunSlide].footerHint }}</span>
+                    <button 
+                      type="button" 
+                      class="btn-slide-action" 
+                      @click="handleRegisterClick"
+                      :title="funSlides[currentFunSlide].ctaText"
+                    >
+                      <span>{{ funSlides[currentFunSlide].ctaText }}</span>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </transition>
+
+              <!-- Dots Navigator -->
+              <div class="slide-dots-row">
+                <button 
+                  v-for="(slide, dIdx) in funSlides" 
+                  :key="dIdx" 
+                  type="button" 
+                  class="slide-dot" 
+                  :class="{ active: currentFunSlide === dIdx }" 
+                  @click="setFunSlide(dIdx)"
+                  :aria-label="'Buka slide ' + (dIdx + 1)"
+                ></button>
               </div>
             </div>
 
-            <!-- THREE TRUST PILLARS (CLEAN PROFESSIONAL SVG ICONS, NO EMOJIS) -->
-            <div class="trust-pillars-row">
-              <div class="trust-pillar-card">
-                <div class="trust-icon-box">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                    <polyline points="9 12 11 14 15 10"></polyline>
+            <!-- THREE INFORMATIVE PILLARS (CHILDREN & PARENTS FIRST) -->
+            <div class="cheerful-pillars-grid">
+              <div class="cheerful-pillar-box">
+                <div class="pillar-icon-wrap mint">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm0 18a8 8 0 1 1 8-8 8 8 0 0 1-8 8z"></path>
+                    <path d="M12 6a4 4 0 0 0-4 4h2a2 2 0 0 1 4 0 2 2 0 0 1-2 2v2h2v-1.1a4 4 0 0 0 2-3.4 4 4 0 0 0-4-3.5z"></path>
+                    <circle cx="12" cy="17" r="1"></circle>
                   </svg>
                 </div>
-                <div class="trust-pillar-info">
-                  <strong>Rasio Terbatas 1 : 3–4</strong>
-                  <span>Prioritas keselamatan & pendampingan intensif</span>
+                <div class="pillar-texts">
+                  <strong>Belajar Sambil Bermain</strong>
+                  <span>Suasana ceria, bebas rasa takut & ramah anak</span>
                 </div>
               </div>
 
-              <div class="trust-pillar-card">
-                <div class="trust-icon-box">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <div class="cheerful-pillar-box">
+                <div class="pillar-icon-wrap warm">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+                  </svg>
+                </div>
+                <div class="pillar-texts">
+                  <strong>Pelatih Sabar & Positif</strong>
+                  <span>Pendampingan hangat & perhatian intensif</span>
+                </div>
+              </div>
+
+              <div class="cheerful-pillar-box">
+                <div class="pillar-icon-wrap sky">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <circle cx="12" cy="8" r="6"></circle>
                     <path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"></path>
                   </svg>
                 </div>
-                <div class="trust-pillar-info">
-                  <strong>Pelatih Berlisensi Resmi</strong>
-                  <span>Tersertifikasi instruktur renang nasional</span>
-                </div>
-              </div>
-
-              <div class="trust-pillar-card">
-                <div class="trust-icon-box">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                    <line x1="16" y1="13" x2="8" y2="13"></line>
-                    <line x1="16" y1="17" x2="8" y2="17"></line>
-                    <polyline points="10 9 9 9 8 9"></polyline>
-                  </svg>
-                </div>
-                <div class="trust-pillar-info">
-                  <strong>E-Raport Real-Time</strong>
-                  <span>Laporan evaluasi berkala dapat diakses online</span>
+                <div class="pillar-texts">
+                  <strong>Bintang & Sertifikat</strong>
+                  <span>Apresiasi setiap pencapaian & kelulusan level</span>
                 </div>
               </div>
             </div>
 
-            <!-- HIGH-CONVERSION TRUST & REGISTER ACTION BOX -->
-            <div class="trust-cta-banner">
-              <div class="cta-text-group">
-                <span class="cta-headline">Ingin ananda belajar renang terarah & terpantau transparan?</span>
-                <span class="cta-sub">Daftarkan sesi konsultasi & penempatan level tanpa dipungut biaya.</span>
+            <!-- REGISTRATION INVITE BANNER -->
+            <div class="invite-register-bar">
+              <div class="invite-text-col">
+                <span class="invite-title">Yuk, Mulai Petualangan Seru Ananda!</span>
+                <span class="invite-sub">Pilih jadwal fleksibel (Senin – Minggu) & konsultasi kebutuhan ananda.</span>
               </div>
               <button 
                 type="button" 
-                class="btn-cta-register" 
+                class="btn-open-reg-modal" 
                 @click="handleRegisterClick"
-                title="Buka Form Pendaftaran Siswa Baru"
               >
-                <span>Daftar Siswa Baru</span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                  <line x1="5" y1="12" x2="19" y2="12"></line>
-                  <polyline points="12 5 19 12 12 19"></polyline>
-                </svg>
+                <span>Daftar Sekarang</span>
               </button>
             </div>
           </div></section>
@@ -533,36 +387,76 @@ const errorMessage = ref('');
 const isEmailFocused = ref(false);
 const isPassFocused = ref(false);
 
-// Live Interactive Academy Simulator
-const activeSimTab = ref('gps');
-const simTabs = [
-  { id: 'gps', label: 'Presensi GPS' },
-  { id: 'raport', label: 'E-Raport' },
-  { id: 'safety', label: 'Rasio 1:3' }
-];
-let simInterval = null;
+// Cheerful & Informative Slides for Kids & Parents
+const currentFunSlide = ref(0);
+let funInterval = null;
 
-function setSimTab(tabId) {
-  activeSimTab.value = tabId;
-  resetSimTimer();
+const funSlides = [
+  {
+    id: 'promo',
+    tabTitle: 'Promo Spesial',
+    badge: 'PROMO TERBATAS SISWA BARU',
+    highlightPill: 'HEMAT RP 50.000',
+    headline: 'Kelas Group Ceria Cuma Rp 350.000!',
+    description: 'Bimbingan renang intensif ramah anak dalam kelompok kecil dengan harga terjangkau.',
+    perks: [
+      '4x sesi latihan terarah (90 menit per pertemuan)',
+      'Kelompok kecil eksklusif maksimal 4-5 anak per sesi',
+      'Bonus sertifikat kelulusan & reward bintang motivasi'
+    ],
+    footerHint: 'Khusus untuk 50 pendaftar pertama bulan ini!',
+    ctaText: 'Klaim Promo',
+    themeClass: 'theme-promo'
+  },
+  {
+    id: 'class',
+    tabTitle: 'Keseruan Kelas',
+    badge: 'METODE RAMAH ANAK',
+    highlightPill: 'BEBAS TAKUT AIR',
+    headline: 'Bermain Sambil Belajar Renang dengan Percaya Diri',
+    description: 'Anak diajak mencintai air lewat permainan edukatif dan pengenalan teknik renang bertahap.',
+    perks: [
+      'Pemanasan seru & adaptasi air tanpa rasa cemas',
+      'Latihan meluncur & pernapasan yang menyenangkan',
+      'Didampingi pelatih bersertifikasi yang ramah dan sabar'
+    ],
+    footerHint: 'Tersedia untuk anak mulai usia 4 tahun hingga remaja',
+    ctaText: 'Pilih Jadwal',
+    themeClass: 'theme-fun'
+  },
+  {
+    id: 'rewards',
+    tabTitle: 'Bintang & Prestasi',
+    badge: 'KURIKULUM BERJENJANG',
+    highlightPill: 'E-RAPORT DIGITAL',
+    headline: 'Rayakan Setiap Langkah Kemajuan Ananda',
+    description: 'Setiap pencapaian kecil dihargai. Orang tua dapat memantau perkembangan teknik anak secara berkala.',
+    perks: [
+      'Level 1 Water Explorer hingga penguasaan 4 gaya renang',
+      'E-Raport digital dapat diakses kapan saja oleh orang tua',
+      'Medali & sertifikat resmi kelulusan di setiap level'
+    ],
+    footerHint: 'Terbukti membantu ratusan anak lebih mandiri dan tangkas',
+    ctaText: 'Daftar Kelas',
+    themeClass: 'theme-reward'
+  }
+];
+
+function setFunSlide(idx) {
+  currentFunSlide.value = idx;
+  resetFunTimer();
 }
 
-function resetSimTimer() {
-  if (simInterval) clearInterval(simInterval);
-  simInterval = setInterval(() => {
-    const currentIndex = simTabs.findIndex(t => t.id === activeSimTab.value);
-    const nextIndex = (currentIndex + 1) % simTabs.length;
-    activeSimTab.value = simTabs[nextIndex].id;
-  }, 4800);
+function resetFunTimer() {
+  if (funInterval) clearInterval(funInterval);
+  funInterval = setInterval(() => {
+    currentFunSlide.value = (currentFunSlide.value + 1) % funSlides.length;
+  }, 5000);
 }
 
 function handleRegisterClick() {
   emit('open-register');
 }
-
-
-
-
 
 onMounted(() => {
   // If user already has an active authenticated session, immediately redirect to portal!
@@ -579,11 +473,11 @@ onMounted(() => {
       email.value = lastReg;
     }
   } catch (e) {}
-  resetSimTimer();
+  resetFunTimer();
 });
 
 onUnmounted(() => {
-  if (simInterval) clearInterval(simInterval);
+  if (funInterval) clearInterval(funInterval);
 });
 
 function goToHome() {
@@ -946,646 +840,404 @@ async function handleLoginSubmit() {
 
 
 /* =========================================================================
-   LIVE INTERACTIVE TRANSPARENCY & TRUST CONSOLE
+   CHEERFUL & INFORMATIVE KIDS SHOWCASE & PROMO STAGE
    ========================================================================= */
-.sim-console-card {
+.kids-showcase-stage {
   position: relative;
   width: 100%;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 18px;
+  background: linear-gradient(145deg, #ffffff 0%, #f0fdfa 100%);
+  border: 1.5px solid #ccfbf1;
+  border-radius: 22px;
+  padding: 16px 18px 14px;
   box-shadow: 
-    0 16px 36px -10px rgba(13, 77, 93, 0.12),
-    0 0 0 1px rgba(0, 0, 0, 0.02);
+    0 16px 36px -8px rgba(13, 148, 136, 0.12),
+    0 0 0 1px rgba(255, 255, 255, 0.8);
   overflow: hidden;
   margin-top: 10px;
 }
 
-/* Console Top Bar */
-.console-top-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
-  background: #f8fafc;
-  border-bottom: 1px solid #f1f5f9;
-  gap: 12px;
+/* Floating Animated Bubbles Background */
+.bubbles-ambient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 1;
 }
 
-.live-status-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 10px;
-  font-weight: 800;
-  color: #0f766e;
-  letter-spacing: 0.04em;
-}
-
-.live-pulse-dot {
-  width: 7px;
-  height: 7px;
+.bubble {
+  position: absolute;
   border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 0 rgba(16, 185, 129, 0.7);
-  animation: radarPulse 1.8s infinite;
+  background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.9), rgba(45, 212, 191, 0.25));
+  border: 1px solid rgba(45, 212, 191, 0.4);
+  box-shadow: inset 0 0 4px rgba(255, 255, 255, 0.6);
+  animation: floatUp 8s ease-in-out infinite;
 }
 
-.sim-tabs-nav {
+.b1 { width: 22px; height: 22px; left: 8%; bottom: -30px; animation-duration: 7s; }
+.b2 { width: 14px; height: 14px; left: 24%; bottom: -20px; animation-duration: 9s; animation-delay: 2s; }
+.b3 { width: 30px; height: 30px; right: 14%; bottom: -35px; animation-duration: 8.5s; animation-delay: 1s; }
+.b4 { width: 18px; height: 18px; right: 32%; bottom: -25px; animation-duration: 10s; animation-delay: 3.5s; }
+.b5 { width: 12px; height: 12px; left: 52%; bottom: -20px; animation-duration: 6.5s; animation-delay: 4.5s; }
+.b6 { width: 20px; height: 20px; right: 4%; bottom: -30px; animation-duration: 11s; animation-delay: 0.5s; }
+
+@keyframes floatUp {
+  0% {
+    transform: translateY(0) translateX(0) scale(0.9);
+    opacity: 0;
+  }
+  20% {
+    opacity: 0.85;
+  }
+  80% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translateY(-260px) translateX(15px) scale(1.15);
+    opacity: 0;
+  }
+}
+
+/* Category Tabs Bar */
+.kids-tabs-bar {
+  position: relative;
+  z-index: 3;
   display: flex;
-  gap: 4px;
+  gap: 6px;
+  margin-bottom: 12px;
 }
 
-.sim-tab-btn {
+.kids-tab-pill {
+  flex: 1;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  background: transparent;
-  border: 1px solid transparent;
-  color: #64748b;
-  font-size: 11px;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(6px);
+  border: 1px solid #e2e8f0;
+  color: #475569;
+  font-size: 11.5px;
   font-weight: 700;
-  padding: 4px 10px;
-  border-radius: 8px;
+  padding: 6px 10px;
+  border-radius: 12px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.22s ease;
 }
 
-.sim-tab-btn:hover {
-  color: #09343f;
-  background: rgba(241, 245, 249, 0.8);
-}
-
-.sim-tab-btn.active {
+.kids-tab-pill:hover {
   background: #ffffff;
   color: #0d4d5d;
-  border-color: #cbd5e1;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+  border-color: #99f6e4;
 }
 
-/* Screen Body */
-.sim-screen-body {
+.kids-tab-pill.active {
+  background: #0d4d5d;
+  color: #ffffff;
+  border-color: #0d4d5d;
+  box-shadow: 0 4px 12px rgba(13, 77, 93, 0.25);
+}
+
+/* Slide Card Content */
+.fun-slide-card {
+  position: relative;
+  z-index: 3;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
   padding: 16px 18px;
-  min-height: 180px;
-  display: flex;
-  align-items: center;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.03);
 }
 
-.screen-view {
-  width: 100%;
+.fun-slide-card.theme-promo {
+  border-left: 4px solid #f59e0b;
 }
 
-/* View 1: GPS Radar */
-.gps-view {
-  display: flex;
-  align-items: center;
-  gap: 18px;
+.fun-slide-card.theme-fun {
+  border-left: 4px solid #0d9488;
 }
 
-.radar-visual-col {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
+.fun-slide-card.theme-reward {
+  border-left: 4px solid #0284c7;
 }
 
-.radar-circle-wrap {
-  position: relative;
-  width: 105px;
-  height: 105px;
-  border-radius: 50%;
-  background: #09343f;
-  border: 2px solid #0d9488;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  box-shadow: 0 8px 20px -4px rgba(13, 77, 93, 0.35);
-}
-
-.radar-grid-ring {
-  position: absolute;
-  border-radius: 50%;
-  border: 1px dashed rgba(20, 184, 166, 0.35);
-  pointer-events: none;
-}
-
-.ring-1 { width: 35px; height: 35px; }
-.ring-2 { width: 70px; height: 70px; }
-.ring-3 { width: 95px; height: 95px; }
-
-.radar-sweep-beam {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 50px;
-  height: 50px;
-  transform-origin: 0 0;
-  background: conic-gradient(from 0deg, rgba(45, 212, 191, 0.7) 0deg, transparent 65deg);
-  animation: radarSweep 3.6s linear infinite;
-  pointer-events: none;
-}
-
-@keyframes radarSweep {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.radar-pulse-wave {
-  position: absolute;
-  width: 25px;
-  height: 25px;
-  border-radius: 50%;
-  border: 1.5px solid #2dd4bf;
-  animation: waveExpand 2.4s cubic-bezier(0.2, 0.8, 0.2, 1) infinite;
-  pointer-events: none;
-}
-
-@keyframes waveExpand {
-  0% { width: 10px; height: 10px; opacity: 1; }
-  100% { width: 100px; height: 100px; opacity: 0; }
-}
-
-.radar-center-marker {
-  position: relative;
-  z-index: 2;
-  color: #10b981;
-  filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.9));
-}
-
-.radar-caption {
-  font-size: 10px;
-  font-weight: 700;
-  color: #0f766e;
-}
-
-.telemetry-col {
-  flex: 1;
-}
-
-.telemetry-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  background: #f0fdfa;
-  border: 1px solid #99f6e4;
-  color: #0f766e;
-  font-size: 10.5px;
-  font-weight: 800;
-  padding: 2px 8px;
-  border-radius: 999px;
-  margin-bottom: 5px;
-}
-
-.telemetry-coach {
-  margin: 0;
-  font-size: 15px;
-  font-weight: 800;
-  color: #09343f;
-  line-height: 1.2;
-}
-
-.telemetry-detail {
-  margin: 2px 0 8px;
-  font-size: 11px;
-  color: #64748b;
-  line-height: 1.3;
-}
-
-.telemetry-meta-row {
-  display: flex;
-  gap: 16px;
-  margin-bottom: 8px;
-  background: #f8fafc;
-  padding: 6px 10px;
-  border-radius: 8px;
-  border: 1px solid #f1f5f9;
-}
-
-.meta-cell {
-  display: flex;
-  flex-direction: column;
-}
-
-.meta-label {
-  font-size: 9.5px;
-  color: #64748b;
-  font-weight: 600;
-}
-
-.meta-val {
-  font-size: 11px;
-  font-weight: 800;
-  color: #0f172a;
-}
-
-.meta-val.green {
-  color: #059669;
-}
-
-.security-lock-note {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 10px;
-  color: #047857;
-  line-height: 1.3;
-}
-
-/* View 2: Raport */
-.raport-student-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 12px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #f1f5f9;
-}
-
-.student-avatar-box {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
-  background: #e0f2fe;
-  color: #0284c7;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.student-info-col {
-  flex: 1;
-}
-
-.student-name-row {
+.slide-badge-row {
   display: flex;
   align-items: center;
   gap: 8px;
+  margin-bottom: 6px;
 }
 
-.student-name-row strong {
-  font-size: 13.5px;
-  color: #0f172a;
+.slide-tag-chip {
+  background: #f0fdfa;
+  border: 1px solid #ccfbf1;
+  color: #0f766e;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 999px;
+  letter-spacing: 0.04em;
 }
 
-.level-chip {
+.slide-promo-chip {
   background: #fefce8;
   border: 1px solid #fef08a;
   color: #854d0e;
   font-size: 10px;
-  font-weight: 700;
-  padding: 1px 7px;
+  font-weight: 800;
+  padding: 2px 8px;
   border-radius: 999px;
 }
 
-.session-counter {
-  font-size: 10.5px;
-  color: #64748b;
-  display: block;
-}
-
-.skills-progress-bars {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-  margin-bottom: 10px;
-}
-
-.skill-bar-item {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-
-.skill-label-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 11px;
-  color: #334155;
-}
-
-.skill-label-row strong.green { color: #059669; }
-.skill-label-row strong.blue { color: #0284c7; }
-.skill-label-row strong.amber { color: #d97706; }
-
-.bar-track {
-  height: 6px;
-  background: #f1f5f9;
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.bar-fill {
-  height: 100%;
-  border-radius: 999px;
-  position: relative;
-  transition: width 1s ease;
-}
-
-.bar-fill::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
-  animation: shimmerMove 2s infinite;
-}
-
-@keyframes shimmerMove {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
-}
-
-.bar-fill.w-100 { width: 100%; background: #10b981; }
-.bar-fill.w-85 { width: 85%; background: #0ea5e9; }
-.bar-fill.w-70 { width: 70%; background: #f59e0b; }
-
-.coach-note-box {
-  background: #f8fafc;
-  border: 1px solid #f1f5f9;
-  border-radius: 8px;
-  padding: 7px 10px;
-}
-
-.note-quote {
-  font-size: 10.5px;
-  font-style: italic;
-  color: #475569;
-  display: block;
-  line-height: 1.35;
-}
-
-.raport-sync-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 9.5px;
-  font-weight: 700;
-  color: #0d9488;
-  margin-top: 3px;
-}
-
-/* View 3: Safety */
-.ratio-banner {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 12px;
-}
-
-.ratio-big-badge {
-  background: #09343f;
-  color: #ffffff;
-  padding: 8px 14px;
-  border-radius: 12px;
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(9, 52, 63, 0.25);
-  flex-shrink: 0;
-}
-
-.ratio-num {
-  font-size: 20px;
-  font-weight: 900;
-  display: block;
-  line-height: 1;
-}
-
-.ratio-sub {
-  font-size: 9px;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: #99f6e4;
-  margin-top: 2px;
-  display: block;
-}
-
-.ratio-text-col h4 {
-  margin: 0;
-  font-size: 14px;
+.fun-slide-title {
+  margin: 0 0 4px;
+  font-size: 16px;
   font-weight: 800;
   color: #09343f;
+  line-height: 1.3;
 }
 
-.ratio-text-col p {
-  margin: 2px 0 0;
-  font-size: 11px;
+.fun-slide-desc {
+  margin: 0 0 10px;
+  font-size: 11.5px;
   color: #64748b;
-  line-height: 1.35;
+  line-height: 1.4;
 }
 
-.capacity-slots-row {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+.fun-perks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
   margin-bottom: 12px;
 }
 
-.slot-box {
+.perk-item {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  color: #334155;
+  font-weight: 600;
+}
+
+.perk-icon-circle {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #ccfbf1;
+  color: #0f766e;
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
-  padding: 8px 4px;
-  border-radius: 10px;
-  font-size: 10px;
-  font-weight: 700;
-}
-
-.slot-box.filled {
-  background: #f0fdfa;
-  border: 1px solid #99f6e4;
-  color: #0f766e;
-}
-
-.slot-box.locked {
-  background: #fef2f2;
-  border: 1px solid #fecaca;
-  color: #b91c1c;
-}
-
-.safety-points-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.safety-point {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 10.5px;
-  font-weight: 600;
-  color: #334155;
-  background: #f8fafc;
-  padding: 6px 8px;
-  border-radius: 8px;
-  border: 1px solid #f1f5f9;
-}
-
-.safety-point svg {
-  color: #10b981;
   flex-shrink: 0;
 }
 
-/* Timer line */
-.sim-cycle-timer-track {
-  height: 3px;
-  background: #f1f5f9;
-  width: 100%;
-  overflow: hidden;
+.slide-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 10px;
+  border-top: 1px solid #f1f5f9;
 }
 
-.sim-cycle-timer-fill {
-  height: 100%;
-  background: #0d9488;
-  animation: cycleTimer 4.8s linear infinite;
+.slide-footer-hint {
+  font-size: 10.5px;
+  color: #0d9488;
+  font-weight: 700;
 }
 
-@keyframes cycleTimer {
-  0% { width: 0%; }
-  100% { width: 100%; }
+.btn-slide-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #0d4d5d;
+  color: #ffffff;
+  border: none;
+  font-size: 11.5px;
+  font-weight: 800;
+  padding: 6px 14px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
-/* Screen Transitions */
-.screen-fade-enter-active,
-.screen-fade-leave-active {
+.btn-slide-action:hover {
+  background: #09343f;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(13, 77, 93, 0.3);
+}
+
+/* Dots Row */
+.slide-dots-row {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.slide-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: #cbd5e1;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.25s ease;
+}
+
+.slide-dot.active {
+  width: 22px;
+  background: #0d4d5d;
+}
+
+/* Slide Transition */
+.slide-card-fade-enter-active,
+.slide-card-fade-leave-active {
   transition: opacity 0.22s ease, transform 0.22s ease;
 }
 
-.screen-fade-enter-from {
+.slide-card-fade-enter-from {
   opacity: 0;
   transform: translateY(6px);
 }
 
-.screen-fade-leave-to {
+.slide-card-fade-leave-to {
   opacity: 0;
   transform: translateY(-6px);
 }
 
-/* Trust Pillars Row (No Emojis, Pure SVG) */
-.trust-pillars-row {
+/* Three Cheerful Pillars */
+.cheerful-pillars-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-top: 12px;
+  gap: 8px;
+  margin-top: 10px;
 }
 
-.trust-pillar-card {
+.cheerful-pillar-box {
   display: flex;
   align-items: center;
-  gap: 9px;
+  gap: 8px;
   background: #ffffff;
   border: 1px solid #e2e8f0;
   border-radius: 12px;
-  padding: 10px 12px;
+  padding: 8px 10px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
-  transition: all 0.2s ease;
 }
 
-.trust-pillar-card:hover {
-  border-color: #cbd5e1;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 14px -3px rgba(13, 77, 93, 0.08);
-}
-
-.trust-icon-box {
-  width: 32px;
-  height: 32px;
-  border-radius: 9px;
-  background: #f0fdfa;
-  border: 1px solid #ccfbf1;
-  color: #0d9488;
+.pillar-icon-wrap {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
-.trust-pillar-info {
+.pillar-icon-wrap.mint {
+  background: #f0fdfa;
+  color: #0f766e;
+  border: 1px solid #99f6e4;
+}
+
+.pillar-icon-wrap.warm {
+  background: #fff7ed;
+  color: #c2410c;
+  border: 1px solid #ffedd5;
+}
+
+.pillar-icon-wrap.sky {
+  background: #f0f9ff;
+  color: #0369a1;
+  border: 1px solid #bae6fd;
+}
+
+.pillar-texts {
   display: flex;
   flex-direction: column;
 }
 
-.trust-pillar-info strong {
+.pillar-texts strong {
   font-size: 11px;
   font-weight: 800;
   color: #09343f;
   line-height: 1.2;
 }
 
-.trust-pillar-info span {
+.pillar-texts span {
   font-size: 9.5px;
   color: #64748b;
-  line-height: 1.25;
+  line-height: 1.2;
 }
 
-/* High Conversion Trust CTA Banner */
-.trust-cta-banner {
+/* Bottom Invite Register Banner */
+.invite-register-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
-  margin-top: 12px;
+  gap: 12px;
+  margin-top: 10px;
   background: linear-gradient(135deg, #09343f 0%, #0d4d5d 100%);
   color: #ffffff;
-  padding: 12px 16px;
-  border-radius: 14px;
-  box-shadow: 0 8px 20px -4px rgba(9, 52, 63, 0.25);
+  padding: 10px 14px;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px -3px rgba(9, 52, 63, 0.25);
 }
 
-.cta-text-group {
+.invite-text-col {
   display: flex;
   flex-direction: column;
 }
 
-.cta-headline {
-  font-size: 12px;
+.invite-title {
+  font-size: 11.5px;
   font-weight: 800;
   color: #ffffff;
-  line-height: 1.3;
+  line-height: 1.25;
 }
 
-.cta-sub {
-  font-size: 10px;
+.invite-sub {
+  font-size: 9.5px;
   color: #99f6e4;
   margin-top: 2px;
 }
 
-.btn-cta-register {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+.btn-open-reg-modal {
   background: #14b8a6;
   color: #ffffff;
   border: none;
-  font-size: 11.5px;
+  font-size: 11px;
   font-weight: 800;
-  padding: 7px 14px;
+  padding: 6px 14px;
   border-radius: 999px;
   cursor: pointer;
   white-space: nowrap;
-  box-shadow: 0 4px 12px rgba(20, 184, 166, 0.4);
   transition: all 0.2s ease;
+  box-shadow: 0 3px 8px rgba(20, 184, 166, 0.4);
 }
 
-.btn-cta-register:hover {
+.btn-open-reg-modal:hover {
   background: #0d9488;
-  transform: translateY(-1px) scale(1.02);
-  box-shadow: 0 6px 16px rgba(20, 184, 166, 0.5);
+  transform: translateY(-1px);
 }
 
 @media (max-width: 900px) {
-  .trust-pillars-row {
+  .cheerful-pillars-grid {
     grid-template-columns: 1fr;
   }
-  .trust-cta-banner {
+  .invite-register-bar {
     flex-direction: column;
     align-items: flex-start;
   }
-  .btn-cta-register {
+  .btn-open-reg-modal {
     width: 100%;
-    justify-content: center;
+    text-align: center;
   }
 }
 

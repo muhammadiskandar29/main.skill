@@ -6135,12 +6135,13 @@ onMounted(() => {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background-color: rgba(9, 35, 43, 0.65);
-  backdrop-filter: blur(4px);
+  background-color: rgba(9, 35, 43, 0.72);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 10000;
   padding: 20px;
 }
 
@@ -6149,28 +6150,40 @@ onMounted(() => {
   border-radius: var(--radius-lg);
   box-shadow: 0 20px 48px rgba(9, 35, 43, 0.25);
   width: 100%;
-  max-width: 580px;
-  max-height: 90vh;
-  overflow-y: auto;
+  max-width: 680px;
+  max-height: calc(100dvh - 36px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   border: 1px solid var(--border-subtle);
 }
 
-.modal-dialog.modal-lg {
-  max-width: 720px;
+.modal-dialog.modal-lg,
+.modal-dialog.modal-dialog-lg {
+  max-width: 860px;
+  width: min(96vw, 860px);
+}
+
+.modal-dialog.modal-md {
+  max-width: 640px;
+  width: min(94vw, 640px);
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 18px 24px;
+  padding: 16px 22px;
   border-bottom: 1px solid var(--border-subtle);
+  background: #ffffff;
+  flex-shrink: 0;
 }
 
 .modal-title {
   font-size: 17px;
   font-weight: 800;
   color: var(--color-primary-dark);
+  margin: 0;
 }
 
 .btn-close {
@@ -6179,25 +6192,77 @@ onMounted(() => {
   font-size: 18px;
   color: var(--text-subtle);
   cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .modal-body {
-  padding: 20px 24px;
+  padding: 20px 22px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+  min-height: 0;
 }
 
 .modal-footer {
   display: flex;
   justify-content: flex-end;
   gap: 10px;
-  margin-top: 24px;
-  padding-top: 16px;
+  padding: 14px 22px;
   border-top: 1px solid var(--border-subtle);
+  background: #fafbfc;
+  flex-shrink: 0;
 }
 
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 14px;
+}
+
+@media (max-width: 768px) {
+  .modal-backdrop {
+    padding: 0 !important;
+    align-items: stretch !important;
+  }
+
+  .modal-dialog,
+  .modal-dialog.modal-lg,
+  .modal-dialog.modal-dialog-lg,
+  .modal-dialog.modal-md,
+  .modal-dialog.modal-sm {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    height: 100% !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    border-radius: 0 !important;
+    border: none !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .modal-header {
+    padding: 12px 14px !important;
+  }
+
+  .modal-body {
+    padding: 14px 12px !important;
+  }
+
+  .modal-footer {
+    padding: 12px 14px !important;
+    padding-bottom: max(14px, env(safe-area-inset-bottom)) !important;
+    background: #ffffff !important;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
 }
 
 .upload-field-box {

@@ -697,7 +697,7 @@
       </div>
 
       <!-- State 2: Dynamic QRIS & Payment Options Modal (Konsisten dengan Portal Customer) -->
-      <div v-else class="modal-body success-view" style="max-height: 72vh; overflow-y: auto; padding-right: 6px;">
+      <div v-else class="modal-body success-view">
         <div class="success-icon">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2.5">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
@@ -1395,19 +1395,19 @@ function getWaConfirmationUrl() {
    MODAL CONTAINER & DIALOG (CLEAN, WHITE & ELEGANT)
    ========================================================================= */
 .modal-dialog-wizard {
-  max-width: 760px;
-  width: 95%;
-  height: 88vh;
-  max-height: 840px;
+  max-width: 900px;
+  width: min(96vw, 900px);
+  height: 90vh;
+  max-height: 880px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   background: #ffffff;
-  border-radius: 18px;
+  border-radius: 20px;
   border: 1px solid rgba(226, 232, 240, 0.95);
   box-shadow: 
-    0 25px 60px -15px rgba(13, 77, 93, 0.18),
-    0 4px 20px rgba(0, 0, 0, 0.04);
+    0 25px 60px -15px rgba(13, 77, 93, 0.22),
+    0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
 .wizard-container {
@@ -2320,34 +2320,91 @@ function getWaConfirmationUrl() {
 }
 
 /* =========================================================================
-   MOBILE RESPONSIVE
+   MOBILE & TABLET RESPONSIVE (FULL MAXIMIZED, NO CUTOFFS)
    ========================================================================= */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .modal-dialog-wizard {
-    width: 100%;
-    height: 100vh;
-    max-height: 100vh;
-    border-radius: 0;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 100% !important;
+    height: 100% !important;
+    height: 100dvh !important;
+    max-height: 100dvh !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+  }
+  .modal-header {
+    padding: 12px 14px !important;
+  }
+  .modal-title {
+    font-size: 15.5px !important;
+  }
+  .modal-desc {
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+  }
+  .wizard-container {
+    height: 100% !important;
+    height: 100dvh !important;
   }
   .wizard-stepper {
-    padding: 10px 14px;
-    gap: 4px;
+    padding: 8px 10px !important;
+    gap: 4px !important;
   }
   .step-meta {
-    display: none;
+    display: none !important;
+  }
+  .wizard-body {
+    flex: 1 !important;
+    min-height: 0 !important;
+    overflow: hidden !important;
+  }
+  .wizard-step-pane {
+    padding: 14px 12px !important;
+    flex: 1 !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
   }
   .form-grid, .form-grid-3 {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
+  .products-pill-grid {
+    grid-template-columns: 1fr !important;
+    gap: 8px !important;
+  }
+  .product-pill-card {
+    padding: 10px 12px !important;
   }
   .segmented-control-4 {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, 1fr) !important;
   }
   .price-banner-box {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: column !important;
+    align-items: flex-start !important;
   }
   .wizard-footer {
-    padding: 12px 16px;
+    padding: 12px 14px !important;
+    padding-bottom: max(14px, env(safe-area-inset-bottom)) !important;
+    background: #ffffff !important;
+    border-top: 1px solid #e2e8f0 !important;
+    box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.05) !important;
+    gap: 8px !important;
+  }
+  .wizard-footer .btn-next-step, 
+  .wizard-footer .btn-submit-wizard {
+    flex: 1 !important;
+    justify-content: center !important;
+    padding: 11px 14px !important;
+    font-size: 13px !important;
+  }
+  .wizard-footer .btn-secondary {
+    flex-shrink: 0 !important;
+    padding: 11px 14px !important;
+    font-size: 12.5px !important;
   }
 }
 </style>

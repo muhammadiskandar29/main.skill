@@ -189,10 +189,21 @@ async function handleChangePassword() {
   background: #ffffff;
   border-radius: var(--radius-lg);
   width: 100%;
-  max-width: 440px;
+  max-width: 460px;
+  max-height: calc(100dvh - 30px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   padding: 28px 24px;
   box-shadow: 0 20px 45px rgba(0, 0, 0, 0.22);
   animation: modalEnter 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (max-width: 480px) {
+  .modal-dialog-change-pw {
+    width: 95% !important;
+    padding: 22px 18px 20px !important;
+    border-radius: 16px !important;
+  }
 }
 
 @keyframes modalEnter {

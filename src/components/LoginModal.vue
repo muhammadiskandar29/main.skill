@@ -391,4 +391,16 @@ function openForgotPassword() {
 .link-register:hover {
   color: #e5a024;
 }
+
+@media (max-width: 480px) {
+  .modal-dialog-login {
+    width: 95% !important;
+    max-width: 95% !important;
+    padding: 24px 18px 20px !important;
+    max-height: calc(100dvh - 24px) !important;
+    overflow-y: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    border-radius: 16px !important;
+  }
+}
 </style>

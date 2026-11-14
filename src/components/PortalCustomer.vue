@@ -643,7 +643,7 @@
 
           <!-- 2. Program & Level in Ribbon -->
           <div class="cert-overlay-ribbon">
-            {{ (activeProduct?.name || studentData.program || 'mine.swimming').toUpperCase() }} — {{ (activeProductLevels.find(l => l.levelNumber === currentStudentLevel)?.title || studentData.currentLevelTitle || 'Water Explorer').toUpperCase() }}
+            {{ certificateRibbonText }}
           </div>
 
           <!-- 3. Coach Signature -->
@@ -1628,6 +1628,16 @@ const studentPredikat = computed(() => {
 const isDownloadingCert = ref(false);
 const isDownloadingCertImage = ref(false);
 
+const certificateRibbonText = computed(() => {
+  const pName = studentData.value?.program || activeProduct.value?.name || 'mine.swimming';
+  const cleanProg = (pName.toLowerCase().includes('renang') || pName.toLowerCase().includes('swim'))
+    ? 'mine.swimming'
+    : (pName.split('(')[0].trim() || 'mine.skills');
+  const levelObj = activeProductLevels.value.find(l => l.levelNumber === currentStudentLevel.value);
+  const cleanLevel = levelObj?.title || studentData.value?.currentLevelTitle || `Level ${currentStudentLevel.value}`;
+  return `${cleanProg} — ${cleanLevel}`.toUpperCase();
+});
+
 const certRegistrationId = computed(() => {
   const rawId = String(studentData.value?.id || '0891').replace(/\D/g, '').slice(-4) || '0891';
   return studentData.value?.certificateId || `No: CERT/MS/${new Date().getFullYear()}/${rawId}`;
@@ -2270,67 +2280,71 @@ function printReport() {
 
 .cert-overlay-ribbon {
   position: absolute;
-  top: 63.5%;
+  top: 63.2%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 58%;
-  background: #0d4d5d;
+  width: 46%;
   color: #ffffff;
-  padding: 4px 12px;
-  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
+  font-family: 'Plus Jakarta Sans', 'Montserrat', Arial, sans-serif;
   font-weight: 800;
-  font-size: clamp(9px, 1.4vw, 15px);
+  font-size: clamp(8.5px, 1.25vw, 14px);
   letter-spacing: 0.8px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   pointer-events: none;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45);
 }
 
 .cert-overlay-coach {
   position: absolute;
-  top: 85.5%;
-  left: 29.8%;
+  top: 88.2%;
+  left: 29.9%;
   transform: translate(-50%, -100%);
   width: 25%;
   text-align: center;
   font-weight: 700;
-  font-size: clamp(8px, 1.3vw, 14px);
+  font-size: clamp(8.5px, 1.25vw, 13.5px);
   color: #0a424e;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   pointer-events: none;
+  padding-bottom: 2px;
 }
 
 .cert-overlay-mgmt {
   position: absolute;
-  top: 85.5%;
-  left: 71.8%;
+  top: 88.2%;
+  left: 69.9%;
   transform: translate(-50%, -100%);
   width: 25%;
   text-align: center;
   font-weight: 700;
-  font-size: clamp(8px, 1.3vw, 14px);
+  font-size: clamp(8.5px, 1.25vw, 13.5px);
   color: #0a424e;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   pointer-events: none;
+  padding-bottom: 2px;
 }
 
 .cert-overlay-meta {
   position: absolute;
-  bottom: 2%;
+  bottom: 3.5%;
   left: 50%;
   transform: translateX(-50%);
   text-align: center;
-  font-size: clamp(7px, 0.9vw, 10px);
-  color: #527982;
-  font-weight: 500;
+  font-size: clamp(7.5px, 0.95vw, 10.5px);
+  color: #476a73;
+  font-weight: 600;
   pointer-events: none;
+  white-space: nowrap;
 }
 
 .cert-info-bar {

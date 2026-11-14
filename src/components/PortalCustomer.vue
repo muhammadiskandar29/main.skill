@@ -40,16 +40,16 @@
 
         <div class="student-hero-right">
           <div class="stat-pill-box">
-            <span class="pill-lbl">Tingkat Kemampuan Saat Ini</span>
+            <span class="pill-lbl">Tingkat Kemampuan (Level)</span>
             <strong class="pill-val color-primary">{{ studentData.currentLevelTitle }}</strong>
             <span class="pill-sub">Target: {{ studentData.targetChallenge }}</span>
           </div>
           <div class="stat-pill-box">
-            <span class="pill-lbl">Kemajuan Paket Latihan</span>
+            <span class="pill-lbl">Kuota Paket Pertemuan</span>
             <div class="progress-bar-wrap">
               <div class="progress-bar-fill" :style="{ width: studentData.overallProgress + '%' }"></div>
             </div>
-            <span class="pill-sub">{{ studentData.completedSessions }} dari {{ studentData.packageTotalSessions }} Sesi Selesai ({{ studentData.overallProgress }}%)</span>
+            <span class="pill-sub">{{ studentData.completedSessions }} dari {{ studentData.packageTotalSessions }} Sesi Digunakan (Paket Aktif • {{ studentData.overallProgress }}%)</span>
           </div>
         </div>
       </div>
@@ -66,7 +66,7 @@
             </div>
             <h3 class="quest-roadmap-title">Peta Capaian Kompetensi Siswa: {{ studentData.name }}</h3>
             <p class="quest-roadmap-desc">
-              Peta milestone bertahap. Klik stasiun level untuk memeriksa fokus teknik dan tantangan kelulusan (*Challenge Milestone*).
+              Peta capaian level kompetensi bertahap. Kenaikan level dievaluasi oleh Coach berdasarkan penguasaan teknik dan tantangan kelulusan (<em>Challenge Milestone</em>), bukan otomatis per sesi.
             </p>
           </div>
           <div class="quest-summary-stat">
@@ -630,6 +630,14 @@
         </div>
       </div>
 
+      <!-- Status Banner: Level vs Sesi Pertemuan -->
+      <div v-if="currentStudentLevel === 1" class="cert-status-banner" style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 10px; padding: 12px 18px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px; color: #1e40af; font-size: 13.5px;">
+        <span style="font-size: 20px; flex-shrink: 0;">ℹ️</span>
+        <div>
+          <strong>Status Sertifikasi Ananda:</strong> Saat ini ananda sedang dalam pembinaan aktif <strong>{{ studentData.currentLevelTitle || 'Level 1: Water Explorer' }}</strong>. Sertifikat resmi kelulusan level diterbitkan dan diverifikasi otomatis saat Coach merekomendasikan kelulusan tantangan (<em>Challenge Milestone</em>) di kolam renang.
+        </div>
+      </div>
+
       <!-- Real Visual Certificate Canvas Wrapper -->
       <div class="official-cert-card card-humanist">
         <div class="official-cert-stage">
@@ -1037,7 +1045,7 @@
             <div class="quest-hero-meta">
               <h4 class="quest-hero-title">{{ selectedQuestLevel.title }}</h4>
               <span class="badge-chip" :class="currentStudentLevel > selectedQuestLevel.levelNumber ? 'green' : (currentStudentLevel === selectedQuestLevel.levelNumber ? 'gold' : 'teal')">
-                {{ currentStudentLevel > selectedQuestLevel.levelNumber ? '✓ Lulus Standar Kompetensi' : (currentStudentLevel === selectedQuestLevel.levelNumber ? 'Sedang Ditempuh (Sesi Aktif)' : 'Belum Terbuka (Tingkat Lanjutan)') }}
+                {{ currentStudentLevel > selectedQuestLevel.levelNumber ? '✓ Lulus Standar Kompetensi' : (currentStudentLevel === selectedQuestLevel.levelNumber ? 'Sedang Ditempuh (Fase Pembinaan)' : 'Belum Terbuka (Tingkat Lanjutan)') }}
               </span>
             </div>
           </div>
@@ -1052,6 +1060,13 @@
               <span class="q-detail-label">STANDAR KELULUSAN (TARGET CAPAIAN):</span>
               <div class="challenge-highlight-box">
                 <span class="challenge-text">{{ selectedQuestLevel.challenge }}</span>
+              </div>
+            </div>
+
+            <div class="q-detail-block" v-if="currentStudentLevel === selectedQuestLevel.levelNumber">
+              <span class="q-detail-label">STATUS KELULUSAN TINGKAT:</span>
+              <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 10px 14px; color: #92400e; font-size: 13px; line-height: 1.5;">
+                🎯 Ananda sedang dalam tahap pemantapan teknik. Kenaikan level dievaluasi langsung oleh Coach berdasarkan keberhasilan menuntaskan tantangan di atas air (Challenge Milestone), bukan berdasarkan jumlah sesi kehadiran.
               </div>
             </div>
 
@@ -1468,9 +1483,9 @@ const progressPercent = computed(() => {
 
 const currentLevelProgressText = computed(() => {
   if (completedSessionsCount.value === 0) {
-    return `Sedang Ditempuh (0/${totalSessionsCount.value} Sesi • 0%)`;
+    return 'Sedang Ditempuh (Tahap Orientasi)';
   }
-  return `Sedang Ditempuh (${completedSessionsCount.value}/${totalSessionsCount.value} Sesi • ${progressPercent.value}%)`;
+  return 'Sedang Ditempuh (Dalam Pembinaan)';
 });
 
 const latestSessionButtonLabel = computed(() => {

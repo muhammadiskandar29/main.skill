@@ -17,3 +17,4 @@ async function checkRows() {
 }
 
 checkRows().catch(console.error);
+

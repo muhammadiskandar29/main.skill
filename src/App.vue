@@ -58,10 +58,38 @@
 
       <!-- Dynamic RBAC Sidebar with Hierarchical Grouping for Management -->
       <aside class="portal-sidebar" :class="{ 'mobile-open': isMobileSidebarOpen }">
-        <!-- Role Identifier Box -->
+        <!-- Role Identifier & User Account Box -->
         <div class="sidebar-role-badge">
-          <span class="role-badge-label">Peran Aktif:</span>
-          <h4 class="role-badge-name">{{ currentRoleInfo.roleName }}</h4>
+          <div class="sidebar-account-box">
+            <div class="sidebar-user-avatar">
+              {{ getUserInitials(store.currentUser?.name) }}
+            </div>
+            <div class="sidebar-user-info">
+              <span class="role-badge-label">Akun Pengguna</span>
+              <strong class="sidebar-user-name" :title="store.currentUser?.name">{{ store.currentUser?.name || currentRoleInfo.roleName }}</strong>
+              <span class="sidebar-role-tag" :class="store.currentRole">{{ currentRoleInfo.roleName }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- PWA High-End Experience Card for all 3 portal roles (Manajemen, Coach, Customer) -->
+        <div class="sidebar-pwa-banner" @click="actions.promptPwaInstall" title="Klik untuk pasang aplikasi di layar utama HP / Desktop">
+          <div class="pwa-banner-top">
+            <img src="/pwa-192x192.png" alt="mine.skills icon" class="pwa-banner-mini-logo" />
+            <span class="pwa-badge-pill">Aplikasi Resmi</span>
+          </div>
+          <strong class="pwa-banner-title">Pasang Aplikasi mine.skills</strong>
+          <p class="pwa-banner-text">
+            Dapatkan pengalaman terbaik! Akses jadwal, presensi GPS, dan raport lebih cepat & hemat kuota langsung dari layar utama HP Anda tanpa repot buka browser.
+          </p>
+          <button type="button" class="btn-pwa-install-action">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Pasang Sekarang</span>
+          </button>
         </div>
 
         <!-- HIERARCHICAL GROUPED SIDEBAR FOR MANAJEMEN -->
@@ -244,42 +272,8 @@
           </button>
         </nav>
 
-        <!-- PWA High-End Experience Card for all 3 portal roles (Manajemen, Coach, Customer) -->
-        <div class="sidebar-pwa-banner" @click="actions.promptPwaInstall" title="Klik untuk pasang aplikasi di layar utama HP / Desktop">
-          <div class="pwa-banner-top">
-            <img src="/pwa-192x192.png" alt="mine.skills icon" class="pwa-banner-mini-logo" />
-            <span class="pwa-badge-pill">Aplikasi Resmi</span>
-          </div>
-          <strong class="pwa-banner-title">Pasang Aplikasi mine.skills</strong>
-          <p class="pwa-banner-text">
-            Dapatkan pengalaman terbaik! Akses jadwal, presensi GPS, dan raport lebih cepat & hemat kuota langsung dari layar utama HP Anda tanpa repot buka browser.
-          </p>
-          <button type="button" class="btn-pwa-install-action">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="7 10 12 15 17 10"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-            <span>Pasang Sekarang</span>
-          </button>
-        </div>
-
         <!-- Sidebar Footer -->
         <div class="sidebar-footer">
-          <button @click="actions.openChangePasswordModal()" class="btn-sidebar-home" title="Ganti Kata Sandi Akun" style="margin-bottom: 6px;">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
-              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
-            </svg>
-            <span>Ubah Kata Sandi</span>
-          </button>
-          <button v-if="store.currentRole === 'manajemen'" @click="viewWebsite" class="btn-sidebar-home" title="Lihat Tampilan Website Publik">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-              <polyline points="9 22 9 12 15 12 15 22"/>
-            </svg>
-            <span>Tampilan Website Publik</span>
-          </button>
           <button @click="handleLogout" class="btn-sidebar-logout" title="Keluar dari akun">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
@@ -748,6 +742,15 @@ const currentRoleInfo = computed(() => {
   };
 });
 
+function getUserInitials(name) {
+  if (!name) return 'U';
+  const parts = name.trim().split(/\s+/);
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+  return name.slice(0, 2).toUpperCase();
+}
+
 // Clean SVG Icon generators
 const IconDashboard = () => h('svg', { width: 17, height: 17, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2 }, [
   h('rect', { x: 3, y: 3, width: 7, height: 9, rx: 1 }),
@@ -935,26 +938,84 @@ function switchMenu(menuId) {
 
 .sidebar-role-badge {
   background-color: var(--color-primary-soft);
-  border: 1px solid rgba(13, 77, 93, 0.2);
+  border: 1px solid rgba(13, 77, 93, 0.18);
   border-radius: var(--radius-md);
-  padding: 10px 14px;
-  margin-bottom: 16px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+
+.sidebar-account-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar-user-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0d4d5d 0%, #17839f 100%);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(13, 77, 93, 0.2);
+}
+
+.sidebar-user-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
 }
 
 .role-badge-label {
   display: block;
-  font-size: 10px;
+  font-size: 9px;
   text-transform: uppercase;
   font-weight: 700;
   color: var(--text-subtle);
   letter-spacing: 0.05em;
+  line-height: 1.2;
 }
 
-.role-badge-name {
+.sidebar-user-name {
   font-size: 13px;
   font-weight: 800;
   color: var(--color-primary-dark);
-  margin-top: 2px;
+  margin: 1px 0 3px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.25;
+}
+
+.sidebar-role-tag {
+  display: inline-block;
+  align-self: flex-start;
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 1.5px 7px;
+  border-radius: 4px;
+  line-height: 1.25;
+}
+
+.sidebar-role-tag.manajemen {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.sidebar-role-tag.coach {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.sidebar-role-tag.customer {
+  background: #dcfce7;
+  color: #166534;
 }
 
 /* Accordion for Management */
@@ -1079,8 +1140,8 @@ function switchMenu(menuId) {
 }
 
 .sidebar-pwa-banner {
-  margin: 14px 4px 10px;
-  padding: 12px;
+  margin: 0 0 14px 0;
+  padding: 11px 12px;
   background: linear-gradient(135deg, #f0fdfa 0%, #fefce8 100%);
   border: 1px solid rgba(13, 77, 93, 0.18);
   border-radius: 12px;

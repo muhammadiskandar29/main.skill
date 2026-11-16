@@ -858,6 +858,10 @@ export const store = reactive({
   paymentConfig: loadLocalStore('paymentConfig', initialPaymentConfig),
   rbacMatrix: initialRbacMatrix,
 
+  // PWA Dynamic Install Prompt State
+  pwaInstallPrompt: null,
+  isPwaInstallable: false,
+
   usps: [
     { id: 1, title: 'Kelas Kecil', subtitle: 'Maksimal 4-5 anak untuk hasil optimal dan pengawasan intensif' },
     { id: 2, title: 'Aman & Nyaman', subtitle: 'Mengutamakan keselamatan anak dengan standar water safety ketat' },
@@ -3179,6 +3183,28 @@ export const actions = {
     }
 
     return true;
+  },
+
+  async promptPwaInstall() {
+    if (store.pwaInstallPrompt) {
+      try {
+        store.pwaInstallPrompt.prompt();
+        const choice = await store.pwaInstallPrompt.userChoice;
+        if (choice?.outcome === 'accepted') {
+          store.pwaInstallPrompt = null;
+          store.isPwaInstallable = false;
+          actions.showAlert({ title: 'Aplikasi Terpasang', message: 'Aplikasi mine.skills berhasil dipasang di perangkat Anda!', type: 'success' });
+        }
+      } catch (err) {
+        console.warn('[PWA Install Error]:', err);
+      }
+    } else {
+      actions.showAlert({
+        title: 'Pasang Aplikasi mine.skills',
+        message: 'Di iPhone/iPad: Tekan ikon "Share" (kotak dengan panah ke atas) di browser Safari, lalu pilih "Add to Home Screen" (Tambahkan ke Layar Utama).\n\nDi Android/Komputer: Tekan tombol menu titik tiga (⋮) di browser Chrome, lalu pilih "Instal Aplikasi" / "Tambahkan ke Layar Utama".',
+        type: 'info'
+      });
+    }
   }
 };
 

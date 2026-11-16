@@ -61,6 +61,18 @@
         <!-- MODE 1: GUEST / PUBLIC VISITOR (Clean Navigation) -->
         <template v-if="!store.authToken || !store.currentUser">
           <button 
+            @click="actions.promptPwaInstall" 
+            class="btn-pwa-header" 
+            title="Pasang aplikasi ke layar ponsel / desktop"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Pasang App</span>
+          </button>
+          <button 
             @click="$emit('open-register')" 
             class="btn-gold btn-header-register"
           >
@@ -71,6 +83,18 @@
         <!-- MODE 2: AUTHENTICATED USER BROWSING PUBLIC WEBSITE -->
         <template v-else-if="store.currentRole === 'public'">
           <div class="user-logged-clean">
+            <button 
+              @click="actions.promptPwaInstall" 
+              class="btn-pwa-header" 
+              title="Pasang aplikasi ke layar ponsel / desktop"
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              <span>Pasang App</span>
+            </button>
             <button 
               @click="backToPortal" 
               class="btn-portal-pill" 
@@ -162,6 +186,18 @@
                   <div class="popover-divider"></div>
 
                   <div class="popover-actions">
+                    <button 
+                      @click="actions.promptPwaInstall(); isUserMenuOpen = false" 
+                      class="popover-item primary"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                      </svg>
+                      <span>Pasang Aplikasi (PWA)</span>
+                    </button>
+
                     <button 
                       v-if="store.currentRole === 'manajemen'"
                       @click="viewPublicSite(); isUserMenuOpen = false" 
@@ -378,6 +414,29 @@ function getUserRoleLabel() {
   background: var(--color-primary, #0d4d5d);
   color: #ffffff;
   transform: translateY(-1px);
+}
+
+.btn-pwa-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #0d4d5d;
+  background: #f0fdfa;
+  border: 1px solid rgba(13, 77, 93, 0.2);
+  border-radius: var(--radius-md, 8px);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-pwa-header:hover {
+  background: #0d4d5d;
+  color: #ffffff;
+  border-color: #0d4d5d;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(13, 77, 93, 0.15);
 }
 
 .btn-header-register {

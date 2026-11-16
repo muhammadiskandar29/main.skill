@@ -24,6 +24,14 @@
         </a>
 
         <div class="header-actions">
+          <button @click="actions.promptPwaInstall" class="btn-pwa-badge" title="Pasang aplikasi di layar HP atau Laptop">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Pasang App</span>
+          </button>
           <button @click="goToHome" class="btn-back-clean" title="Kembali ke Halaman Depan">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <polyline points="15 18 9 12 15 6"></polyline>
@@ -256,6 +264,19 @@
                   </svg>
                 </a>
               </p>
+
+              <!-- PWA Quick Install Banner -->
+              <div class="pwa-install-pill-card" @click="actions.promptPwaInstall" title="Klik untuk pasang aplikasi">
+                <img src="/pwa-192x192.png" alt="mine.skills icon" class="pwa-card-mini-icon" />
+                <div class="pwa-card-text">
+                  <div class="pwa-card-title-row">
+                    <strong>Pasang Aplikasi mine.skills</strong>
+                    <span class="pwa-tag-new">PWA</span>
+                  </div>
+                  <span>Akses instan dari layar HP/Laptop & tanpa ketik URL</span>
+                </div>
+                <button type="button" class="btn-pwa-card-action">Install</button>
+              </div>
             </div>
           </div>
         </section>
@@ -679,6 +700,31 @@ async function handleLoginSubmit() {
   font-weight: 700;
   color: #475569;
   letter-spacing: 0.02em;
+}
+
+.btn-pwa-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f0fdfa;
+  color: #0d4d5d;
+  border: 1px solid rgba(13, 77, 93, 0.2);
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(13, 77, 93, 0.08);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-right: 8px;
+}
+
+.btn-pwa-badge:hover {
+  background: #0d4d5d;
+  color: #ffffff;
+  border-color: #0d4d5d;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(13, 77, 93, 0.2);
 }
 
 .btn-back-clean {
@@ -1282,6 +1328,93 @@ async function handleLoginSubmit() {
 .register-link:hover {
   color: #e5a024;
   text-decoration: underline;
+}
+
+/* PWA Quick Install Pill Card */
+.pwa-install-pill-card {
+  margin-top: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pwa-install-pill-card:hover {
+  background: #f0fdfa;
+  border-color: rgba(13, 77, 93, 0.3);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(13, 77, 93, 0.08);
+}
+
+.pwa-card-mini-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  flex-shrink: 0;
+  background: #ffffff;
+}
+
+.pwa-card-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.pwa-card-title-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pwa-card-title-row strong {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.pwa-tag-new {
+  font-size: 9.5px;
+  font-weight: 800;
+  padding: 1px 5px;
+  border-radius: 4px;
+  background: #0d4d5d;
+  color: #ffffff;
+  letter-spacing: 0.04em;
+}
+
+.pwa-card-text span {
+  font-size: 11px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-pwa-card-action {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  border: none;
+  background: #0d4d5d;
+  color: #ffffff;
+  border-radius: 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.pwa-install-pill-card:hover .btn-pwa-card-action {
+  background: #e5a024;
+  color: #1e293b;
 }
 
 /* =========================================================================

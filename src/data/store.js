@@ -3076,11 +3076,9 @@ export const actions = {
     store.brand = { ...store.brand, ...brandPatch };
     persistLocalStore('brand', store.brand);
 
-    try {
-      await apiUpdateBrandConfig(brandPatch);
-    } catch (err) {
+    apiUpdateBrandConfig(brandPatch).catch(err => {
       console.warn('[Store] apiUpdateBrandConfig background sync warning:', err.message);
-    }
+    });
 
     return store.brand;
   },
@@ -3089,11 +3087,9 @@ export const actions = {
     store.hero = { ...store.hero, ...heroPatch };
     persistLocalStore('hero', store.hero);
 
-    try {
-      await apiUpdateHeroConfig(heroPatch);
-    } catch (err) {
+    apiUpdateHeroConfig(heroPatch).catch(err => {
       console.warn('[Store] apiUpdateHeroConfig background sync warning:', err.message);
-    }
+    });
 
     return store.hero;
   },
@@ -3102,11 +3098,9 @@ export const actions = {
     store.promoBanner = { ...store.promoBanner, ...patch };
     persistLocalStore('promoBanner', store.promoBanner);
 
-    try {
-      await apiUpdatePromoBanner(patch);
-    } catch (err) {
+    apiUpdatePromoBanner(patch).catch(err => {
       console.warn('[Store] apiUpdatePromoBanner background sync warning:', err.message);
-    }
+    });
 
     return store.promoBanner;
   },
@@ -3118,11 +3112,9 @@ export const actions = {
     store.paymentConfig = { ...store.paymentConfig, ...patch };
     persistLocalStore('paymentConfig', store.paymentConfig);
 
-    try {
-      await apiUpdatePaymentConfig(patch);
-    } catch (err) {
+    apiUpdatePaymentConfig(patch).catch(err => {
       console.warn('[Store] apiUpdatePaymentConfig background sync warning:', err.message);
-    }
+    });
 
     return store.paymentConfig;
   },
@@ -3163,11 +3155,9 @@ export const actions = {
       persistLocalStore('paymentConfig', store.paymentConfig);
     }
 
-    try {
-      await apiUpdateBankAccount(id, patch);
-    } catch (err) {
+    apiUpdateBankAccount(id, patch).catch(err => {
       console.warn('[Store] apiUpdateBankAccount background sync warning:', err.message);
-    }
+    });
 
     return match;
   },
@@ -3176,11 +3166,9 @@ export const actions = {
     store.paymentConfig.bankAccounts = (store.paymentConfig.bankAccounts || []).filter(b => b.id !== id);
     persistLocalStore('paymentConfig', store.paymentConfig);
 
-    try {
-      await apiDeleteBankAccount(id);
-    } catch (err) {
+    apiDeleteBankAccount(id).catch(err => {
       console.warn('[Store] apiDeleteBankAccount background sync warning:', err.message);
-    }
+    });
 
     return true;
   },

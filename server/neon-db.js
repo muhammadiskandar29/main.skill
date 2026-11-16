@@ -1643,7 +1643,9 @@ let inMemoryPaymentConfig = {
   ]
 };
 
+let isAppSettingsTableChecked = false;
 async function ensureAppSettingsTable() {
+  if (isAppSettingsTableChecked) return;
   const sql = getSql();
   if (sql) {
     try {
@@ -1655,6 +1657,7 @@ async function ensureAppSettingsTable() {
           updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
         );
       `);
+      isAppSettingsTableChecked = true;
     } catch (e) {
       console.warn('[DB] ensureAppSettingsTable error:', e.message);
     }

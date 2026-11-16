@@ -1677,6 +1677,9 @@ const faqItems = computed(() => {
   flex-direction: column;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .coach-summary-card:hover {
@@ -1690,6 +1693,7 @@ const faqItems = computed(() => {
   align-items: center;
   gap: 12px;
   margin-bottom: 10px;
+  min-width: 0;
 }
 
 .coach-photo-wrap {
@@ -1752,6 +1756,8 @@ const faqItems = computed(() => {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  flex-wrap: wrap;
+  min-width: 0;
 }
 
 .coach-program-tag {
@@ -1764,7 +1770,7 @@ const faqItems = computed(() => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 130px;
+  max-width: 140px;
 }
 
 /* Trust Section */
@@ -2586,12 +2592,36 @@ const faqItems = computed(() => {
   .coaches-directory-grid,
   .locations-directory-grid,
   .contact-two-cols-grid,
-  .footer-top-grid {
-    grid-template-columns: 1fr;
+  .footer-top-grid,
+  .trust-grid {
+    grid-template-columns: 1fr !important;
+    gap: 24px;
+  }
+  .curriculum-steps-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px;
+  }
+  .trust-banner {
+    padding: 24px 20px;
+  }
+  .section-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+  .section-header-row .btn-outline-primary {
+    width: 100%;
+    justify-content: center;
   }
 }
 
 @media (max-width: 640px) {
+  .company-profile {
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
   .hero-headline {
     font-size: 28px;
     line-height: 1.25;
@@ -2659,6 +2689,58 @@ const faqItems = computed(() => {
 
   .pricing-plan-card {
     padding: 18px 14px;
+  }
+
+  /* Fix Coach Cards from Overflowing horizontally */
+  .coaches-preview-grid {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .coach-summary-card {
+    padding: 14px;
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .coach-summary-footer {
+    flex-wrap: wrap !important;
+    gap: 6px !important;
+  }
+
+  .coach-program-tag {
+    max-width: 100%;
+    font-size: 10.5px;
+  }
+
+  /* Fix Trust Commitment Banner on Mobile */
+  .trust-banner {
+    padding: 18px 14px;
+  }
+
+  .trust-heading {
+    font-size: 18px;
+    line-height: 1.3;
+    margin-bottom: 14px;
+  }
+
+  .trust-point {
+    gap: 10px;
+  }
+
+  .trust-point p {
+    font-size: 12px;
+  }
+
+  .cta-card-inner {
+    padding: 16px 14px;
+  }
+
+  .curriculum-steps-grid {
+    grid-template-columns: 1fr !important;
+    gap: 10px;
   }
 }
 

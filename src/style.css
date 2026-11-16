@@ -128,13 +128,17 @@ button {
 
 .container-custom {
   max-width: 1200px;
+  width: 100%;
   margin: 0 auto;
   padding: 0 24px;
+  box-sizing: border-box;
 }
 
 @media (max-width: 640px) {
   .container-custom {
     padding: 0 16px;
+    width: 100%;
+    max-width: 100%;
   }
 }
 

@@ -244,6 +244,26 @@
           </button>
         </nav>
 
+        <!-- PWA High-End Experience Card for all 3 portal roles (Manajemen, Coach, Customer) -->
+        <div class="sidebar-pwa-banner" @click="actions.promptPwaInstall" title="Klik untuk pasang aplikasi di layar utama HP / Desktop">
+          <div class="pwa-banner-top">
+            <img src="/pwa-192x192.png" alt="mine.skills icon" class="pwa-banner-mini-logo" />
+            <span class="pwa-badge-pill">Aplikasi Resmi</span>
+          </div>
+          <strong class="pwa-banner-title">Pasang Aplikasi mine.skills</strong>
+          <p class="pwa-banner-text">
+            Dapatkan pengalaman terbaik! Akses jadwal, presensi GPS, dan raport lebih cepat & hemat kuota langsung dari layar utama HP Anda tanpa repot buka browser.
+          </p>
+          <button type="button" class="btn-pwa-install-action">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            <span>Pasang Sekarang</span>
+          </button>
+        </div>
+
         <!-- Sidebar Footer -->
         <div class="sidebar-footer">
           <button @click="actions.openChangePasswordModal()" class="btn-sidebar-home" title="Ganti Kata Sandi Akun" style="margin-bottom: 6px;">
@@ -1056,6 +1076,90 @@ function switchMenu(menuId) {
   background-color: var(--color-primary);
   color: #ffffff;
   font-weight: 700;
+}
+
+.sidebar-pwa-banner {
+  margin: 14px 4px 10px;
+  padding: 12px;
+  background: linear-gradient(135deg, #f0fdfa 0%, #fefce8 100%);
+  border: 1px solid rgba(13, 77, 93, 0.18);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 2px 8px rgba(13, 77, 93, 0.05);
+}
+
+.sidebar-pwa-banner:hover {
+  transform: translateY(-2px);
+  border-color: #0d4d5d;
+  box-shadow: 0 6px 16px rgba(13, 77, 93, 0.12);
+}
+
+.pwa-banner-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pwa-banner-mini-logo {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: #ffffff;
+  padding: 2px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+}
+
+.pwa-badge-pill {
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: #0d4d5d;
+  color: #ffffff;
+  padding: 2px 7px;
+  border-radius: 999px;
+}
+
+.pwa-banner-title {
+  font-size: 12px;
+  font-weight: 800;
+  color: #09343f;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.pwa-banner-text {
+  font-size: 10.5px;
+  color: #52676b;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.btn-pwa-install-action {
+  margin-top: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 100%;
+  padding: 7px 10px;
+  border-radius: 8px;
+  background: #0d4d5d;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sidebar-pwa-banner:hover .btn-pwa-install-action {
+  background: #e5a024;
+  color: #1a1600;
 }
 
 .sidebar-footer {

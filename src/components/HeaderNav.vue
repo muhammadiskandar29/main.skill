@@ -121,11 +121,60 @@
               <span>Website Beranda</span>
             </button>
 
+            <!-- PWA High-End Experience Pill & Popover (Aplikasi Resmi) -->
+            <div class="pwa-nav-wrap">
+              <button 
+                type="button"
+                @click.stop="togglePwaNav" 
+                class="btn-pwa-nav-pill"
+                :class="{ active: isPwaNavOpen }"
+                title="Pasang Aplikasi mine.skills (Aplikasi Resmi)"
+              >
+                <img src="/pwa-192x192.png" alt="mine.skills icon" class="pwa-nav-icon" />
+                <div class="pwa-nav-pill-info">
+                  <span class="pwa-nav-pill-badge">Aplikasi Resmi</span>
+                  <span class="pwa-nav-pill-label">Pasang Aplikasi</span>
+                </div>
+                <svg class="pwa-nav-chevron" :class="{ open: isPwaNavOpen }" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+
+              <!-- PWA Popover Card -->
+              <transition name="dropdown-anim">
+                <div v-if="isPwaNavOpen" class="pwa-nav-popover" @click.stop>
+                  <div class="pwa-banner-top">
+                    <div class="pwa-banner-header-left">
+                      <img src="/pwa-192x192.png" alt="mine.skills icon" class="pwa-banner-mini-logo" />
+                      <span class="pwa-badge-pill">Aplikasi Resmi</span>
+                    </div>
+                    <button type="button" @click="isPwaNavOpen = false" class="btn-pwa-popover-close" title="Tutup">✕</button>
+                  </div>
+                  <strong class="pwa-banner-title">Pasang Aplikasi mine.skills</strong>
+                  <p class="pwa-banner-text">
+                    Dapatkan pengalaman terbaik! Akses jadwal, presensi GPS, dan raport lebih cepat & hemat kuota langsung dari layar utama HP Anda tanpa repot buka browser.
+                  </p>
+                  <button 
+                    type="button" 
+                    @click="handlePwaInstallFromNav" 
+                    class="btn-pwa-install-action"
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                      <polyline points="7 10 12 15 17 10"></polyline>
+                      <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <span>Pasang Sekarang</span>
+                  </button>
+                </div>
+              </transition>
+            </div>
+
             <!-- User Profile Pill & Dropdown -->
             <div class="user-pill-dropdown-wrap">
               <div 
                 class="user-profile-pill" 
-                @click.stop="isUserMenuOpen = !isUserMenuOpen"
+                @click.stop="isUserMenuOpen = !isUserMenuOpen; if (isUserMenuOpen) isPwaNavOpen = false"
                 :class="{ active: isUserMenuOpen }"
                 title="Menu Akun Pengguna"
               >
@@ -226,11 +275,28 @@ import { store, actions } from '../data/store.js';
 const emit = defineEmits(['open-register', 'open-login', 'logout']);
 
 const isUserMenuOpen = ref(false);
+const isPwaNavOpen = ref(false);
+
+function togglePwaNav() {
+  isPwaNavOpen.value = !isPwaNavOpen.value;
+  if (isPwaNavOpen.value) {
+    isUserMenuOpen.value = false;
+  }
+}
+
+function handlePwaInstallFromNav() {
+  actions.promptPwaInstall();
+  isPwaNavOpen.value = false;
+}
 
 function closeMenuOnClickOutside(e) {
-  const el = document.querySelector('.user-pill-dropdown-wrap');
-  if (el && !el.contains(e.target)) {
+  const userEl = document.querySelector('.user-pill-dropdown-wrap');
+  if (userEl && !userEl.contains(e.target)) {
     isUserMenuOpen.value = false;
+  }
+  const pwaEl = document.querySelector('.pwa-nav-wrap');
+  if (pwaEl && !pwaEl.contains(e.target)) {
+    isPwaNavOpen.value = false;
   }
 }
 
@@ -505,6 +571,185 @@ function getUserRoleLabel() {
   color: #0d4d5d;
 }
 
+/* PWA Nav Pill & Popover */
+.pwa-nav-wrap {
+  position: relative;
+}
+
+.btn-pwa-nav-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 12px 5px 6px;
+  background: linear-gradient(135deg, #f0fdfa 0%, #fefce8 100%);
+  border: 1.5px solid rgba(13, 77, 93, 0.25);
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(13, 77, 93, 0.06);
+}
+
+.btn-pwa-nav-pill:hover,
+.btn-pwa-nav-pill.active {
+  border-color: #0d4d5d;
+  background: linear-gradient(135deg, #e6fffa 0%, #fef9c3 100%);
+  box-shadow: 0 4px 14px rgba(13, 77, 93, 0.14);
+  transform: translateY(-1px);
+}
+
+.pwa-nav-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: #ffffff;
+  padding: 2px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+  flex-shrink: 0;
+}
+
+.pwa-nav-pill-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+}
+
+.pwa-nav-pill-badge {
+  font-size: 8.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #0d4d5d;
+  letter-spacing: 0.04em;
+}
+
+.pwa-nav-pill-label {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: #09343f;
+}
+
+.pwa-nav-chevron {
+  color: #64748b;
+  transition: transform 0.2s ease;
+  margin-left: 2px;
+}
+
+.pwa-nav-chevron.open {
+  transform: rotate(180deg);
+}
+
+/* PWA Popover Card in Navbar */
+.pwa-nav-popover {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 310px;
+  max-width: 92vw;
+  background: #ffffff;
+  border: 1px solid rgba(13, 77, 93, 0.2);
+  border-radius: 16px;
+  box-shadow: 0 20px 40px -10px rgba(13, 77, 93, 0.22), 0 0 1px 1px rgba(0, 0, 0, 0.05);
+  z-index: 9999;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: popoverFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pwa-banner-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pwa-banner-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pwa-banner-mini-logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 2px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+.pwa-badge-pill {
+  font-size: 9.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: #0d4d5d;
+  color: #ffffff;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.btn-pwa-popover-close {
+  background: #f1f5f9;
+  border: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 700;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.btn-pwa-popover-close:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.pwa-banner-title {
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #09343f;
+  margin: 0;
+  line-height: 1.3;
+}
+
+.pwa-banner-text {
+  font-size: 11px;
+  color: #475569;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.btn-pwa-install-action {
+  margin-top: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 9px 14px;
+  border-radius: 10px;
+  background: #0d4d5d;
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(13, 77, 93, 0.25);
+  transition: all 0.15s ease;
+}
+
+.btn-pwa-install-action:hover {
+  background: #e5a024;
+  color: #1a1600;
+  box-shadow: 0 4px 14px rgba(229, 160, 36, 0.35);
+}
+
 /* User Pill Trigger */
 .user-pill-dropdown-wrap {
   position: relative;
@@ -756,14 +1001,36 @@ function getUserRoleLabel() {
   .btn-portal-pill span:not(.portal-icon) {
     font-size: 11.5px;
   }
+  .pwa-nav-pill-info .pwa-nav-pill-badge {
+    display: none;
+  }
+  .pwa-nav-pill-label {
+    font-size: 11px;
+  }
+  .btn-website-pill {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
 }
 
-@media (max-width: 420px) {
-  .btn-pwa-header span {
-    display: none; /* Icon-only on very narrow mobile screens */
+@media (max-width: 480px) {
+  .btn-website-pill span {
+    display: none; /* Icon-only on mobile */
   }
-  .btn-pwa-header {
+  .btn-website-pill {
     padding: 6px 8px;
+  }
+  .pwa-nav-chevron {
+    display: none;
+  }
+  .btn-pwa-nav-pill {
+    padding: 4px 8px 4px 6px;
+  }
+}
+
+@media (max-width: 380px) {
+  .pwa-nav-pill-label {
+    display: none; /* Icon-only on very narrow mobile */
   }
 }
 </style>

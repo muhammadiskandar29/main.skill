@@ -482,13 +482,63 @@ const initialBrand = {
   operatingHours: 'Setiap Hari: 07.30 - 18.00 WIB'
 };
 
+export const defaultHeroSlides = [
+  {
+    id: 'hero_slide_1',
+    imageUrl: '/images/dance-hero.jpg',
+    badge: 'JOIN US',
+    tag: 'Dokumentasi Pelatihan Resmi',
+    title: 'Studio Tari & Seni Gerak Nusantara'
+  },
+  {
+    id: 'hero_slide_2',
+    imageUrl: '/images/kids-swimming-hero.jpg',
+    badge: 'FAVORIT',
+    tag: 'Dokumentasi Pelatihan Resmi',
+    title: 'Kolam Graha Kresna Pratama, Jatiwaringin'
+  },
+  {
+    id: 'hero_slide_3',
+    imageUrl: '/images/swimming-hero.jpg',
+    badge: 'PRESTASI',
+    tag: 'Kelas Intensif Berjenjang',
+    title: 'Fasilitas Semi-Olympic Graha Kresna'
+  }
+];
+
+export const defaultLoginSlides = [
+  {
+    id: 'login_slide_1',
+    imageUrl: '/images/kids-swimming-hero.jpg',
+    tag: 'AKADEMI RENANG ANAK CERIA',
+    headline: 'Bebas Takut Air, Percaya Diri & Terlatih Sejak Dini',
+    subtext: 'Metode belajar interaktif dengan instruktur bersertifikasi dan bimbingan penuh kasih sayang.'
+  },
+  {
+    id: 'login_slide_2',
+    imageUrl: '/images/dance-hero.jpg',
+    tag: 'SENI TARI & GERAK EKSPRESIF',
+    headline: 'Latih Keluwesan, Postur & Kepercayaan Diri',
+    subtext: 'Bimbingan koreografi menyenangkan yang mengasah kepekaan seni, rasa percaya diri, dan motorik anak.'
+  },
+  {
+    id: 'login_slide_3',
+    imageUrl: '/images/swimming-hero.jpg',
+    tag: 'PROGRAM KETANGKASAN & PRESTASI',
+    headline: 'Karakter Tangguh, Disiplin & Jiwa Sportivitas',
+    subtext: 'Kurikulum bertingkat 4 level dengan target capaian milestone terukur dan sertifikasi resmi.'
+  }
+];
+
 const initialHero = {
   badgeText: 'AKADEMI PENGEMBANGAN SKILL TERSTRUKTUR & BERSERTIFIKASI',
   headline: 'Pusat Pembinaan & Akselerasi Potensi Anak Berjenjang',
   subheadline: 'Ekosistem pembinaan bakat profesional dengan rasio kelas kecil dan instruktur terverifikasi. Didukung kurikulum terukur agar setiap anak menguasai skill dengan aman, gembira, dan percaya diri.',
   primaryCta: 'Daftar Sekarang',
   secondaryCta: 'Lihat Program Pelatihan',
-  heroImage: '/images/swimming-hero.jpg'
+  heroImage: '/images/swimming-hero.jpg',
+  heroSlides: defaultHeroSlides,
+  loginSlides: defaultLoginSlides
 };
 
 const initialPaymentConfig = {
@@ -794,7 +844,16 @@ export const store = reactive({
   faqs: normalizeFaqList(loadLocalStore('faqs', initialFaqs)),
 
   brand: loadLocalStore('brand', initialBrand),
-  hero: loadLocalStore('hero', initialHero),
+  hero: (() => {
+    const h = loadLocalStore('hero', initialHero);
+    if (!Array.isArray(h.heroSlides) || h.heroSlides.length === 0) {
+      h.heroSlides = [...defaultHeroSlides];
+    }
+    if (!Array.isArray(h.loginSlides) || h.loginSlides.length === 0) {
+      h.loginSlides = [...defaultLoginSlides];
+    }
+    return h;
+  })(),
   promoBanner: loadLocalStore('promoBanner', initialPromoBanner),
   paymentConfig: loadLocalStore('paymentConfig', initialPaymentConfig),
   rbacMatrix: initialRbacMatrix,
@@ -1043,7 +1102,13 @@ export const actions = {
         if (data.hero) {
           store.hero = {
             ...store.hero,
-            ...data.hero
+            ...data.hero,
+            heroSlides: (Array.isArray(data.hero.heroSlides) && data.hero.heroSlides.length > 0)
+              ? data.hero.heroSlides
+              : (store.hero?.heroSlides?.length ? store.hero.heroSlides : defaultHeroSlides),
+            loginSlides: (Array.isArray(data.hero.loginSlides) && data.hero.loginSlides.length > 0)
+              ? data.hero.loginSlides
+              : (store.hero?.loginSlides?.length ? store.hero.loginSlides : defaultLoginSlides)
           };
           persistLocalStore('hero', store.hero);
         }

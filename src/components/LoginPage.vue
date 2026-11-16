@@ -54,24 +54,66 @@
               Satu portal terintegrasi untuk Wali Murid memantau perkembangan, Pelatih mencatat presensi tervalidasi GPS, dan Manajemen mengelola operasional secara transparan.
             </p>
 
-            <!-- VIBRANT 3D KIDS ACADEMY VISUAL STAGE -->
-            <div class="kids-visual-stage">
-              <!-- Main 3D Illustration Card -->
+            <!-- VIBRANT 3D KIDS ACADEMY VISUAL STAGE (DYNAMIC CAROUSEL) -->
+            <div class="kids-visual-stage" @mouseenter="stopLoginCarousel" @mouseleave="startLoginCarousel">
+              <!-- Main 3D Illustration Card with Carousel Slider -->
               <div class="visual-poster-card">
-                <img 
-                  src="/images/kids-swimming-hero.jpg" 
-                  alt="Petualangan Renang Anak mine.skills" 
-                  class="kids-main-poster"
-                  loading="eager"
-                />
-                
-                <!-- Gentle Gradient Bottom Overlay -->
-                <div class="poster-bottom-gradient">
-                  <div class="poster-text-overlay">
-                    <span class="poster-tag">AKADEMI RENANG ANAK CERIA</span>
-                    <h3 class="poster-headline">Bebas Takut Air, Percaya Diri & Terlatih Sejak Dini</h3>
-                    <p class="poster-subtext">Metode belajar interaktif dengan instruktur bersertifikasi dan bimbingan penuh kasih sayang.</p>
-                  </div>
+                <div class="poster-carousel-inner">
+                  <transition name="poster-fade" mode="out-in">
+                    <div 
+                      :key="currentLoginSlideIdx"
+                      class="poster-slide-pane"
+                    >
+                      <img 
+                        :src="currentLoginSlide?.imageUrl || '/images/kids-swimming-hero.jpg'" 
+                        :alt="currentLoginSlide?.headline || 'mine.skills showcase'" 
+                        class="kids-main-poster"
+                        loading="eager"
+                      />
+                      
+                      <!-- Gentle Gradient Bottom Overlay -->
+                      <div class="poster-bottom-gradient">
+                        <div class="poster-text-overlay">
+                          <span class="poster-tag">{{ currentLoginSlide?.tag || 'AKADEMI RESMI MINE.SKILLS' }}</span>
+                          <h3 class="poster-headline">{{ currentLoginSlide?.headline || 'Membangun Potensi & Karakter Unggul' }}</h3>
+                          <p class="poster-subtext">{{ currentLoginSlide?.subtext || 'Metode belajar interaktif dengan instruktur bersertifikasi dan bimbingan penuh kasih sayang.' }}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </transition>
+                </div>
+
+                <!-- Navigation Controls -->
+                <button 
+                  v-if="loginSlides.length > 1" 
+                  class="poster-nav-btn prev" 
+                  @click.stop="prevLoginSlide" 
+                  aria-label="Slide sebelumnya"
+                  type="button"
+                >
+                  ‹
+                </button>
+                <button 
+                  v-if="loginSlides.length > 1" 
+                  class="poster-nav-btn next" 
+                  @click.stop="nextLoginSlide" 
+                  aria-label="Slide berikutnya"
+                  type="button"
+                >
+                  ›
+                </button>
+
+                <!-- Dot Indicators -->
+                <div v-if="loginSlides.length > 1" class="poster-dots-row">
+                  <button 
+                    v-for="(slide, idx) in loginSlides" 
+                    :key="'login-dot-' + idx"
+                    class="poster-dot" 
+                    :class="{ active: currentLoginSlideIdx === idx }"
+                    @click.stop="currentLoginSlideIdx = idx"
+                    :aria-label="'Pergi ke slide ' + (idx + 1)"
+                    type="button"
+                  ></button>
                 </div>
               </div>
             </div>
@@ -305,6 +347,55 @@ function resetFunTimer() {
   }, 5000);
 }
 
+// Dynamic Login Poster Carousel
+const loginSlides = computed(() => {
+  if (Array.isArray(store.hero?.loginSlides) && store.hero.loginSlides.length > 0) {
+    return store.hero.loginSlides;
+  }
+  return [
+    {
+      id: 'default_login_1',
+      imageUrl: '/images/kids-swimming-hero.jpg',
+      tag: 'AKADEMI RENANG ANAK CERIA',
+      headline: 'Bebas Takut Air, Percaya Diri & Terlatih Sejak Dini',
+      subtext: 'Metode belajar interaktif dengan instruktur bersertifikasi dan bimbingan penuh kasih sayang.'
+    }
+  ];
+});
+
+const currentLoginSlideIdx = ref(0);
+let loginCarouselTimer = null;
+
+const currentLoginSlide = computed(() => {
+  return loginSlides.value[currentLoginSlideIdx.value] || loginSlides.value[0];
+});
+
+function nextLoginSlide() {
+  if (loginSlides.value.length <= 1) return;
+  currentLoginSlideIdx.value = (currentLoginSlideIdx.value + 1) % loginSlides.value.length;
+}
+
+function prevLoginSlide() {
+  if (loginSlides.value.length <= 1) return;
+  currentLoginSlideIdx.value = (currentLoginSlideIdx.value - 1 + loginSlides.value.length) % loginSlides.value.length;
+}
+
+function startLoginCarousel() {
+  stopLoginCarousel();
+  if (loginSlides.value.length > 1) {
+    loginCarouselTimer = setInterval(() => {
+      nextLoginSlide();
+    }, 5000);
+  }
+}
+
+function stopLoginCarousel() {
+  if (loginCarouselTimer) {
+    clearInterval(loginCarouselTimer);
+    loginCarouselTimer = null;
+  }
+}
+
 function handleRegisterClick() {
   emit('open-register');
 }
@@ -316,7 +407,7 @@ onMounted(() => {
     return;
   }
 
-  
+  startLoginCarousel();
 
   try {
     const lastReg = localStorage.getItem('mineskills_last_registered_email');
@@ -328,6 +419,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+  stopLoginCarousel();
   if (funInterval) clearInterval(funInterval);
 });
 
@@ -710,6 +802,94 @@ async function handleLoginSubmit() {
     0 0 0 1px rgba(255, 255, 255, 0.7);
   border: 2px solid #e0f2fe;
   background: #09343f;
+}
+
+.poster-carousel-inner {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.poster-slide-pane {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.poster-fade-enter-active,
+.poster-fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.poster-fade-enter-from,
+.poster-fade-leave-to {
+  opacity: 0;
+}
+
+.poster-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(9, 52, 63, 0.7);
+  backdrop-filter: blur(4px);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  font-size: 22px;
+  line-height: 1;
+  transition: all 0.2s ease;
+  opacity: 0;
+}
+
+.visual-poster-card:hover .poster-nav-btn {
+  opacity: 0.9;
+}
+
+.poster-nav-btn:hover {
+  opacity: 1 !important;
+  background: #0d9488;
+  border-color: #ffffff;
+  transform: translateY(-50%) scale(1.08);
+}
+
+.poster-nav-btn.prev {
+  left: 14px;
+}
+
+.poster-nav-btn.next {
+  right: 14px;
+}
+
+.poster-dots-row {
+  position: absolute;
+  bottom: 8px;
+  right: 24px;
+  display: flex;
+  gap: 6px;
+  z-index: 10;
+}
+
+.poster-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.4);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.25s ease;
+}
+
+.poster-dot.active {
+  width: 22px;
+  background: #14b8a6;
 }
 
 .kids-main-poster {

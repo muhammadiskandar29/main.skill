@@ -2296,6 +2296,120 @@ function cekMutasiBankGmail() {
             </div>
           </form>
         </div>
+
+        <!-- CAROUSEL HERO BERANDA (COMPANY PROFILE) CMS MANAGEMENT CARD -->
+        <div class="card-humanist website-config-card" style="grid-column: 1 / -1; margin-top: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <span class="badge-chip gold mini">Carousel Beranda Publik</span>
+              <h3 class="form-section-title" style="margin: 4px 0 0 0;">Kelola Foto Carousel Hero Beranda (Company Profile)</h3>
+              <p style="font-size: 12.5px; color: var(--text-muted); margin: 2px 0 0 0;">
+                Kelola daftar slide foto dokumentasi resmi, sticker badge (contoh: JOIN US), tag kategori, dan lokasi/judul pada bingkai hero halaman beranda.
+              </p>
+            </div>
+            <button 
+              type="button" 
+              class="btn-primary" 
+              @click="openAddHeroSlideModal"
+              style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; font-size: 13px;"
+            >
+              <span>+ Tambah Slide Hero Baru</span>
+            </button>
+          </div>
+
+          <!-- Hero Slides Grid / List -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;">
+            <div 
+              v-for="(slide, idx) in heroSlidesList" 
+              :key="slide.id || idx"
+              style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.04); display: flex; flex-direction: column;"
+            >
+              <div style="position: relative; width: 100%; height: 170px; background: #0f172a;">
+                <img :src="slide.imageUrl" :alt="slide.title" style="width: 100%; height: 100%; object-fit: cover;" />
+                <span style="position: absolute; top: 10px; left: 10px; background: #0d4d5d; color: #ffffff; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.25);">
+                  {{ slide.badge || 'JOIN US' }}
+                </span>
+                <span style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.6); color: #ffffff; font-size: 10.5px; padding: 2px 8px; border-radius: 12px;">
+                  Slide #{{ idx + 1 }}
+                </span>
+              </div>
+              <div style="padding: 14px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                  <span style="font-size: 10.5px; font-weight: 700; color: #d97706; text-transform: uppercase; letter-spacing: 0.5px; display: block;">
+                    {{ slide.tag || 'Dokumentasi Pelatihan Resmi' }}
+                  </span>
+                  <strong style="font-size: 13.5px; color: #0f172a; display: block; margin-top: 3px; line-height: 1.35;">
+                    {{ slide.title || store.brand?.primaryLocation }}
+                  </strong>
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 14px; justify-content: flex-end; border-top: 1px solid #f1f5f9; padding-top: 10px;">
+                  <button type="button" @click="handleEditHeroSlide(idx)" class="btn-secondary-xs">Edit</button>
+                  <button type="button" @click="handleDeleteHeroSlide(idx)" class="btn-danger-xs">Hapus</button>
+                </div>
+              </div>
+            </div>
+            <div v-if="!heroSlidesList || heroSlidesList.length === 0" style="grid-column: 1 / -1; text-align: center; padding: 30px; color: #94a3b8; font-size: 13px; background: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1;">
+              Belum ada slide hero. Klik "+ Tambah Slide Hero Baru" untuk menambahkan foto carousel.
+            </div>
+          </div>
+        </div>
+
+        <!-- CAROUSEL POSTER LOGIN CMS MANAGEMENT CARD -->
+        <div class="card-humanist website-config-card" style="grid-column: 1 / -1; margin-top: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 12px;">
+            <div>
+              <span class="badge-chip teal mini">Carousel Poster Login</span>
+              <h3 class="form-section-title" style="margin: 4px 0 0 0;">Kelola Poster Carousel Halaman Login (Portal Siswa & Pelatih)</h3>
+              <p style="font-size: 12.5px; color: var(--text-muted); margin: 2px 0 0 0;">
+                Kelola ilustrasi visual, badge kategori, headline inspiratif, dan deskripsi pada poster carousel di halaman login.
+              </p>
+            </div>
+            <button 
+              type="button" 
+              class="btn-primary" 
+              @click="openAddLoginSlideModal"
+              style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; font-size: 13px;"
+            >
+              <span>+ Tambah Slide Poster Baru</span>
+            </button>
+          </div>
+
+          <!-- Login Slides Grid / List -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;">
+            <div 
+              v-for="(slide, idx) in loginSlidesList" 
+              :key="slide.id || idx"
+              style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 14px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.04); display: flex; flex-direction: column;"
+            >
+              <div style="position: relative; width: 100%; height: 170px; background: #0f172a;">
+                <img :src="slide.imageUrl" :alt="slide.headline" style="width: 100%; height: 100%; object-fit: cover;" />
+                <span style="position: absolute; top: 10px; left: 10px; background: #14b8a6; color: #ffffff; font-size: 10.5px; font-weight: 800; padding: 3px 10px; border-radius: 999px; box-shadow: 0 2px 6px rgba(0,0,0,0.25);">
+                  {{ slide.tag }}
+                </span>
+                <span style="position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.6); color: #ffffff; font-size: 10.5px; padding: 2px 8px; border-radius: 12px;">
+                  Slide #{{ idx + 1 }}
+                </span>
+              </div>
+              <div style="padding: 14px; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
+                <div>
+                  <strong style="font-size: 13.5px; color: #0f172a; display: block; line-height: 1.35; margin-bottom: 4px;">
+                    {{ slide.headline }}
+                  </strong>
+                  <p style="font-size: 12px; color: #64748b; margin: 0; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                    {{ slide.subtext }}
+                  </p>
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 14px; justify-content: flex-end; border-top: 1px solid #f1f5f9; padding-top: 10px;">
+                  <button type="button" @click="handleEditLoginSlide(idx)" class="btn-secondary-xs">Edit</button>
+                  <button type="button" @click="handleDeleteLoginSlide(idx)" class="btn-danger-xs">Hapus</button>
+                </div>
+              </div>
+            </div>
+            <div v-if="!loginSlidesList || loginSlidesList.length === 0" style="grid-column: 1 / -1; text-align: center; padding: 30px; color: #94a3b8; font-size: 13px; background: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1;">
+              Belum ada slide poster login. Klik "+ Tambah Slide Poster Baru" untuk menambahkan poster carousel.
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -4024,6 +4138,149 @@ function cekMutasiBankGmail() {
       </div>
     </div>
 
+    <!-- 16. MODAL TAMBAH & EDIT SLIDE HERO BERANDA -->
+    <div v-if="showHeroSlideModal" class="modal-backdrop" @click.self="showHeroSlideModal = false">
+      <div class="modal-dialog modal-md" style="max-width: 540px;">
+        <div class="modal-header">
+          <div class="modal-header-info">
+            <span class="badge-chip gold">CMS Carousel Beranda</span>
+            <h3 class="modal-title">{{ isEditingHeroSlide ? 'Edit Slide Hero Beranda' : 'Tambah Slide Hero Beranda' }}</h3>
+          </div>
+          <button type="button" class="btn-close" @click="showHeroSlideModal = false">✕</button>
+        </div>
+        <form @submit.prevent="handleSaveHeroSlide" class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Upload File Foto Slide</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <input 
+                type="file" 
+                accept="image/*" 
+                @change="handleHeroSlideFileChange" 
+                class="form-input" 
+                style="padding: 6px;" 
+                :disabled="isUploadingHeroSlide"
+              />
+              <span v-if="isUploadingHeroSlide" style="font-size: 12px; color: var(--color-primary); font-weight: 600;">
+                Mengunggah...
+              </span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Atau URL Gambar Foto <span class="required">*</span></label>
+            <input v-model="heroSlideForm.imageUrl" type="text" class="form-input" placeholder="Contoh: /images/dance-hero.jpg atau https://..." required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Sticker Badge Pojok Atas</label>
+            <input v-model="heroSlideForm.badge" type="text" class="form-input" placeholder="Contoh: JOIN US / FAVORIT / PRESTASI" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Tag Kategori Caption</label>
+            <input v-model="heroSlideForm.tag" type="text" class="form-input" placeholder="Contoh: Dokumentasi Pelatihan Resmi" />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Judul / Lokasi Fasilitas</label>
+            <input v-model="heroSlideForm.title" type="text" class="form-input" placeholder="Contoh: Kolam Graha Kresna Pratama, Jatiwaringin" />
+          </div>
+
+          <!-- Preview Frame -->
+          <div v-if="heroSlideForm.imageUrl" style="margin-top: 12px; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; height: 160px; position: relative; background: #0f172a;">
+            <img :src="heroSlideForm.imageUrl" alt="Preview" style="width: 100%; height: 100%; object-fit: cover;" />
+            <span style="position: absolute; top: 10px; left: 10px; background: #0d4d5d; color: #ffffff; font-size: 11px; font-weight: 800; padding: 3px 10px; border-radius: 4px;">
+              {{ heroSlideForm.badge || 'JOIN US' }}
+            </span>
+            <div style="position: absolute; bottom: 0; left: 0; right: 0; padding: 8px 12px; background: linear-gradient(180deg, transparent, rgba(9, 35, 43, 0.95)); color: #ffffff;">
+              <span style="font-size: 10px; color: #e5a024; font-weight: 700; text-transform: uppercase; display: block;">{{ heroSlideForm.tag }}</span>
+              <strong style="font-size: 12.5px;">{{ heroSlideForm.title }}</strong>
+            </div>
+          </div>
+
+          <div class="modal-footer" style="margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: flex-end; gap: 8px;">
+            <button type="button" @click="showHeroSlideModal = false" class="btn-secondary">Batal</button>
+            <button type="submit" class="btn-primary">
+              {{ isEditingHeroSlide ? 'Simpan Perubahan Slide' : 'Tambahkan Slide' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 17. MODAL TAMBAH & EDIT SLIDE POSTER LOGIN -->
+    <div v-if="showLoginSlideModal" class="modal-backdrop" @click.self="showLoginSlideModal = false">
+      <div class="modal-dialog modal-md" style="max-width: 540px;">
+        <div class="modal-header">
+          <div class="modal-header-info">
+            <span class="badge-chip teal">CMS Carousel Poster Login</span>
+            <h3 class="modal-title">{{ isEditingLoginSlide ? 'Edit Slide Poster Login' : 'Tambah Slide Poster Login' }}</h3>
+          </div>
+          <button type="button" class="btn-close" @click="showLoginSlideModal = false">✕</button>
+        </div>
+        <form @submit.prevent="handleSaveLoginSlide" class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Upload File Gambar Poster</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <input 
+                type="file" 
+                accept="image/*" 
+                @change="handleLoginSlideFileChange" 
+                class="form-input" 
+                style="padding: 6px;" 
+                :disabled="isUploadingLoginSlide"
+              />
+              <span v-if="isUploadingLoginSlide" style="font-size: 12px; color: var(--color-primary); font-weight: 600;">
+                Mengunggah...
+              </span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Atau URL Gambar Poster <span class="required">*</span></label>
+            <input v-model="loginSlideForm.imageUrl" type="text" class="form-input" placeholder="Contoh: /images/kids-swimming-hero.jpg atau https://..." required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Tag / Kategori Badge</label>
+            <input v-model="loginSlideForm.tag" type="text" class="form-input" placeholder="Contoh: AKADEMI RENANG ANAK CERIA" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Headline / Judul Utama Poster</label>
+            <input v-model="loginSlideForm.headline" type="text" class="form-input" placeholder="Contoh: Bebas Takut Air, Percaya Diri & Terlatih Sejak Dini" required />
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Subteks / Keterangan Penjelas</label>
+            <textarea v-model="loginSlideForm.subtext" class="form-textarea" rows="2" placeholder="Tuliskan keterangan penjelas metode belajar..."></textarea>
+          </div>
+
+          <!-- Preview Frame -->
+          <div v-if="loginSlideForm.imageUrl" style="margin-top: 12px; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; height: 160px; position: relative; background: #0f172a;">
+            <img :src="loginSlideForm.imageUrl" alt="Preview" style="width: 100%; height: 100%; object-fit: cover;" />
+            <div style="position: absolute; inset: 0; background: linear-gradient(180deg, transparent 40%, rgba(9, 52, 63, 0.95) 100%); display: flex; align-items: flex-end; padding: 12px 14px;">
+              <div>
+                <span style="background: #14b8a6; color: #ffffff; font-size: 9.5px; font-weight: 800; padding: 2px 8px; border-radius: 999px; text-transform: uppercase;">
+                  {{ loginSlideForm.tag }}
+                </span>
+                <strong style="color: #ffffff; font-size: 13px; display: block; margin-top: 3px; line-height: 1.3;">
+                  {{ loginSlideForm.headline }}
+                </strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer" style="margin-top: 20px; padding-top: 14px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: flex-end; gap: 8px;">
+            <button type="button" @click="showLoginSlideModal = false" class="btn-secondary">Batal</button>
+            <button type="submit" class="btn-primary">
+              {{ isEditingLoginSlide ? 'Simpan Perubahan Poster' : 'Tambahkan Poster' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- 12. GLOBAL CUSTOM CONFIRMATION MODAL (SAFE FOR ALL BROWSERS & WEBVIEWS) -->
     <div v-if="confirmDialog.show" class="modal-backdrop" style="z-index: 99999;" @click.self="handleConfirmDialogChoice(false)">
       <div class="modal-dialog modal-sm" style="max-width: 440px;">
@@ -4568,6 +4825,223 @@ async function handleSavePromoBanner() {
     showNotice('Pengaturan poster promo pop-up berhasil disimpan!');
   } catch (err) {
     actions.showAlert({ title: 'Poster Promo', message: err.message || 'Gagal menyimpan pengaturan poster promo', type: 'error' });
+  }
+}
+
+// -------------------------------------------------------------
+// DYNAMIC CAROUSEL CMS (HERO COMPANY PROFILE & LOGIN POSTER)
+// -------------------------------------------------------------
+const heroSlidesList = computed(() => {
+  return Array.isArray(store.hero?.heroSlides) ? store.hero.heroSlides : [];
+});
+
+const loginSlidesList = computed(() => {
+  return Array.isArray(store.hero?.loginSlides) ? store.hero.loginSlides : [];
+});
+
+// Hero Slide State
+const showHeroSlideModal = ref(false);
+const isEditingHeroSlide = ref(false);
+const editingHeroSlideIdx = ref(-1);
+const isUploadingHeroSlide = ref(false);
+
+const heroSlideForm = ref({
+  imageUrl: '',
+  badge: 'JOIN US',
+  tag: 'Dokumentasi Pelatihan Resmi',
+  title: ''
+});
+
+function openAddHeroSlideModal() {
+  isEditingHeroSlide.value = false;
+  editingHeroSlideIdx.value = -1;
+  heroSlideForm.value = {
+    imageUrl: '',
+    badge: 'JOIN US',
+    tag: 'Dokumentasi Pelatihan Resmi',
+    title: store.brand?.primaryLocation || 'Kolam Graha Kresna Pratama, Jatiwaringin'
+  };
+  showHeroSlideModal.value = true;
+}
+
+function handleEditHeroSlide(idx) {
+  isEditingHeroSlide.value = true;
+  editingHeroSlideIdx.value = idx;
+  const item = heroSlidesList.value[idx];
+  heroSlideForm.value = {
+    imageUrl: item?.imageUrl || '',
+    badge: item?.badge || 'JOIN US',
+    tag: item?.tag || 'Dokumentasi Pelatihan Resmi',
+    title: item?.title || ''
+  };
+  showHeroSlideModal.value = true;
+}
+
+async function handleHeroSlideFileChange(e) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  try {
+    isUploadingHeroSlide.value = true;
+    const url = await actions.uploadImage(file, 'hero');
+    heroSlideForm.value.imageUrl = url;
+    showNotice('Foto slide hero berhasil diunggah!');
+  } catch (err) {
+    actions.showAlert({ title: 'Upload Foto Hero', message: err.message || 'Gagal mengunggah foto slide', type: 'error' });
+  } finally {
+    isUploadingHeroSlide.value = false;
+  }
+}
+
+async function handleSaveHeroSlide() {
+  if (!heroSlideForm.value.imageUrl || !heroSlideForm.value.imageUrl.trim()) {
+    actions.showAlert({ title: 'Validasi', message: 'Harap masukkan URL atau unggah file foto untuk slide carousel', type: 'error' });
+    return;
+  }
+  const currentList = [...heroSlidesList.value];
+  const slideData = {
+    id: isEditingHeroSlide.value && currentList[editingHeroSlideIdx.value]?.id 
+      ? currentList[editingHeroSlideIdx.value].id 
+      : `hero_slide_${Date.now()}`,
+    imageUrl: heroSlideForm.value.imageUrl.trim(),
+    badge: (heroSlideForm.value.badge || '').trim() || 'JOIN US',
+    tag: (heroSlideForm.value.tag || '').trim() || 'Dokumentasi Pelatihan Resmi',
+    title: (heroSlideForm.value.title || '').trim() || store.brand?.primaryLocation || 'Mine.Skills Official'
+  };
+
+  if (isEditingHeroSlide.value && editingHeroSlideIdx.value >= 0) {
+    currentList[editingHeroSlideIdx.value] = slideData;
+  } else {
+    currentList.push(slideData);
+  }
+
+  try {
+    await actions.updateHero({ heroSlides: currentList });
+    showNotice('Slide carousel hero beranda berhasil disimpan!');
+    showHeroSlideModal.value = false;
+  } catch (err) {
+    actions.showAlert({ title: 'Error', message: 'Gagal menyimpan slide hero: ' + err.message, type: 'error' });
+  }
+}
+
+async function handleDeleteHeroSlide(idx) {
+  const confirmed = await askConfirm(
+    'Apakah Anda yakin ingin menghapus slide carousel ini dari tampilan beranda publik?',
+    'Hapus Slide Hero Beranda',
+    'Ya, Hapus Slide',
+    true
+  );
+  if (!confirmed) return;
+
+  const currentList = [...heroSlidesList.value];
+  currentList.splice(idx, 1);
+  try {
+    await actions.updateHero({ heroSlides: currentList });
+    showNotice('Slide carousel hero beranda berhasil dihapus.');
+  } catch (err) {
+    actions.showAlert({ title: 'Error', message: 'Gagal menghapus slide hero: ' + err.message, type: 'error' });
+  }
+}
+
+// Login Slide State
+const showLoginSlideModal = ref(false);
+const isEditingLoginSlide = ref(false);
+const editingLoginSlideIdx = ref(-1);
+const isUploadingLoginSlide = ref(false);
+
+const loginSlideForm = ref({
+  imageUrl: '',
+  tag: 'AKADEMI RENANG ANAK CERIA',
+  headline: '',
+  subtext: ''
+});
+
+function openAddLoginSlideModal() {
+  isEditingLoginSlide.value = false;
+  editingLoginSlideIdx.value = -1;
+  loginSlideForm.value = {
+    imageUrl: '',
+    tag: 'AKADEMI RENANG ANAK CERIA',
+    headline: 'Bebas Takut Air, Percaya Diri & Terlatih Sejak Dini',
+    subtext: 'Metode belajar interaktif dengan instruktur bersertifikasi dan bimbingan penuh kasih sayang.'
+  };
+  showLoginSlideModal.value = true;
+}
+
+function handleEditLoginSlide(idx) {
+  isEditingLoginSlide.value = true;
+  editingLoginSlideIdx.value = idx;
+  const item = loginSlidesList.value[idx];
+  loginSlideForm.value = {
+    imageUrl: item?.imageUrl || '',
+    tag: item?.tag || 'AKADEMI RESMI',
+    headline: item?.headline || '',
+    subtext: item?.subtext || ''
+  };
+  showLoginSlideModal.value = true;
+}
+
+async function handleLoginSlideFileChange(e) {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  try {
+    isUploadingLoginSlide.value = true;
+    const url = await actions.uploadImage(file, 'login');
+    loginSlideForm.value.imageUrl = url;
+    showNotice('Poster slide login berhasil diunggah!');
+  } catch (err) {
+    actions.showAlert({ title: 'Upload Poster', message: err.message || 'Gagal mengunggah poster slide', type: 'error' });
+  } finally {
+    isUploadingLoginSlide.value = false;
+  }
+}
+
+async function handleSaveLoginSlide() {
+  if (!loginSlideForm.value.imageUrl || !loginSlideForm.value.imageUrl.trim()) {
+    actions.showAlert({ title: 'Validasi', message: 'Harap masukkan URL atau unggah file gambar untuk poster login', type: 'error' });
+    return;
+  }
+  const currentList = [...loginSlidesList.value];
+  const slideData = {
+    id: isEditingLoginSlide.value && currentList[editingLoginSlideIdx.value]?.id 
+      ? currentList[editingLoginSlideIdx.value].id 
+      : `login_slide_${Date.now()}`,
+    imageUrl: loginSlideForm.value.imageUrl.trim(),
+    tag: (loginSlideForm.value.tag || '').trim() || 'AKADEMI RESMI',
+    headline: (loginSlideForm.value.headline || '').trim() || '',
+    subtext: (loginSlideForm.value.subtext || '').trim() || ''
+  };
+
+  if (isEditingLoginSlide.value && editingLoginSlideIdx.value >= 0) {
+    currentList[editingLoginSlideIdx.value] = slideData;
+  } else {
+    currentList.push(slideData);
+  }
+
+  try {
+    await actions.updateHero({ loginSlides: currentList });
+    showNotice('Slide poster carousel login berhasil disimpan!');
+    showLoginSlideModal.value = false;
+  } catch (err) {
+    actions.showAlert({ title: 'Error', message: 'Gagal menyimpan slide poster: ' + err.message, type: 'error' });
+  }
+}
+
+async function handleDeleteLoginSlide(idx) {
+  const confirmed = await askConfirm(
+    'Apakah Anda yakin ingin menghapus slide poster ini dari halaman login?',
+    'Hapus Slide Poster Login',
+    'Ya, Hapus Slide',
+    true
+  );
+  if (!confirmed) return;
+
+  const currentList = [...loginSlidesList.value];
+  currentList.splice(idx, 1);
+  try {
+    await actions.updateHero({ loginSlides: currentList });
+    showNotice('Slide poster carousel login berhasil dihapus.');
+  } catch (err) {
+    actions.showAlert({ title: 'Error', message: 'Gagal menghapus slide poster: ' + err.message, type: 'error' });
   }
 }
 

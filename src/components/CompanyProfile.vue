@@ -109,11 +109,11 @@
               </div>
             </div>
 
-            <!-- Right: Photo Visual Frame (Preserving Image 2 Loved Aesthetic) -->
+            <!-- Right: Photo Visual Frame (Preserving Image 2 Loved Aesthetic with Dynamic Carousel) -->
             <div class="hero-visual">
-              <!-- Tilted JOIN US Sticker from Image 2 -->
+              <!-- Tilted Dynamic Sticker (e.g. JOIN US) -->
               <div class="join-us-sticker">
-                <span>JOIN US</span>
+                <span>{{ currentHeroSlide?.badge || 'JOIN US' }}</span>
               </div>
 
               <!-- Upward Gold Arrow/Starburst Ornament from Image 2 -->
@@ -123,16 +123,58 @@
                 </svg>
               </div>
 
-              <!-- Main Hero Photo Frame with 36px 36px 8px 36px curvature -->
-              <div class="hero-visual-frame">
-                <img 
-                  :src="selectedHeroImage" 
-                  alt="Pelatihan Siswa mine.skills" 
-                  class="hero-main-img" 
-                />
-                <div class="hero-caption-overlay">
-                  <span class="caption-tag">Dokumentasi Pelatihan Resmi</span>
-                  <strong class="caption-title">{{ store.brand.primaryLocation }}</strong>
+              <!-- Main Hero Photo Frame with 36px 36px 8px 36px curvature & Carousel Slider -->
+              <div class="hero-visual-frame" @mouseenter="stopHeroCarousel" @mouseleave="startHeroCarousel">
+                <div class="hero-carousel-slider">
+                  <transition name="hero-slide-fade" mode="out-in">
+                    <div 
+                      :key="currentHeroSlideIdx"
+                      class="hero-slide-pane"
+                    >
+                      <img 
+                        :src="currentHeroSlide?.imageUrl || '/images/dance-hero.jpg'" 
+                        :alt="currentHeroSlide?.title || 'Dokumentasi mine.skills'" 
+                        class="hero-main-img" 
+                      />
+                      <div class="hero-caption-overlay">
+                        <span class="caption-tag">{{ currentHeroSlide?.tag || 'Dokumentasi Pelatihan Resmi' }}</span>
+                        <strong class="caption-title">{{ currentHeroSlide?.title || store.brand.primaryLocation }}</strong>
+                      </div>
+                    </div>
+                  </transition>
+                </div>
+
+                <!-- Navigation Controls -->
+                <button 
+                  v-if="heroSlides.length > 1" 
+                  class="carousel-nav-btn prev" 
+                  @click.stop="prevHeroSlide" 
+                  aria-label="Slide sebelumnya"
+                  type="button"
+                >
+                  ‹
+                </button>
+                <button 
+                  v-if="heroSlides.length > 1" 
+                  class="carousel-nav-btn next" 
+                  @click.stop="nextHeroSlide" 
+                  aria-label="Slide berikutnya"
+                  type="button"
+                >
+                  ›
+                </button>
+
+                <!-- Dot Indicators -->
+                <div v-if="heroSlides.length > 1" class="carousel-dots-row">
+                  <button 
+                    v-for="(slide, idx) in heroSlides" 
+                    :key="'dot-' + idx"
+                    class="carousel-dot" 
+                    :class="{ active: currentHeroSlideIdx === idx }"
+                    @click.stop="currentHeroSlideIdx = idx"
+                    :aria-label="'Pergi ke slide ' + (idx + 1)"
+                    type="button"
+                  ></button>
                 </div>
               </div>
 
@@ -844,7 +886,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { store, actions } from '../data/store.js';
 
 defineEmits(['open-register']);
@@ -910,8 +952,61 @@ function handleCoachAvatarError(e) {
   e.target.src = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=240';
 }
 
-const selectedHeroImage = computed(() => {
-  return store.products[0]?.heroImage || '/images/swimming-hero.jpg';
+// Dynamic Hero Carousel (Company Profile)
+const heroSlides = computed(() => {
+  if (Array.isArray(store.hero?.heroSlides) && store.hero.heroSlides.length > 0) {
+    return store.hero.heroSlides;
+  }
+  return [
+    {
+      id: 'default_hero_1',
+      imageUrl: '/images/dance-hero.jpg',
+      badge: 'JOIN US',
+      tag: 'Dokumentasi Pelatihan Resmi',
+      title: store.brand?.primaryLocation || 'Kolam Graha Kresna Pratama, Jatiwaringin'
+    }
+  ];
+});
+
+const currentHeroSlideIdx = ref(0);
+let heroCarouselTimer = null;
+
+const currentHeroSlide = computed(() => {
+  return heroSlides.value[currentHeroSlideIdx.value] || heroSlides.value[0];
+});
+
+function nextHeroSlide() {
+  if (heroSlides.value.length <= 1) return;
+  currentHeroSlideIdx.value = (currentHeroSlideIdx.value + 1) % heroSlides.value.length;
+}
+
+function prevHeroSlide() {
+  if (heroSlides.value.length <= 1) return;
+  currentHeroSlideIdx.value = (currentHeroSlideIdx.value - 1 + heroSlides.value.length) % heroSlides.value.length;
+}
+
+function startHeroCarousel() {
+  stopHeroCarousel();
+  if (heroSlides.value.length > 1) {
+    heroCarouselTimer = setInterval(() => {
+      nextHeroSlide();
+    }, 4500);
+  }
+}
+
+function stopHeroCarousel() {
+  if (heroCarouselTimer) {
+    clearInterval(heroCarouselTimer);
+    heroCarouselTimer = null;
+  }
+}
+
+onMounted(() => {
+  startHeroCarousel();
+});
+
+onUnmounted(() => {
+  stopHeroCarousel();
 });
 
 const directWaUrl = computed(() => {
@@ -1249,8 +1344,98 @@ const faqItems = computed(() => {
   left: 0;
   right: 0;
   background: linear-gradient(180deg, transparent 0%, rgba(9, 35, 43, 0.9) 100%);
-  padding: 24px 20px 16px;
+  padding: 24px 20px 22px;
   color: #ffffff;
+  z-index: 2;
+}
+
+.hero-carousel-slider {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.hero-slide-pane {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.hero-slide-fade-enter-active,
+.hero-slide-fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.hero-slide-fade-enter-from,
+.hero-slide-fade-leave-to {
+  opacity: 0;
+}
+
+.carousel-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(9, 35, 43, 0.65);
+  backdrop-filter: blur(4px);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  font-size: 20px;
+  line-height: 1;
+  transition: all 0.2s ease;
+  opacity: 0;
+}
+
+.hero-visual-frame:hover .carousel-nav-btn {
+  opacity: 0.9;
+}
+
+.carousel-nav-btn:hover {
+  opacity: 1 !important;
+  background: #0d4d5d;
+  border-color: #ffffff;
+  transform: translateY(-50%) scale(1.08);
+}
+
+.carousel-nav-btn.prev {
+  left: 12px;
+}
+
+.carousel-nav-btn.next {
+  right: 12px;
+}
+
+.carousel-dots-row {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 10;
+}
+
+.carousel-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.4);
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.25s ease;
+}
+
+.carousel-dot.active {
+  width: 22px;
+  background: #df8d18;
 }
 
 .caption-tag {

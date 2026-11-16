@@ -95,11 +95,21 @@ watch(
   align-items: center;
   justify-content: center;
   padding: 18px;
+  padding-top: max(18px, env(safe-area-inset-top, 18px));
+  padding-bottom: max(18px, env(safe-area-inset-bottom, 18px));
+  padding-left: max(18px, env(safe-area-inset-left, 18px));
+  padding-right: max(18px, env(safe-area-inset-right, 18px));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .alert-modal-dialog {
   max-width: 420px;
-  width: 100%;
+  width: min(92vw, 420px);
+  max-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 36px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: auto;
   background: #ffffff;
   border-radius: 20px;
   border: 1px solid rgba(226, 232, 240, 0.95);

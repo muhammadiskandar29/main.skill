@@ -2590,4 +2590,84 @@ const faqItems = computed(() => {
     grid-template-columns: 1fr;
   }
 }
+
+@media (max-width: 640px) {
+  .hero-headline {
+    font-size: 28px;
+    line-height: 1.25;
+    margin-bottom: 12px;
+  }
+
+  .hero-subheadline {
+    font-size: 13.5px;
+    line-height: 1.55;
+  }
+
+  .pillars-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-bottom: 22px;
+  }
+
+  .pillar-card {
+    padding: 10px 12px;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .hero-cta-btn,
+  .btn-outline-dark {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .hero-visual {
+    margin-top: 14px;
+    width: 100%;
+  }
+
+  .hero-visual-frame {
+    max-width: 100%;
+    height: 340px;
+    border-radius: 24px 24px 8px 24px;
+  }
+
+  .join-us-sticker {
+    left: 8px;
+    top: 8px;
+    font-size: 11px;
+    padding: 4px 12px;
+  }
+
+  .decor-floral-gold {
+    left: auto;
+    right: 14px;
+    top: -12px;
+  }
+
+  .section-headline {
+    font-size: 23px;
+  }
+
+  .section-lead {
+    font-size: 13.5px;
+  }
+
+  .pricing-plan-card {
+    padding: 18px 14px;
+  }
+}
+
+@media (max-width: 420px) {
+  .hero-headline {
+    font-size: 24px;
+  }
+  .hero-visual-frame {
+    height: 300px;
+  }
+}
 </style>

@@ -1130,11 +1130,13 @@ function switchMenu(menuId) {
     align-items: center;
     justify-content: space-between;
     padding: 10px 16px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
     background: #ffffff;
     border-bottom: 1px solid #e2e8f0;
     position: sticky;
-    top: 0;
-    z-index: 90;
+    top: calc(56px + env(safe-area-inset-top, 0px));
+    z-index: 45;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   }
 
@@ -1188,6 +1190,7 @@ function switchMenu(menuId) {
     width: 290px;
     max-width: 85vw;
     height: 100vh;
+    height: 100dvh;
     background: #ffffff;
     z-index: 100;
     box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
@@ -1197,6 +1200,9 @@ function switchMenu(menuId) {
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     padding: 20px 14px 90px;
+    padding-top: max(20px, calc(16px + env(safe-area-inset-top, 0px)));
+    padding-bottom: max(90px, calc(80px + env(safe-area-inset-bottom, 0px)));
+    padding-left: max(14px, env(safe-area-inset-left, 0px));
   }
 
   .portal-sidebar.mobile-open {
@@ -1213,12 +1219,14 @@ function switchMenu(menuId) {
     bottom: 0;
     left: 0;
     right: 0;
-    height: 60px;
+    height: calc(60px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: env(safe-area-inset-bottom, 0px);
     background: #ffffff;
     border-top: 1px solid #e2e8f0;
     z-index: 85;
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
-    padding: 0 4px;
+    padding-left: max(4px, env(safe-area-inset-left, 0px));
+    padding-right: max(4px, env(safe-area-inset-right, 0px));
   }
 
   .bottom-nav-item {

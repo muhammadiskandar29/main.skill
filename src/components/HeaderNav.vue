@@ -328,8 +328,12 @@ function getUserRoleLabel() {
   z-index: 50;
   background-color: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border-subtle, #e2e8f0);
   transition: all var(--transition-fast, 0.2s);
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
 }
 
 .header-inner {
@@ -757,6 +761,33 @@ function getUserRoleLabel() {
 @media (max-width: 640px) {
   .desktop-only {
     display: none;
+  }
+  .header-inner {
+    height: 56px;
+    gap: 8px;
+  }
+  .brand-logo-img {
+    height: 36px;
+  }
+  .btn-header-register {
+    padding: 7px 12px;
+    font-size: 12px;
+  }
+  .btn-pwa-header {
+    padding: 6px 10px;
+    font-size: 11.5px;
+  }
+  .btn-portal-pill span:not(.portal-icon) {
+    font-size: 11.5px;
+  }
+}
+
+@media (max-width: 420px) {
+  .btn-pwa-header span {
+    display: none; /* Icon-only on very narrow mobile screens */
+  }
+  .btn-pwa-header {
+    padding: 6px 8px;
   }
 }
 </style>

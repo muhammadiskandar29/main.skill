@@ -39,3 +39,4 @@ $src.Dispose()
 $ms.Dispose()
 
 Write-Host "All PWA icons successfully generated!"
+

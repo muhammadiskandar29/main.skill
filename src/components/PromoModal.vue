@@ -121,7 +121,12 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   padding: 16px;
+  padding-top: max(16px, env(safe-area-inset-top, 16px));
+  padding-bottom: max(16px, env(safe-area-inset-bottom, 16px));
+  padding-left: max(16px, env(safe-area-inset-left, 16px));
+  padding-right: max(16px, env(safe-area-inset-right, 16px));
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   outline: none;
 }
 
@@ -207,7 +212,7 @@ onUnmounted(() => {
 .promo-poster-img {
   width: 100%;
   height: auto;
-  max-height: 82vh;
+  max-height: min(65vh, 480px);
   object-fit: contain;
   display: block;
 }

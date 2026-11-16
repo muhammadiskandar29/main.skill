@@ -7184,13 +7184,16 @@ onMounted(() => {
   .modal-backdrop {
     padding: 0 !important;
     align-items: stretch !important;
+    justify-content: center !important;
+    inset: 0 !important;
+    position: fixed !important;
+    z-index: 100000 !important;
   }
 
-  .modal-dialog,
+  /* Full Screen Workflow Modals */
   .modal-dialog.modal-lg,
   .modal-dialog.modal-dialog-lg,
-  .modal-dialog.modal-md,
-  .modal-dialog.modal-sm {
+  .modal-dialog.modal-xl {
     width: 100% !important;
     max-width: 100% !important;
     min-width: 100% !important;
@@ -7203,17 +7206,47 @@ onMounted(() => {
     box-shadow: none !important;
   }
 
+  /* Rounded Bottom Sheet on Mobile for Standard Modals */
+  .modal-dialog:not(.modal-lg):not(.modal-dialog-lg):not(.modal-xl):not(.modal-sm) {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: auto !important;
+    margin-bottom: 0 !important;
+    max-height: calc(100dvh - env(safe-area-inset-top, 20px) - 12px) !important;
+    border-radius: 22px 22px 0 0 !important;
+    border: none !important;
+    box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.25) !important;
+  }
+
+  /* Compact Dialogs (Confirmation, Alerts, Small Prompts) */
+  .modal-dialog.modal-sm {
+    width: min(92vw, 440px) !important;
+    max-width: 440px !important;
+    height: auto !important;
+    max-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 32px) !important;
+    border-radius: 20px !important;
+    margin: auto !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25) !important;
+  }
+
   .modal-header {
-    padding: 12px 14px !important;
+    padding: 14px 16px 12px !important;
+    padding-top: max(14px, calc(10px + env(safe-area-inset-top, 0px))) !important;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(16px, env(safe-area-inset-right, 0px)) !important;
   }
 
   .modal-body {
-    padding: 14px 12px !important;
+    padding: 14px 16px !important;
+    padding-left: max(14px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(14px, env(safe-area-inset-right, 0px)) !important;
   }
 
   .modal-footer {
-    padding: 12px 14px !important;
-    padding-bottom: max(14px, env(safe-area-inset-bottom)) !important;
+    padding: 12px 16px !important;
+    padding-bottom: max(16px, calc(12px + env(safe-area-inset-bottom, 0px))) !important;
+    padding-left: max(16px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(16px, env(safe-area-inset-right, 0px)) !important;
     background: #ffffff !important;
   }
 

@@ -480,6 +480,9 @@ async function handleLoginSubmit() {
    ========================================================================= */
 .login-page-wrapper {
   min-height: 100vh;
+  min-height: 100dvh;
+  min-height: -webkit-fill-available;
+  padding-bottom: max(20px, env(safe-area-inset-bottom, 20px));
   display: flex;
   flex-direction: column;
   background-color: #f8fafc;
@@ -662,9 +665,13 @@ async function handleLoginSubmit() {
   position: relative;
   z-index: 10;
   padding: 14px 0;
+  padding-top: max(14px, env(safe-area-inset-top, 14px));
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
   border-bottom: 1px solid #e2e8f0;
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
 .portal-header-container {

@@ -2337,6 +2337,9 @@ function getWaConfirmationUrl() {
   }
   .modal-header {
     padding: 12px 14px !important;
+    padding-top: max(14px, calc(10px + env(safe-area-inset-top, 0px))) !important;
+    padding-left: max(14px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(14px, env(safe-area-inset-right, 0px)) !important;
   }
   .modal-title {
     font-size: 15.5px !important;
@@ -2388,7 +2391,9 @@ function getWaConfirmationUrl() {
   }
   .wizard-footer {
     padding: 12px 14px !important;
-    padding-bottom: max(14px, env(safe-area-inset-bottom)) !important;
+    padding-bottom: max(16px, calc(12px + env(safe-area-inset-bottom, 0px))) !important;
+    padding-left: max(14px, env(safe-area-inset-left, 0px)) !important;
+    padding-right: max(14px, env(safe-area-inset-right, 0px)) !important;
     background: #ffffff !important;
     border-top: 1px solid #e2e8f0 !important;
     box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.05) !important;

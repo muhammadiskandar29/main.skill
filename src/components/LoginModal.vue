@@ -148,8 +148,12 @@ function openForgotPassword() {
 <style scoped>
 .modal-dialog-login {
   max-width: 440px;
-  width: 92%;
-  padding: 30px 28px 24px;
+  width: min(92vw, 440px);
+  max-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 32px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: auto;
+  padding: 26px 24px 22px;
   background: #ffffff;
   border-radius: 18px;
   border: 1px solid rgba(226, 232, 240, 0.95);

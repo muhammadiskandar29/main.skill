@@ -178,22 +178,30 @@ async function handleChangePassword() {
   inset: 0;
   background-color: rgba(15, 23, 42, 0.65);
   backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
   z-index: 10000;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 16px;
+  padding-top: max(16px, env(safe-area-inset-top, 16px));
+  padding-bottom: max(16px, env(safe-area-inset-bottom, 16px));
+  padding-left: max(16px, env(safe-area-inset-left, 16px));
+  padding-right: max(16px, env(safe-area-inset-right, 16px));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal-dialog-change-pw {
   background: #ffffff;
   border-radius: var(--radius-lg);
-  width: 100%;
+  width: min(92vw, 460px);
   max-width: 460px;
-  max-height: calc(100dvh - 30px);
+  max-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 32px);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 28px 24px;
+  margin: auto;
+  padding: 26px 22px;
   box-shadow: 0 20px 45px rgba(0, 0, 0, 0.22);
   animation: modalEnter 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }

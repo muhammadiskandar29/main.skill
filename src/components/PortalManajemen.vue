@@ -1974,27 +1974,33 @@
                 <pre class="font-mono" style="background: #0f172a; color: #f8fafc; padding: 10px; border-radius: 6px; font-size: 11px; overflow-x: auto; max-height: 220px;">const WEBHOOK_URL = window_origin_or_domain + '/api/webhook/mutasi'; // Ganti dengan URL domain Anda
 
 function cekMutasiBankGmail() {
-  const props = PropertiesService.getUserProperties();
-  const query = 'newer_than:1d (from:bca.co.id OR from:bankmandiri.co.id OR from:bri.co.id OR from:bni.co.id OR from:bsi.co.id OR from:gopay.co.id OR subject:"Transfer" OR subject:"Dana Masuk" OR subject:"QRIS" OR subject:"Bukti Transaksi")';
-  const threads = GmailApp.search(query, 0, 15);
-  for (const thread of threads) {
-    for (const msg of thread.getMessages()) {
-      const msgId = msg.getId();
-      if (props.getProperty('MSG_' + msgId)) continue;
-      UrlFetchApp.fetch(WEBHOOK_URL, {
-        method: 'post',
-        contentType: 'application/json',
-        payload: JSON.stringify({
-          type: 'CR',
-          bank: msg.getFrom(),
-          sender: msg.getFrom(),
-          title: msg.getSubject(),
-          text: msg.getSubject() + ' ' + msg.getPlainBody()
-        }),
-        muteHttpExceptions: true
-      });
-      props.setProperty('MSG_' + msgId, new Date().toISOString());
+  try {
+    let props;
+    try { props = PropertiesService.getUserProperties(); } catch (e) { return; }
+    const query = 'newer_than:1d (from:bca.co.id OR from:bankmandiri.co.id OR from:bri.co.id OR from:bni.co.id OR from:bsi.co.id OR from:gopay.co.id OR subject:"Transfer" OR subject:"Dana Masuk" OR subject:"QRIS" OR subject:"Bukti Transaksi")';
+    let threads = [];
+    try { threads = GmailApp.search(query, 0, 15); } catch (e) { return; }
+    for (const thread of threads) {
+      for (const msg of thread.getMessages()) {
+        const msgId = msg.getId();
+        try { if (props && props.getProperty('MSG_' + msgId)) continue; } catch (e) {}
+        UrlFetchApp.fetch(WEBHOOK_URL, {
+          method: 'post',
+          contentType: 'application/json',
+          payload: JSON.stringify({
+            type: 'CR',
+            bank: msg.getFrom(),
+            sender: msg.getFrom(),
+            title: msg.getSubject(),
+            text: msg.getSubject() + ' ' + msg.getPlainBody()
+          }),
+          muteHttpExceptions: true
+        });
+        if (props) props.setProperty('MSG_' + msgId, new Date().toISOString());
+      }
     }
+  } catch (err) {
+    Logger.log('Safe catch: ' + err.message);
   }
 }</pre>
               </div>

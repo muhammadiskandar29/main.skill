@@ -2881,8 +2881,17 @@ export const actions = {
 
     const patch = { sessionReports: student.sessionReports };
     if (reportData.promoteLevel) {
-      patch.currentLevel = (parseInt(student.currentLevel) || 1) + 1;
-      patch.currentLevelTitle = `Level ${patch.currentLevel}`;
+      const nextLevelNum = (parseInt(student.currentLevel) || 1) + 1;
+      patch.currentLevel = nextLevelNum;
+
+      // Ambil metadata kurikulum produk secara otomatis
+      const prod = (store.products || []).find(p => p.id === (student.productId || 'prod_swimming'));
+      const lvlMeta = prod?.levels?.find(l => l.levelNumber === nextLevelNum);
+
+      patch.currentLevelTitle = lvlMeta ? `Level ${nextLevelNum}: ${lvlMeta.title}` : `Level ${nextLevelNum}`;
+      if (lvlMeta?.challenge) {
+        patch.targetChallenge = lvlMeta.challenge;
+      }
     }
 
     await this.updateStudent(studentId, patch);

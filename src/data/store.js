@@ -129,6 +129,8 @@ const initialPackages = [
     formattedPrice: 'Rp 400.000',
     duration: '90 menit / sesi',
     meetings: '4x pertemuan',
+    sessionsCount: 4,
+    coachFeePerStudentSession: 40000,
     badge: 'Paling Populer',
     description: 'Pilihan hemat dengan suasana bersosialisasi yang menyenangkan dan tetap terpantau.'
   },
@@ -142,6 +144,8 @@ const initialPackages = [
     formattedPrice: 'Rp 500.000',
     duration: '90 menit / sesi',
     meetings: '4x pertemuan',
+    sessionsCount: 4,
+    coachFeePerStudentSession: 50000,
     badge: 'Rekomendasi Coach',
     description: 'Fokus perhatian lebih intensif dengan teman sebaya atau saudara.'
   },
@@ -155,6 +159,8 @@ const initialPackages = [
     formattedPrice: 'Rp 700.000',
     duration: '60 menit / sesi',
     meetings: '4x pertemuan',
+    sessionsCount: 4,
+    coachFeePerStudentSession: 75000,
     badge: 'Perhatian Penuh',
     description: 'Bimbingan privat 1 pelatih 1 murid, durasi ekstra 60 menit untuk akselerasi maksimal.'
   },
@@ -168,6 +174,8 @@ const initialPackages = [
     formattedPrice: 'Rp 350.000',
     duration: '60 menit / sesi',
     meetings: '4x pertemuan',
+    sessionsCount: 4,
+    coachFeePerStudentSession: 35000,
     badge: 'Populer',
     description: 'Latihan bersama kelompok sebaya dengan bimbingan koreografer berpengalaman.'
   },
@@ -179,10 +187,12 @@ const initialPackages = [
     ratio: '1-on-1 Privat Mobil',
     price: 950000,
     formattedPrice: 'Rp 950.000',
-    duration: '90 menit / sesi',
-    meetings: '5x pertemuan',
-    badge: 'Best Value',
-    description: 'Paket tuntas jalan raya, tanjakan, parkir, dan pendampingan sertifikasi.'
+    duration: '60 menit / sesi',
+    meetings: '6x pertemuan',
+    sessionsCount: 6,
+    coachFeePerStudentSession: 80000,
+    badge: 'Standar Mengemudi',
+    description: 'Pelatihan mengemudi mobil manual intensif di jalan raya bersama instruktur bersertifikasi.'
   }
 ];
 
@@ -588,7 +598,7 @@ const initialRbacMatrix = {
   coach: {
     roleName: 'Coach (Pelatih / Instruktur)',
     badgeColor: '#e5a024',
-    allowedMenus: ['co_overview', 'co_schedule', 'co_input_progress', 'co_attendance', 'co_students']
+    allowedMenus: ['co_overview', 'co_schedule', 'co_input_progress', 'co_attendance', 'co_students', 'co_earnings']
   },
   manajemen: {
     roleName: 'Manajemen (Admin CMS & CRM)',
@@ -768,7 +778,7 @@ export function isMenuValidForRole(menu, role) {
     return ['c_overview', 'c_progress', 'c_schedule', 'c_certificates', 'c_billing', 'c_finance', 'c_payments'].includes(clean);
   }
   if (role === 'coach') {
-    return ['co_overview', 'co_schedule', 'co_input_progress', 'co_attendance', 'co_students'].includes(clean);
+    return ['co_overview', 'co_schedule', 'co_input_progress', 'co_attendance', 'co_students', 'co_earnings'].includes(clean);
   }
   if (role === 'manajemen') {
     return [
@@ -834,13 +844,32 @@ export const store = reactive({
   },
 
   products: loadLocalStore('products', initialProducts),
-  packages: loadLocalStore('packages', initialPackages),
+  packages: (() => {
+    const list = loadLocalStore('packages', initialPackages);
+    return list.map(pkg => {
+      const sess = parseInt(pkg.sessionsCount) || (parseInt(pkg.meetings) || 4);
+      let fee = parseInt(pkg.coachFeePerStudentSession);
+      if (isNaN(fee) || fee <= 0) {
+        if (pkg.id === 'pkg_swim_group') fee = 40000;
+        else if (pkg.id === 'pkg_swim_small') fee = 50000;
+        else if (pkg.id === 'pkg_swim_private') fee = 75000;
+        else if (pkg.id === 'pkg_dance_regular') fee = 35000;
+        else fee = Math.round((pkg.price / sess) * 0.4);
+      }
+      return {
+        ...pkg,
+        sessionsCount: sess,
+        coachFeePerStudentSession: fee
+      };
+    });
+  })(),
   coaches: loadLocalStore('coaches', initialCoaches),
   students: loadLocalStore('students', initialStudents),
   transactions: loadLocalStore('transactions', initialTransactions),
   users: loadLocalStore('users', initialUsers),
   locations: loadLocalStore('locations', initialLocations),
   coachAttendances: loadLocalStore('coachAttendances', initialCoachAttendances),
+  coachPayrollTransfers: loadLocalStore('coachPayrollTransfers', []),
   faqs: normalizeFaqList(loadLocalStore('faqs', initialFaqs)),
 
   brand: loadLocalStore('brand', initialBrand),
@@ -1300,7 +1329,7 @@ export const actions = {
       ? cleanPhone.slice(0, 4) + '****' + cleanPhone.slice(-3)
       : (cleanPhone || 'WhatsApp');
 
-    const waMessage = `Halo *${matched.name}*,\n\nBerikut adalah *KODE VERIFIKASI PEMULIHAN KATA SANDI* akun *mine.skills* Anda:\n\n🔐 KODE OTP: *${otp}*\n\nKode ini berlaku selama 10 menit. Masukkan kode ini pada layar verifikasi untuk membuat kata sandi baru.`;
+    const waMessage = `Halo *${matched.name}*,\n\nBerikut adalah *KODE VERIFIKASI PEMULIHAN KATA SANDI* akun *mine.skills* Anda:\n\nKODE OTP: *${otp}*\n\nKode ini berlaku selama 10 menit. Masukkan kode ini pada layar verifikasi untuk membuat kata sandi baru.`;
     const waUrl = cleanPhone ? `https://api.whatsapp.com/send?phone=${cleanPhone}&text=${encodeURIComponent(waMessage)}` : '';
 
     try {
@@ -3180,6 +3209,222 @@ export const actions = {
     });
 
     return true;
+  },
+
+  // -------------------------------------------------------------
+  // MASTER TARIF PENDAPATAN COACH & PAYROLL
+  // -------------------------------------------------------------
+  async updatePackageCoachFee(packageId, newFee) {
+    const feeNum = parseInt(newFee) || 0;
+    return await this.updatePackage(packageId, { coachFeePerStudentSession: feeNum });
+  },
+
+  async markCoachPayrollTransferred(payload) {
+    const { coachId, coachName, month, year, notes, amount } = payload;
+    const key = `${coachId}_${year}_${month}`;
+    if (!Array.isArray(store.coachPayrollTransfers)) {
+      store.coachPayrollTransfers = [];
+    }
+    const existingIdx = store.coachPayrollTransfers.findIndex(t => t.id === key);
+    const record = {
+      id: key,
+      coachId: coachId || '',
+      coachName: coachName || 'Coach',
+      periodMonth: parseInt(month) || 1,
+      periodYear: parseInt(year) || 2026,
+      amount: parseInt(amount) || 0,
+      status: 'Sudah Ditransfer',
+      transferredAt: new Date().toLocaleString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) + ' WIB',
+      notes: notes || 'Payroll ditransfer melalui rekening perbankan resmi'
+    };
+    if (existingIdx > -1) {
+      store.coachPayrollTransfers[existingIdx] = record;
+    } else {
+      store.coachPayrollTransfers.unshift(record);
+    }
+    persistLocalStore('coachPayrollTransfers', store.coachPayrollTransfers);
+    return record;
+  },
+
+  async cancelCoachPayrollTransfer(coachId, month, year) {
+    const key = `${coachId}_${year}_${month}`;
+    store.coachPayrollTransfers = (store.coachPayrollTransfers || []).filter(t => t.id !== key);
+    persistLocalStore('coachPayrollTransfers', store.coachPayrollTransfers);
+    return true;
+  },
+
+  getCoachEarningsDetails(coachId, coachName, month = null, year = null) {
+    let breakdown = [];
+    let totalHonor = 0;
+    let totalStudentSessions = 0;
+
+    const normalizedCoachName = (coachName || '').trim().toLowerCase();
+
+    (store.students || []).forEach(stu => {
+      const pkg = (store.packages || []).find(p => p.id === stu.packageId) ||
+                  (store.packages || []).find(p => p.name === stu.packageName) ||
+                  (store.packages || [])[0];
+
+      const feePerSession = parseInt(pkg?.coachFeePerStudentSession) || 40000;
+      const totalSess = parseInt(pkg?.sessionsCount) || 4;
+      const studentPricePerSession = Math.round((parseInt(pkg?.price) || 400000) / totalSess);
+      const mgmtNetPerSession = Math.max(0, studentPricePerSession - feePerSession);
+
+      (stu.memberSchedules || []).forEach(sch => {
+        const schCoach = (sch.coachName || sch.coach || stu.assignedCoachName || '').trim().toLowerCase();
+        const isAssigned = (coachId && stu.assignedCoachId === coachId) || 
+                           (normalizedCoachName && schCoach === normalizedCoachName);
+
+        if (!isAssigned) return;
+
+        // Valid jika sesi sudah selesai / hadir
+        const isCompleted = sch.status === 'Selesai' || sch.status === 'Hadir';
+        if (!isCompleted) return;
+
+        // Filter bulan & tahun jika diset
+        if (month !== null && year !== null) {
+          const schDateStr = sch.date || '';
+          const monthMap = {
+            'jan': 1, 'januari': 1, 'feb': 2, 'februari': 2, 'mar': 3, 'maret': 3,
+            'apr': 4, 'april': 4, 'mei': 5, 'may': 5, 'jun': 6, 'juni': 6,
+            'jul': 7, 'juli': 7, 'agu': 8, 'agustus': 8, 'aug': 8, 'sep': 9, 'september': 9,
+            'okt': 10, 'oktober': 10, 'oct': 10, 'nov': 11, 'november': 11, 'des': 12, 'desember': 12, 'dec': 12
+          };
+          
+          let schMonth = null;
+          let schYear = null;
+
+          if (schDateStr.includes('-')) {
+            const parts = schDateStr.split('-');
+            if (parts.length >= 3) {
+              schYear = parseInt(parts[0]);
+              schMonth = parseInt(parts[1]);
+            }
+          } else {
+            const parts = schDateStr.toLowerCase().split(/\s+/);
+            if (parts.length >= 3) {
+              schYear = parseInt(parts[2]);
+              schMonth = monthMap[parts[1]] || null;
+            }
+          }
+
+          if (schMonth && schMonth !== parseInt(month)) return;
+          if (schYear && schYear !== parseInt(year)) return;
+        }
+
+        totalStudentSessions += 1;
+        totalHonor += feePerSession;
+
+        breakdown.push({
+          scheduleId: sch.id,
+          date: sch.date || 'Sesi Selesai',
+          time: sch.time || '09.00 - 09.45 WIB',
+          day: sch.day || 'Sabtu',
+          location: sch.location || stu.location || 'Kolam Renang Resmi',
+          studentId: stu.id,
+          studentName: stu.name,
+          studentNickname: stu.nickname || stu.name,
+          packageName: stu.packageName || pkg?.name || 'Group Class',
+          fee: feePerSession,
+          studentPricePerSession,
+          mgmtNetPerSession,
+          sessionNo: sch.sessionNo || 1
+        });
+      });
+    });
+
+    const key = `${coachId}_${year}_${month}`;
+    const transferRecord = (store.coachPayrollTransfers || []).find(t => 
+      t.id === key || (t.coachId === coachId && t.periodMonth == month && t.periodYear == year)
+    );
+
+    return {
+      totalStudentSessions,
+      totalHonor,
+      breakdown,
+      isTransferred: transferRecord?.status === 'Sudah Ditransfer',
+      transferredAt: transferRecord?.transferredAt || null,
+      transferNotes: transferRecord?.notes || ''
+    };
+  },
+
+  getManagementFinanceSummary(month = null, year = null) {
+    const monthMap = {
+      'jan': 1, 'januari': 1, 'feb': 2, 'februari': 2, 'mar': 3, 'maret': 3,
+      'apr': 4, 'april': 4, 'mei': 5, 'may': 5, 'jun': 6, 'juni': 6,
+      'jul': 7, 'juli': 7, 'agu': 8, 'agustus': 8, 'aug': 8, 'sep': 9, 'september': 9,
+      'okt': 10, 'oktober': 10, 'oct': 10, 'nov': 11, 'november': 11, 'des': 12, 'desember': 12, 'dec': 12
+    };
+
+    let totalGrossRevenue = 0;
+    (store.transactions || []).forEach(trx => {
+      const isPaid = (trx.status || '').includes('Lunas');
+      if (!isPaid) return;
+
+      const dateStr = trx.paidAt || trx.date || '';
+      let trxMonth = null;
+      let trxYear = null;
+
+      if (dateStr.includes('-')) {
+        const parts = dateStr.split('-');
+        if (parts.length >= 2) {
+          trxYear = parseInt(parts[0]);
+          trxMonth = parseInt(parts[1]);
+        }
+      } else {
+        const parts = dateStr.toLowerCase().split(/\s+/);
+        if (parts.length >= 3) {
+          trxYear = parseInt(parts[2]);
+          trxMonth = monthMap[parts[1]] || null;
+        }
+      }
+
+      if (month !== null && trxMonth && trxMonth !== parseInt(month)) return;
+      if (year !== null && trxYear && trxYear !== parseInt(year)) return;
+
+      totalGrossRevenue += (parseInt(trx.amount) || 0);
+    });
+
+    let totalCoachPayroll = 0;
+    let totalStudentSessions = 0;
+    const coachSummaries = (store.coaches || []).map(coach => {
+      const details = this.getCoachEarningsDetails(coach.id, coach.name, month, year);
+      totalCoachPayroll += details.totalHonor;
+      totalStudentSessions += details.totalStudentSessions;
+
+      return {
+        coachId: coach.id,
+        coachName: coach.name,
+        coachAvatar: coach.avatar,
+        specialty: coach.specialty,
+        totalStudentSessions: details.totalStudentSessions,
+        totalHonor: details.totalHonor,
+        isTransferred: details.isTransferred,
+        transferredAt: details.transferredAt,
+        transferNotes: details.transferNotes,
+        breakdown: details.breakdown
+      };
+    });
+
+    if (totalGrossRevenue === 0 && totalStudentSessions > 0) {
+      coachSummaries.forEach(cs => {
+        cs.breakdown.forEach(b => {
+          totalGrossRevenue += b.studentPricePerSession;
+        });
+      });
+    }
+
+    const netManagementProfit = Math.max(0, totalGrossRevenue - totalCoachPayroll);
+    const profitMarginPct = totalGrossRevenue > 0 ? Math.round((netManagementProfit / totalGrossRevenue) * 100) : 0;
+
+    return {
+      totalGrossRevenue,
+      totalCoachPayroll,
+      netManagementProfit,
+      profitMarginPct,
+      totalStudentSessions,
+      coachSummaries
+    };
   },
 
   async promptPwaInstall() {

@@ -792,7 +792,7 @@
             :class="selectedPayMethod === 'qris' ? 'btn-primary' : 'btn-secondary'"
             style="padding: 12px 10px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 4px; border-radius: 10px;"
           >
-            <span style="font-size: 14.5px;">📱 QRIS Resmi</span>
+            <span style="font-size: 14.5px;">QRIS Resmi</span>
             <span style="font-size: 10.5px; opacity: 0.85; font-weight: 500;">BCA, GoPay, Mandiri, OVO & Semua Bank</span>
           </button>
           <button 
@@ -801,7 +801,7 @@
             :class="selectedPayMethod === 'transfer' ? 'btn-primary' : 'btn-secondary'"
             style="padding: 12px 10px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 4px; border-radius: 10px;"
           >
-            <span style="font-size: 14.5px;">🏦 Transfer Bank</span>
+            <span style="font-size: 14.5px;">Transfer Bank</span>
             <span style="font-size: 10.5px; opacity: 0.85; font-weight: 500;">BCA, Mandiri, BRI, BNI</span>
           </button>
         </div>

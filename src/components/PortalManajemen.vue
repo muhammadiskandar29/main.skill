@@ -178,7 +178,7 @@
               <td class="text-right">
                 <div style="display: inline-flex; gap: 6px; align-items: center;">
                   <button @click="openViewStudentModal(stu)" class="btn-info-xs" title="Lihat Detail Profil Siswa" style="padding: 3px 8px; font-size: 11px; font-weight: 700; background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; border-radius: 4px; cursor: pointer;">
-                    👁️ Detail
+                    Detail
                   </button>
                   <button @click="openEditStudentModal(stu)" class="btn-secondary-xs" title="Edit Data Siswa & Wali">
                     Edit
@@ -633,7 +633,7 @@
                   </div>
                   <span class="sub-cell-txt">{{ stu.age }} Thn • Bergabung: {{ stu.joinedDate }}</span>
                   <span v-if="stu.location" class="sub-cell-txt" style="color: var(--color-primary); font-size: 11px;">
-                    📍 {{ stu.location.split(',')[0] }}
+                    {{ stu.location.split(',')[0] }}
                   </span>
                 </div>
               </td>
@@ -644,7 +644,8 @@
                   <strong>{{ stu.parentName }}</strong>
                   <div class="wa-chat-inline" style="margin-top: 2px;">
                     <a :href="actions.buildWhatsAppUrl(stu, 'welcome')" target="_blank" class="link-wa-chat" style="display: inline-flex; align-items: center; gap: 4px; font-weight: 700; color: #16a34a; text-decoration: none; font-size: 11px; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 2px 7px; border-radius: 4px;">
-                      <span>💬 Chat WA</span>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                      <span>Chat WA</span>
                     </a>
                   </div>
                 </div>
@@ -683,7 +684,7 @@
                     title="Lihat Detail Lengkap Profil, Asesmen & Status 4 Sesi"
                     style="padding: 4px 8px; font-size: 11px; font-weight: 700; background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;"
                   >
-                    <span>👁️ Detail</span>
+                    <span>Detail</span>
                   </button>
                   <button 
                     @click="openRenewModal(stu)" 
@@ -1045,7 +1046,7 @@
                 <!-- Remarks Reschedule Khusus -->
                 <div v-if="sch.status === 'Reschedule' || sch.rescheduledFrom" class="sched-reschedule-box" style="margin-top: 6px; font-size: 11px; color: #92400e; background: #fffbeb; border: 1px solid #fde68a; border-radius: 6px; padding: 4px 6px; line-height: 1.35;">
                   <div style="font-weight: 700; color: #b45309;">
-                    🔄 Reschedule Sesi #{{ sch.sessionNo }}
+                    Reschedule Sesi #{{ sch.sessionNo }}
                   </div>
                   <div v-if="sch.originalDate" style="font-size: 10px; color: #78350f; margin-top: 2px;">
                     Semula: {{ sch.originalDay ? sch.originalDay + ', ' : '' }}{{ sch.originalDate }} ({{ sch.originalTime || sch.time }})
@@ -1606,7 +1607,7 @@
                       title="Lihat Rincian Tagihan & Invoice"
                       style="padding: 4px 8px; font-size: 11px; font-weight: 700; background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;"
                     >
-                      <span>👁️ Detail</span>
+                      <span>Detail</span>
                     </button>
                     <div v-if="!trx.status?.includes('Lunas')" style="display: inline-flex; gap: 6px; align-items: center;">
                       <button 
@@ -1965,7 +1966,7 @@
 
             <details style="margin-top: 16px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px 12px;">
               <summary style="cursor: pointer; font-size: 12.5px; font-weight: 800; color: #166534;">
-                🔒 Panduan & Script Resmi Gmail (100% Tanpa Pihak Ketiga) — Klik untuk Buka
+                Panduan & Script Resmi Gmail (100% Tanpa Pihak Ketiga) — Klik untuk Buka
               </summary>
               <div style="margin-top: 10px; font-size: 12px; color: #1e293b; line-height: 1.5;">
                 <p style="margin: 0 0 8px;">
@@ -2035,7 +2036,7 @@ function cekMutasiBankGmail() {
             </div>
 
             <div style="font-size: 11.5px; color: #64748b; line-height: 1.5; border-top: 1px dashed #e2e8f0; padding-top: 12px;">
-              💡 <em>Setiap dana masuk yang sesuai dengan nominal tagihan unik akan langsung diverifikasi lunas oleh robot perbankan dan kuitansi resmi langsung dikirimkan ke wali murid tanpa memerlukan campur tangan staf admin.</em>
+              <em>Setiap dana masuk yang sesuai dengan nominal tagihan unik akan langsung diverifikasi lunas oleh robot perbankan dan kuitansi resmi langsung dikirimkan ke wali murid tanpa memerlukan campur tangan staf admin.</em>
             </div>
           </div>
         </div>
@@ -2291,7 +2292,9 @@ function cekMutasiBankGmail() {
                 </div>
 
                 <div v-else style="padding: 40px 16px; color: #94a3b8;">
-                  <div style="font-size: 32px; margin-bottom: 8px;">🖼️</div>
+                  <div style="display: flex; justify-content: center; margin-bottom: 8px;">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.8"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                  </div>
                   <p style="font-size: 12.5px; margin: 0;">Belum ada gambar poster. Unggah poster untuk melihat preview.</p>
                 </div>
 
@@ -3783,7 +3786,8 @@ function cekMutasiBankGmail() {
                   class="btn-whatsapp-pill"
                   style="display: inline-flex; align-items: center; gap: 5px; background: #22c55e; color: #fff; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 20px; text-decoration: none;"
                 >
-                  <span>💬 Chat WA Wali</span>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                  <span>Chat WA Wali</span>
                 </a>
               </div>
             </div>
@@ -3794,7 +3798,7 @@ function cekMutasiBankGmail() {
               </div>
               <div>
                 <span style="color: #64748b;">Lokasi Kolam:</span>
-                <div style="font-weight: 700; color: #0f172a;">📍 {{ activeViewSchedule.location || 'Kolam Renang Resmi' }}</div>
+                <div style="font-weight: 700; color: #0f172a;">{{ activeViewSchedule.location || 'Kolam Renang Resmi' }}</div>
               </div>
             </div>
           </div>
@@ -3808,13 +3812,13 @@ function cekMutasiBankGmail() {
                   {{ activeViewSchedule.day }}, {{ formatScheduleDate(activeViewSchedule.date) }}
                 </div>
                 <div style="font-size: 12.5px; color: #0284c7; font-weight: 700; margin-top: 2px;">
-                  ⏰ {{ activeViewSchedule.time }}
+                  {{ activeViewSchedule.time }}
                 </div>
               </div>
               <div>
                 <span style="font-size: 11.5px; color: #64748b; text-transform: uppercase; font-weight: 700;">Pelatih Pendamping</span>
                 <div style="font-size: 14px; font-weight: 800; color: #0f172a; margin-top: 2px;">
-                  🏊 {{ activeViewSchedule.coachName }}
+                  {{ activeViewSchedule.coachName }}
                 </div>
                 <div v-if="activeViewSchedule.isSubstitute" style="font-size: 11px; color: #d97706; font-weight: 700; margin-top: 2px;">
                   (Instruktur Pengganti — Pelatih Utama: {{ activeViewSchedule.originalCoachName }})
@@ -3826,7 +3830,7 @@ function cekMutasiBankGmail() {
           <!-- Card Audit Reschedule (Khusus jika status Reschedule atau ada data reschedule) -->
           <div v-if="activeViewSchedule.status === 'Reschedule' || activeViewSchedule.rescheduledFrom || activeViewSchedule.originalDate" style="background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;">
             <div style="display: flex; align-items: center; gap: 6px; font-size: 13.5px; font-weight: 800; color: #92400e; margin-bottom: 8px;">
-              <span>🔄 Catatan & Riwayat Reschedule</span>
+              <span>Catatan & Riwayat Reschedule</span>
             </div>
             <div style="font-size: 12.5px; line-height: 1.6; color: #78350f;">
               <div style="display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px dashed #fde68a;">
@@ -3924,7 +3928,8 @@ function cekMutasiBankGmail() {
                 class="btn-whatsapp-pill"
                 style="display: inline-flex; align-items: center; gap: 5px; background: #22c55e; color: #fff; font-size: 12px; font-weight: 700; padding: 8px 14px; border-radius: 20px; text-decoration: none;"
               >
-                <span>💬 WhatsApp</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                <span>WhatsApp</span>
               </a>
             </div>
           </div>
@@ -3943,8 +3948,8 @@ function cekMutasiBankGmail() {
             </div>
             <div style="background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px;">
               <span style="font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700;">Pelatih Pendamping</span>
-              <div style="font-size: 13.5px; font-weight: 700; color: #0f172a; margin-top: 2px;">🏊 {{ activeViewStudent.assignedCoachName || 'Belum di-assign' }}</div>
-              <div style="font-size: 12px; color: #64748b; margin-top: 2px;">📍 {{ activeViewStudent.location ? activeViewStudent.location.split(',')[0] : 'Venue Resmi' }}</div>
+              <div style="font-size: 13.5px; font-weight: 700; color: #0f172a; margin-top: 2px;">{{ activeViewStudent.assignedCoachName || 'Belum di-assign' }}</div>
+              <div style="font-size: 12px; color: #64748b; margin-top: 2px;">{{ activeViewStudent.location ? activeViewStudent.location.split(',')[0] : 'Venue Resmi' }}</div>
             </div>
           </div>
 
@@ -3989,11 +3994,11 @@ function cekMutasiBankGmail() {
                     {{ sch.day }}, {{ formatScheduleDate(sch.date) }} • {{ sch.time }}
                   </div>
                   <div v-if="sch.status === 'Reschedule' && sch.originalDate" style="font-size: 11px; color: #b45309; margin-top: 2px;">
-                    🔄 Semula: {{ sch.originalDay ? sch.originalDay + ', ' : '' }}{{ sch.originalDate }}
+                    Semula: {{ sch.originalDay ? sch.originalDay + ', ' : '' }}{{ sch.originalDate }}
                   </div>
                 </div>
                 <div style="font-size: 12px; text-align: right;">
-                  <div style="font-weight: 700; color: #0f172a;">🏊 {{ sch.coachName || activeViewStudent.assignedCoachName }}</div>
+                  <div style="font-weight: 700; color: #0f172a;">{{ sch.coachName || activeViewStudent.assignedCoachName }}</div>
                   <div v-if="sch.rating" style="color: #eab308; font-size: 11px;">{{ '★'.repeat(sch.rating) }}</div>
                 </div>
               </div>
@@ -4035,6 +4040,143 @@ function cekMutasiBankGmail() {
       </div>
     </div>
 
+    <!-- MODAL KONFIRMASI TRANSFER PAYROLL COACH -->
+    <div v-if="showPayrollTransferModal && activePayrollCoach" class="modal-backdrop" @click.self="showPayrollTransferModal = false">
+      <div class="modal-card" style="max-width: 480px;">
+        <div class="modal-header">
+          <div>
+            <span class="badge-chip gold">Konfirmasi Pencairan Honor</span>
+            <h3 class="modal-title" style="margin-top: 4px;">Transfer Payroll: {{ payrollTransferForm.coachName }}</h3>
+          </div>
+          <button class="btn-close" @click="showPayrollTransferModal = false" style="background: none; border: none; cursor: pointer;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+
+        <form @submit.prevent="submitPayrollTransfer">
+          <div class="modal-body" style="padding: 20px;">
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; margin-bottom: 16px;">
+              <div style="font-size: 12px; color: #64748b;">Total Honor yang Akan Ditransfer:</div>
+              <div style="font-size: 22px; font-weight: 800; color: #16a34a; margin-top: 2px;">
+                {{ formatRupiah(payrollTransferForm.amount) }}
+              </div>
+              <div style="font-size: 12px; color: #64748b; margin-top: 4px;">
+                Periode: <strong>{{ getMonthName(payrollSelectedMonth) }} {{ payrollSelectedYear }}</strong> ({{ activePayrollCoach.completedSessionsCount }} Sesi Murid Selesai)
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 14px;">
+              <label class="form-label font-bold">Nominal Transfer (Rp) <span class="required">*</span></label>
+              <input 
+                v-model.number="payrollTransferForm.amount" 
+                type="number" 
+                class="form-input" 
+                required 
+                min="0"
+              />
+            </div>
+
+            <div class="form-group" style="margin-bottom: 14px;">
+              <label class="form-label font-bold">Catatan / No. Referensi Transfer Bank</label>
+              <input 
+                v-model="payrollTransferForm.notes" 
+                type="text" 
+                class="form-input" 
+                placeholder="Contoh: Trf BCA Ref #9928192 via M-Banking"
+              />
+            </div>
+          </div>
+
+          <div class="modal-footer" style="padding: 14px 20px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 8px;">
+            <button type="button" @click="showPayrollTransferModal = false" class="btn-secondary">
+              Batal
+            </button>
+            <button type="submit" class="btn-primary">
+              Simpan & Tandai Ditransfer
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL EDIT MASTER TARIF FEE COACH -->
+    <div v-if="showEditCoachFeeModal && activePackageForFee" class="modal-backdrop" @click.self="showEditCoachFeeModal = false">
+      <div class="modal-card" style="max-width: 500px;">
+        <div class="modal-header">
+          <div>
+            <span class="badge-chip gold">Master Tarif Dinamis</span>
+            <h3 class="modal-title" style="margin-top: 4px;">Atur Tarif Coach: {{ activePackageForFee.name }}</h3>
+          </div>
+          <button class="btn-close" @click="showEditCoachFeeModal = false" style="background: none; border: none; cursor: pointer;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+
+        <form @submit.prevent="submitEditCoachFee">
+          <div class="modal-body" style="padding: 20px;">
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px; margin-bottom: 16px;">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12.5px;">
+                <div>
+                  <span style="color: #64748b;">Harga Jual Paket:</span>
+                  <div style="font-weight: 700; color: #0f172a;">{{ formatRupiah(activePackageForFee.price) }}</div>
+                </div>
+                <div>
+                  <span style="color: #64748b;">Jumlah Sesi Paket:</span>
+                  <div style="font-weight: 700; color: #0f172a;">{{ activePackageForFee.sessionsCount || 4 }} Sesi</div>
+                </div>
+                <div>
+                  <span style="color: #64748b;">Nilai per Sesi Siswa:</span>
+                  <div style="font-weight: 700; color: #0284c7;">
+                    {{ formatRupiah(Math.round(activePackageForFee.price / (activePackageForFee.sessionsCount || 4))) }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 14px;">
+              <label class="form-label font-bold">Tarif Honor Coach per Murid / Sesi (Rp) <span class="required">*</span></label>
+              <input 
+                v-model.number="editCoachFeeAmount" 
+                type="number" 
+                class="form-input" 
+                required 
+                min="0"
+                step="5000"
+              />
+              <span style="font-size: 11.5px; color: #64748b; margin-top: 4px; display: block;">
+                Nominal honor yang diperoleh pelatih untuk setiap 1 murid yang menyelesaikan 1 sesi di kelas ini.
+              </span>
+            </div>
+
+            <!-- Live Margin Calculation Preview -->
+            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 12px 14px;">
+              <div style="font-size: 11.5px; font-weight: 700; color: #166534; text-transform: uppercase; margin-bottom: 4px;">
+                Simulasi Laba Bersih Manajemen per Sesi
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                <span style="font-size: 13px; color: #15803d;">Laba Bersih per Sesi Siswa:</span>
+                <strong style="font-size: 16px; color: #15803d;">
+                  {{ formatRupiah(Math.round(activePackageForFee.price / (activePackageForFee.sessionsCount || 4)) - editCoachFeeAmount) }}
+                </strong>
+              </div>
+              <div style="font-size: 11.5px; color: #166534; margin-top: 4px;">
+                Persentase Margin Manajemen: <strong>{{ Math.round(((Math.round(activePackageForFee.price / (activePackageForFee.sessionsCount || 4)) - editCoachFeeAmount) / Math.round(activePackageForFee.price / (activePackageForFee.sessionsCount || 4))) * 100) }}%</strong>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer" style="padding: 14px 20px; border-top: 1px solid #e2e8f0; display: flex; justify-content: flex-end; gap: 8px;">
+            <button type="button" @click="showEditCoachFeeModal = false" class="btn-secondary">
+              Batal
+            </button>
+            <button type="submit" class="btn-primary">
+              Simpan Perubahan Tarif
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- 15. VIEW DETAIL TAGIHAN / INVOICE MODAL -->
     <div v-if="showViewTransactionModal && activeViewTransaction" class="modal-backdrop" @click.self="showViewTransactionModal = false">
       <div class="modal-dialog" style="max-width: 600px; max-height: 90vh; display: flex; flex-direction: column;">
@@ -4068,7 +4210,8 @@ function cekMutasiBankGmail() {
                   class="btn-whatsapp-pill"
                   style="display: inline-flex; align-items: center; gap: 5px; background: #22c55e; color: #fff; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 20px; text-decoration: none;"
                 >
-                  <span>💬 WhatsApp Wali</span>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                  <span>WhatsApp Wali</span>
                 </a>
               </div>
             </div>
@@ -5953,6 +6096,79 @@ function cleanPhone(num) {
 // PAYMENTS & QRIS ASPI & BANK ACCOUNTS CRUD
 // -------------------------------------------------------------
 const paymentSubTab = ref('invoices');
+
+// PAYROLL & REKAP PENDAPATAN MANAJEMEN
+const payrollSelectedMonth = ref(new Date().getMonth() + 1);
+const payrollSelectedYear = ref(new Date().getFullYear());
+
+const managementFinanceSummary = computed(() => {
+  return actions.getManagementFinanceSummary(payrollSelectedMonth.value, payrollSelectedYear.value);
+});
+
+// Modal Transfer Payroll Coach
+const showPayrollTransferModal = ref(false);
+const activePayrollCoach = ref(null);
+const payrollTransferForm = reactive({
+  coachId: '',
+  coachName: '',
+  amount: 0,
+  notes: ''
+});
+
+function openPayrollTransferModal(coachItem) {
+  activePayrollCoach.value = coachItem;
+  payrollTransferForm.coachId = coachItem.coachId;
+  payrollTransferForm.coachName = coachItem.coachName;
+  payrollTransferForm.amount = coachItem.totalHonor;
+  payrollTransferForm.notes = `Payroll ${getMonthName(payrollSelectedMonth.value)} ${payrollSelectedYear.value}`;
+  showPayrollTransferModal.value = true;
+}
+
+function submitPayrollTransfer() {
+  if (!activePayrollCoach.value) return;
+  actions.markCoachPayrollTransferred({
+    coachId: payrollTransferForm.coachId,
+    coachName: payrollTransferForm.coachName,
+    month: payrollSelectedMonth.value,
+    year: payrollSelectedYear.value,
+    amount: payrollTransferForm.amount,
+    notes: payrollTransferForm.notes
+  });
+  showPayrollTransferModal.value = false;
+  showNotice(`Status payroll ${payrollTransferForm.coachName} berhasil ditandai SUDAH DITRANSFER!`);
+}
+
+function cancelPayrollTransfer(coachItem) {
+  actions.cancelCoachPayrollTransfer(coachItem.coachId, payrollSelectedMonth.value, payrollSelectedYear.value);
+  showNotice(`Status payroll ${coachItem.coachName} dikembalikan ke MENUNGGU.`);
+}
+
+// Modal Ubah Tarif Honor Coach Dinamis
+const showEditCoachFeeModal = ref(false);
+const activePackageForFee = ref(null);
+const editCoachFeeAmount = ref(0);
+
+function openEditCoachFeeModal(pkg) {
+  activePackageForFee.value = pkg;
+  editCoachFeeAmount.value = pkg.coachFeePerStudentSession || 40000;
+  showEditCoachFeeModal.value = true;
+}
+
+function submitEditCoachFee() {
+  if (!activePackageForFee.value) return;
+  actions.updatePackageCoachFee(activePackageForFee.value.id, editCoachFeeAmount.value);
+  showEditCoachFeeModal.value = false;
+  showNotice(`Tarif fee coach untuk kelas "${activePackageForFee.value.name}" berhasil diperbarui!`);
+}
+
+function formatRupiah(val) {
+  return 'Rp ' + Number(val || 0).toLocaleString('id-ID');
+}
+
+function getMonthName(m) {
+  const months = ['', 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+  return months[m] || 'Semua Bulan';
+}
 const selectedQrisNominal = ref(500000);
 const customQrisAmount = ref(null);
 const qrCodeDataUrl = ref('');

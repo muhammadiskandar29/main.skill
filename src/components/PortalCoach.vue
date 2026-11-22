@@ -84,8 +84,9 @@
                 </span>
               </div>
               <h4 class="slot-title" style="margin: 0 0 3px; font-size: 14.5px;">{{ sch.program }} — {{ sch.currentLevelTitle }}</h4>
-              <p class="slot-loc" style="margin: 0; font-size: 12.5px; color: var(--text-subtle);">
-                📍 {{ sch.location }} • Murid: <strong>{{ sch.studentName }}</strong>
+              <p class="slot-loc" style="margin: 0; font-size: 12.5px; color: var(--text-subtle); display: flex; align-items: center; gap: 4px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                <span>{{ sch.location }} • Murid: <strong>{{ sch.studentName }}</strong></span>
               </p>
             </div>
             <button @click="openReportForStudent(sch.studentId)" class="btn-primary btn-sm">
@@ -94,7 +95,9 @@
           </div>
         </div>
         <div v-else class="empty-state-box card-humanist" style="text-align: center; padding: 36px 20px;">
-          <div style="font-size: 28px; margin-bottom: 8px;">📅</div>
+          <div style="display: flex; justify-content: center; margin-bottom: 8px;">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.8"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          </div>
           <h4 style="font-size: 15px; font-weight: 700; color: var(--color-primary-dark); margin-bottom: 4px;">Belum Ada Jadwal Mengajar Hari Ini</h4>
           <p style="font-size: 13px; color: var(--text-muted); margin: 0;">Saat ini tidak ada sesi bimbingan siswa yang dialokasikan untuk Anda pada hari ini. Jadwal sesi mendatang dapat dilihat di menu <strong>Jadwal Mengajar</strong>.</p>
         </div>
@@ -276,7 +279,7 @@
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>
-              <span>{{ copySuccess ? 'Tersalin! ✓' : 'Salin Teks' }}</span>
+              <span>{{ copySuccess ? 'Tersalin' : 'Salin Teks' }}</span>
             </button>
           </div>
 
@@ -290,7 +293,7 @@
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
               </svg>
-              <span>{{ copySuccess ? 'Berhasil Disalin! ✓' : 'Salin Format WhatsApp' }}</span>
+              <span>{{ copySuccess ? 'Berhasil Disalin' : 'Salin Format WhatsApp' }}</span>
             </button>
 
             <a :href="directWaSendUrl" target="_blank" class="btn-whatsapp full-width" style="margin-top: 10px;">
@@ -367,7 +370,8 @@
                     title="Lihat Detail Sesi, Asesmen & Kontak Wali"
                     style="padding: 4px 8px; font-size: 11px; font-weight: 700; background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 3px;"
                   >
-                    <span>👁️ Detail</span>
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                    <span>Detail</span>
                   </button>
                   <button @click="openReportForStudent(sch.studentId)" class="btn-secondary btn-sm" style="padding: 4px 10px; font-size: 11px;">
                     Input Raport
@@ -634,8 +638,9 @@
                 <span v-if="sch.isSubstitute" class="badge-chip blue mini">Sesi Pengganti</span>
                 <span v-if="sch.status === 'Reschedule'" class="badge-chip gold mini">Reschedule</span>
               </div>
-              <span style="font-size: 12px; color: var(--text-muted); display: block; margin-top: 2px;">
-                {{ sch.program }} • {{ sch.currentLevelTitle }} ({{ sch.time }}) — 📍 {{ sch.location }}
+              <span style="font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; margin-top: 2px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                <span>{{ sch.program }} • {{ sch.currentLevelTitle }} ({{ sch.time }}) — {{ sch.location }}</span>
               </span>
             </div>
             <div style="display: flex; gap: 8px; align-items: center;">
@@ -700,11 +705,179 @@
         </div>
       </div>
       <div v-else class="empty-state-card card-humanist" style="text-align: center; padding: 48px 24px;">
-        <div style="font-size: 36px; margin-bottom: 12px;">👥</div>
+        <div style="display: flex; justify-content: center; margin-bottom: 12px;">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        </div>
         <h4 style="font-size: 16px; font-weight: 700; color: var(--color-primary-dark); margin-bottom: 6px;">Belum Ada Siswa Binaan</h4>
         <p style="font-size: 13.5px; color: var(--text-muted); margin: 0; max-width: 480px; margin: 0 auto;">
           Saat ini belum ada siswa aktif yang dialokasikan oleh manajemen ke akun Anda. Siswa akan muncul di sini otomatis ketika manajemen memetakan siswa ke nama Anda.
         </p>
+      </div>
+    </div>
+
+    <!-- Active Sub-Menu: co_earnings (REKAP PENDAPATAN & HONOR COACH) -->
+    <div v-else-if="resolvedMenu === 'co_earnings'" class="portal-tab-content">
+      <div class="page-top-bar">
+        <div>
+          <span class="badge-chip gold">Sistem Transparansi Honor</span>
+          <h2 class="page-title">Pendapatan & Honor Mengajar</h2>
+          <p class="page-sub">Rekapitulasi honor mengajar terakumulasi otomatis per siswa per sesi selesai berdasarkan master tarif kelas.</p>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+          <select v-model="earningsSelectedMonth" class="form-select" style="min-width: 140px; font-weight: 600;">
+            <option :value="0">Semua Bulan</option>
+            <option :value="1">Januari</option>
+            <option :value="2">Februari</option>
+            <option :value="3">Maret</option>
+            <option :value="4">April</option>
+            <option :value="5">Mei</option>
+            <option :value="6">Juni</option>
+            <option :value="7">Juli</option>
+            <option :value="8">Agustus</option>
+            <option :value="9">September</option>
+            <option :value="10">Oktober</option>
+            <option :value="11">November</option>
+            <option :value="12">Desember</option>
+          </select>
+          <select v-model="earningsSelectedYear" class="form-select" style="min-width: 90px; font-weight: 600;">
+            <option :value="2026">2026</option>
+            <option :value="2027">2027</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- 3 Executive KPI Cards -->
+      <div class="metrics-grid">
+        <div class="metric-card card-humanist">
+          <div class="metric-icon-wrap teal">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+            </svg>
+          </div>
+          <div class="metric-data">
+            <span class="metric-lbl">Total Siswa-Sesi Selesai</span>
+            <strong class="metric-val">{{ coachEarningsData.totalSessions }} Sesi</strong>
+            <span class="metric-sub text-teal">Valid Terverifikasi</span>
+          </div>
+        </div>
+
+        <div class="metric-card card-humanist">
+          <div class="metric-icon-wrap green">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="1" x2="12" y2="23"></line>
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+            </svg>
+          </div>
+          <div class="metric-data">
+            <span class="metric-lbl">Total Estimasi Honor</span>
+            <strong class="metric-val" style="color: #16a34a;">{{ formatRupiah(coachEarningsData.totalEarnings) }}</strong>
+            <span class="metric-sub text-green">Akumulasi Fee Mengajar</span>
+          </div>
+        </div>
+
+        <div class="metric-card card-humanist">
+          <div class="metric-icon-wrap" :class="coachEarningsData.isTransferred ? 'green' : 'gold'">
+            <svg v-if="coachEarningsData.isTransferred" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+            </svg>
+            <svg v-else width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+          </div>
+          <div class="metric-data">
+            <span class="metric-lbl">Status Pencairan Manajemen</span>
+            <div style="margin-top: 4px;">
+              <span v-if="coachEarningsData.isTransferred" class="badge-chip green">
+                Sudah Ditransfer
+              </span>
+              <span v-else class="badge-chip gold">
+                Menunggu Transfer
+              </span>
+            </div>
+            <span class="metric-sub" v-if="coachEarningsData.isTransferred && coachEarningsData.transferredAt">
+              Ditransfer: {{ coachEarningsData.transferredAt }}
+            </span>
+            <span class="metric-sub" v-else>
+              Siklus payroll bulanan
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Information Banner -->
+      <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 18px; margin-bottom: 20px; display: flex; align-items: center; gap: 14px;">
+        <div style="width: 36px; height: 36px; border-radius: 8px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+        </div>
+        <div style="font-size: 13px; color: #334155; line-height: 1.5;">
+          <strong>Mekanisme Perhitungan Honor:</strong> Honor dihitung secara transparan per murid per sesi yang berhasil diselesaikan berdasarkan tarif kelas yang telah disepakati bersama manajemen. Honor akan diproses transfer oleh manajemen setiap periode akhir bulan.
+        </div>
+      </div>
+
+      <!-- Table of Sessions Breakdown -->
+      <div class="card-humanist" style="padding: 0; overflow: hidden;">
+        <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+          <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: #0f172a;">Rincian Sesi Mengajar & Honor per Murid</h3>
+          <span style="font-size: 12.5px; color: #64748b;">{{ coachEarningsData.sessions.length }} Sesi Tercatat</span>
+        </div>
+
+        <div v-if="coachEarningsData.sessions.length === 0" style="padding: 40px 20px; text-align: center; color: #94a3b8;">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin: 0 auto 12px auto; display: block;">
+            <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+            <line x1="2" y1="10" x2="22" y2="10"></line>
+          </svg>
+          <div style="font-weight: 600; color: #64748b; margin-bottom: 4px;">Belum Ada Sesi Selesai pada Periode Ini</div>
+          <p style="margin: 0; font-size: 13px;">Honor akan otomatis dihitung saat Anda menyelesaikan sesi bimbingan bersama murid.</p>
+        </div>
+
+        <div v-else class="table-responsive">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Waktu & Sesi</th>
+                <th>Siswa Binaan</th>
+                <th>Paket / Kelas</th>
+                <th>Lokasi Fasilitas</th>
+                <th>Honor Coach</th>
+                <th>Status Sesi</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="ses in coachEarningsData.sessions" :key="ses.scheduleId || ses.id">
+                <td>
+                  <div style="font-weight: 600; color: #0f172a; font-size: 13px;">{{ ses.date }}</div>
+                  <div style="font-size: 11.5px; color: #64748b; font-family: monospace;">{{ ses.time }}</div>
+                </td>
+                <td>
+                  <div style="font-weight: 700; color: #0f172a; font-size: 13.5px;">{{ ses.studentName }}</div>
+                  <div style="font-size: 11.5px; color: #64748b;">Sesi ke-{{ ses.sessionNo }}</div>
+                </td>
+                <td>
+                  <span class="badge-chip teal" style="font-size: 11px;">{{ ses.packageName }}</span>
+                </td>
+                <td>
+                  <div style="display: flex; align-items: center; gap: 4px; font-size: 12.5px; color: #334155;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                    <span>{{ ses.location }}</span>
+                  </div>
+                </td>
+                <td>
+                  <strong style="color: #16a34a; font-size: 14px;">{{ formatRupiah(ses.coachFee) }}</strong>
+                </td>
+                <td>
+                  <span class="badge-chip green" style="font-size: 11px;">{{ ses.status }}</span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -721,7 +894,9 @@
             </div>
             <h3 class="modal-title" style="margin-top: 4px;">Detail Sesi Mengajar — {{ activeCoachSchedule.studentName }}</h3>
           </div>
-          <button type="button" class="btn-close" @click="showCoachScheduleModal = false">✕</button>
+          <button type="button" class="btn-close" @click="showCoachScheduleModal = false" style="background: none; border: none; cursor: pointer;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
         </div>
 
         <div class="modal-body" style="overflow-y: auto; padding: 20px;">
@@ -741,7 +916,8 @@
                   class="btn-whatsapp-pill"
                   style="display: inline-flex; align-items: center; gap: 5px; background: #22c55e; color: #fff; font-size: 12px; font-weight: 700; padding: 6px 12px; border-radius: 20px; text-decoration: none;"
                 >
-                  <span>💬 Chat Wali</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+                  <span>Chat Wali</span>
                 </a>
               </div>
             </div>
@@ -755,14 +931,16 @@
                 <div style="font-size: 14px; font-weight: 800; color: #0f172a; margin-top: 2px;">
                   {{ activeCoachSchedule.day }}, {{ formatScheduleDate(activeCoachSchedule.date) }}
                 </div>
-                <div style="font-size: 12.5px; color: #0284c7; font-weight: 700; margin-top: 2px;">
-                  ⏰ {{ activeCoachSchedule.time }}
+                <div style="font-size: 12.5px; color: #0284c7; font-weight: 700; margin-top: 2px; display: flex; align-items: center; gap: 4px;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  <span>{{ activeCoachSchedule.time }}</span>
                 </div>
               </div>
               <div>
                 <span style="font-size: 11px; text-transform: uppercase; color: #64748b; font-weight: 700;">Lokasi / Kolam</span>
-                <div style="font-size: 13.5px; font-weight: 700; color: #0f172a; margin-top: 2px;">
-                  📍 {{ activeCoachSchedule.location }}
+                <div style="font-size: 13.5px; font-weight: 700; color: #0f172a; margin-top: 2px; display: flex; align-items: center; gap: 4px;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                  <span>{{ activeCoachSchedule.location }}</span>
                 </div>
                 <div v-if="activeCoachSchedule.isSubstitute" style="font-size: 11px; color: #d97706; font-weight: 700; margin-top: 2px;">
                   (Instruktur Pengganti — Pelatih Utama: {{ activeCoachSchedule.assignedCoachName }})
@@ -773,8 +951,9 @@
 
           <!-- Catatan Reschedule Jika Ada -->
           <div v-if="activeCoachSchedule.status === 'Reschedule' || activeCoachSchedule.rescheduledFrom || activeCoachSchedule.originalDate" style="background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px;">
-            <div style="font-weight: 800; color: #92400e; font-size: 13px; margin-bottom: 6px;">
-              🔄 Catatan Reschedule Sesi
+            <div style="font-weight: 800; color: #92400e; font-size: 13px; margin-bottom: 6px; display: flex; align-items: center; gap: 5px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><polyline points="23 20 23 14 17 14"></polyline><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path></svg>
+              <span>Catatan Reschedule Sesi</span>
             </div>
             <div style="font-size: 12px; color: #78350f; line-height: 1.5;">
               <div v-if="activeCoachSchedule.originalDate">
@@ -834,10 +1013,24 @@ const props = defineProps({
 
 const resolvedMenu = computed(() => {
   const m = (props.activeMenu || '').toLowerCase();
-  const valid = ['co_overview', 'co_input_progress', 'co_schedule', 'co_attendance', 'co_students'];
+  const valid = ['co_overview', 'co_input_progress', 'co_schedule', 'co_attendance', 'co_students', 'co_earnings'];
   if (valid.includes(m)) return m;
   return 'co_overview';
 });
+
+// State for co_earnings
+const earningsSelectedMonth = ref(new Date().getMonth() + 1);
+const earningsSelectedYear = ref(new Date().getFullYear());
+
+const coachEarningsData = computed(() => {
+  const cId = currentCoach.value?.id;
+  const cName = currentCoach.value?.name;
+  return actions.getCoachEarningsDetails(cId, cName, earningsSelectedMonth.value, earningsSelectedYear.value);
+});
+
+function formatRupiah(val) {
+  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val || 0);
+}
 
 const showCoachScheduleModal = ref(false);
 const activeCoachSchedule = ref(null);

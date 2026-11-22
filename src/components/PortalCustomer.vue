@@ -564,7 +564,7 @@
           <!-- Catatan Khusus Jika Sesi di-Reschedule -->
           <div v-if="sch.status === 'Reschedule' || sch.rescheduledFrom || sch.originalDate" class="sch-reschedule-box" style="margin-top: 10px; background: #fffbeb; border: 1.5px solid #fde68a; border-radius: 8px; padding: 10px 14px; font-size: 12px; color: #92400e;">
             <div style="font-weight: 800; display: flex; align-items: center; gap: 6px;">
-              <span>🔄 Catatan Reschedule Sesi</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"></polyline><polyline points="23 20 23 14 17 14"></polyline><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path></svg><span>Catatan Reschedule Sesi</span>
             </div>
             <div v-if="sch.originalDate" style="font-size: 11.5px; color: #78350f; margin-top: 3px;">
               Jadwal Semula: <strong>{{ sch.originalDay ? sch.originalDay + ', ' : '' }}{{ sch.originalDate }} ({{ sch.originalTime || sch.time }})</strong>
@@ -835,7 +835,7 @@
                 :class="selectedPayMethod === 'qris' ? 'btn-primary' : 'btn-secondary'"
                 style="padding: 12px 10px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 4px; border-radius: 10px;"
               >
-                <span style="font-size: 15px;">📱 QRIS Resmi</span>
+                <span style="font-size: 15px;">QRIS Resmi</span>
                 <span style="font-size: 10.5px; opacity: 0.85; font-weight: 500;">BCA, GoPay, Mandiri, OVO & Semua Bank</span>
               </button>
               <button 
@@ -844,7 +844,7 @@
                 :class="selectedPayMethod === 'transfer' ? 'btn-primary' : 'btn-secondary'"
                 style="padding: 12px 10px; font-weight: 700; display: flex; flex-direction: column; align-items: center; gap: 4px; border-radius: 10px;"
               >
-                <span style="font-size: 15px;">🏦 Transfer Bank</span>
+                <span style="font-size: 15px;">Transfer Bank</span>
                 <span style="font-size: 10.5px; opacity: 0.85; font-weight: 500;">BCA, Mandiri, BRI, BNI</span>
               </button>
             </div>
@@ -1066,7 +1066,7 @@
             <div class="q-detail-block" v-if="currentStudentLevel === selectedQuestLevel.levelNumber">
               <span class="q-detail-label">STATUS KELULUSAN TINGKAT:</span>
               <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 10px 14px; color: #92400e; font-size: 13px; line-height: 1.5;">
-                🎯 Ananda sedang dalam tahap pemantapan teknik. Kenaikan level dievaluasi langsung oleh Coach berdasarkan keberhasilan menuntaskan tantangan di atas air (Challenge Milestone), bukan berdasarkan jumlah sesi kehadiran.
+                Ananda sedang dalam tahap pemantapan teknik. Kenaikan level dievaluasi langsung oleh Coach berdasarkan keberhasilan menuntaskan tantangan di atas air (Challenge Milestone), bukan berdasarkan jumlah sesi kehadiran.
               </div>
             </div>
 

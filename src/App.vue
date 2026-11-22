@@ -409,6 +409,18 @@
         </button>
         <button 
           class="bottom-nav-item" 
+          :class="{ active: store.activePortalMenu === 'co_earnings' }"
+          @click="switchMenu('co_earnings')"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="5" width="20" height="14" rx="2"></rect>
+            <line x1="2" y1="10" x2="22" y2="10"></line>
+            <circle cx="16" cy="15" r="1"></circle>
+          </svg>
+          <span>Honor</span>
+        </button>
+        <button 
+          class="bottom-nav-item" 
           :class="{ active: isMobileSidebarOpen }"
           @click="isMobileSidebarOpen = !isMobileSidebarOpen"
         >
@@ -779,6 +791,12 @@ const IconCheck = () => h('svg', { width: 17, height: 17, viewBox: '0 0 24 24', 
   h('polyline', { points: '22 4 12 14.01 9 11.01' })
 ]);
 
+const IconWallet = () => h('svg', { width: 17, height: 17, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 2 }, [
+  h('rect', { x: 2, y: 5, width: 20, height: 14, rx: 2 }),
+  h('line', { x1: 2, y1: 10, x2: 22, y2: 10 }),
+  h('circle', { cx: 16, cy: 15, r: 1 })
+]);
+
 const allMenusMap = {
   c_overview: { id: 'c_overview', label: 'Ringkasan Siswa', icon: IconDashboard },
   c_progress: { id: 'c_progress', label: 'Perkembangan Anak', icon: IconProgress },
@@ -790,7 +808,8 @@ const allMenusMap = {
   co_input_progress: { id: 'co_input_progress', label: 'Input Perkembangan', icon: IconInput },
   co_schedule: { id: 'co_schedule', label: 'Jadwal Mengajar', icon: IconCalendar },
   co_attendance: { id: 'co_attendance', label: 'Presensi Kehadiran', icon: IconCheck },
-  co_students: { id: 'co_students', label: 'Siswa Binaan', icon: IconUsers }
+  co_students: { id: 'co_students', label: 'Siswa Binaan', icon: IconUsers },
+  co_earnings: { id: 'co_earnings', label: 'Pendapatan & Honor', icon: IconWallet }
 };
 
 const allowedSidebarMenus = computed(() => {

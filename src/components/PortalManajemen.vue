@@ -1488,6 +1488,20 @@
         </button>
         <button 
           class="tab-pill-btn" 
+          :class="{ active: paymentSubTab === 'payroll' }"
+          @click="paymentSubTab = 'payroll'"
+        >
+          Rekap Pendapatan & Payroll Coach
+        </button>
+        <button 
+          class="tab-pill-btn" 
+          :class="{ active: paymentSubTab === 'coach_tariffs' }"
+          @click="paymentSubTab = 'coach_tariffs'"
+        >
+          Master Tarif & Bagi Hasil Coach
+        </button>
+        <button 
+          class="tab-pill-btn" 
           :class="{ active: paymentSubTab === 'qris_generator' }"
           @click="paymentSubTab = 'qris_generator'"
         >
@@ -1633,6 +1647,252 @@
         </table>
       </div>
     </div>
+
+      <!-- Subtab: Rekap Payroll & Pendapatan Manajemen (P&L) -->
+      <div v-else-if="paymentSubTab === 'payroll'">
+        <!-- Filter Bar -->
+        <div class="card-humanist" style="margin-bottom: 20px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+          <div>
+            <h3 style="margin: 0 0 4px 0; font-size: 16px; font-weight: 800; color: #0f172a;">Laporan Finansial: Rekapitulasi Omset & Payroll Coach</h3>
+            <p style="margin: 0; font-size: 12.5px; color: #64748b;">Perhitungan laba bersih manajemen dan alokasi honor pelatih secara real-time berdasarkan invoice lunas dan sesi murid yang selesai.</p>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <select v-model="payrollSelectedMonth" class="form-select" style="min-width: 140px; font-weight: 600;">
+              <option :value="0">Semua Bulan</option>
+              <option :value="1">Januari</option>
+              <option :value="2">Februari</option>
+              <option :value="3">Maret</option>
+              <option :value="4">April</option>
+              <option :value="5">Mei</option>
+              <option :value="6">Juni</option>
+              <option :value="7">Juli</option>
+              <option :value="8">Agustus</option>
+              <option :value="9">September</option>
+              <option :value="10">Oktober</option>
+              <option :value="11">November</option>
+              <option :value="12">Desember</option>
+            </select>
+            <select v-model="payrollSelectedYear" class="form-select" style="min-width: 90px; font-weight: 600;">
+              <option :value="2026">2026</option>
+              <option :value="2027">2027</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- 3 Executive KPI Cards (P&L) -->
+        <div class="metrics-grid" style="margin-bottom: 24px;">
+          <div class="metric-card card-humanist">
+            <div class="metric-icon-wrap green">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="1" x2="12" y2="23"></line>
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+              </svg>
+            </div>
+            <div class="metric-data">
+              <span class="metric-lbl">Total Omset Murid (Gross Inflow)</span>
+              <strong class="metric-val" style="color: #16a34a;">{{ formatRupiah(managementFinanceSummary.totalGrossInflow) }}</strong>
+              <span class="metric-sub text-green">Pendaftaran Siswa Lunas</span>
+            </div>
+          </div>
+
+          <div class="metric-card card-humanist">
+            <div class="metric-icon-wrap gold">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+              </svg>
+            </div>
+            <div class="metric-data">
+              <span class="metric-lbl">Total Honor Coach (Payroll Outflow)</span>
+              <strong class="metric-val" style="color: #d97706;">{{ formatRupiah(managementFinanceSummary.totalCoachPayroll) }}</strong>
+              <span class="metric-sub text-gold">Alokasi Honor Selesai</span>
+            </div>
+          </div>
+
+          <div class="metric-card card-humanist">
+            <div class="metric-icon-wrap teal">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                <polyline points="22 4 12 14.01 9 11.01"></polyline>
+              </svg>
+            </div>
+            <div class="metric-data">
+              <span class="metric-lbl">Laba Bersih Manajemen (Net Margin)</span>
+              <strong class="metric-val" style="color: #0284c7;">{{ formatRupiah(managementFinanceSummary.netManagementProfit) }}</strong>
+              <span class="metric-sub text-teal">Margin: {{ managementFinanceSummary.profitMarginPercent }}%</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table Payroll Coach -->
+        <div class="card-humanist" style="padding: 0; overflow: hidden;">
+          <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: #0f172a;">Daftar Rekapitulasi Honor & Payroll Pelatih</h3>
+              <span style="font-size: 12.5px; color: #64748b;">Periode: {{ getMonthName(payrollSelectedMonth) }} {{ payrollSelectedYear }}</span>
+            </div>
+            <span class="badge-chip gold">{{ managementFinanceSummary.coachesBreakdown.length }} Coach Terdaftar</span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Instruktur / Coach</th>
+                  <th>Siswa-Sesi Selesai</th>
+                  <th>Total Honor (Rp)</th>
+                  <th>Status Pembayaran</th>
+                  <th style="text-align: right;">Aksi Payroll</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="coachItem in managementFinanceSummary.coachesBreakdown" :key="coachItem.coachId">
+                  <td>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                      <img :src="coachItem.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120'" alt="Avatar" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover;" />
+                      <div>
+                        <strong style="font-size: 13.5px; color: #0f172a; display: block;">{{ coachItem.coachName }}</strong>
+                        <span style="font-size: 11.5px; color: #64748b;">{{ coachItem.specialty }}</span>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <strong style="font-size: 13.5px; color: #0f172a;">{{ coachItem.completedSessionsCount }} Sesi</strong>
+                    <span style="font-size: 11.5px; color: #64748b; display: block;">Tervalidasi selesai</span>
+                  </td>
+                  <td>
+                    <strong style="color: #16a34a; font-size: 14.5px;">{{ formatRupiah(coachItem.totalHonor) }}</strong>
+                  </td>
+                  <td>
+                    <div>
+                      <span v-if="coachItem.isTransferred" class="badge-chip green">
+                        Sudah Ditransfer
+                      </span>
+                      <span v-else class="badge-chip gold">
+                        Menunggu Transfer
+                      </span>
+                    </div>
+                    <span v-if="coachItem.isTransferred && coachItem.transferInfo" style="font-size: 11px; color: #64748b; display: block; margin-top: 3px;">
+                      {{ coachItem.transferInfo.transferredAt }} • Ref: {{ coachItem.transferInfo.notes || '-' }}
+                    </span>
+                  </td>
+                  <td style="text-align: right;">
+                    <div style="display: inline-flex; gap: 6px;">
+                      <button 
+                        v-if="!coachItem.isTransferred"
+                        @click="openPayrollTransferModal(coachItem)"
+                        class="btn-primary btn-sm"
+                        style="padding: 6px 12px; font-size: 12px;"
+                      >
+                        Tandai Sudah Ditransfer
+                      </button>
+                      <button 
+                        v-else
+                        @click="cancelPayrollTransfer(coachItem)"
+                        class="btn-secondary btn-sm"
+                        style="padding: 6px 12px; font-size: 12px; color: #dc2626; border-color: #fca5a5;"
+                      >
+                        Batalkan Status
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subtab: Master Tarif & Bagi Hasil Coach (Dinamis) -->
+      <div v-else-if="paymentSubTab === 'coach_tariffs'">
+        <!-- Header Info Card -->
+        <div class="card-humanist" style="margin-bottom: 20px; padding: 18px 22px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap;">
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <span class="badge-chip gold">Pengaturan Tarif Otomatis</span>
+                <span class="badge-chip teal">Tanpa Hardcode</span>
+              </div>
+              <h3 style="font-size: 17px; font-weight: 800; color: #0f172a; margin: 6px 0 4px 0;">
+                Master Tarif Honor Coach & Margin Manajemen
+              </h3>
+              <p style="margin: 0; font-size: 12.5px; color: #64748b; max-width: 680px; line-height: 1.5;">
+                Tentukan pembagian hasil fee mengajar pelatih untuk tiap program kelas. Sistem secara dinamis menghitung pendapatan pelatih per kepala murid per sesi dan menyimpulkan laba bersih manajemen.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table of Packages Tariff -->
+        <div class="card-humanist" style="padding: 0; overflow: hidden;">
+          <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+            <h4 style="margin: 0; font-size: 15px; font-weight: 700; color: #0f172a;">Daftar Kelas, Tarif Siswa, & Alokasi Honor Coach</h4>
+            <span style="font-size: 12.5px; color: #64748b;">{{ store.packages.length }} Kelas Terdaftar</span>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Nama Kelas / Paket</th>
+                  <th>Kategori Kelas</th>
+                  <th>Jumlah Sesi</th>
+                  <th>Harga Jual Paket</th>
+                  <th>Tarif per Sesi Murid</th>
+                  <th>Honor Coach / Sesi</th>
+                  <th>Laba Bersih Manajemen</th>
+                  <th style="text-align: right;">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="pkg in store.packages" :key="pkg.id">
+                  <td>
+                    <strong style="color: #0f172a; font-size: 13.5px;">{{ pkg.name }}</strong>
+                    <div style="font-size: 11px; color: #64748b; font-family: monospace;">ID: {{ pkg.id }}</div>
+                  </td>
+                  <td>
+                    <span class="badge-chip teal" style="font-size: 11.5px;">{{ pkg.category || 'Reguler' }}</span>
+                  </td>
+                  <td>
+                    <strong style="color: #0f172a; font-size: 13px;">{{ pkg.sessionsCount || 4 }} Sesi</strong>
+                  </td>
+                  <td>
+                    <strong style="color: #0f172a; font-size: 13.5px;">{{ formatRupiah(pkg.price) }}</strong>
+                  </td>
+                  <td>
+                    <span style="font-size: 13px; font-weight: 600; color: #475569;">
+                      {{ formatRupiah(Math.round(pkg.price / (pkg.sessionsCount || 4))) }} / sesi
+                    </span>
+                  </td>
+                  <td>
+                    <strong style="color: #16a34a; font-size: 14px;">
+                      {{ formatRupiah(pkg.coachFeePerStudentSession || 40000) }}
+                    </strong>
+                    <span style="font-size: 11px; color: #64748b; display: block;">per murid / sesi</span>
+                  </td>
+                  <td>
+                    <div style="font-weight: 700; color: #0284c7; font-size: 13.5px;">
+                      {{ formatRupiah(Math.round(pkg.price / (pkg.sessionsCount || 4)) - (pkg.coachFeePerStudentSession || 40000)) }}
+                    </div>
+                    <span class="badge-chip teal mini" style="margin-top: 2px;">
+                      {{ Math.round(((Math.round(pkg.price / (pkg.sessionsCount || 4)) - (pkg.coachFeePerStudentSession || 40000)) / Math.round(pkg.price / (pkg.sessionsCount || 4))) * 100) }}% Margin
+                    </span>
+                  </td>
+                  <td style="text-align: right;">
+                    <button 
+                      @click="openEditCoachFeeModal(pkg)"
+                      class="btn-secondary btn-sm"
+                      style="padding: 5px 12px; font-size: 12px; font-weight: 600;"
+                    >
+                      Ubah Tarif Honor
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
 
       <!-- Subtab B: QRIS Dynamic Generator (Dynamic Master ASPI/EMVCo) -->
       <div v-else-if="paymentSubTab === 'qris_generator'" class="qris-tab-wrapper">

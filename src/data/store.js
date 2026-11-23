@@ -272,8 +272,8 @@ const initialStudents = [
     productName: 'Skill Renang (Swimming Academy)',
     packageId: 'pkg_swim_small',
     packageName: 'Small Group (Rp 500.000)',
-    assignedCoachId: 'coach_1',
-    assignedCoachName: 'Coach Adit',
+    assignedCoachId: 'coach_1794446495449',
+    assignedCoachName: 'Aditya Saputra',
     mappingLockSessions: 4,
     sessionsCompletedWithCoach: 3,
     mappingStatus: 'Terkunci (Sisa 1 Sesi)',
@@ -287,16 +287,16 @@ const initialStudents = [
     status: 'Aktif / Enrolled',
     joinedDate: '1 Oktober 2026',
     memberSchedules: [
-      { sessionNo: 1, date: '04 Okt 2026', day: 'Sabtu', time: '09.00 - 09.45 WIB', coach: 'Coach Adit', status: 'Selesai' },
-      { sessionNo: 2, date: '11 Okt 2026', day: 'Sabtu', time: '09.00 - 09.45 WIB', coach: 'Coach Adit', status: 'Selesai' },
-      { sessionNo: 3, date: '18 Okt 2026', day: 'Sabtu', time: '09.00 - 09.45 WIB', coach: 'Coach Adit', status: 'Selesai' },
-      { sessionNo: 4, date: '25 Okt 2026', day: 'Sabtu', time: '09.00 - 09.45 WIB', coach: 'Coach Adit', status: 'Mendatang (Aktif)' }
+      { sessionNo: 1, date: '04 Okt 2026', day: 'Sabtu', time: '09.00 - 09.45 WIB', coach: 'Aditya Saputra', coachName: 'Aditya Saputra', status: 'Selesai' },
+      { sessionNo: 2, date: '11 Okt 2026', day: 'Sabtu', time: '09.00 - 09.45 WIB', coach: 'Aditya Saputra', coachName: 'Aditya Saputra', status: 'Selesai' },
+      { sessionNo: 3, date: '18 Okt 2026', day: 'Sabtu', time: '09.00 - 09.45 WIB', coach: 'Aditya Saputra', coachName: 'Aditya Saputra', status: 'Selesai' },
+      { sessionNo: 4, date: '25 Okt 2026', day: 'Sabtu', time: '09.00 - 09.45 WIB', coach: 'Aditya Saputra', coachName: 'Aditya Saputra', status: 'Mendatang (Aktif)' }
     ],
     sessionReports: [
       {
         sessionNumber: 3,
         date: '18 Okt 2026',
-        coachName: 'Coach Adit',
+        coachName: 'Aditya Saputra',
         focus: 'Simulasi Challenge 10 Meter Gaya Dada Mandiri',
         warmup: 'stretching dinamis & statis',
         mainExercise: 'Simulasi Challenge 10 Meter Gaya Dada Mandiri',
@@ -333,6 +333,84 @@ const initialStudents = [
         { key: 'disciplineFocus', label: 'Fokus & Mental (Discipline)', icon: '', desc: 'Konsentrasi mendengarkan instruksi coach di kolam' }
       ]
     }
+  },
+  {
+    id: 'stu_2',
+    name: 'Tri Sunandar',
+    nickname: 'Tri',
+    age: 9,
+    parentName: 'Nandar',
+    email: 'nandar.wali@gmail.com',
+    phone: '081288991122',
+    productId: 'prod_swimming',
+    productName: 'Skill Renang (Swimming Academy)',
+    packageId: 'pkg_swim_small',
+    packageName: 'Skill Renang (Swimming Academy) mantap - Group Class',
+    assignedCoachId: 'coach_1792917516003',
+    assignedCoachName: 'Coach Bayu Pratama, S.Pd.',
+    mappingLockSessions: 4,
+    sessionsCompletedWithCoach: 3,
+    mappingStatus: 'Terkunci (Sisa 1 Sesi)',
+    location: 'Kolam Graha Kresna Pratama',
+    currentLevel: 1,
+    currentLevelTitle: 'Level 1: Water Discovery',
+    targetChallenge: 'Pengenalan Air & Pernapasan Ritmis',
+    packageTotalSessions: 4,
+    completedSessions: 3,
+    overallProgress: 75,
+    status: 'Aktif / Enrolled',
+    joinedDate: '1 November 2026',
+    memberSchedules: [
+      { sessionNo: 1, date: '07 Nov 2026', day: 'Sabtu', time: '08.00 - 09.30 WIB', coach: 'Coach Bayu Pratama, S.Pd.', coachName: 'Coach Bayu Pratama, S.Pd.', status: 'Selesai', location: 'Kolam Graha Kresna Pratama' },
+      { sessionNo: 2, date: '14 Nov 2026', day: 'Sabtu', time: '08.00 - 09.30 WIB', coach: 'Coach Bayu Pratama, S.Pd.', coachName: 'Coach Bayu Pratama, S.Pd.', status: 'Selesai', location: 'Kolam Graha Kresna Pratama' },
+      { sessionNo: 3, date: '21 Nov 2026', day: 'Sabtu', time: '08.00 - 09.30 WIB', coach: 'Coach Bayu Pratama, S.Pd.', coachName: 'Coach Bayu Pratama, S.Pd.', status: 'Selesai', location: 'Kolam Graha Kresna Pratama' },
+      { sessionNo: 4, date: '28 Nov 2026', day: 'Sabtu', time: '08.00 - 09.30 WIB', coach: 'Coach Bayu Pratama, S.Pd.', coachName: 'Coach Bayu Pratama, S.Pd.', status: 'Mendatang (Aktif)', location: 'Kolam Graha Kresna Pratama' }
+    ],
+    sessionReports: [],
+    radarSkills: {
+      baseline: { waterConfidence: 50, breathControl: 40, strokeTechnique: 30, bodyBalance: 40, disciplineFocus: 50 },
+      current: { waterConfidence: 85, breathControl: 80, strokeTechnique: 75, bodyBalance: 80, disciplineFocus: 85 },
+      pillars: []
+    }
+  },
+  {
+    id: 'stu_3',
+    name: 'Clarissa Putri',
+    nickname: 'Clarissa',
+    age: 8,
+    parentName: 'Ibu Rina',
+    email: 'rina.dance@gmail.com',
+    phone: '081377889900',
+    productId: 'prod_dance',
+    productName: 'Skill Seni Tari (Dance Academy)',
+    packageId: 'pkg_dance_kids',
+    packageName: 'Paket Tari Nusantara Kids',
+    assignedCoachId: 'coach_2',
+    assignedCoachName: 'Coach Sekar Ayu, S.Sn.',
+    mappingLockSessions: 4,
+    sessionsCompletedWithCoach: 3,
+    mappingStatus: 'Terkunci (Sisa 1 Sesi)',
+    location: 'Studio Tari Utama',
+    currentLevel: 1,
+    currentLevelTitle: 'Level 1: Basic Rhythm & Posture',
+    targetChallenge: 'Tari Tradisional Kreasi Dasar',
+    packageTotalSessions: 4,
+    completedSessions: 3,
+    overallProgress: 75,
+    status: 'Aktif / Enrolled',
+    joinedDate: '1 November 2026',
+    memberSchedules: [
+      { sessionNo: 1, date: '08 Nov 2026', day: 'Minggu', time: '10.00 - 11.30 WIB', coach: 'Coach Sekar Ayu, S.Sn.', coachName: 'Coach Sekar Ayu, S.Sn.', status: 'Selesai', location: 'Studio Tari Utama' },
+      { sessionNo: 2, date: '15 Nov 2026', day: 'Minggu', time: '10.00 - 11.30 WIB', coach: 'Coach Sekar Ayu, S.Sn.', coachName: 'Coach Sekar Ayu, S.Sn.', status: 'Selesai', location: 'Studio Tari Utama' },
+      { sessionNo: 3, date: '22 Nov 2026', day: 'Minggu', time: '10.00 - 11.30 WIB', coach: 'Coach Sekar Ayu, S.Sn.', coachName: 'Coach Sekar Ayu, S.Sn.', status: 'Selesai', location: 'Studio Tari Utama' },
+      { sessionNo: 4, date: '29 Nov 2026', day: 'Minggu', time: '10.00 - 11.30 WIB', coach: 'Coach Sekar Ayu, S.Sn.', coachName: 'Coach Sekar Ayu, S.Sn.', status: 'Mendatang (Aktif)', location: 'Studio Tari Utama' }
+    ],
+    sessionReports: [],
+    radarSkills: {
+      baseline: { waterConfidence: 50, breathControl: 40, strokeTechnique: 30, bodyBalance: 40, disciplineFocus: 50 },
+      current: { waterConfidence: 85, breathControl: 80, strokeTechnique: 75, bodyBalance: 80, disciplineFocus: 85 },
+      pillars: []
+    }
   }
 ];
 
@@ -353,7 +431,46 @@ const initialTransactions = [
     paymentMethodName: 'QRIS Dinamis ASPI',
     status: 'Lunas (Verified)',
     paidAt: '2026-10-02 14:22',
+    date: '2026-10-02',
     notes: 'Pembayaran pendaftaran QRIS lunas'
+  },
+  {
+    id: 'INV-MS-202611-521',
+    studentId: 'stu_2',
+    studentName: 'Tri Sunandar',
+    parentName: 'Nandar',
+    phone: '081288991122',
+    productId: 'prod_swimming',
+    productName: 'Skill Renang (Swimming Academy)',
+    packageId: 'pkg_swim_small',
+    packageName: 'Skill Renang (Swimming Academy) mantap - Group Class',
+    amount: 500000,
+    formattedAmount: 'Rp 500.000',
+    paymentMethod: 'bank_transfer',
+    paymentMethodName: 'Transfer Bank BCA',
+    status: 'Lunas (Verified)',
+    paidAt: '2026-11-05 10:15',
+    date: '2026-11-05',
+    notes: 'Pembayaran pendaftaran lunas verified'
+  },
+  {
+    id: 'INV-MS-202611-632',
+    studentId: 'stu_3',
+    studentName: 'Clarissa Putri',
+    parentName: 'Ibu Rina',
+    phone: '081377889900',
+    productId: 'prod_dance',
+    productName: 'Skill Seni Tari (Dance Academy)',
+    packageId: 'pkg_dance_kids',
+    packageName: 'Paket Tari Nusantara Kids',
+    amount: 450000,
+    formattedAmount: 'Rp 450.000',
+    paymentMethod: 'qris',
+    paymentMethodName: 'QRIS Dinamis ASPI',
+    status: 'Lunas (Verified)',
+    paidAt: '2026-11-06 11:30',
+    date: '2026-11-06',
+    notes: 'Pembayaran kelas tari lunas verified'
   }
 ];
 
@@ -613,6 +730,8 @@ const initialRbacMatrix = {
       'm_schedules',
       'm_attendance',
       'm_payments',
+      'm_payroll',
+      'm_coach_tariffs',
       'm_website',
       'm_rbac'
     ]
@@ -3253,12 +3372,13 @@ export const actions = {
     return true;
   },
 
-  getCoachEarningsDetails(coachId, coachName, month = null, year = null) {
+  getCoachEarningsDetails(coachId, coachName = '', month = null, year = null) {
     let breakdown = [];
     let totalHonor = 0;
     let totalStudentSessions = 0;
 
     const normalizedCoachName = (coachName || '').trim().toLowerCase();
+    const cleanCoachName = normalizedCoachName.replace(/^coach\s+/i, '').trim();
 
     (store.students || []).forEach(stu => {
       const pkg = (store.packages || []).find(p => p.id === stu.packageId) ||
@@ -3272,8 +3392,12 @@ export const actions = {
 
       (stu.memberSchedules || []).forEach(sch => {
         const schCoach = (sch.coachName || sch.coach || stu.assignedCoachName || '').trim().toLowerCase();
-        const isAssigned = (coachId && stu.assignedCoachId === coachId) || 
-                           (normalizedCoachName && schCoach === normalizedCoachName);
+        const cleanSchCoach = schCoach.replace(/^coach\s+/i, '').trim();
+
+        const isAssigned = (coachId && (stu.assignedCoachId === coachId || sch.coachId === coachId)) || 
+                           (cleanCoachName && cleanSchCoach.includes(cleanCoachName)) ||
+                           (cleanSchCoach && cleanCoachName.includes(cleanSchCoach)) ||
+                           (normalizedCoachName && schCoach.includes(normalizedCoachName));
 
         if (!isAssigned) return;
 
@@ -3281,8 +3405,8 @@ export const actions = {
         const isCompleted = sch.status === 'Selesai' || sch.status === 'Hadir';
         if (!isCompleted) return;
 
-        // Filter bulan & tahun jika diset
-        if (month !== null && year !== null) {
+        // Filter bulan & tahun jika diset dan bukan 0 / '0'
+        if (month !== null && month !== 0 && month !== '0' && year !== null && year !== 0) {
           const schDateStr = sch.date || '';
           const monthMap = {
             'jan': 1, 'januari': 1, 'feb': 2, 'februari': 2, 'mar': 3, 'maret': 3,
@@ -3316,6 +3440,7 @@ export const actions = {
         totalHonor += feePerSession;
 
         breakdown.push({
+          id: sch.id || `ses_${breakdown.length + 1}`,
           scheduleId: sch.id,
           date: sch.date || 'Sesi Selesai',
           time: sch.time || '09.00 - 09.45 WIB',
@@ -3326,25 +3451,32 @@ export const actions = {
           studentNickname: stu.nickname || stu.name,
           packageName: stu.packageName || pkg?.name || 'Group Class',
           fee: feePerSession,
+          coachFee: feePerSession,
           studentPricePerSession,
           mgmtNetPerSession,
-          sessionNo: sch.sessionNo || 1
+          sessionNo: sch.sessionNo || 1,
+          status: sch.status || 'Selesai'
         });
       });
     });
 
     const key = `${coachId}_${year}_${month}`;
     const transferRecord = (store.coachPayrollTransfers || []).find(t => 
-      t.id === key || (t.coachId === coachId && t.periodMonth == month && t.periodYear == year)
+      t.id === key || (t.coachId === coachId && (month == 0 || t.periodMonth == month) && (year == 0 || t.periodYear == year))
     );
 
     return {
       totalStudentSessions,
+      totalSessions: totalStudentSessions,
+      completedSessionsCount: totalStudentSessions,
       totalHonor,
+      totalEarnings: totalHonor,
       breakdown,
+      sessions: breakdown,
       isTransferred: transferRecord?.status === 'Sudah Ditransfer',
       transferredAt: transferRecord?.transferredAt || null,
-      transferNotes: transferRecord?.notes || ''
+      transferNotes: transferRecord?.notes || '',
+      transferInfo: transferRecord || null
     };
   },
 
@@ -3379,8 +3511,8 @@ export const actions = {
         }
       }
 
-      if (month !== null && trxMonth && trxMonth !== parseInt(month)) return;
-      if (year !== null && trxYear && trxYear !== parseInt(year)) return;
+      if (month !== null && month !== 0 && month !== '0' && trxMonth && trxMonth !== parseInt(month)) return;
+      if (year !== null && year !== 0 && trxYear && trxYear !== parseInt(year)) return;
 
       totalGrossRevenue += (parseInt(trx.amount) || 0);
     });
@@ -3396,12 +3528,15 @@ export const actions = {
         coachId: coach.id,
         coachName: coach.name,
         coachAvatar: coach.avatar,
+        avatar: coach.avatar,
         specialty: coach.specialty,
         totalStudentSessions: details.totalStudentSessions,
+        completedSessionsCount: details.totalStudentSessions,
         totalHonor: details.totalHonor,
         isTransferred: details.isTransferred,
         transferredAt: details.transferredAt,
         transferNotes: details.transferNotes,
+        transferInfo: details.transferInfo,
         breakdown: details.breakdown
       };
     });
@@ -3419,11 +3554,14 @@ export const actions = {
 
     return {
       totalGrossRevenue,
+      totalGrossInflow: totalGrossRevenue,
       totalCoachPayroll,
       netManagementProfit,
       profitMarginPct,
+      profitMarginPercent: profitMarginPct,
       totalStudentSessions,
-      coachSummaries
+      coachSummaries,
+      coachesBreakdown: coachSummaries
     };
   },
 

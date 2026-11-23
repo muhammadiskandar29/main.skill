@@ -1019,7 +1019,7 @@ const resolvedMenu = computed(() => {
 });
 
 // State for co_earnings
-const earningsSelectedMonth = ref(new Date().getMonth() + 1);
+const earningsSelectedMonth = ref(0);
 const earningsSelectedYear = ref(new Date().getFullYear());
 
 const coachEarningsData = computed(() => {

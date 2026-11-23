@@ -1305,112 +1305,71 @@
               <tr>
                 <th>Instruktur / Coach</th>
                 <th>Waktu & Sesi</th>
-                <th>Titik Koordinat GPS</th>
-                <th>Jarak ke Kolam</th>
-                <th>Preview Mini Map</th>
-                <th>Status Validasi</th>
-                <th style="text-align: right;">Aksi & Verifikasi</th>
+                <th>Lokasi Fasilitas</th>
+                <th>Validasi Geofence</th>
+                <th>Status</th>
+                <th style="text-align: right;">Aksi</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="att in filteredCoachAttendances" :key="att.id">
                 <td>
-                  <div class="coach-td-cell">
-                    <img :src="att.coachAvatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120'" alt="Avatar" class="coach-sm-avatar" />
+                  <div class="coach-td-cell" style="display: flex; align-items: center; gap: 10px;">
+                    <img :src="att.coachAvatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120'" alt="Avatar" class="coach-sm-avatar" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover;" />
                     <div>
-                      <strong class="coach-cell-name">{{ att.coachName }}</strong>
-                      <span class="coach-cell-notes">{{ att.notes || 'Presensi mandiri' }}</span>
+                      <strong class="coach-cell-name" style="font-size: 13.5px; color: #0f172a; display: block;">{{ att.coachName }}</strong>
+                      <span class="coach-cell-notes" style="font-size: 11.5px; color: #64748b;">{{ att.notes || 'Presensi mandiri' }}</span>
                     </div>
                   </div>
                 </td>
 
                 <td>
-                  <div class="time-td-cell">
-                    <strong class="att-date-str">{{ att.date || 'Hari Ini' }}</strong>
-                    <span class="att-clock-str font-mono">{{ att.time }}</span>
-                    <span class="badge-chip teal att-session-pill">{{ att.sessionType }}</span>
-                    <span class="badge-chip gold att-session-pill" style="margin-top: 3px;">{{ att.locationName || 'Kolam Graha Kresna' }}</span>
-                  </div>
+                  <div style="font-size: 13px; font-weight: 600; color: #0f172a;">{{ att.date || 'Hari Ini' }}</div>
+                  <div style="font-size: 11.5px; color: #64748b; font-family: monospace;">{{ att.time }}</div>
                 </td>
 
                 <td>
-                  <div class="coord-td-cell">
-                    <span class="font-mono coord-val">{{ Number(att.latitude).toFixed(5) }}, {{ Number(att.longitude).toFixed(5) }}</span>
-                    <span class="acc-text">Akurasi GPS: ± {{ att.accuracy || 10 }}m</span>
-                  </div>
+                  <span class="badge-chip teal" style="font-size: 11.5px;">{{ att.locationName || 'Kolam Graha Kresna' }}</span>
+                  <div style="font-size: 11px; color: #64748b; margin-top: 2px;">{{ att.sessionType }}</div>
                 </td>
 
                 <td>
-                  <div class="dist-td-cell">
-                    <span 
-                      class="dist-badge"
-                      :class="(att.distanceFromVenue || 0) <= 250 ? 'dist-valid' : 'dist-warning'"
-                    >
-                      {{ att.distanceFromVenue }} Meter
-                    </span>
-                    <span class="dist-status-lbl">
-                      {{ (att.distanceFromVenue || 0) <= 250 ? 'Di Dalam Radius' : 'Di Luar Radius' }}
-                    </span>
-                  </div>
+                  <span 
+                    class="badge-chip"
+                    :class="(att.distanceFromVenue || 0) <= 250 ? 'green' : 'gold'"
+                    style="font-size: 11.5px;"
+                  >
+                    {{ att.distanceFromVenue }}m • {{ (att.distanceFromVenue || 0) <= 250 ? 'Dalam Radius' : 'Luar Radius' }}
+                  </span>
                 </td>
 
                 <td>
-                  <!-- Interactive Mini Map Thumbnail -->
-                  <div class="mini-map-thumb-box" @click="openAttendanceMapModal(att)" title="Klik untuk perbesar peta">
-                    <iframe 
-                      :src="getMiniMapEmbedUrl(att.latitude, att.longitude)" 
-                      class="thumb-iframe"
-                      tabindex="-1"
-                      loading="lazy"
-                    ></iframe>
-                    <div class="thumb-overlay">
-                      <span>Perbesar Peta</span>
-                    </div>
-                  </div>
-                </td>
-
-                <td>
-                  <div class="status-td-cell">
-                    <span 
-                      class="badge-chip"
-                      :class="att.isVerified ? 'green' : 'gold'"
-                    >
-                      {{ att.isVerified ? 'Terverifikasi' : 'Menunggu Verifikasi' }}
-                    </span>
-                    <span v-if="att.verifiedAt" class="verif-time font-mono">Pada {{ att.verifiedAt }}</span>
-                  </div>
+                  <span 
+                    class="badge-chip"
+                    :class="att.isVerified ? 'green' : 'gold'"
+                    style="font-size: 11px;"
+                  >
+                    {{ att.isVerified ? 'Terverifikasi' : 'Menunggu' }}
+                  </span>
                 </td>
 
                 <td style="text-align: right;">
-                  <div class="action-buttons-cell">
-                    <button 
-                      v-if="!att.isVerified" 
-                      @click="handleVerifyAttendance(att.id)" 
-                      class="btn-primary btn-sm"
-                      title="Verifikasi keabsahan presensi ini"
-                    >
-                      Verifikasi
-                    </button>
+                  <div style="display: inline-flex; align-items: center; gap: 6px; justify-content: flex-end;">
                     <button 
                       @click="openAttendanceMapModal(att)" 
-                      class="btn-secondary btn-sm"
-                      title="Lihat peta titik koordinat lengkap"
+                      class="btn-primary btn-sm"
+                      style="padding: 5px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 5px;"
+                      title="Lihat Peta GPS & Detail Presensi"
                     >
-                      Buka Peta
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                      <span>Lihat Detail</span>
                     </button>
-                    <a 
-                      :href="`https://www.google.com/maps?q=${att.latitude},${att.longitude}`" 
-                      target="_blank" 
-                      class="map-link-icon-btn"
-                      title="Buka di Google Maps"
-                    >
-                      ↗
-                    </a>
                     <button 
                       type="button"
                       @click="handleDeleteAttendance(att)" 
-                      class="btn-danger-xs"
-                      title="Hapus Data Presensi"
+                      class="btn-secondary btn-sm"
+                      style="padding: 5px 8px; font-size: 12px; color: #dc2626; border-color: #fca5a5;"
+                      title="Hapus Catatan Presensi"
                     >
                       Hapus
                     </button>
@@ -1430,7 +1389,9 @@
               <span class="badge-chip gold">Titik Absensi Geofence GPS</span>
               <h3 class="modal-title">Detail Lokasi Presensi: {{ selectedAttendanceForMap.coachName }}</h3>
             </div>
-            <button class="btn-close" @click="closeAttendanceMapModal">✕</button>
+            <button class="btn-close" @click="closeAttendanceMapModal" style="background: none; border: none; cursor: pointer;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
           </div>
 
           <div class="modal-body map-modal-body">
@@ -1478,8 +1439,10 @@
                     :href="`https://www.google.com/maps?q=${selectedAttendanceForMap.latitude},${selectedAttendanceForMap.longitude}`" 
                     target="_blank" 
                     class="btn-primary btn-sm"
+                    style="display: inline-flex; align-items: center; gap: 5px;"
                   >
-                    Buka Rute di Google Maps ↗
+                    <span>Buka Rute di Google Maps</span>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
                   </a>
                 </div>
               </div>

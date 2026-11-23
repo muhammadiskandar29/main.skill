@@ -2024,7 +2024,7 @@ function cekMutasiBankGmail() {
           <h3 style="margin: 0 0 4px 0; font-size: 16px; font-weight: 800; color: #0f172a;">Laporan Finansial: Rekapitulasi Omset & Payroll Coach</h3>
           <p style="margin: 0; font-size: 12.5px; color: #64748b;">Perhitungan laba bersih manajemen dan alokasi honor pelatih secara real-time berdasarkan invoice lunas dan sesi murid yang selesai.</p>
         </div>
-        <div style="display: flex; gap: 8px; align-items: center;">
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
           <select v-model="payrollSelectedMonth" class="form-select" style="min-width: 140px; font-weight: 600;">
             <option :value="0">Semua Bulan</option>
             <option :value="1">Januari</option>
@@ -2094,7 +2094,7 @@ function cekMutasiBankGmail() {
 
       <!-- Table Payroll Coach -->
       <div class="card-humanist" style="padding: 0; overflow: hidden;">
-        <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+        <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
           <div>
             <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: #0f172a;">Daftar Rekapitulasi Honor & Payroll Pelatih</h3>
             <span style="font-size: 12.5px; color: #64748b;">Periode: {{ getMonthName(payrollSelectedMonth) }} {{ payrollSelectedYear }}</span>
@@ -2102,8 +2102,16 @@ function cekMutasiBankGmail() {
           <span class="badge-chip gold">{{ (managementFinanceSummary.coachesBreakdown || managementFinanceSummary.coachSummaries || []).length }} Coach Terdaftar</span>
         </div>
 
-        <div class="table-responsive">
-          <table class="data-table">
+        <!-- Mobile Scroll Hint -->
+        <div class="mobile-scroll-hint">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+          <span>Geser tabel ke samping untuk melihat rincian kolom & aksi lengkap</span>
+        </div>
+
+        <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+          <table class="data-table" style="min-width: 860px; width: 100%;">
             <thead>
               <tr>
                 <th>Instruktur / Coach</th>
@@ -2145,14 +2153,26 @@ function cekMutasiBankGmail() {
                   </span>
                 </td>
                 <td style="text-align: right;">
-                  <div style="display: inline-flex; gap: 6px;">
+                  <div style="display: inline-flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end;">
+                    <button 
+                      @click="openCoachSessionsDetail(coachItem)"
+                      class="btn-secondary btn-sm"
+                      style="padding: 6px 12px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;"
+                      title="Lihat rincian seluruh sesi murid"
+                    >
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                      <span>Detail Sesi</span>
+                    </button>
                     <button 
                       v-if="!coachItem.isTransferred"
                       @click="openPayrollTransferModal(coachItem)"
                       class="btn-primary btn-sm"
-                      style="padding: 6px 12px; font-size: 12px;"
+                      style="padding: 6px 12px; font-size: 12px; font-weight: 600;"
                     >
-                      Tandai Sudah Ditransfer
+                      Tandai Transfer
                     </button>
                     <button 
                       v-else
@@ -2161,6 +2181,14 @@ function cekMutasiBankGmail() {
                       style="padding: 6px 12px; font-size: 12px; color: #dc2626; border-color: #fca5a5;"
                     >
                       Batalkan Status
+                    </button>
+                    <button 
+                      @click="sendCoachPayrollWa(coachItem)"
+                      class="btn-secondary btn-sm"
+                      style="padding: 6px 10px; font-size: 12px; color: #166534; border-color: #86efac; background: #f0fdf4;"
+                      title="Kirim slip rincian honor via WhatsApp"
+                    >
+                      WA Slip
                     </button>
                   </div>
                 </td>
@@ -2203,13 +2231,21 @@ function cekMutasiBankGmail() {
 
       <!-- Table of Packages Tariff -->
       <div class="card-humanist" style="padding: 0; overflow: hidden;">
-        <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+        <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
           <h4 style="margin: 0; font-size: 15px; font-weight: 700; color: #0f172a;">Daftar Kelas, Tarif Siswa, & Alokasi Honor Coach</h4>
           <span style="font-size: 12.5px; color: #64748b;">{{ store.packages.length }} Kelas Terdaftar</span>
         </div>
 
-        <div class="table-responsive">
-          <table class="data-table">
+        <!-- Mobile Scroll Hint -->
+        <div class="mobile-scroll-hint">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+          <span>Geser tabel ke samping untuk melihat rincian kolom & aksi lengkap</span>
+        </div>
+
+        <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+          <table class="data-table" style="min-width: 920px; width: 100%;">
             <thead>
               <tr>
                 <th>Nama Kelas / Paket</th>
@@ -2257,13 +2293,22 @@ function cekMutasiBankGmail() {
                   </span>
                 </td>
                 <td style="text-align: right;">
-                  <button 
-                    @click="openEditCoachFeeModal(pkg)"
-                    class="btn-secondary btn-sm"
-                    style="padding: 5px 12px; font-size: 12px; font-weight: 600;"
-                  >
-                    Ubah Tarif Honor
-                  </button>
+                  <div style="display: inline-flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end;">
+                    <button 
+                      @click="openEditCoachFeeModal(pkg)"
+                      class="btn-primary btn-sm"
+                      style="padding: 5px 12px; font-size: 12px; font-weight: 600;"
+                    >
+                      Ubah Tarif
+                    </button>
+                    <button 
+                      @click="openPackageSchemeModal(pkg)"
+                      class="btn-secondary btn-sm"
+                      style="padding: 5px 10px; font-size: 12px; font-weight: 600;"
+                    >
+                      Skema
+                    </button>
+                  </div>
                 </td>
               </tr>
             </tbody>
@@ -6325,6 +6370,44 @@ function cleanPhone(num) {
 // PAYMENTS & QRIS ASPI & BANK ACCOUNTS CRUD
 // -------------------------------------------------------------
 const paymentSubTab = ref('invoices');
+
+
+// Modal Detail Sesi Coach untuk Manajemen
+const showCoachSessionsModal = ref(false);
+const activeCoachForSessionsDetail = ref(null);
+
+function openCoachSessionsDetail(coachItem) {
+  activeCoachForSessionsDetail.value = coachItem;
+  showCoachSessionsModal.value = true;
+}
+
+// Modal Skema Paket
+const showPackageSchemeModal = ref(false);
+const activePackageForScheme = ref(null);
+
+function openPackageSchemeModal(pkg) {
+  activePackageForScheme.value = pkg;
+  showPackageSchemeModal.value = true;
+}
+
+// WhatsApp Slip Generator
+function sendCoachPayrollWa(coachItem) {
+  if (!coachItem) return;
+  const periodText = `${getMonthName(payrollSelectedMonth.value)} ${payrollSelectedYear.value}`;
+  const honorFormatted = formatRupiah(coachItem.totalHonor);
+  const sessionsCount = coachItem.completedSessionsCount || coachItem.totalStudentSessions || 0;
+  const statusText = coachItem.isTransferred ? 'LUNAS / SUDAH DITRANSFER' : 'MENUNGGU PROSES TRANSFER';
+
+  const text = `Halo ${coachItem.coachName}, berikut rekapitulasi honor mengajar Anda di mine.skills untuk periode ${periodText}:\n\n` +
+    `• Total Sesi Selesai: ${sessionsCount} Sesi Murid\n` +
+    `• Total Honor: ${honorFormatted}\n` +
+    `• Status: ${statusText}\n\n` +
+    `Terima kasih atas dedikasi dan bimbingan terbaik Anda untuk anak-anak! - Manajemen mine.skills`;
+
+  const phone = (coachItem.phone || '').replace(/[^0-9]/g, '');
+  const url = phone ? `https://wa.me/${phone}?text=${encodeURIComponent(text)}` : `https://wa.me/?text=${encodeURIComponent(text)}`;
+  window.open(url, '_blank');
+}
 
 // PAYROLL & REKAP PENDAPATAN MANAJEMEN
 const payrollSelectedMonth = ref(0);

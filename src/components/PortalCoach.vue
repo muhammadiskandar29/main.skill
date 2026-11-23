@@ -837,8 +837,17 @@
           <p style="margin: 0; font-size: 13px;">Honor akan otomatis dihitung saat Anda menyelesaikan sesi bimbingan bersama murid.</p>
         </div>
 
-        <div v-else class="table-responsive">
-          <table class="data-table">
+        <div v-else>
+          <!-- Mobile Scroll Hint -->
+          <div class="mobile-scroll-hint">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+            <span>Geser tabel ke samping untuk melihat rincian kolom & aksi lengkap</span>
+          </div>
+
+          <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
+          <table class="data-table" style="min-width: 820px; width: 100%;">
             <thead>
               <tr>
                 <th>Waktu & Sesi</th>
@@ -847,6 +856,7 @@
                 <th>Lokasi Fasilitas</th>
                 <th>Honor Coach</th>
                 <th>Status Sesi</th>
+                <th style="text-align: right;">Aksi</th>
               </tr>
             </thead>
             <tbody>
@@ -874,9 +884,71 @@
                 <td>
                   <span class="badge-chip green" style="font-size: 11px;">{{ ses.status }}</span>
                 </td>
+                <td style="text-align: right;">
+                  <button 
+                    @click="openCoachEarningsDetailModal(ses)"
+                    class="btn-secondary btn-sm"
+                    style="padding: 5px 12px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;"
+                    title="Lihat rincian sesi murid & honor"
+                  >
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                      <circle cx="12" cy="12" r="3"></circle>
+                    </svg>
+                    <span>Detail Sesi</span>
+                  </button>
+                </td>
               </tr>
             </tbody>
           </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <!-- MODAL DETAIL SESI HONOR COACH -->
+    <div v-if="showCoachEarningsDetailModal && activeCoachEarningsDetail" class="modal-backdrop" @click.self="showCoachEarningsDetailModal = false">
+      <div class="modal-card" style="max-width: 580px; width: 95%;">
+        <div class="modal-header">
+          <div>
+            <h3 class="modal-title" style="margin: 0;">Rincian Sesi: {{ activeCoachEarningsDetail.studentName }}</h3>
+            <p class="modal-sub" style="margin: 2px 0 0 0;">{{ activeCoachEarningsDetail.packageName }} • Sesi ke-{{ activeCoachEarningsDetail.sessionNo }}</p>
+          </div>
+          <button class="btn-close" @click="showCoachEarningsDetailModal = false">✕</button>
+        </div>
+
+        <div class="modal-body" style="padding: 20px;">
+          <!-- Highlight Fee Card -->
+          <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 16px 20px; margin-bottom: 18px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <span style="font-size: 12px; color: #166534; font-weight: 600; display: block;">Honor Diterima untuk Sesi Ini</span>
+              <strong style="font-size: 22px; color: #15803d;">{{ formatRupiah(activeCoachEarningsDetail.coachFee) }}</strong>
+            </div>
+            <span class="badge-chip green" style="font-size: 11.5px;">Valid & Terverifikasi</span>
+          </div>
+
+          <!-- Session Metadata Grid -->
+          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 18px; margin-bottom: 16px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;">
+            <div>
+              <span style="font-size: 11.5px; color: #64748b; display: block;">Waktu & Hari</span>
+              <strong style="font-size: 13.5px; color: #0f172a;">{{ activeCoachEarningsDetail.day }}, {{ activeCoachEarningsDetail.date }}</strong>
+              <div style="font-size: 11px; color: #64748b; font-family: monospace;">{{ activeCoachEarningsDetail.time }}</div>
+            </div>
+            <div>
+              <span style="font-size: 11.5px; color: #64748b; display: block;">Lokasi Latihan</span>
+              <strong style="font-size: 13.5px; color: #0f172a;">{{ activeCoachEarningsDetail.location }}</strong>
+            </div>
+          </div>
+
+          <div style="background: #ffffff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 18px; margin-bottom: 14px;">
+            <div style="font-size: 12.5px; color: #475569; line-height: 1.6;">
+              <strong>Catatan Penyelenggaraan:</strong> Sesi latihan ini telah tervalidasi selesai dan masuk dalam perhitungan akumulasi honor pelatih periode berjalan. Pembayaran akan ditransfer langsung oleh manajemen sesuai siklus penggajian bulanan.
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer" style="padding: 14px 20px; display: flex; justify-content: flex-end; gap: 8px;">
+          <button @click="showCoachEarningsDetailModal = false" class="btn-primary btn-sm">Tutup Rincian</button>
         </div>
       </div>
     </div>
@@ -1030,6 +1102,15 @@ const coachEarningsData = computed(() => {
 
 function formatRupiah(val) {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(val || 0);
+}
+
+// Modal Detail Sesi Honor Coach
+const showCoachEarningsDetailModal = ref(false);
+const activeCoachEarningsDetail = ref(null);
+
+function openCoachEarningsDetailModal(ses) {
+  activeCoachEarningsDetail.value = ses;
+  showCoachEarningsDetailModal.value = true;
 }
 
 const showCoachScheduleModal = ref(false);

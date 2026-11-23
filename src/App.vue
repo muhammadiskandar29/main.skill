@@ -842,7 +842,12 @@ const allowedSidebarMenus = computed(() => {
   const matrix = store.rbacMatrix[role];
   if (!matrix) return [];
 
-  return matrix.allowedMenus.map(mId => allMenusMap[mId]).filter(Boolean);
+  const list = [...(matrix.allowedMenus || [])];
+  // Selalu pastikan menu honor & pendapatan ada untuk peran coach agar tidak hilang di perangkat manapun
+  if (role === 'coach' && !list.includes('co_earnings')) {
+    list.push('co_earnings');
+  }
+  return list.map(mId => allMenusMap[mId]).filter(Boolean);
 });
 
 // Mobile Responsive Navigation State & Helpers

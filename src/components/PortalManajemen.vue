@@ -2018,14 +2018,20 @@ function cekMutasiBankGmail() {
         </div>
       </div>
 
-      <!-- Filter Bar -->
-      <div class="card-humanist" style="margin-bottom: 20px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-        <div>
-          <h3 style="margin: 0 0 4px 0; font-size: 16px; font-weight: 800; color: #0f172a;">Laporan Finansial: Rekapitulasi Omset & Payroll Coach</h3>
-          <p style="margin: 0; font-size: 12.5px; color: #64748b;">Perhitungan laba bersih manajemen dan alokasi honor pelatih secara real-time berdasarkan invoice lunas dan sesi murid yang selesai.</p>
+      <!-- Integrated Header & Filter Toolbar -->
+      <div class="finance-toolbar">
+        <div class="finance-toolbar-info">
+          <h3>Laporan Finansial: Rekapitulasi Omset & Payroll Coach</h3>
+          <p>Perhitungan laba bersih manajemen dan alokasi honor pelatih secara transparan berdasarkan sesi murid yang selesai.</p>
         </div>
-        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-          <select v-model="payrollSelectedMonth" class="form-select" style="min-width: 140px; font-weight: 600;">
+        <div class="finance-filter-group">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          <select v-model="payrollSelectedMonth" class="finance-filter-select">
             <option :value="0">Semua Bulan</option>
             <option :value="1">Januari</option>
             <option :value="2">Februari</option>
@@ -2040,52 +2046,52 @@ function cekMutasiBankGmail() {
             <option :value="11">November</option>
             <option :value="12">Desember</option>
           </select>
-          <select v-model="payrollSelectedYear" class="form-select" style="min-width: 90px; font-weight: 600;">
+          <select v-model="payrollSelectedYear" class="finance-filter-select">
             <option :value="2026">2026</option>
             <option :value="2027">2027</option>
           </select>
         </div>
       </div>
 
-      <!-- 3 Executive KPI Cards (P&L) -->
+      <!-- 3 Executive KPI Cards (P&L) with Accent Borders -->
       <div class="metrics-grid" style="margin-bottom: 24px;">
-        <div class="metric-card card-humanist">
-          <div class="metric-icon-wrap green">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <div class="metric-card card-humanist accent-green">
+          <div class="metric-icon-box green">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <line x1="12" y1="1" x2="12" y2="23"></line>
               <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
             </svg>
           </div>
           <div class="metric-data">
-            <span class="metric-lbl">Total Omset Murid (Gross Inflow)</span>
+            <span class="metric-lbl">Total Omset Murid (Inflow)</span>
             <strong class="metric-val" style="color: #16a34a;">{{ formatRupiah(managementFinanceSummary.totalGrossInflow || managementFinanceSummary.totalGrossRevenue) }}</strong>
             <span class="metric-sub text-green">Pendaftaran Siswa Lunas</span>
           </div>
         </div>
 
-        <div class="metric-card card-humanist">
-          <div class="metric-icon-wrap gold">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <div class="metric-card card-humanist accent-gold">
+          <div class="metric-icon-box gold">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
               <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
             </svg>
           </div>
           <div class="metric-data">
-            <span class="metric-lbl">Total Honor Coach (Payroll Outflow)</span>
+            <span class="metric-lbl">Total Honor Coach (Payroll)</span>
             <strong class="metric-val" style="color: #d97706;">{{ formatRupiah(managementFinanceSummary.totalCoachPayroll) }}</strong>
-            <span class="metric-sub text-gold">Alokasi Honor Selesai</span>
+            <span class="metric-sub text-gold">Alokasi Sesi Tervalidasi</span>
           </div>
         </div>
 
-        <div class="metric-card card-humanist">
-          <div class="metric-icon-wrap teal">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        <div class="metric-card card-humanist accent-teal">
+          <div class="metric-icon-box teal">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline>
+              <polyline points="16 7 22 7 22 13"></polyline>
             </svg>
           </div>
           <div class="metric-data">
-            <span class="metric-lbl">Laba Bersih Manajemen (Net Margin)</span>
+            <span class="metric-lbl">Laba Bersih Manajemen</span>
             <strong class="metric-val" style="color: #0284c7;">{{ formatRupiah(managementFinanceSummary.netManagementProfit) }}</strong>
             <span class="metric-sub text-teal">Margin: {{ managementFinanceSummary.profitMarginPercent || managementFinanceSummary.profitMarginPct }}%</span>
           </div>
@@ -2093,8 +2099,8 @@ function cekMutasiBankGmail() {
       </div>
 
       <!-- Table Payroll Coach -->
-      <div class="card-humanist" style="padding: 0; overflow: hidden;">
-        <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+      <div class="card-humanist" style="padding: 0; overflow: hidden; border: 1px solid #e2e8f0; border-radius: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+        <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; background: #fafafa;">
           <div>
             <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: #0f172a;">Daftar Rekapitulasi Honor & Payroll Pelatih</h3>
             <span style="font-size: 12.5px; color: #64748b;">Periode: {{ getMonthName(payrollSelectedMonth) }} {{ payrollSelectedYear }}</span>
@@ -2111,84 +2117,77 @@ function cekMutasiBankGmail() {
         </div>
 
         <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
-          <table class="data-table" style="min-width: 860px; width: 100%;">
+          <table class="data-table" style="min-width: 820px; width: 100%;">
             <thead>
               <tr>
-                <th>Instruktur / Coach</th>
-                <th>Siswa-Sesi Selesai</th>
-                <th>Total Honor (Rp)</th>
-                <th>Status Pembayaran</th>
-                <th style="text-align: right;">Aksi Payroll</th>
+                <th style="width: 32%;">Instruktur / Coach</th>
+                <th style="width: 18%;">Siswa-Sesi Selesai</th>
+                <th style="width: 18%;">Total Honor</th>
+                <th style="width: 18%;">Status Pembayaran</th>
+                <th style="width: 14%; text-align: right;">Aksi</th>
               </tr>
             </thead>
             <tbody>
               <tr v-for="coachItem in (managementFinanceSummary.coachesBreakdown || managementFinanceSummary.coachSummaries || [])" :key="coachItem.coachId">
                 <td>
-                  <div style="display: flex; align-items: center; gap: 10px;">
-                    <img :src="coachItem.avatar || coachItem.coachAvatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120'" alt="Avatar" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover;" />
-                    <div>
-                      <strong style="font-size: 13.5px; color: #0f172a; display: block;">{{ coachItem.coachName }}</strong>
-                      <span style="font-size: 11.5px; color: #64748b;">{{ coachItem.specialty }}</span>
+                  <div style="display: flex; align-items: center; gap: 12px;">
+                    <img :src="coachItem.avatar || coachItem.coachAvatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120'" alt="Avatar" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 1px solid #e2e8f0; flex-shrink: 0;" />
+                    <div style="min-width: 0;">
+                      <strong style="font-size: 13.5px; color: #0f172a; display: block; line-height: 1.3;">{{ coachItem.coachName }}</strong>
+                      <span style="font-size: 11.5px; color: #64748b; display: block; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ coachItem.specialty }}</span>
                     </div>
                   </div>
                 </td>
                 <td>
                   <strong style="font-size: 13.5px; color: #0f172a;">{{ coachItem.completedSessionsCount || coachItem.totalStudentSessions || 0 }} Sesi</strong>
-                  <span style="font-size: 11.5px; color: #64748b; display: block;">Tervalidasi selesai</span>
+                  <span style="font-size: 11.5px; color: #64748b; display: block; margin-top: 1px;">Tervalidasi selesai</span>
                 </td>
                 <td>
-                  <strong style="color: #16a34a; font-size: 14.5px;">{{ formatRupiah(coachItem.totalHonor) }}</strong>
+                  <strong style="color: #16a34a; font-size: 14.5px; font-weight: 800;">{{ formatRupiah(coachItem.totalHonor) }}</strong>
                 </td>
                 <td>
-                  <div>
-                    <span v-if="coachItem.isTransferred" class="badge-chip green">
-                      Sudah Ditransfer
-                    </span>
-                    <span v-else class="badge-chip gold">
-                      Menunggu Transfer
-                    </span>
+                  <div v-if="coachItem.isTransferred" class="status-dot-pill success">
+                    <span class="dot"></span>
+                    <span>Sudah Ditransfer</span>
                   </div>
-                  <span v-if="coachItem.isTransferred && coachItem.transferInfo" style="font-size: 11px; color: #64748b; display: block; margin-top: 3px;">
-                    {{ coachItem.transferInfo.transferredAt }} • Ref: {{ coachItem.transferInfo.notes || '-' }}
+                  <div v-else class="status-dot-pill waiting">
+                    <span class="dot"></span>
+                    <span>Menunggu Transfer</span>
+                  </div>
+                  <span v-if="coachItem.isTransferred && coachItem.transferInfo" style="font-size: 11px; color: #64748b; display: block; margin-top: 4px;">
+                    {{ coachItem.transferInfo.transferredAt }} • {{ coachItem.transferInfo.notes || '-' }}
                   </span>
                 </td>
                 <td style="text-align: right;">
-                  <div style="display: inline-flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end;">
+                  <div style="display: inline-flex; gap: 6px; align-items: center; justify-content: flex-end;">
                     <button 
                       @click="openCoachSessionsDetail(coachItem)"
                       class="btn-secondary btn-sm"
-                      style="padding: 6px 12px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;"
-                      title="Lihat rincian seluruh sesi murid"
+                      style="padding: 6px 12px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;"
+                      title="Lihat rincian sesi murid & kirim slip WA"
                     >
                       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                         <circle cx="12" cy="12" r="3"></circle>
                       </svg>
-                      <span>Detail Sesi</span>
+                      <span>Rincian Sesi</span>
                     </button>
                     <button 
                       v-if="!coachItem.isTransferred"
                       @click="openPayrollTransferModal(coachItem)"
                       class="btn-primary btn-sm"
-                      style="padding: 6px 12px; font-size: 12px; font-weight: 600;"
+                      style="padding: 6px 12px; font-size: 12px; font-weight: 600; white-space: nowrap;"
                     >
-                      Tandai Transfer
+                      Tandai Lunas
                     </button>
                     <button 
                       v-else
                       @click="cancelPayrollTransfer(coachItem)"
                       class="btn-secondary btn-sm"
-                      style="padding: 6px 12px; font-size: 12px; color: #dc2626; border-color: #fca5a5;"
+                      style="padding: 6px 10px; font-size: 11.5px; color: #dc2626; border-color: #fca5a5; white-space: nowrap;"
+                      title="Batalkan tanda transfer"
                     >
-                      Batalkan Status
-                    </button>
-                    <button 
-                      @click="sendCoachPayrollWa(coachItem)"
-                      class="btn-secondary btn-sm"
-                      style="padding: 6px 10px; font-size: 12px; color: #166534; border-color: #86efac; background: #f0fdf4;"
-                      title="Kirim slip rincian honor via WhatsApp"
-                    >
-                      WA Slip
+                      Batalkan
                     </button>
                   </div>
                 </td>
@@ -2230,10 +2229,10 @@ function cekMutasiBankGmail() {
       </div>
 
       <!-- Table of Packages Tariff -->
-      <div class="card-humanist" style="padding: 0; overflow: hidden;">
-        <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+      <div class="card-humanist" style="padding: 0; overflow: hidden; border: 1px solid #e2e8f0; border-radius: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+        <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; background: #fafafa;">
           <h4 style="margin: 0; font-size: 15px; font-weight: 700; color: #0f172a;">Daftar Kelas, Tarif Siswa, & Alokasi Honor Coach</h4>
-          <span style="font-size: 12.5px; color: #64748b;">{{ store.packages.length }} Kelas Terdaftar</span>
+          <span class="badge-chip gold">{{ store.packages.length }} Kelas Terdaftar</span>
         </div>
 
         <!-- Mobile Scroll Hint -->
@@ -2244,18 +2243,18 @@ function cekMutasiBankGmail() {
           <span>Geser tabel ke samping untuk melihat rincian kolom & aksi lengkap</span>
         </div>
 
-        <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
-          <table class="data-table" style="min-width: 920px; width: 100%;">
+        <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch; padding: 0 0 8px 0;">
+          <table class="data-table" style="min-width: 960px; width: 100%;">
             <thead>
               <tr>
-                <th>Nama Kelas / Paket</th>
-                <th>Kategori Kelas</th>
-                <th>Jumlah Sesi</th>
-                <th>Harga Jual Paket</th>
-                <th>Tarif per Sesi Murid</th>
-                <th>Honor Coach / Sesi</th>
-                <th>Laba Bersih Manajemen</th>
-                <th style="text-align: right;">Aksi</th>
+                <th style="min-width: 180px;">Nama Kelas / Paket</th>
+                <th style="min-width: 120px;">Kategori</th>
+                <th style="min-width: 100px;">Jumlah Sesi</th>
+                <th style="min-width: 130px;">Harga Jual</th>
+                <th style="min-width: 130px;">Tarif / Sesi Murid</th>
+                <th style="min-width: 140px;">Honor Coach / Sesi</th>
+                <th style="min-width: 150px;">Laba Bersih Manajemen</th>
+                <th style="min-width: 140px; text-align: right; padding-right: 20px;">Aksi</th>
               </tr>
             </thead>
             <tbody>
@@ -2279,7 +2278,7 @@ function cekMutasiBankGmail() {
                   </span>
                 </td>
                 <td>
-                  <strong style="color: #16a34a; font-size: 14px;">
+                  <strong style="color: #16a34a; font-size: 14px; font-weight: 800;">
                     {{ formatRupiah(pkg.coachFeePerStudentSession || 40000) }}
                   </strong>
                   <span style="font-size: 11px; color: #64748b; display: block;">per murid / sesi</span>
@@ -2288,23 +2287,23 @@ function cekMutasiBankGmail() {
                   <div style="font-weight: 700; color: #0284c7; font-size: 13.5px;">
                     {{ formatRupiah(Math.round(pkg.price / (pkg.sessionsCount || 4)) - (pkg.coachFeePerStudentSession || 40000)) }}
                   </div>
-                  <span class="badge-chip teal mini" style="margin-top: 2px;">
+                  <span class="badge-chip teal mini" style="margin-top: 4px; display: inline-block;">
                     {{ Math.round(((Math.round(pkg.price / (pkg.sessionsCount || 4)) - (pkg.coachFeePerStudentSession || 40000)) / Math.round(pkg.price / (pkg.sessionsCount || 4))) * 100) }}% Margin
                   </span>
                 </td>
-                <td style="text-align: right;">
-                  <div style="display: inline-flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end;">
+                <td style="text-align: right; padding-right: 20px;">
+                  <div style="display: inline-flex; gap: 6px; align-items: center; justify-content: flex-end;">
                     <button 
                       @click="openEditCoachFeeModal(pkg)"
                       class="btn-primary btn-sm"
-                      style="padding: 5px 12px; font-size: 12px; font-weight: 600;"
+                      style="padding: 6px 12px; font-size: 12px; font-weight: 600; white-space: nowrap;"
                     >
                       Ubah Tarif
                     </button>
                     <button 
                       @click="openPackageSchemeModal(pkg)"
                       class="btn-secondary btn-sm"
-                      style="padding: 5px 10px; font-size: 12px; font-weight: 600;"
+                      style="padding: 6px 10px; font-size: 12px; font-weight: 600; white-space: nowrap;"
                     >
                       Skema
                     </button>
@@ -4310,6 +4309,112 @@ function cekMutasiBankGmail() {
           <button type="button" @click="showViewStudentModal = false" class="btn-secondary" style="padding: 6px 16px;">
             Tutup
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL RINCIAN SESI MENGAJAR & SLIP HONOR COACH (MANAJEMEN) -->
+    <div v-if="showCoachSessionsModal && activeCoachForSessionsDetail" class="modal-backdrop" @click.self="showCoachSessionsModal = false">
+      <div class="modal-card" style="max-width: 720px; max-height: 90vh; display: flex; flex-direction: column;">
+        <div class="modal-header" style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <img :src="activeCoachForSessionsDetail.avatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120'" alt="Avatar" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid #e2e8f0;" />
+            <div>
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <h3 class="modal-title" style="margin: 0; font-size: 17px; font-weight: 800; color: #0f172a;">{{ activeCoachForSessionsDetail.coachName }}</h3>
+                <span v-if="activeCoachForSessionsDetail.isTransferred" class="status-dot-pill success"><span class="dot"></span>Sudah Ditransfer</span>
+                <span v-else class="status-dot-pill waiting"><span class="dot"></span>Menunggu Transfer</span>
+              </div>
+              <p style="margin: 2px 0 0 0; font-size: 12px; color: #64748b;">{{ activeCoachForSessionsDetail.specialty }} • Periode {{ getMonthName(payrollSelectedMonth) }} {{ payrollSelectedYear }}</p>
+            </div>
+          </div>
+          <button class="btn-close" @click="showCoachSessionsModal = false" style="background: none; border: none; cursor: pointer; color: #64748b;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </div>
+
+        <div class="modal-body" style="padding: 20px; overflow-y: auto;">
+          <!-- Mini Metric Row -->
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; margin-bottom: 18px;">
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 16px;">
+              <span style="font-size: 11.5px; color: #64748b; font-weight: 600; text-transform: uppercase;">Total Sesi Selesai</span>
+              <div style="font-size: 20px; font-weight: 800; color: #0f172a; margin-top: 2px;">
+                {{ activeCoachForSessionsDetail.completedSessionsCount || activeCoachForSessionsDetail.totalStudentSessions || 0 }} Sesi Murid
+              </div>
+            </div>
+            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 10px; padding: 12px 16px;">
+              <span style="font-size: 11.5px; color: #166534; font-weight: 600; text-transform: uppercase;">Total Akumulasi Honor</span>
+              <div style="font-size: 20px; font-weight: 800; color: #16a34a; margin-top: 2px;">
+                {{ formatRupiah(activeCoachForSessionsDetail.totalHonor) }}
+              </div>
+            </div>
+          </div>
+
+          <div style="font-size: 13.5px; font-weight: 700; color: #0f172a; margin-bottom: 8px;">
+            Daftar Sesi Murid yang Telah Diselesaikan
+          </div>
+
+          <div v-if="!activeCoachForSessionsDetail.breakdown || activeCoachForSessionsDetail.breakdown.length === 0" style="padding: 30px; text-align: center; color: #94a3b8; background: #f8fafc; border-radius: 10px; border: 1px dashed #cbd5e1;">
+            Belum ada rincian sesi murid yang terselesaikan pada periode ini.
+          </div>
+
+          <div v-else class="table-responsive" style="border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden;">
+            <table class="data-table" style="width: 100%; font-size: 12.5px;">
+              <thead>
+                <tr>
+                  <th>Waktu & Sesi</th>
+                  <th>Nama Siswa & Paket</th>
+                  <th>Lokasi Kolam</th>
+                  <th style="text-align: right;">Honor Coach</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="ses in activeCoachForSessionsDetail.breakdown" :key="ses.id">
+                  <td>
+                    <div style="font-weight: 700; color: #0f172a;">{{ ses.date }}</div>
+                    <div style="font-size: 11px; color: #64748b;">{{ ses.time }}</div>
+                  </td>
+                  <td>
+                    <div style="font-weight: 700; color: #0f172a;">{{ ses.studentName }}</div>
+                    <span class="badge-chip teal mini">{{ ses.packageName }} (Sesi #{{ ses.sessionNo }})</span>
+                  </td>
+                  <td>
+                    <div style="font-size: 12px; color: #475569;">{{ ses.location }}</div>
+                  </td>
+                  <td style="text-align: right;">
+                    <strong style="color: #16a34a; font-size: 13.5px;">{{ formatRupiah(ses.coachFee || ses.fee) }}</strong>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="modal-footer" style="padding: 14px 20px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; background: #fafafa;">
+          <button 
+            type="button" 
+            @click="sendCoachPayrollWa(activeCoachForSessionsDetail)"
+            class="btn-secondary" 
+            style="color: #166534; border-color: #86efac; background: #f0fdf4; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+            </svg>
+            <span>Kirim Slip via WhatsApp</span>
+          </button>
+          <div style="display: inline-flex; gap: 8px;">
+            <button 
+              v-if="!activeCoachForSessionsDetail.isTransferred"
+              type="button"
+              @click="showCoachSessionsModal = false; openPayrollTransferModal(activeCoachForSessionsDetail);" 
+              class="btn-primary"
+            >
+              Tandai Ditransfer
+            </button>
+            <button type="button" @click="showCoachSessionsModal = false" class="btn-secondary">
+              Tutup
+            </button>
+          </div>
         </div>
       </div>
     </div>

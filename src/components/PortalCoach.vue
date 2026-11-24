@@ -723,8 +723,22 @@
           <h2 class="page-title">Pendapatan & Honor Mengajar</h2>
           <p class="page-sub">Rekapitulasi honor mengajar terakumulasi otomatis per siswa per sesi selesai berdasarkan master tarif kelas.</p>
         </div>
-        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-          <select v-model="earningsSelectedMonth" class="form-select" style="min-width: 140px; font-weight: 600;">
+      </div>
+
+      <!-- Integrated Header & Filter Toolbar -->
+      <div class="finance-toolbar">
+        <div class="finance-toolbar-info">
+          <h3>Ringkasan Honor Mengajar Saya</h3>
+          <p>Akumulasi fee honor mengajar per sesi murid yang berhasil diselesaikan dan status pencairannya.</p>
+        </div>
+        <div class="finance-filter-group">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          <select v-model="earningsSelectedMonth" class="finance-filter-select">
             <option :value="0">Semua Bulan</option>
             <option :value="1">Januari</option>
             <option :value="2">Februari</option>
@@ -739,7 +753,7 @@
             <option :value="11">November</option>
             <option :value="12">Desember</option>
           </select>
-          <select v-model="earningsSelectedYear" class="form-select" style="min-width: 90px; font-weight: 600;">
+          <select v-model="earningsSelectedYear" class="finance-filter-select">
             <option :value="2026">2026</option>
             <option :value="2027">2027</option>
           </select>
@@ -747,24 +761,24 @@
       </div>
 
       <!-- 3 Executive KPI Cards -->
-      <div class="metrics-grid">
-        <div class="metric-card card-humanist">
-          <div class="metric-icon-wrap teal">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <div class="metrics-grid" style="margin-bottom: 24px;">
+        <div class="metric-card card-humanist accent-teal">
+          <div class="metric-icon-box teal">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
               <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
             </svg>
           </div>
           <div class="metric-data">
-            <span class="metric-lbl">Total Siswa-Sesi Selesai</span>
-            <strong class="metric-val">{{ coachEarningsData.totalSessions }} Sesi</strong>
+            <span class="metric-lbl">Total Sesi Selesai</span>
+            <strong class="metric-val">{{ coachEarningsData.totalSessions }} Sesi Murid</strong>
             <span class="metric-sub text-teal">Valid Terverifikasi</span>
           </div>
         </div>
 
-        <div class="metric-card card-humanist">
-          <div class="metric-icon-wrap green">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <div class="metric-card card-humanist accent-green">
+          <div class="metric-icon-box green">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <line x1="12" y1="1" x2="12" y2="23"></line>
               <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
             </svg>
@@ -776,13 +790,12 @@
           </div>
         </div>
 
-        <div class="metric-card card-humanist">
-          <div class="metric-icon-wrap" :class="coachEarningsData.isTransferred ? 'green' : 'gold'">
-            <svg v-if="coachEarningsData.isTransferred" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-              <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        <div class="metric-card card-humanist" :class="coachEarningsData.isTransferred ? 'accent-green' : 'accent-gold'">
+          <div class="metric-icon-box" :class="coachEarningsData.isTransferred ? 'green' : 'gold'">
+            <svg v-if="coachEarningsData.isTransferred" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <polyline points="20 6 9 17 4 12"></polyline>
             </svg>
-            <svg v-else width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
               <circle cx="12" cy="12" r="10"></circle>
               <polyline points="12 6 12 12 16 14"></polyline>
             </svg>
@@ -790,12 +803,14 @@
           <div class="metric-data">
             <span class="metric-lbl">Status Pencairan Manajemen</span>
             <div style="margin-top: 4px;">
-              <span v-if="coachEarningsData.isTransferred" class="badge-chip green">
-                Sudah Ditransfer
-              </span>
-              <span v-else class="badge-chip gold">
-                Menunggu Transfer
-              </span>
+              <div v-if="coachEarningsData.isTransferred" class="status-dot-pill success">
+                <span class="dot"></span>
+                <span>Sudah Ditransfer</span>
+              </div>
+              <div v-else class="status-dot-pill waiting">
+                <span class="dot"></span>
+                <span>Menunggu Transfer</span>
+              </div>
             </div>
             <span class="metric-sub" v-if="coachEarningsData.isTransferred && coachEarningsData.transferredAt">
               Ditransfer: {{ coachEarningsData.transferredAt }}
@@ -822,10 +837,10 @@
       </div>
 
       <!-- Table of Sessions Breakdown -->
-      <div class="card-humanist" style="padding: 0; overflow: hidden;">
-        <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
+      <div class="card-humanist" style="padding: 0; overflow: hidden; border: 1px solid #e2e8f0; border-radius: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+        <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; background: #fafafa;">
           <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: #0f172a;">Rincian Sesi Mengajar & Honor per Murid</h3>
-          <span style="font-size: 12.5px; color: #64748b;">{{ coachEarningsData.sessions.length }} Sesi Tercatat</span>
+          <span class="badge-chip gold">{{ coachEarningsData.sessions.length }} Sesi Tercatat</span>
         </div>
 
         <div v-if="coachEarningsData.sessions.length === 0" style="padding: 40px 20px; text-align: center; color: #94a3b8;">
@@ -856,7 +871,7 @@
                 <th>Lokasi Fasilitas</th>
                 <th>Honor Coach</th>
                 <th>Status Sesi</th>
-                <th style="text-align: right;">Aksi</th>
+                <th style="text-align: right; padding-right: 20px;">Aksi</th>
               </tr>
             </thead>
             <tbody>

@@ -861,17 +861,15 @@
             <span>Geser tabel ke samping untuk melihat rincian kolom & aksi lengkap</span>
           </div>
 
-          <div class="table-responsive" style="overflow-x: auto; -webkit-overflow-scrolling: touch;">
-          <table class="data-table" style="min-width: 820px; width: 100%;">
+          <div class="table-responsive">
+          <table class="data-table">
             <thead>
               <tr>
                 <th>Waktu & Sesi</th>
-                <th>Siswa Binaan</th>
-                <th>Paket / Kelas</th>
+                <th>Siswa & Paket</th>
                 <th>Lokasi Fasilitas</th>
                 <th>Honor Coach</th>
-                <th>Status Sesi</th>
-                <th style="text-align: right; padding-right: 20px;">Aksi</th>
+                <th style="text-align: right;">Aksi</th>
               </tr>
             </thead>
             <tbody>
@@ -882,10 +880,10 @@
                 </td>
                 <td>
                   <div style="font-weight: 700; color: #0f172a; font-size: 13.5px;">{{ ses.studentName }}</div>
-                  <div style="font-size: 11.5px; color: #64748b;">Sesi ke-{{ ses.sessionNo }}</div>
-                </td>
-                <td>
-                  <span class="badge-chip teal" style="font-size: 11px;">{{ ses.packageName }}</span>
+                  <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+                    <span class="badge-chip teal mini">{{ ses.packageName }}</span>
+                    <span style="font-size: 11px; color: #64748b;">Sesi #{{ ses.sessionNo }}</span>
+                  </div>
                 </td>
                 <td>
                   <div style="display: flex; align-items: center; gap: 4px; font-size: 12.5px; color: #334155;">
@@ -896,21 +894,18 @@
                 <td>
                   <strong style="color: #16a34a; font-size: 14px;">{{ formatRupiah(ses.coachFee) }}</strong>
                 </td>
-                <td>
-                  <span class="badge-chip green" style="font-size: 11px;">{{ ses.status }}</span>
-                </td>
                 <td style="text-align: right;">
                   <button 
                     @click="openCoachEarningsDetailModal(ses)"
-                    class="btn-secondary btn-sm"
-                    style="padding: 5px 12px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;"
+                    class="btn-primary btn-sm"
+                    style="padding: 5px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px;"
                     title="Lihat rincian sesi murid & honor"
                   >
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                       <circle cx="12" cy="12" r="3"></circle>
                     </svg>
-                    <span>Detail Sesi</span>
+                    <span>Lihat Detail</span>
                   </button>
                 </td>
               </tr>

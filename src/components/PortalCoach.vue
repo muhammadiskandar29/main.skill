@@ -837,12 +837,7 @@
       </div>
 
       <!-- Table of Sessions Breakdown -->
-      <div class="card-humanist" style="padding: 0; overflow: hidden; border: 1px solid #e2e8f0; border-radius: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
-        <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; background: #fafafa;">
-          <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: #0f172a;">Rincian Sesi Mengajar & Honor per Murid</h3>
-          <span class="badge-chip gold">{{ coachEarningsData.sessions.length }} Sesi Tercatat</span>
-        </div>
-
+      <div class="card-humanist table-wrap">
         <div v-if="coachEarningsData.sessions.length === 0" style="padding: 40px 20px; text-align: center; color: #94a3b8;">
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" stroke-width="1.5" style="margin: 0 auto 12px auto; display: block;">
             <rect x="2" y="5" width="20" height="14" rx="2"></rect>
@@ -852,69 +847,57 @@
           <p style="margin: 0; font-size: 13px;">Honor akan otomatis dihitung saat Anda menyelesaikan sesi bimbingan bersama murid.</p>
         </div>
 
-        <div v-else>
-          <!-- Mobile Scroll Hint -->
-          <div class="mobile-scroll-hint">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="9 18 15 12 9 6"></polyline>
-            </svg>
-            <span>Geser tabel ke samping untuk melihat rincian kolom & aksi lengkap</span>
-          </div>
-
-          <div class="table-responsive">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Waktu & Sesi</th>
-                <th>Siswa & Paket</th>
-                <th>Lokasi Fasilitas</th>
-                <th>Honor Coach</th>
-                <th style="text-align: right;">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="ses in coachEarningsData.sessions" :key="ses.scheduleId || ses.id">
-                <td>
-                  <div style="font-weight: 600; color: #0f172a; font-size: 13px;">{{ ses.date }}</div>
-                  <div style="font-size: 11.5px; color: #64748b; font-family: monospace;">{{ ses.time }}</div>
-                </td>
-                <td>
-                  <div style="font-weight: 700; color: #0f172a; font-size: 13.5px;">{{ ses.studentName }}</div>
-                  <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
-                    <span class="badge-chip teal mini">{{ ses.packageName }}</span>
-                    <span style="font-size: 11px; color: #64748b;">Sesi #{{ ses.sessionNo }}</span>
-                  </div>
-                </td>
-                <td>
-                  <div style="display: flex; align-items: center; gap: 4px; font-size: 12.5px; color: #334155;">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                    <span>{{ ses.location }}</span>
-                  </div>
-                </td>
-                <td>
-                  <strong style="color: #16a34a; font-size: 14px;">{{ formatRupiah(ses.coachFee) }}</strong>
-                </td>
-                <td style="text-align: right;">
-                  <button 
-                    @click="openCoachEarningsDetailModal(ses)"
-                    class="btn-primary btn-sm"
-                    style="padding: 5px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 4px;"
-                    title="Lihat rincian sesi murid & honor"
-                  >
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                      <circle cx="12" cy="12" r="3"></circle>
-                    </svg>
-                    <span>Lihat Detail</span>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+        <table v-else class="simple-table">
+          <thead>
+            <tr>
+              <th>Waktu & Sesi</th>
+              <th>Siswa & Paket</th>
+              <th>Lokasi Fasilitas</th>
+              <th>Honor Coach</th>
+              <th style="text-align: right;">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="ses in coachEarningsData.sessions" :key="ses.scheduleId || ses.id">
+              <td>
+                <div style="font-weight: 600; color: #0f172a; font-size: 13px;">{{ ses.date }}</div>
+                <div style="font-size: 11.5px; color: #64748b; font-family: monospace;">{{ ses.time }}</div>
+              </td>
+              <td>
+                <div style="font-weight: 700; color: #0f172a; font-size: 13.5px;">{{ ses.studentName }}</div>
+                <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+                  <span class="badge-chip teal mini">{{ ses.packageName }}</span>
+                  <span style="font-size: 11px; color: #64748b;">Sesi #{{ ses.sessionNo }}</span>
+                </div>
+              </td>
+              <td>
+                <div style="display: flex; align-items: center; gap: 4px; font-size: 12.5px; color: #334155;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                  <span>{{ ses.location }}</span>
+                </div>
+              </td>
+              <td>
+                <strong style="color: #16a34a; font-size: 14px;">{{ formatRupiah(ses.coachFee) }}</strong>
+              </td>
+              <td style="text-align: right;">
+                <button 
+                  @click="openCoachEarningsDetailModal(ses)"
+                  class="btn-info-xs"
+                  style="padding: 5px 12px; font-size: 12px; font-weight: 700; background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;"
+                  title="Lihat rincian sesi murid & honor"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                  <span>Detail</span>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
-  </div>
 
     <!-- MODAL DETAIL SESI HONOR COACH -->
     <div v-if="showCoachEarningsDetailModal && activeCoachEarningsDetail" class="modal-backdrop" @click.self="showCoachEarningsDetailModal = false">

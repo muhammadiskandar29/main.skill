@@ -2099,80 +2099,56 @@ function cekMutasiBankGmail() {
       </div>
 
       <!-- Table Payroll Coach -->
-      <div class="card-humanist" style="padding: 0; overflow: hidden; border: 1px solid #e2e8f0; border-radius: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
-        <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; background: #fafafa;">
-          <div>
-            <h3 style="margin: 0; font-size: 15px; font-weight: 700; color: #0f172a;">Daftar Rekapitulasi Honor & Payroll Pelatih</h3>
-            <span style="font-size: 12.5px; color: #64748b;">Periode: {{ getMonthName(payrollSelectedMonth) }} {{ payrollSelectedYear }}</span>
-          </div>
-          <span class="badge-chip gold">{{ (managementFinanceSummary.coachesBreakdown || managementFinanceSummary.coachSummaries || []).length }} Coach Terdaftar</span>
-        </div>
-
-        <!-- Mobile Scroll Hint -->
-        <div class="mobile-scroll-hint">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="9 18 15 12 9 6"></polyline>
-          </svg>
-          <span>Geser tabel ke samping untuk melihat rincian kolom & aksi lengkap</span>
-        </div>
-
-        <div class="table-responsive">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Instruktur / Coach</th>
-                <th>Sesi Selesai</th>
-                <th>Total Honor</th>
-                <th>Status Pembayaran</th>
-                <th style="text-align: right;">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="coachItem in (managementFinanceSummary.coachesBreakdown || managementFinanceSummary.coachSummaries || [])" :key="coachItem.coachId">
-                <td>
-                  <div style="display: flex; align-items: center; gap: 10px;">
-                    <img :src="coachItem.avatar || coachItem.coachAvatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120'" alt="Avatar" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 1px solid #e2e8f0; flex-shrink: 0;" />
-                    <div>
-                      <strong style="font-size: 13.5px; color: #0f172a; display: block;">{{ coachItem.coachName }}</strong>
-                      <span style="font-size: 11.5px; color: #64748b; display: block;">{{ coachItem.specialty }}</span>
-                    </div>
+      <div class="card-humanist table-wrap">
+        <table class="leads-table">
+          <thead>
+            <tr>
+              <th>Instruktur / Coach</th>
+              <th>Sesi Selesai</th>
+              <th>Total Honor</th>
+              <th>Status Pembayaran</th>
+              <th class="text-right">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="coachItem in (managementFinanceSummary.coachesBreakdown || managementFinanceSummary.coachSummaries || [])" :key="coachItem.coachId">
+              <td>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                  <img :src="coachItem.avatar || coachItem.coachAvatar || 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=120'" alt="Avatar" style="width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 1px solid #e2e8f0; flex-shrink: 0;" />
+                  <div>
+                    <strong style="font-size: 13.5px; color: #0f172a; display: block;">{{ coachItem.coachName }}</strong>
+                    <div class="sub-cell-txt">{{ coachItem.specialty }}</div>
                   </div>
-                </td>
-                <td>
-                  <strong style="font-size: 13.5px; color: #0f172a;">{{ coachItem.completedSessionsCount || coachItem.totalStudentSessions || 0 }} Sesi</strong>
-                  <span style="font-size: 11.5px; color: #64748b; display: block;">Tervalidasi</span>
-                </td>
-                <td>
-                  <strong style="color: #16a34a; font-size: 14px;">{{ formatRupiah(coachItem.totalHonor) }}</strong>
-                </td>
-                <td>
-                  <div v-if="coachItem.isTransferred" class="status-dot-pill success">
-                    <span class="dot"></span>
-                    <span>Sudah Ditransfer</span>
-                  </div>
-                  <div v-else class="status-dot-pill waiting">
-                    <span class="dot"></span>
-                    <span>Menunggu Transfer</span>
-                  </div>
-                </td>
-                <td style="text-align: right;">
-                  <button 
-                    @click="openCoachSessionsDetail(coachItem)"
-                    class="btn-primary btn-sm"
-                    style="padding: 5px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 5px;"
-                    title="Lihat Rincian Sesi & Kelola Transfer"
-                  >
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                      <circle cx="12" cy="12" r="3"></circle>
-                    </svg>
-                    <span>Lihat Detail</span>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+                </div>
+              </td>
+              <td>
+                <strong>{{ coachItem.completedSessionsCount || coachItem.totalStudentSessions || 0 }} Sesi</strong>
+                <div class="sub-cell-txt">Tervalidasi selesai</div>
+              </td>
+              <td>
+                <strong class="color-primary" style="font-size: 14.5px;">{{ formatRupiah(coachItem.totalHonor) }}</strong>
+              </td>
+              <td>
+                <span class="badge-chip" :class="coachItem.isTransferred ? 'green' : 'gold'">
+                  {{ coachItem.isTransferred ? 'Lunas (Verified)' : 'Menunggu Transfer' }}
+                </span>
+                <div v-if="coachItem.isTransferred && coachItem.transferInfo" class="sub-cell-txt" style="margin-top: 3px;">
+                  {{ coachItem.transferInfo.transferredAt }}
+                </div>
+              </td>
+              <td class="text-right">
+                <button 
+                  @click="openCoachSessionsDetail(coachItem)"
+                  class="btn-info-xs"
+                  style="padding: 5px 14px; font-size: 12px; font-weight: 700; background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;"
+                  title="Lihat Rincian Sesi & Kelola Transfer"
+                >
+                  <span>Detail</span>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
@@ -2207,82 +2183,66 @@ function cekMutasiBankGmail() {
       </div>
 
       <!-- Table of Packages Tariff -->
-      <div class="card-humanist" style="padding: 0; overflow: hidden; border: 1px solid #e2e8f0; border-radius: 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
-        <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; background: #fafafa;">
-          <h4 style="margin: 0; font-size: 15px; font-weight: 700; color: #0f172a;">Daftar Kelas, Tarif Siswa, & Alokasi Honor Coach</h4>
-          <span class="badge-chip gold">{{ store.packages.length }} Kelas Terdaftar</span>
-        </div>
-
-        <!-- Mobile Scroll Hint -->
-        <div class="mobile-scroll-hint">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="9 18 15 12 9 6"></polyline>
-          </svg>
-          <span>Geser tabel ke samping untuk melihat rincian kolom & aksi lengkap</span>
-        </div>
-
-        <div class="table-responsive">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>Program / Paket</th>
-                <th>Harga Paket</th>
-                <th>Honor Coach / Sesi</th>
-                <th>Laba Bersih Manajemen</th>
-                <th style="text-align: right;">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="pkg in store.packages" :key="pkg.id">
-                <td>
-                  <strong style="color: #0f172a; font-size: 13.5px; display: block;">{{ pkg.name }}</strong>
-                  <div style="display: flex; align-items: center; gap: 6px; margin-top: 3px;">
-                    <span class="badge-chip teal mini">{{ pkg.sessionsCount || 4 }} Sesi</span>
-                    <span style="font-size: 11.5px; color: #64748b;">{{ pkg.category || 'Reguler' }}</span>
-                  </div>
-                </td>
-                <td>
-                  <strong style="color: #0f172a; font-size: 13.5px;">{{ formatRupiah(pkg.price) }}</strong>
-                  <span style="font-size: 11px; color: #64748b; display: block; margin-top: 1px;">
-                    {{ formatRupiah(Math.round(pkg.price / (pkg.sessionsCount || 4))) }} / sesi
-                  </span>
-                </td>
-                <td>
-                  <strong style="color: #16a34a; font-size: 14px;">
-                    {{ formatRupiah(pkg.coachFeePerStudentSession || 40000) }}
-                  </strong>
-                  <span style="font-size: 11px; color: #64748b; display: block; margin-top: 1px;">per murid / sesi</span>
-                </td>
-                <td>
-                  <div style="font-weight: 700; color: #0284c7; font-size: 13.5px;">
-                    {{ formatRupiah(Math.round(pkg.price / (pkg.sessionsCount || 4)) - (pkg.coachFeePerStudentSession || 40000)) }}
-                  </div>
+      <div class="card-humanist table-wrap">
+        <table class="leads-table">
+          <thead>
+            <tr>
+              <th>Program & Paket Kursus</th>
+              <th>Harga Jual Paket</th>
+              <th>Honor Coach / Sesi</th>
+              <th>Laba Bersih Manajemen</th>
+              <th class="text-right">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="pkg in store.packages" :key="pkg.id">
+              <td>
+                <strong style="color: #0f172a; font-size: 13.5px; display: block;">{{ pkg.name }}</strong>
+                <div class="sub-cell-txt" style="margin-top: 2px;">
+                  <span class="badge-chip teal mini">{{ pkg.sessionsCount || 4 }} Sesi</span>
+                  <span style="margin-left: 6px;">{{ pkg.category || 'Reguler' }}</span>
+                </div>
+              </td>
+              <td>
+                <strong style="color: #0f172a; font-size: 13.5px;">{{ formatRupiah(pkg.price) }}</strong>
+                <div class="sub-cell-txt">{{ formatRupiah(Math.round(pkg.price / (pkg.sessionsCount || 4))) }} / sesi</div>
+              </td>
+              <td>
+                <strong class="color-primary" style="font-size: 14px;">
+                  {{ formatRupiah(pkg.coachFeePerStudentSession || 40000) }}
+                </strong>
+                <div class="sub-cell-txt">per murid / sesi</div>
+              </td>
+              <td>
+                <strong style="color: #0284c7; font-size: 13.5px;">
+                  {{ formatRupiah(Math.round(pkg.price / (pkg.sessionsCount || 4)) - (pkg.coachFeePerStudentSession || 40000)) }}
+                </strong>
+                <div style="margin-top: 3px;">
                   <span 
                     class="badge-chip mini" 
                     :class="(Math.round(pkg.price / (pkg.sessionsCount || 4)) - (pkg.coachFeePerStudentSession || 40000)) >= 0 ? 'teal' : 'gold'"
-                    style="margin-top: 3px; display: inline-block;"
                   >
                     {{ Math.round(((Math.round(pkg.price / (pkg.sessionsCount || 4)) - (pkg.coachFeePerStudentSession || 40000)) / Math.max(1, Math.round(pkg.price / (pkg.sessionsCount || 4)))) * 100) }}% Margin
                   </span>
-                </td>
-                <td style="text-align: right;">
-                  <button 
-                    @click="openEditCoachFeeModal(pkg)"
-                    class="btn-primary btn-sm"
-                    style="padding: 5px 12px; font-size: 12px; display: inline-flex; align-items: center; gap: 5px;"
-                    title="Ubah Tarif Honor Coach & Margin"
-                  >
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 20h9"></path>
-                      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                    </svg>
-                    <span>Atur Tarif</span>
-                  </button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+                </div>
+              </td>
+              <td class="text-right">
+                <button 
+                  @click="openEditCoachFeeModal(pkg)"
+                  class="btn-info-xs"
+                  style="padding: 5px 12px; font-size: 12px; font-weight: 700; background: #e0f2fe; color: #0284c7; border: 1px solid #bae6fd; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px;"
+                  title="Ubah Tarif Honor Coach & Margin"
+                >
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 20h9"></path>
+                    <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                  </svg>
+                  <span>Atur Tarif</span>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
